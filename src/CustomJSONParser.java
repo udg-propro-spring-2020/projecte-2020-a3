@@ -5,7 +5,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class CustomJSONParser {
-    /// @pre Las char read was {
+    /// @pre Last char read was {
+    /// @post Returns a map of the object read 
     public static Map<Object, Object> parseToMap(Scanner fr) {
         if (fr.hasNextLine()) {
             // Beginning of object
@@ -49,6 +50,8 @@ public class CustomJSONParser {
         return null;
     }
 
+    /// @pre Last char read was [
+    /// @post Returns a list of the array read 
     public static List<Object> parseArray(Scanner fr) {
         if (fr.hasNextLine()) {
             String aux = fr.nextLine().trim().replace(",", "");
