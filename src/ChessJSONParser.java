@@ -1,3 +1,7 @@
+/*
+ * @author Miquel de Domingo i Giralt
+ */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
