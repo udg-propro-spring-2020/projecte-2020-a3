@@ -31,7 +31,7 @@ public class ConsoleGame {
 		System.out.println("|    1. Partida normal                 |");
 		System.out.println("|    2. Entrar partida configurada     |");
 		System.out.println("|    3. Entrar una partida carregada   |");
-		System.out.println("|    0. Sortir						   |");
+		System.out.println("|    0. Sortir                         |");
 		System.out.println("|                                      |");
 		System.out.println("+--------------------------------------+");
 
@@ -39,9 +39,11 @@ public class ConsoleGame {
 		final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 		try {
+			System.out.println("Opció: ");
 			int option = in.nextInt();
 			while (!VALID_OPTIONS.contains(option)) {
-				System.out.println("Opció no correcte. Entra una opció: ");
+				System.out.println("Opció no correcte");
+				System.out.println("Opció: ");
 				option = in.nextInt();
 			}
 			in.close();
@@ -49,10 +51,16 @@ public class ConsoleGame {
 			switch (option) {
 				case 1:
 					System.out.println("Creant una partida normal...");
+					// play(new Chess(/* Ubicació normes per defecte */));
+					break;
 				case 2:
-					configuredChessGame();
+					System.out.println("Creant una partida personalitzada...");
+					// configuredChessGame();
+					break;
 				case 3:
-					loadChessGame();
+					System.out.println("Carregant una partida guardad...");
+					// loadChessGame();
+					break;
 				default:
 					System.out.println("Sortint de l'aplicació...");
 					break;
