@@ -12,8 +12,8 @@ public class Chess {
     private Piece[][] board;
     
     //Per ajudar amb coneixement / CPU
-    private ArrayList<Piece> pListBlanques;
-    private ArrayList<Piece> pListNegres;
+    private ArrayList<Piece> pListWhites;
+    private ArrayList<Piece> pListBlacks;
 
     Chess(int rows, int cols, int chessLimits, int inactiveLimits, ArrayList<Piece> pList, ArrayList<String> initPositions, ArrayList<Castling> castlings) {
         this.rows = rows;
@@ -24,8 +24,8 @@ public class Chess {
         this.initPositions = initPositions;
         this.castlings = castlings;
         
-        pListBlanques = new ArrayList<Piece>();
-        pListNegres = new ArrayList<Piece>();
+        pListWhites = new ArrayList<Piece>();
+        pListBlacks = new ArrayList<Piece>();
        
         if (this.rows < 4 || this.cols < 4 || this.cols > 16 || this.rows > 16)
                 throw new RuntimeException("El nombre de files i columnes ha de ser entre 4 i 16");
@@ -86,8 +86,8 @@ public class Chess {
             while(!found && j < pList.size()){
                 if(pList.get(j).name().equals(initPositions.get(i))){
                     initialPieces.add(pList.get(j));
-                    pListBlanques.add(pList.get(j));
-                    pListNegres.add(pList.get(j));
+                    pListWhites.add(pList.get(j));
+                    pListBlacks.add(pList.get(j));
                     found = true;
                 }
                 j++;
