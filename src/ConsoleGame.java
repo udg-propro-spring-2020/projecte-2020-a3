@@ -3,7 +3,12 @@
  */
 
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /* 
@@ -12,43 +17,155 @@ import java.io.IOException;
  */
 public class ConsoleGame {
 	/*
+	 * @brief Shows a menu asking how to start a game
+	 * 
+	 * @pre ---
+	 * 
+	 * @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
+	 * with modified rules (enter filename) 3. Enter a saved game
+	 */
+	public static void start() {
+		System.out.println("+---------------- MENU ----------------+");
+		System.out.println("|                                      |");
+		System.out.println("|  Escull una opcio (num):             |");
+		System.out.println("|    1. Partida normal                 |");
+		System.out.println("|    2. Entrar partida configurada     |");
+		System.out.println("|    3. Entrar una partida carregada   |");
+		System.out.println("|    0. Sortir						   |");
+		System.out.println("|                                      |");
+		System.out.println("+--------------------------------------+");
+
+		Scanner in = new Scanner(System.in);
+		final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
+
+		try {
+			int option = in.nextInt();
+			while (!VALID_OPTIONS.contains(option)) {
+				System.out.println("Opció no correcte. Entra una opció: ");
+				option = in.nextInt();
+			}
+			in.close();
+
+			switch (option) {
+				case 1:
+					System.out.println("Creant una partida normal...");
+				case 2:
+					configuredChessGame();
+				case 3:
+					loadChessGame();
+				default:
+					System.out.println("Sortint de l'aplicació...");
+					break;
+			}
+		} catch (Exception e) {
+			System.out.println("Error d'entrada d'opció. Ha de ser un enter dels mostrats en el menú.");
+		}
+	}
+
+	private static void configuredChessGame() {
+		System.out.println("[Escriu EXIT per sortir]");
+		System.out.println("Entra el nom del fitxer amb la configuració: ");
+		Scanner in = new Scanner(System.in);
+		String fileLocation = in.nextLine();
+		boolean validFileLocation = false;
+
+		do {
+			try {
+				if (fileLocation.toUpperCase().equals("EXIT")) {
+					System.out.println("Sortint de l'aplicació");
+				} else {
+					Chess c = ChessJSONParser.buildChess(fileLocation);
+					/// If it gets here, there will be no exception of file not found
+					validFileLocation = true;
+
+					/// Start game
+					play(c);
+				}
+			} catch (FileNotFoundException e) {
+				/// Keep asking for files
+				System.out.print("Nom del fitxer no vàlid.");
+				System.out.print("Entra el nom del fitxer amb la configuració: ");
+			} catch (IOException e) {
+				System.out.print("Error en l'entrada per teclat.");
+			}
+		} while (!validFileLocation);
+		in.close();
+	}
+
+	private static void loadChessGame() {
+		System.out.println("[Escriu EXIT per sortir]");
+		System.out.println("Entra el nom del fitxer amb la partida guardada: ");
+		Scanner in = new Scanner(System.in);
+		String fileLocation = in.nextLine();
+		boolean validFileLocation = false;
+
+		do {
+			try {
+				if (fileLocation.toUpperCase().equals("EXIT")) {
+					System.out.println("Sortint de l'aplicació");
+				} else {
+					// TODO: Load saved game
+					Chess c = ChessJSONParser.buildChess(fileLocation);
+					/// If it gets here, there will be no exception of file not found
+					validFileLocation = true;
+
+					/// Start game
+					play(c);
+				}
+			} catch (FileNotFoundException e) {
+				/// Keep asking for files
+				System.out.print("Nom del fitxer no vàlid.");
+				System.out.print("Entra el nom del fitxer amb la partida guardada: ");
+			} catch (IOException e) {
+				System.out.print("Error en l'entrada per teclat.");
+			}
+		} while (!validFileLocation);
+		in.close();
+	}
+
+	/*
 	 * @brief Function that controls the game flow while it has not finished.
+	 * 
 	 * @pre Chess is loaded.
-	 * @post While the game has not finished nor been saved, will keep asking for turns.
-	 *       Once it has finished, prints who the winner is.
+	 * 
+	 * @post While the game has not finished nor been saved, will keep asking for
+	 * turns. Once it has finished, prints who the winner is.
 	 */
 	public static void play(Chess c) throws IOException {
 		Position origin = null;
-		Position destiny = null;
+		Position dest = null;
 		int rows = c.rows();
 		int cols = c.cols();
+
 		System.out.println("\nESCACS\n");
 		do {
 			System.out.println();
 			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols);
 			if (origin != null) {
-				destiny = readMovement("Coordenada destí  (ex. a6): ", rows, cols);
-				if (destiny != null) {
-					Pair<Boolean, Position> r = c.checkMovement(origin, destiny);
+				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols);
+				if (dest != null) {
+					Pair<Boolean, Position> r = c.checkMovement(origin, dest);
 					if (r.first) {
-						c.applyMovement(origin, destiny, r.second);
+						c.applyMovement(origin, dest, r.second);
 						System.out.println(c.showBoard());
 					} else {
 						System.out.println("\nMoviment incorrecte!");
 					}
 				}
 			}
-		} while (origin != null && destiny != null);
+		} while (origin != null && dest != null);
+
+		// TODO: Handle end of game
 	}
 
 	/**
-	 * @brief Reads a chess positions.
+	 * @brief Reads a chess position.
 	 * @pre ---
-	 * @post Prints the text held in t and reads positions like CN in which 
-	 *       C is a char (column of the chess table) and N a number (row of 
-	 *       the chess table). While this positions is not valid it will keep asking
-	 *	 for positions. If the coordinate is valid returns the position and if
-	 *	 it is an X, returns a null position.
+	 * @post Prints the text held in t and reads positions like CN in which C is a
+	 *       char (column of the chess table) and N a number (row of the chess
+	 *       table). While this positions is not valid it will keep asking for
+	 *       positions. If the coordinate is valid returns the position and if it is
+	 *       an X, returns a null position.
 	 */
 	private static Position readMovement(String t, int rows, int cols) throws IOException {
 		InputStreamReader isr = new InputStreamReader(System.in);
@@ -84,5 +201,3 @@ public class ConsoleGame {
 		return p;
 	}
 }
-
-	
