@@ -7,10 +7,6 @@ import javafx.application.Application;
  * and open the template in the editor.
  */
 
-/**
- *
- * @author cacer
- */
 public abstract class ChessGame {
 	/*
 	 * @pre args is [-g] or [-c] and [gameRules.json]
