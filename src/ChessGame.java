@@ -14,33 +14,43 @@ import javafx.application.Application;
 public abstract class ChessGame {
 	/*
 	 * @pre args is [-g] or [-c] and [gameRules.json]
+	 * 
 	 * @post Runs UI if -g or console if -c
 	 */
 	public static void main(String[] args) {
-		/*try {
-			if (args.length == 2) {
-				if (args[0].equals("-g")) {
-					/// Run UI Application
-					/// File validation ?
-					Application.launch(UIGame.class, args);
-				} else if (args[0].equals("-c")) {
-					/// File validation ?
-					ConsoleGame.play(new Chess(args[1]));//Passar params
-				} else {
-					_help();
+		try {
+			/// Length == 2 -> mode + configuration file location
+			/// Length == 1 -> mode
+			if (args[0].equals("-g")) {
+				/// Run UI Application - Ask for files when screen opens.
+				Application.launch(UIChess.java, null);
+			} else if (args[0].equals("-c")) {
+				switch (args.length) {
+					case 1:
+						/// Run game with default configuration
+						ConsoleGame.play(ChessJSONParser.buildChess(/* DEFAULT FILE LOCATION */));
+						break;
+					case 2:
+						/// Build Chess with the given configuration
+						ConsoleGame.play(ChessJSONParser.buildChess(args[1]));
+						break;
+					default:
+						_displayError();
+						break;
 				}
 			} else {
-				System.out.println("\nIncorrect arguments number.");
-				_help();
+				_displayError();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			/// Class constructors can return exception if file not found.
-			System.out.printl(e.showMessage());
+			System.out.println(e.getMessage());
 			e.printStackTrace();
-		}*/
+		}
 	}
 
-	private static void _help() {
-		System.out.println("\nGame can be run with user interface [-g] or in the console [-c]. \nYour arguments were not valid.");
+	private static void _displayError() {
+		System.out.println("\nIncorrect arguments number.");
+		System.out.println(
+				"\nGame can be run with user interface [-g] or in the console [-c]. \nYour arguments were not valid.");
 	}
 }
