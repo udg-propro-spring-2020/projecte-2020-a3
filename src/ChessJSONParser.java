@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -9,18 +8,6 @@ import java.util.Scanner;
  * @brief Parses the given file with the chess configuration to a chess object
  */
 public class ChessJSONParser {
-
-    public static void main(String[] args) throws IOException {
-        try {
-            Chess c = buildChess("src/test.json");
-            System.out.println("\n**** RESULT ****");
-            ConsoleGame.juga(c);
-            //System.out.println(c);
-        } catch (FileNotFoundException f) {
-            System.out.println(f.getMessage());
-        }
-    }
-
     /// @pre ---
     /// @post Creates a chess game with the given configuration
     public static Chess buildChess(String fileLocation) throws FileNotFoundException {
