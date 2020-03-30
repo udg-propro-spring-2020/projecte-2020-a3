@@ -1,18 +1,18 @@
-/** @file Coneixament.java
-    @brief Coneixament de partides guanyadores.
+/** @file Knowledge.java
+    @brief Coneixement de partides guanyadores.
  */
 
 /**
-    @class Coneixament
+    @class Knowledge
     @brief Implementació d'una estructura per guardar per diferents (regles de moment no) 
     de joc les situacions dels taulers conjuntament amb les seves diferents
     tirades guanyadores.
  */
 
-public class Coneixament{
+public class Knowledge{
 
     private Node _actual;                   ///< Node actual de la sequencia de tirades guanyadores que s'està seguin
-    private Map<Escacs,Node> _coneixament;  ///< Map per guardar per cada situacio del tauler la seva sequencia de tirades guanyadores
+    private Map<Escacs,Node> _knowledge;  ///< Map per guardar per cada situacio del tauler la seva sequencia de tirades guanyadores
 
     private class Node{
         private Pair<Posicio,Posicio> _tiradaGuanyadora;    ///< Tirada guanyadora
@@ -26,12 +26,12 @@ public class Coneixament{
         }
     }
 
-    /** @brief Crea el coneixament
+    /** @brief Crea el coneixement
     @pre --
-    @post Es crea el coneixament.
+    @post Es crea el coneixement.
      */
-    public Coneixament(/* JSON PATH */){
-        _coneixament = new HashMap<Escacs,Node>();
+    public Knowledge(/* JSON PATH */){
+        _knowledge = new HashMap<Escacs,Node>();
         _actual = null;
         /** Es tracta el coneixament i es guarda */
     }
