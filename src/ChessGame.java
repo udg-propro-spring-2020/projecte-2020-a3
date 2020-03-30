@@ -1,16 +1,17 @@
+/*
+ * @author Miquel de Domingo i Giralt
+ */
 
 import javafx.application.Application;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * @class ChessGame
+ * @brief Main class of the application. Handles whereas the app will be
+ *        displayed in a UI or in the console depending on the given arguments
  */
-
 public abstract class ChessGame {
 	/*
 	 * @pre args is [-g] or [-c] and [gameRules.json]
-	 * 
 	 * @post Runs UI if -g or console if -c
 	 */
 	public static void main(String[] args) {
