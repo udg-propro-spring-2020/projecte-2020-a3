@@ -1,21 +1,22 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Chess {
     private int rows;
     private int cols;
     private int chessLimits;
     private int inactiveLimits;
-    private ArrayList<Piece> pList;
-    private ArrayList<String> initPositions;
-    private ArrayList<Castling> castlings;
+    private List<Piece> pList;
+    private List<String> initPositions;
+    private List<Castling> castlings;
     private Piece[][] board;
 
     // Per ajudar amb coneixement / CPU
-    private ArrayList<Piece> pListWhites;
-    private ArrayList<Piece> pListBlacks;
+    private List<Piece> pListWhites;
+    private List<Piece> pListBlacks;
 
-    Chess(int rows, int cols, int chessLimits, int inactiveLimits, ArrayList<Piece> pList,
-            ArrayList<String> initPositions, ArrayList<Castling> castlings) {
+    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions,
+            List<Castling> castlings) {
         this.rows = rows;
         this.cols = cols;
         this.chessLimits = chessLimits;
@@ -41,7 +42,7 @@ public class Chess {
      * les array de peces vives de cada jugador.
      */
     private void createBoard() {
-        ArrayList<Piece> initialPieces = new ArrayList<Piece>();
+        List<Piece> initialPieces = new ArrayList<Piece>();
 
         for (int i = 0; i < initPositions.size(); i++) {
             int j = 0;
@@ -127,7 +128,7 @@ public class Chess {
         int x1 = destiny.row;
         int y1 = destiny.col;
         Piece p = board[x0][y0];
-        ArrayList<Movement> pieceMovements = p.movements();
+        List<Movement> pieceMovements = p.movements();
 
         if (board[x1][y1] != null) {// Hi ha peça al desti?
             enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0], board[x1][y1], enemiePieceOnDestiny);
