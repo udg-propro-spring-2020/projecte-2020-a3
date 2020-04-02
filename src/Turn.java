@@ -3,24 +3,6 @@
  */
 
 /*
- * @brief Describes piece color 
- */
-enum PieceColor { 
-    Black, White;
-
-    @Override
-    public String toString() {
-        switch(this) {
-            case Black:
-                return new String("Black");
-            default:
-                /// What's not black, is white
-                return new String("White");
-        }
-    }
-}
-
-/*
  * @file Turn.java
  * 
  * @class Turn
