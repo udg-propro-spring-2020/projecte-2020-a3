@@ -1,3 +1,12 @@
+/*
+ *@author Miquel de Domingo i Giralt
+ */
+
+/*
+ * @file Movement.java
+ * @class Movement
+ * @brief Holds the information of the movement
+ */
 public class Movement {
     /// @param X Fixed int or a 50 (-50) - meaning anything but 0 -
     private int x;
