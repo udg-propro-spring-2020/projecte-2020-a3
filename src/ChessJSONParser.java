@@ -5,6 +5,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -13,36 +14,87 @@ import java.util.Scanner;
  */
 public class ChessJSONParser {
     /// @pre ---
-    /// @post Creates a chess game with the given configuration
+    /// @post Creates a chess game with the given configuration form the JSON file
     public static Chess buildChess(String fileLocation) throws FileNotFoundException {
-        Scanner fr = new Scanner(new File(fileLocation));
-
+        Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
-        fr.nextLine();
-        int nRows = getInt(fr.nextLine());
-        int nCols = getInt(fr.nextLine());
+        mainSc.nextLine();
+        /// Get the file location
+        String configFileName = getString(mainSc.nextLine());
+
+        /// LOADING FILE CONFIGURATION FROM FILE
+        Scanner configSc = new Scanner(new File(configFileName));
+        /// Skip first {
+        configSc.nextLine();
+        int nRows = getInt(configSc.nextLine());
+        int nCols = getInt(configSc.nextLine());
 
         /// Skip two lines
-        fr.nextLine();
-        fr.nextLine();
-        ArrayList<Piece> pList = getListPieces(fr);
+        configSc.nextLine();
+        configSc.nextLine();
+        List<Piece> pList = getListPieces(configSc);
 
         /// Next two lines
-        fr.nextLine();
-        fr.nextLine();
-        ArrayList<String> initialPos = getListPositions(fr);
+        configSc.nextLine();
+        configSc.nextLine();
+        List<String> initialPos = getListStrings(configSc); // ? Needed
 
-        int chessLimits = getInt(fr.nextLine());
-        int inactiveLimits = getInt(fr.nextLine());
+        int chessLimits = getInt(configSc.nextLine());
+        int inactiveLimits = getInt(configSc.nextLine());
 
         /// Castlings
-        ArrayList<Castling> castlings = new ArrayList<>();
-        if (!getString(fr.nextLine()).equals("[]")) {
+        List<Castling> castlings = new ArrayList<>();
+        if (!getString(configSc.nextLine()).equals("[]")) {
             /// If castlings list is not empty
-            castlings = getListCastlings(fr);
+            castlings = getListCastlings(configSc);
         }
 
-        return new Chess(nRows, nCols, chessLimits, inactiveLimits, pList, initialPos, castlings);
+        /// Close scanner
+        configSc.close();
+        /// END OF FILE CONFIGURATION
+
+        /// INITIAL POSITIONS
+        /// Read initial white positions
+        List<Pair<String, String>> whiteInitPos = !getString(mainSc.nextLine()).equals("[]")
+            ? getInitialPositionList(mainSc)            /// If not empty, read the list
+            : new ArrayList<>();                        /// If empty, create an empty list
+        /// Skip ],
+        mainSc.nextLine();
+
+        /// Read initial white positions
+        List<Pair<String, String>> blackInitPos = !getString(mainSc.nextLine()).equals("[]")
+            ? getInitialPositionList(mainSc)            /// If not empty, read the list
+            : new ArrayList<>();                        /// If empty, create an empty list
+        /// Skip ],
+        mainSc.nextLine();
+
+        /// Next turn
+        PieceColor nextTurnColor = getString(mainSc.nextLine())
+            .toLowerCase().equals("blanques") ? PieceColor.White : PieceColor.Black;
+
+        /// Read turns
+        List<Turn> turnList = !getString(mainSc.nextLine()).equals("[]")
+            ? getTurnList(mainSc)                       /// If not empty, read the list
+            : new ArrayList<>();                        /// If empty, create an empty list
+
+        /// Next lines are not necessaruy
+        /// Close scanner
+        mainSc.close();
+
+        /// Create Chess        
+        return new Chess(
+            nRows, 
+            nCols,
+            chessLimits, 
+            inactiveLimits, 
+            pList, 
+            initialPos, 
+            castlings,
+            whiteInitPos,
+            blackInitPos, 
+            nextTurnColor,
+            turnList
+        );
     }
 
     /// @pre s == "x": y
@@ -54,23 +106,25 @@ public class ChessJSONParser {
     }
 
     /// @pre s == "x": "y"
-    /// @post Returns the y value as a String without the double quotes
+    /// @post Returns the y value as a String without the double quotes, commas and
+    /// trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
-        return values[1].trim();
+        return values[1].isEmpty() ? "" : values[1].trim();
     }
 
-    /// @pre Last line read == "["
+    /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
     /// the line where the list ends.
-    private static ArrayList<Movement> getListMovements(Scanner fr) {
+    private static List<Movement> getListMovements(Scanner fr) {
         String s = fr.nextLine().trim();
-        ArrayList<Movement> mList = new ArrayList<>();
+        List<Movement> mList = new ArrayList<>();
         while (!s.equals("]")) {
             if (s.equals("],")) {
                 fr.nextLine();
                 s = fr.nextLine().trim();
             }
+
             /// X
             String aux = s.replace("\"", "").replace(",", "");
             int x = aux.equals("a") ? 50 : (aux.equals("-a") ? -50 : Integer.parseInt(aux));
@@ -91,8 +145,8 @@ public class ChessJSONParser {
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
     /// the line where the list ends.
-    private static ArrayList<String> getListPositions(Scanner fr) {
-        ArrayList<String> posList = new ArrayList<>();
+    private static List<String> getListStrings(Scanner fr) {
+        List<String> posList = new ArrayList<>();
         String s = fr.nextLine().trim();
         while (!s.equals("],")) {
             posList.add(s.replace("\"", "").replace(",", ""));
@@ -105,8 +159,8 @@ public class ChessJSONParser {
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
     /// the line where the list ends.
-    private static ArrayList<Piece> getListPieces(Scanner fr) {
-        ArrayList<Piece> pList = new ArrayList<>();
+    private static List<Piece> getListPieces(Scanner fr) {
+        List<Piece> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
 
         while (!s.equals("}")) { /// While not last object
@@ -132,12 +186,12 @@ public class ChessJSONParser {
             /// Skip 2 lines
             fr.nextLine();
             fr.nextLine();
-            ArrayList<Movement> movements = getListMovements(fr);
+            List<Movement> movements = getListMovements(fr);
 
             /// Initial Movements
             /// Skip ],
             fr.nextLine();
-            ArrayList<Movement> initMovements = new ArrayList<>();
+            List<Movement> initMovements = new ArrayList<>();
             if (!getString(fr.nextLine()).equals("[]")) {
                 /// If list is not empty
                 /// Skip [
@@ -160,10 +214,12 @@ public class ChessJSONParser {
         return pList;
     }
 
-    private static ArrayList<Castling> getListCastlings(Scanner fr) {
+    /// @pre ---
+    /// @post Returns the JSON castling list which can be empty
+    private static List<Castling> getListCastlings(Scanner fr) {
         /// Skip {
         fr.nextLine();
-        ArrayList<Castling> cList = new ArrayList<>();
+        List<Castling> cList = new ArrayList<>();
         String s = fr.nextLine().trim();
         while (!s.equals("}")) {
             if (s.equals("},")) {
@@ -180,5 +236,60 @@ public class ChessJSONParser {
             s = fr.nextLine().trim();
         }
         return cList;
+    }
+
+    /// @pre Scanner pointing at {
+    /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
+    /// the piece type.
+    private static List<Pair<String, String>> getInitialPositionList(Scanner fr) {
+        /// Skip {
+        fr.nextLine();
+        List<Pair<String, String>> pList = new ArrayList<>();
+        String s = fr.nextLine().trim();
+        while (!s.equals("}")) {
+            if (s.equals("},")) {
+                fr.nextLine();
+                s = fr.nextLine().trim();
+            }
+
+            String pos = getString(s);
+            String piece = getString(fr.nextLine());
+            boolean moved = getString(fr.nextLine()).equals("true") ? true : false; //? What to do with this boolean
+
+            pList.add(new Pair<String, String>(pos, piece));
+            s = fr.nextLine().trim();
+        }
+
+        return pList;
+    }
+
+    /// @pre Scanner pointing at {
+    /// @post Returns the list of turns which can't be empty
+    private static List<Turn> getTurnList(Scanner fr) {
+        /// Skip {
+        fr.nextLine();
+        List<Turn> turnList = new ArrayList<>();
+        String s = fr.nextLine().trim();
+        while (!s.equals("}")) {
+            if (s.equals("},")) {
+                fr.nextLine();
+                s = fr.nextLine().trim();
+            }
+
+            PieceColor color = getString(s).equals("BLANQUES") 
+                ? PieceColor.White 
+                : PieceColor.Black;
+            String origin = getString(fr.nextLine());
+            String dest = getString(fr.nextLine());
+            Pair<String, String> move = new Pair<String, String>(origin, dest);
+
+            s = fr.nextLine();
+            String result = s.trim().endsWith("\"\"") ? "" : getString(s);
+
+            turnList.add(new Turn(color, move, result));
+            s = fr.nextLine().trim();
+        }
+
+        return turnList;
     }
 }
