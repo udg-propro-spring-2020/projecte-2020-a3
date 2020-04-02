@@ -49,7 +49,7 @@ public class ConsoleGame {
 			switch (option) {
 				case 1:
 					System.out.println("Creant una partida normal...");
-					play(ChessJSONParser.buildChess("default_game.json"));
+					play(ChessJSONParser.buildChess("./data/default_game.json"));
 					break;
 				case 2:
 					System.out.println("Creant una partida personalitzada...");
