@@ -63,8 +63,10 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					break;
 			}
-		} catch (Exception e) {
-			System.out.println("Error d'entrada d'opció. Ha de ser un enter dels mostrats en el menú.");
+		} catch (FileNotFoundException f) {
+			System.out.println(f.getMessage());
+		} catch (IOException i) {
+			System.out.println(i.getMessage());
 		}
 	}
 

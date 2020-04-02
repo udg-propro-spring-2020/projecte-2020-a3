@@ -35,6 +35,19 @@ public class Chess {
         System.out.println(showBoard());
     }
 
+    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings, List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
+        this.rows = rows;
+        this.cols = cols;
+        this.chessLimits = chessLimits;
+        this.inactiveLimits = inactiveLimits;
+        this.pList = pList;
+        this.initPositions = initPositions;
+        this.castlings = castlings;
+        
+        createBoard();
+        System.out.println(showBoard());
+    }
+
     /*
      * Per crear el tauler s'ha usat un array auxiliar el qual omplim amb les peces
      * del tauler inicial ordenadoes. Al for de mes enbaix s'omplen les dues

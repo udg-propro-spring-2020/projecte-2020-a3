@@ -1,5 +1,5 @@
 {
-    "fitxerRegles": "configuration.json",
+    "fitxerRegles": "./data/configuration.json",
     "posIniBlanques": [
         {
             "pos": "a2",

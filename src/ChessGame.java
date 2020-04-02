@@ -2,7 +2,7 @@
  * @author Miquel de Domingo i Giralt
  */
 
- import javafx.application.Application;
+import javafx.application.Application;
 
 /* 
  * @file ChessGame.java
