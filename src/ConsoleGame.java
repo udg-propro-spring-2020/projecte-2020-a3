@@ -18,11 +18,9 @@ import java.io.IOException;
 public class ConsoleGame {
 	/*
 	 * @brief Shows a menu asking how to start a game
-	 * 
 	 * @pre ---
-	 * 
 	 * @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
-	 * with modified rules (enter filename) 3. Enter a saved game
+	 * 	 	 with modified rules (enter filename) 3. Enter a saved game
 	 */
 	public static void start() {
 		System.out.println("+---------------- MENU ----------------+");
@@ -51,15 +49,15 @@ public class ConsoleGame {
 			switch (option) {
 				case 1:
 					System.out.println("Creant una partida normal...");
-					// play(new Chess(/* Ubicació normes per defecte */));
+					play(ChessJSONParser.buildChess("default_game.json"));
 					break;
 				case 2:
 					System.out.println("Creant una partida personalitzada...");
-					// configuredChessGame();
+					configuredChessGame("Entra el nom del fitxer amb la configuració: ");
 					break;
 				case 3:
-					System.out.println("Carregant una partida guardad...");
-					// loadChessGame();
+					System.out.println("Carregant una partida guardada...");
+					configuredChessGame("Entra el nom del fitxer amb la partida: ");
 					break;
 				default:
 					System.out.println("Sortint de l'aplicació...");
@@ -70,14 +68,20 @@ public class ConsoleGame {
 		}
 	}
 
-	private static void configuredChessGame() {
-		System.out.println("[Escriu EXIT per sortir]");
-		System.out.println("Entra el nom del fitxer amb la configuració: ");
+	/*
+	 * @brief Asks for the filename of the configuration and starts the game
+	 * @pre ---
+	 * @post If the file name from the user is correct, starts the game with that configuration.
+	 */
+	private static void configuredChessGame(String text) {
 		Scanner in = new Scanner(System.in);
-		String fileLocation = in.nextLine();
 		boolean validFileLocation = false;
 
-		do {
+		while (!validFileLocation) {
+			System.out.println("[Escriu EXIT per sortir]");
+			System.out.println(text);
+			String fileLocation = in.nextLine();
+
 			try {
 				if (fileLocation.toUpperCase().equals("EXIT")) {
 					System.out.println("Sortint de l'aplicació");
@@ -96,48 +100,15 @@ public class ConsoleGame {
 			} catch (IOException e) {
 				System.out.print("Error en l'entrada per teclat.");
 			}
-		} while (!validFileLocation);
-		in.close();
-	}
-
-	private static void loadChessGame() {
-		System.out.println("[Escriu EXIT per sortir]");
-		System.out.println("Entra el nom del fitxer amb la partida guardada: ");
-		Scanner in = new Scanner(System.in);
-		String fileLocation = in.nextLine();
-		boolean validFileLocation = false;
-
-		do {
-			try {
-				if (fileLocation.toUpperCase().equals("EXIT")) {
-					System.out.println("Sortint de l'aplicació");
-				} else {
-					// TODO: Load saved game
-					Chess c = ChessJSONParser.buildChess(fileLocation);
-					/// If it gets here, there will be no exception of file not found
-					validFileLocation = true;
-
-					/// Start game
-					play(c);
-				}
-			} catch (FileNotFoundException e) {
-				/// Keep asking for files
-				System.out.print("Nom del fitxer no vàlid.");
-				System.out.print("Entra el nom del fitxer amb la partida guardada: ");
-			} catch (IOException e) {
-				System.out.print("Error en l'entrada per teclat.");
-			}
-		} while (!validFileLocation);
+		}
 		in.close();
 	}
 
 	/*
 	 * @brief Function that controls the game flow while it has not finished.
-	 * 
 	 * @pre Chess is loaded.
-	 * 
 	 * @post While the game has not finished nor been saved, will keep asking for
-	 * turns. Once it has finished, prints who the winner is.
+	 * 		 turns. Once it has finished, prints who the winner is.
 	 */
 	public static void play(Chess c) throws IOException {
 		Position origin = null;
@@ -166,7 +137,7 @@ public class ConsoleGame {
 		// TODO: Handle end of game
 	}
 
-	/**
+	/*
 	 * @brief Reads a chess position.
 	 * @pre ---
 	 * @post Prints the text held in t and reads positions like CN in which C is a
