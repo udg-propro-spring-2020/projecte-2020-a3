@@ -2,7 +2,7 @@
  * @author Miquel de Domingo i Giralt
  */
 
-import javafx.application.Application;
+ import javafx.application.Application;
 
 /* 
  * @file ChessGame.java
@@ -34,7 +34,7 @@ public abstract class ChessGame {
 			/// Class constructors can return exception if file not found.
 			System.out.println(e.getMessage());
 			e.printStackTrace();
-		}
+		} 
 	}
 
 	/*
