@@ -26,7 +26,7 @@ public class Chess {
     Crea un Tauler d'escacs i inicialitza els atributs
     */
     Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings,  
-    List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, /* PieceColor nextTurnColor,*/ List<Turn> turnList) {
+    List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
         this.rows = rows;
         this.cols = cols;
         this.chessLimits = chessLimits;
@@ -44,19 +44,6 @@ public class Chess {
         board = new Piece[this.rows][this.cols];
         
         createInitialPositions(whiteInitPos,blackInitPos);
-        createBoard();
-        System.out.println(showBoard());
-    }
-	
-    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings, List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
-        this.rows = rows;
-        this.cols = cols;
-        this.chessLimits = chessLimits;
-        this.inactiveLimits = inactiveLimits;
-        this.pList = pList;
-        this.initPositions = initPositions;
-        this.castlings = castlings;
-        
         createBoard();
         System.out.println(showBoard());
     }

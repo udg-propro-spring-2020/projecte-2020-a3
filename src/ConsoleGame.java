@@ -2,12 +2,10 @@
  * @author Miquel de Domingo i Giralt
  */
 
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -16,12 +14,11 @@ import java.io.IOException;
  * @brief Class that controls the game played in a console display.
  */
 public class ConsoleGame {
-	/*
-	 * @brief Shows a menu asking how to start a game
-	 * @pre ---
-	 * @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
-	 * 	 	 with modified rules (enter filename) 3. Enter a saved game
-	 */
+	
+	/// @brief Shows a menu asking how to start a game
+	/// @pre ---
+	/// @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
+	/// 	  with modified rules (enter filename) 3. Enter a saved game
 	public static void start() {
 		System.out.println("+---------------- MENU ----------------+");
 		System.out.println("|                                      |");
@@ -37,18 +34,18 @@ public class ConsoleGame {
 		final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 		try {
-			System.out.println("Opció: ");
+			System.out.print("Opció: ");
 			int option = in.nextInt();
 			while (!VALID_OPTIONS.contains(option)) {
 				System.out.println("Opció no correcte");
-				System.out.println("Opció: ");
+				System.out.print("Opció: ");
 				option = in.nextInt();
 			}
 			
 
 			switch (option) {
 				case 1:
-					System.out.println("Creant una partida normal...");
+					System.out.println("Creant una partida normal...\n");
 					play(ChessJSONParser.buildChess("./data/default_game.json"));
 					break;
 				case 2:
@@ -72,11 +69,9 @@ public class ConsoleGame {
 		}
 	}
 
-	/*
-	 * @brief Asks for the filename of the configuration and starts the game
-	 * @pre ---
-	 * @post If the file name from the user is correct, starts the game with that configuration.
-	 */
+	/// @brief Asks for the filename of the configuration and starts the game
+	/// @pre ---
+	/// @post If the file name from the user is correct, starts the game with that configuration.
 	private static void configuredChessGame(String text) {
 		Scanner in = new Scanner(System.in);
 		boolean validFileLocation = false;
@@ -108,22 +103,18 @@ public class ConsoleGame {
 		in.close();
 	}
 
-	/*
-	 * @brief Function that controls the game flow while it has not finished.
-	 * @pre Chess is loaded.
-	 * @post While the game has not finished nor been saved, will keep asking for
-	 * 		 turns. Once it has finished, prints who the winner is.
-	 */
+	/// @brief Function that controls the game flow while it has not finished.
+	/// @pre Chess is loaded.
+	/// @post While the game has not finished nor been saved, will keep asking for
+	/// 		 turns. Once it has finished, prints who the winner is.
+	/// 
 	public static void play(Chess c) throws IOException {
-		System.out.println("Entro a play");
 		Position origin = null;
 		Position dest = null;
 		int rows = c.rows();
 		int cols = c.cols();
 
-		System.out.println("\nESCACS\n");
 		do {
-			System.out.println();
 			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols);
 			if (origin != null) {
 				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols);
@@ -133,7 +124,7 @@ public class ConsoleGame {
 						c.applyMovement(origin, dest, r.second);
 						System.out.println(c.showBoard());
 					} else {
-						System.out.println("\nMoviment incorrecte!");
+						System.out.println("Moviment incorrecte!");
 					}
 				}
 			}
@@ -142,15 +133,14 @@ public class ConsoleGame {
 		// TODO: Handle end of game
 	}
 
-	/*
-	 * @brief Reads a chess position.
-	 * @pre ---
-	 * @post Prints the text held in t and reads positions like CN in which C is a
-	 *       char (column of the chess table) and N a number (row of the chess
-	 *       table). While this positions is not valid it will keep asking for
-	 *       positions. If the coordinate is valid returns the position and if it is
-	 *       an X, returns a null position.
-	 */
+	/// brief Reads a chess position.
+	/// @pre ---
+	/// @post Prints the text held in t and reads positions like CN in which C is a
+	///      char (column of the chess table) and N a number (row of the chess
+	///      table). While this positions is not valid it will keep asking for
+	///      positions. If the coordinate is valid returns the position and if it is
+	///      an X, returns a null position.
+	///
 	private static Position readMovement(String t, int rows, int cols) throws IOException {
 		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";

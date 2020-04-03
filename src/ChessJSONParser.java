@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.io.IOException;
 /**
  * @class ChessJSONParser
  * @brief Parses the given file with the chess configuration to a chess object
