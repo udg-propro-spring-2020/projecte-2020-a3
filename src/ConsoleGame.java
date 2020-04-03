@@ -44,7 +44,7 @@ public class ConsoleGame {
 				System.out.println("Opció: ");
 				option = in.nextInt();
 			}
-			//in.close();
+			
 
 			switch (option) {
 				case 1:
@@ -63,6 +63,8 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					break;
 			}
+
+			in.close();
 		} catch (FileNotFoundException f) {
 			System.out.println(f.getMessage());
 		} catch (IOException i) {
@@ -150,14 +152,13 @@ public class ConsoleGame {
 	 *       an X, returns a null position.
 	 */
 	private static Position readMovement(String t, int rows, int cols) throws IOException {
-		InputStreamReader isr = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(isr);
+		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		Position p = new Position(0, 0);
 		boolean valid = false;
 		do {
 			System.out.print(t);
-			String s = br.readLine();
+			String s = in.nextLine();
 			if (s.equals("X")) {
 				p = null;
 				valid = true;
