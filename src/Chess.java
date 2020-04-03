@@ -47,7 +47,24 @@ public class Chess {
         createBoard();
         System.out.println(showBoard());
     }
+<<<<<<< HEAD
     
+=======
+
+    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings, List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
+        this.rows = rows;
+        this.cols = cols;
+        this.chessLimits = chessLimits;
+        this.inactiveLimits = inactiveLimits;
+        this.pList = pList;
+        this.initPositions = initPositions;
+        this.castlings = castlings;
+        
+        createBoard();
+        System.out.println(showBoard());
+    }
+
+>>>>>>> 62071a8d0f37261f0ebc4f0b4051a260f54fe6ed
     /*
 	 * @brief Create the initial position of the pieces
 	 * @pre --
