@@ -94,7 +94,7 @@ public class ChessJSONParser {
             castlings,
             whiteInitPos,
             blackInitPos, 
-            //nextTurnColor,
+            nextTurnColor,
             turnList
         );
     }
