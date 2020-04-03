@@ -47,10 +47,7 @@ public class Chess {
         createBoard();
         System.out.println(showBoard());
     }
-<<<<<<< HEAD
-    
-=======
-
+	
     Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings, List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
         this.rows = rows;
         this.cols = cols;
@@ -64,12 +61,11 @@ public class Chess {
         System.out.println(showBoard());
     }
 
->>>>>>> 62071a8d0f37261f0ebc4f0b4051a260f54fe6ed
     /*
-	 * @brief Create the initial position of the pieces
-	 * @pre --
-	 * @post Two HashMap with a pair of position / piece are created
-	 */
+     * @brief Create the initial position of the pieces
+     * @pre --
+     * @post Two HashMap with a pair of position / piece are created
+     */
     private void createInitialPositions(List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos){
         String c = "abcdefghijklmnopqrstuvwxyz";
         for(int i = 0; i < whiteInitPos.size(); i++){
