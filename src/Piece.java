@@ -43,6 +43,20 @@ public class Piece {
         this.movements = movements;
         this.initialMovements = initialMovements;
     }
+    /**
+     * @brief Makes a copy of a piece
+     */
+    Piece(Piece p){
+        this.name = p.name;
+        this.symbol = p.symbol;
+        this.wImage = p.wImage;
+        this.bImage = p.bImage;
+        this.value = p.value;
+        this.promotable = p.promotable;
+        this.invulnerable = p.invulnerable;
+        this.movements = p.movements;
+        this.initialMovements = p.initialMovements;
+    }
 
     /**
      * @brief Obtain the piece's symbol
@@ -72,6 +86,26 @@ public class Piece {
      */
     public List<Movement> movements(){
         return movements;
+    }
+
+    /**
+     * @brief Obtain the piece's invulnerability
+     * @pre --
+     * @return @c this.invulnerable
+     * @post Returns if the piece is invulnerable
+     */
+    public boolean invulnerability(){
+        return invulnerable;
+    }
+
+    /**
+     * @brief Change the symbol of the piece
+     * @pre --
+     * @post The piece's symbol is lower case 
+     */
+    public void symbolToLowerCase(){
+        char act = Character.toLowerCase(this.symbol().charAt(0));
+        symbol = Character.toString(act);
     }
 
     @Override

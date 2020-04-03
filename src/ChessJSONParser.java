@@ -7,15 +7,17 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
+import java.io.IOException;
 /**
  * @class ChessJSONParser
  * @brief Parses the given file with the chess configuration to a chess object
  */
 public class ChessJSONParser {
+
     /// @pre ---
     /// @post Creates a chess game with the given configuration form the JSON file
     public static Chess buildChess(String fileLocation) throws FileNotFoundException {
+        
         Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
         mainSc.nextLine();
@@ -80,7 +82,7 @@ public class ChessJSONParser {
         /// Next lines are not necessaruy
         /// Close scanner
         mainSc.close();
-
+        
         /// Create Chess        
         return new Chess(
             nRows, 
@@ -92,7 +94,7 @@ public class ChessJSONParser {
             castlings,
             whiteInitPos,
             blackInitPos, 
-            nextTurnColor,
+            //nextTurnColor,
             turnList
         );
     }

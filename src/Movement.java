@@ -51,6 +51,14 @@ public class Movement {
         return capture;
     }
 
+    /**
+     * @pre --
+     * @post Returns if the piece can jump
+     */
+    public boolean canJump(){
+        return jump;
+    } 
+
     /*
      * @pre ---
      * @post Returns a String of the object properties in JSON format (tabbed)
@@ -78,5 +86,20 @@ public class Movement {
             .append("\t\t\t\t]\n");
         
         return (s.toString());
+    }
+    
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("[")
+        .append(x)
+        .append(", ")
+        .append(y)
+        .append(", ")
+        .append(capture)
+        .append(", ")
+        .append(jump)
+        .append("] \n");
+        
+        return s.toString();
     }
 }

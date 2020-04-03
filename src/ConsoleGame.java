@@ -44,7 +44,7 @@ public class ConsoleGame {
 				System.out.println("Opció: ");
 				option = in.nextInt();
 			}
-			in.close();
+			//in.close();
 
 			switch (option) {
 				case 1:
@@ -63,8 +63,10 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					break;
 			}
-		} catch (Exception e) {
-			System.out.println("Error d'entrada d'opció. Ha de ser un enter dels mostrats en el menú.");
+		} catch (FileNotFoundException f) {
+			System.out.println(f.getMessage());
+		} catch (IOException i) {
+			System.out.println(i.getMessage());
 		}
 	}
 
@@ -111,6 +113,7 @@ public class ConsoleGame {
 	 * 		 turns. Once it has finished, prints who the winner is.
 	 */
 	public static void play(Chess c) throws IOException {
+		System.out.println("Entro a play");
 		Position origin = null;
 		Position dest = null;
 		int rows = c.rows();
