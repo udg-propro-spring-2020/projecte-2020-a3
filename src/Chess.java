@@ -86,43 +86,6 @@ public class Chess {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder s = new StringBuilder(); 
-        s.append("Rows: " + rows + ",\n")
-        .append("Columns: " + cols + ",\n")
-        .append("Chess Limits: " + chessLimits + ",\n")
-        .append("Inactive Turns Limits: " + inactiveLimits + ",\n")
-        .append("PIECES: \n");
-        
-        for (Piece p : pList) {
-            s.append(p.toString());
-        }
-
-        s.append("STARTING CHESS POSITIONS: \n");
-
-        int count = 0;
-        for (String r : initPositions) {
-            if (count == cols) {
-                s.append("\n");
-            }
-            s.append(r + "\t");
-            count++;
-        }
-        
-        if (castlings.isEmpty()) {
-            s.append("\nCASTLINGS: NONE\n");
-        } else {
-            s.append("\nCASTLINGS: \n");
-            for (Castling c : castlings) {
-                s.append("\t" + c);
-            }
-        }
-
-        s.append("\n**** END ****");
-        return s.toString();
-    }
-
     /*
     Coloca cada peça a la casella corresponent
     */
@@ -347,5 +310,42 @@ public class Chess {
 
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
 		board[origin.row()][origin.col()] = null;      
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder(); 
+        s.append("Rows: " + rows + ",\n")
+        .append("Columns: " + cols + ",\n")
+        .append("Chess Limits: " + chessLimits + ",\n")
+        .append("Inactive Turns Limits: " + inactiveLimits + ",\n")
+        .append("PIECES: \n");
+        
+        for (Piece p : pList) {
+            s.append(p.toString());
+        }
+
+        s.append("STARTING CHESS POSITIONS: \n");
+
+        int count = 0;
+        for (String r : initPositions) {
+            if (count == cols) {
+                s.append("\n");
+            }
+            s.append(r + "\t");
+            count++;
+        }
+        
+        if (castlings.isEmpty()) {
+            s.append("\nCASTLINGS: NONE\n");
+        } else {
+            s.append("\nCASTLINGS: \n");
+            for (Castling c : castlings) {
+                s.append("\t" + c);
+            }
+        }
+
+        s.append("\n**** END ****");
+        return s.toString();
     }
 }

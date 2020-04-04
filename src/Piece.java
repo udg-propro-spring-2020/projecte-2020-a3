@@ -43,66 +43,61 @@ public class Piece {
         this.movements = movements;
         this.initialMovements = initialMovements;
     }
-    /**
-     * @brief Makes a copy of a piece
-     */
+
+    /// @brieg Copy constructor
+    /// @pre p is not null
+    /// @post Copies p properties to this
     Piece(Piece p){
-        this.name = p.name;
-        this.symbol = p.symbol;
-        this.wImage = p.wImage;
-        this.bImage = p.bImage;
-        this.value = p.value;
-        this.promotable = p.promotable;
-        this.invulnerable = p.invulnerable;
-        this.movements = p.movements;
-        this.initialMovements = p.initialMovements;
+        if (p ==  null) {
+            throw new NullPointerException();
+        } else {
+            this.name = p.name;
+            this.symbol = p.symbol;
+            this.wImage = p.wImage;
+            this.bImage = p.bImage;
+            this.value = p.value;
+            this.promotable = p.promotable;
+            this.invulnerable = p.invulnerable;
+            this.movements = p.movements;
+            this.initialMovements = p.initialMovements;
+        }
     }
 
-    /**
-     * @brief Obtain the piece's symbol
-     * @pre --
-     * @return @c this.symbol 
-     * @post Returns the piece's symbol which can't be @c null
-     */
+    /// @brief Obtain the piece's symbol
+    /// @pre ---
+    /// @return @c this.symbol 
+    /// @post Returns the piece's symbol which can't be @c null
     public String symbol(){
         return symbol;
     }
     
-    /**
-     * @brief Obtain the piece's name
-     * @pre --
-     * @return @c this.name 
-     * @post Returns the piece's name which can't be @c null
-     */
+    /// @brief Obtain the piece's name
+    /// @pre --
+    /// @return @c this.name 
+    /// @post Returns the piece's name which can't be @c null
     public String name(){
         return name;
     }
 
-    /**
-     * @brief Obtain the piece's list of movements
-     * @pre --
-     * @return @c this.movements
-     * @post Returns the piece's list of movements which can't be @c null 
-     */
+    /// @brief Obtain the piece's list of movements
+    /// @pre --
+    /// @return @c this.movements
+    /// @post Returns the piece's list of movements which can't be @c null 
     public List<Movement> movements(){
         return movements;
     }
-
-    /**
-     * @brief Obtain the piece's invulnerability
-     * @pre --
-     * @return @c this.invulnerable
-     * @post Returns if the piece is invulnerable
-     */
+    
+    /// @brief Obtain the piece's invulnerability
+    /// @pre --
+    /// @return @c this.invulnerable
+    /// @post Returns if the piece is invulnerable    
     public boolean invulnerability(){
         return invulnerable;
     }
 
-    /**
-     * @brief Change the symbol of the piece
-     * @pre --
-     * @post The piece's symbol is lower case 
-     */
+    /// @brief Change the symbol of the piece
+    /// @pre --
+    /// @post The piece's symbol is lower case 
     public void symbolToLowerCase(){
         char act = Character.toLowerCase(this.symbol().charAt(0));
         symbol = Character.toString(act);
