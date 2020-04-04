@@ -113,21 +113,27 @@ public class ConsoleGame {
 		Position dest = null;
 		int rows = c.rows();
 		int cols = c.cols();
+		PieceColor currentTurn = PieceColor.White; 		/// Always start whites
 
 		do {
-			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols);
+			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn);
 			if (origin != null) {
-				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols);
+				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn);
 				if (dest != null) {
 					Pair<Boolean, Position> r = c.checkMovement(origin, dest);
 					if (r.first) {
 						c.applyMovement(origin, dest, r.second);
 						System.out.println(c.showBoard());
+
+						/// Change turn
+						currentTurn = currentTurn == PieceColor.White 
+							? PieceColor.Black 
+							: PieceColor.White;
 					} else {
 						System.out.println("Moviment incorrecte!");
 					}
 				}
-			}
+			} 
 		} while (origin != null && dest != null);
 
 		// TODO: Handle end of game
@@ -141,11 +147,12 @@ public class ConsoleGame {
 	///      positions. If the coordinate is valid returns the position and if it is
 	///      an X, returns a null position.
 	///
-	private static Position readMovement(String t, int rows, int cols) throws IOException {
+	private static Position readMovement(String t, int rows, int cols, PieceColor colorTurn) throws IOException {
 		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		Position p = new Position(0, 0);
 		boolean valid = false;
+		
 		do {
 			System.out.print(t);
 			String s = in.nextLine();
@@ -158,8 +165,13 @@ public class ConsoleGame {
 					try {
 						p.row = Integer.parseInt(s.substring(1)) - 1;
 						if (p.row >= 0 && p.row < rows) {
-							valid = true;
-							System.out.println("Moviment llegit: " + p.toString());
+							if (c.cellColor(p) == colorTurn) {
+								valid = true;
+								System.out.println("Moviment llegit: " + p.toString());
+							} else {
+								System.out.println("És el torn de " + colorTurn.toString());
+								System.out.println("Escull una peça de " + colorTurn.toString());
+							}
 						} else {
 							System.out.println("Fila fora de rang. Torna-hi...");
 						}
