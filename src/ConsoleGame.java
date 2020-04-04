@@ -116,9 +116,9 @@ public class ConsoleGame {
 		PieceColor currentTurn = PieceColor.White; 		/// Always start whites
 
 		do {
-			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn);
+			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn, c);
 			if (origin != null) {
-				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn);
+				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn, c);
 				if (dest != null) {
 					Pair<Boolean, Position> r = c.checkMovement(origin, dest);
 					if (r.first) {
@@ -147,7 +147,7 @@ public class ConsoleGame {
 	///      positions. If the coordinate is valid returns the position and if it is
 	///      an X, returns a null position.
 	///
-	private static Position readMovement(String t, int rows, int cols, PieceColor colorTurn) throws IOException {
+	private static Position readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch) throws IOException {
 		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		Position p = new Position(0, 0);
@@ -165,7 +165,7 @@ public class ConsoleGame {
 					try {
 						p.row = Integer.parseInt(s.substring(1)) - 1;
 						if (p.row >= 0 && p.row < rows) {
-							if (c.cellColor(p) == colorTurn) {
+							if (ch.cellColor(p) == colorTurn) {
 								valid = true;
 								System.out.println("Moviment llegit: " + p.toString());
 							} else {
