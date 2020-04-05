@@ -19,6 +19,7 @@ public class Piece {
     private boolean invulnerable;                   ///< Piece's capacity to be invulnerable
     private List<Movement> movements;               ///< Piece's available movement options
     private List<Movement> initialMovements;        ///< Piece's special movements when first move
+    private Position initialPosition;               ///< Piece's position when game starts
 
     /**
      * @brief Piece constructor
@@ -42,12 +43,13 @@ public class Piece {
         this.invulnerable = invulnerable;
         this.movements = movements;
         this.initialMovements = initialMovements;
+        this.initialPosition = null;
     }
 
     /// @brieg Copy constructor
     /// @pre p is not null
     /// @post Copies p properties to this
-    Piece(Piece p){
+    Piece(Piece p, Position pos){
         if (p ==  null) {
             throw new NullPointerException();
         } else {
@@ -60,6 +62,7 @@ public class Piece {
             this.invulnerable = p.invulnerable;
             this.movements = p.movements;
             this.initialMovements = p.initialMovements;
+            this.initialPosition = pos;
         }
     }
 
@@ -87,6 +90,16 @@ public class Piece {
         return movements;
     }
     
+    /**
+     * @brief Obtain the piece's list of initial movements
+     * @pre --
+     * @return @c this.initialMovements
+     * @post Returns the piece's list of initialMovements which can be @c null 
+     */
+    public List<Movement> initialMovements(){
+        return initialMovements;
+    }
+    
     /// @brief Obtain the piece's invulnerability
     /// @pre --
     /// @return @c this.invulnerable
@@ -101,6 +114,20 @@ public class Piece {
     public void symbolToLowerCase(){
         char act = Character.toLowerCase(this.symbol().charAt(0));
         symbol = Character.toString(act);
+    }
+
+    /**
+     * @brief Obtain the piece's initial position
+     * @pre --
+     * @return @c this.initialPosition
+     * @post Returns the piece's initial position which can't be @c null 
+     */
+    public Position initialPosition(){
+        return initialPosition;
+    }
+
+    public boolean firstMove(int x0, int y0){
+        return (this.initialPosition().row() == x0 && this.initialPosition().col() == y0);
     }
 
     @Override
@@ -136,6 +163,11 @@ public class Piece {
         }
         
         return s.toString();
+    }
+
+    public PieceColor color(){
+        if(Character.isUpperCase(this.symbol().charAt(0))) return PieceColor.White;
+        else return PieceColor.Black;
     }
 }
 
