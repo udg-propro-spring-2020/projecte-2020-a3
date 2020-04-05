@@ -60,8 +60,8 @@ public class Chess {
             boolean found = false;
             while(!found && j < pList.size()){
                 if(pList.get(j).name().charAt(0) == whiteInitPos.get(i).second.charAt(0)){
-                    Piece wPiece = new Piece(pList.get(j));
                     Position wPos = new Position (Character.getNumericValue(whiteInitPos.get(i).first.charAt(1)-1),c.indexOf(whiteInitPos.get(i).first.charAt(0)));
+                    Piece wPiece = new Piece(pList.get(j), wPos);
                     pListWhite.add(wPiece);
                     initPositionsWhite.put(wPos,wPiece);
                     found=true;
@@ -74,9 +74,9 @@ public class Chess {
             boolean found = false;
             while(!found && j < pList.size()){
                 if(pList.get(j).name().charAt(0) == blackInitPos.get(i).second.charAt(0)){
-                    Piece bPiece = new Piece(pList.get(j));
-                    bPiece.symbolToLowerCase();
                     Position bPos = new Position (Character.getNumericValue(blackInitPos.get(i).first.charAt(1)-1),c.indexOf(blackInitPos.get(i).first.charAt(0)));
+                    Piece bPiece = new Piece(pList.get(j), bPos);
+                    bPiece.symbolToLowerCase();
                     pListBlack.add(bPiece);
                     initPositionsBlack.put(bPos,bPiece);
                     found=true;
@@ -96,6 +96,14 @@ public class Chess {
         for ( Position pos : initPositionsBlack.keySet() ) {
             board[pos.row()][pos.col()] = initPositionsBlack.get(pos);
         }
+    }
+
+    public PieceColor cellColor(Position p){
+        return board[p.row()][p.col()].color();
+    }
+    
+    public boolean emptyCell(Position p){
+        return board[p.row()][p.col()]==null;
     }
 
     public String showBoard() {
@@ -135,21 +143,7 @@ public class Chess {
     Si la peça no es invulnerable o si es aliada, retorna false
      */
     private boolean diferentOwnerPiece(Piece originPiece, Piece destinyPiece){
-        boolean enemiePieceOnDestiny = false;
-        char destinyPieceSymbol = destinyPiece.symbol().charAt(0); //simbol de la figura
-        char originPieceSymbol = originPiece.symbol().charAt(0);
-        if(Character.isUpperCase(originPieceSymbol) != Character.isUpperCase(destinyPieceSymbol)){//Si son de jugadors diferents
-            if(destinyPiece.invulnerability()){
-                System.out.println("La peça enemiga es invulnerable");
-            }else{
-                enemiePieceOnDestiny = true;
-            }
-        }else{
-            //System.out.println("La peça que vols matar es teva");
-            //enemiePieceOnDestiny = true;//S'ha de borrar, nomes per poder matar mateix jugador
-            //return r; //Intenta moure una peça al lloc d'una altre, les dues seves
-        }
-        return enemiePieceOnDestiny;
+        return originPiece.color() != destinyPiece.color();
     }
     /*
     Descripcio:
@@ -174,22 +168,22 @@ public class Chess {
         if(x0==x1){//es mou en la mateixa fila
             System.out.println("entro a row");           
             System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
-            for(int i=initialY; i<finalY; i++){
+            for(int i=initialY+1; i<finalY; i++){
                 if(board[x0][i] != null){
                     pieceOnTheWay = true;
                 }
             }
         }else if(y0==y1){//es mou en la mateixa columna         
             System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
-            for(int i=initialX; i<finalX; i++){
+            for(int i=initialX+1; i<finalX; i++){
                 if(board[i][y0] != null){
                     pieceOnTheWay = true;
                 }
             }
         }else{//es mou en diagonal
             System.out.println("entro a diagonal");
-            int j=initialY;
-            for(int i=initialX; i<finalX; i++){
+            int j=initialY+1;
+            for(int i=initialX+1; i<finalX; i++){
                 if(board[i][j] != null){
                     pieceOnTheWay = true;
                    // System.out.println(board[i][j].symbol());
@@ -225,13 +219,26 @@ public class Chess {
             xMove = -1*xMove;
             yMove = -1*yMove;
         }                 
-        
+        List<Movement> allMoves = new ArrayList<Movement>();
+        List<Movement> movesToRead = new ArrayList<Movement>();
+        if(p.initialMovements()!=null){  
+            
+            allMoves.addAll(p.movements());
+            allMoves.addAll(p.initialMovements());
+            //pieceMovements.addAll(p.initialMovements());
+        }
+        if(p.firstMove(x0,y0)){
+            
+            movesToRead=allMoves;
+        }else{
+            movesToRead=p.movements();
+        }
         int i = 0;
         boolean found = false;
         boolean pieceOnTheWay = false;
         boolean diagonalCorrect = true;
-        while(i < pieceMovements.size() && !found){
-                Movement act = pieceMovements.get(i);         
+        while(i < movesToRead.size() && !found){
+                Movement act = movesToRead.get(i);         
                 System.out.println(act.toString());            
                 if((yMove == act.movY() || act.movY() == 50) && (xMove == act.movX() || act.movX() == 50)){                        
                     if(act.movY()==50 && act.movX()==50){
