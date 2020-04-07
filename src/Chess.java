@@ -45,7 +45,6 @@ public class Chess {
         
         createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
-        System.out.println(showBoard());
     }
 
     /*
