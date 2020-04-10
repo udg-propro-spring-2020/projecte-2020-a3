@@ -23,17 +23,18 @@ public class Piece {
 
     /**
      * @brief Piece constructor
-     * @param name Piece's name
-     * @param symbol Piece's symbol
-     * @param wImage Piece's white image location
-     * @param bImage Piece's black image location
-     * @param value Piece's in-game value
-     * @param promotable Piece's capacity to be promotable
-     * @param invulnerable Piece's capacity to be invulnerable
-     * @param movements Piece's available movement options
+     * @param name             Piece's name
+     * @param symbol           Piece's symbol
+     * @param wImage           Piece's white image location
+     * @param bImage           Piece's black image location
+     * @param value            Piece's in-game value
+     * @param promotable       Piece's capacity to be promotable
+     * @param invulnerable     Piece's capacity to be invulnerable
+     * @param movements        Piece's available movement options
      * @param initialMovements Piece's special movements when first move
      */
-    Piece(String name, String symbol, String wImage, String bImage, int value, boolean promotable, boolean invulnerable, List<Movement> movements, List<Movement> initialMovements){
+    Piece(String name, String symbol, String wImage, String bImage, int value, boolean promotable, boolean invulnerable,
+            List<Movement> movements, List<Movement> initialMovements) {
         this.name = name;
         this.symbol = symbol;
         this.wImage = wImage;
@@ -49,8 +50,8 @@ public class Piece {
     /// @brieg Copy constructor
     /// @pre p is not null
     /// @post Copies p properties to this
-    Piece(Piece p, Position pos){
-        if (p ==  null) {
+    Piece(Piece p, Position pos) {
+        if (p == null) {
             throw new NullPointerException();
         } else {
             this.name = p.name;
@@ -68,87 +69,82 @@ public class Piece {
 
     /// @brief Obtain the piece's symbol
     /// @pre ---
-    /// @return @c this.symbol 
+    /// @return @c this.symbol
     /// @post Returns the piece's symbol which can't be @c null
-    public String symbol(){
+    public String symbol() {
         return symbol;
     }
-    
+
     /// @brief Obtain the piece's name
     /// @pre --
-    /// @return @c this.name 
+    /// @return @c this.name
     /// @post Returns the piece's name which can't be @c null
-    public String name(){
+    public String name() {
         return name;
     }
 
     /// @brief Obtain the piece's list of movements
     /// @pre --
     /// @return @c this.movements
-    /// @post Returns the piece's list of movements which can't be @c null 
-    public List<Movement> movements(){
+    /// @post Returns the piece's list of movements which can't be @c null
+    public List<Movement> movements() {
         return movements;
     }
-    
-    /**
-     * @brief Obtain the piece's list of initial movements
-     * @pre --
-     * @return @c this.initialMovements
-     * @post Returns the piece's list of initialMovements which can be @c null 
-     */
-    public List<Movement> initialMovements(){
+
+    /// @brief Obtain the piece's list of initial movements
+    /// @pre --
+    /// @return @c this.initialMovements
+    /// @post Returns the piece's list of initialMovements which can be @c null
+    public List<Movement> initialMovements() {
         return initialMovements;
     }
-    
+
     /// @brief Obtain the piece's invulnerability
     /// @pre --
     /// @return @c this.invulnerable
-    /// @post Returns if the piece is invulnerable    
-    public boolean invulnerability(){
+    /// @post Returns if the piece is invulnerable
+    public boolean invulnerability() {
         return invulnerable;
     }
 
     /// @brief Change the symbol of the piece
     /// @pre --
-    /// @post The piece's symbol is lower case 
-    public void symbolToLowerCase(){
+    /// @post The piece's symbol is lower case
+    public void symbolToLowerCase() {
         char act = Character.toLowerCase(this.symbol().charAt(0));
         symbol = Character.toString(act);
     }
 
-    /**
-     * @brief Obtain the piece's initial position
-     * @pre --
-     * @return @c this.initialPosition
-     * @post Returns the piece's initial position which can't be @c null 
-     */
-    public Position initialPosition(){
+    public PieceColor color() {
+        if (Character.isUpperCase(this.symbol().charAt(0))) {
+            return PieceColor.White;
+        } else {
+            return PieceColor.Black;
+        }
+    }
+
+    /// @brief Obtain the piece's initial position
+    /// @pre --
+    /// @return @c this.initialPosition
+    /// @post Returns the piece's initial position which can't be @c null
+    public Position initialPosition() {
         return initialPosition;
     }
 
-    public boolean firstMove(int x0, int y0){
-        return (this.initialPosition().row() == x0 && this.initialPosition().col() == y0);
+    /// @brief To know if the piece is still in the first position
+    /// @pre x, y > 0
+    /// @post True if the given coordinates are from the initial position
+    public boolean firstMove(int x, int y) {
+        return (this.initialPosition().row() == x && this.initialPosition().col() == y);
     }
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append("\t")
-         .append(name)
-         .append(", ")
-         .append(symbol)
-         .append(", ")
-         .append(wImage)
-         .append(", ")
-         .append(bImage)
-         .append(", ")
-         .append(value)
-         .append(", ")
-         .append(promotable)
-         .append(", ")
-         .append(invulnerable)
-         .append("\n \t\tMOVEMENTS: \n");
-        
+        s.append("\t").append(name).append(", ").append(symbol).append(", ").append(wImage).append(", ").append(bImage)
+                .append(", ").append(value).append(", ").append(promotable).append(", ").append(invulnerable)
+                .append("\n \t\tMOVEMENTS: \n");
+
         for (Movement m : movements) {
             s.append("\t\t" + m.toString());
         }
@@ -161,13 +157,7 @@ public class Piece {
                 s.append("\t\t" + m.toString());
             }
         }
-        
+
         return s.toString();
     }
-
-    public PieceColor color(){
-        if(Character.isUpperCase(this.symbol().charAt(0))) return PieceColor.White;
-        else return PieceColor.Black;
-    }
 }
-

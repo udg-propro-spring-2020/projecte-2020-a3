@@ -105,42 +105,89 @@ public class ConsoleGame {
 	/// @brief Function that controls the game flow while it has not finished.
 	/// @pre Chess is loaded.
 	/// @post While the game has not finished nor been saved, will keep asking for
-	/// 		 turns. Once it has finished, prints who the winner is.
+	/// 	  turns. Once it has finished, prints who the winner is.
 	/// 
 	public static void play(Chess c) throws IOException {
-		Position origin = null;
-		Position dest = null;
+		String alph = "abcdefghijklmnopqrstuvwxyz";
+		String oValue = null;
+		String dValue = null;
 		int rows = c.rows();
 		int cols = c.cols();
 		PieceColor currentTurn = PieceColor.White; 		/// Always start whites
-		boolean originMove = true;
+		List<Turn> turns = new ArrayList<>();
 
+		showInstructions();
+		
 		do {
-			origin = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn, c, originMove);
-			if (origin != null) {
-				originMove = false;
-				System.out.println("Origen: "+origin.toString());
-				dest = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn, c, originMove);
-				if (dest != null) {
-					System.out.println("Dest: "+dest.toString());
-					Pair<Boolean, Position> r = c.checkMovement(origin, dest);
-					if (r.first) {
-						c.applyMovement(origin, dest, r.second);
-						System.out.println(c.showBoard());
+			System.out.println(c.showBoard());
+			boolean originMove = true;
+			oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn, c, originMove);
+			
+			switch (oValue) {
+				case "X": 
+					/// Do not save anything
+					System.out.println("Partida acabada!");
+					break;
+				case "G":
+					/// Todo: Save game to JSON and print filename
+					System.out.println("Partida guardada!");
+					break;
+				case "D":
+					/// Todo: go backwards one movement
+					System.out.println("Moviment desfet!");
+					break;
+				case "R": 
+					/// Todo: go forwards one movement
+					System.out.println("Moviment refet!");
+					break;
+				default: {
+					originMove = false;
+					System.out.println("Origen: " + oValue);
+					dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn, c, originMove);
+					
+					if (!dValue.equals("O")) {
+						System.out.println("Dest: " + dValue);
 
-						/// Change turn
-						currentTurn = currentTurn == PieceColor.White 
-							? PieceColor.Black 
-							: PieceColor.White;
-					} else {
-						System.out.println("Moviment incorrecte!");
+						/// Create positions with the read strings
+						Position origin = new Position(alph.indexOf(oValue.charAt(0)), Integer.parseInt(oValue.substring(1)) - 1);
+						Position dest =  new Position(alph.indexOf(dValue.charAt(0)), Integer.parseInt(dValue.substring(1)) - 1); 
+						Pair<Boolean, Position> r = c.checkMovement(origin, dest);
+
+						if (r.first) {
+							c.applyMovement(origin, dest, r.second);
+							
+							System.out.println("ERrr");
+							/// Save turn
+							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
+							turns.add(new Turn(currentTurn, p, ""));
+
+							/// Change turn
+							currentTurn = currentTurn == PieceColor.White 
+								? PieceColor.Black 
+								: PieceColor.White;
+						} else {
+							System.out.println("Moviment incorrecte!");
+						}
 					}
 				}
 			}
-			originMove=true;
-		} while (origin != null && dest != null);
+		} while (!oValue.equals("X") && !oValue.equals("G"));
 
 		// TODO: Handle end of game
+	}
+
+	private static void showInstructions() {
+		System.out.println("+--------------  COMANDES  ---------------+");
+		System.out.println("|  [Quan es demana posicion d'origen]     |");
+		System.out.println("|      - X: Acabar la partida             |");
+		System.out.println("|      - D: Desfer moviment               |");
+		System.out.println("|      - R: Refer moviment                |");
+		System.out.println("|      - G: Guardar partida               |");
+		System.out.println("|                                         |");
+		System.out.println("|   [Quan es demana posicion destí]       |");
+		System.out.println("|      - O: Tornar a escollir origen      |");
+		System.out.println("+-----------------------------------------+");
+		System.out.println();
 	}
 
 	/// brief Reads a chess position.
@@ -151,48 +198,73 @@ public class ConsoleGame {
 	///      positions. If the coordinate is valid returns the position and if it is
 	///      an X, returns a null position.
 	///
-	private static Position readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch, boolean originMove) throws IOException {
+	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch, boolean originMove) throws IOException {
 		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";
+		String s;
 		Position p = new Position(0, 0);
-		boolean valid = false;
+		boolean stop = false;
 		
 		do {
 			System.out.print(t);
-			String s = in.nextLine();
-			if (s.equals("X")) {
-				p = null;
-				valid = true;
-			} else if (s.length() >= 2) {
-				p.col = c.indexOf(s.charAt(0));
-				if (p.col != -1 && p.col < cols) {
-					try {
-						p.row = Integer.parseInt(s.substring(1)) - 1;
-						if (p.row >= 0 && p.row < rows) {
-							if(originMove && !ch.emptyCell(p)){ //Posicio origen
-								if(ch.cellColor(p) == colorTurn){
-									valid = true;								
-									System.out.println("Moviment llegit: " + p.toString());
-								}else {
-									System.out.println("És el torn de " + colorTurn.toString());
-									System.out.println("Escull una peça de " + colorTurn.toString());
+			s = in.nextLine();
+
+			/// Check if user wants to enter the origin coordinate again
+			if (s.equals("O") && originMove) {
+				System.out.println("Primer has d'entrar una coordenada d'origen!");
+			} else if (s.equals("O") && !originMove) {
+				System.out.println("Torna a entrar la coordenada d'origen");
+				stop = true;
+			} else {
+				switch (s) {
+					case "X": 
+						System.out.println("Sortint del joc (la partida no es guardarà)...");
+						stop = true;
+						break;
+					case "G":
+						System.out.println("Guardant partida...");
+						stop = true;
+						break;
+					case "D":
+						System.out.println("Desfent moviment...");
+						stop = true;
+						break;
+					case "R": 
+						System.out.println("Refent moviment...");
+						stop = true;
+						break;
+					default: {
+						p.col = c.indexOf(s.charAt(0));
+						if (p.col != -1 && p.col < cols) {
+							try {
+								p.row = Integer.parseInt(s.substring(1)) - 1;
+								if (p.row >= 0 && p.row < rows) {
+									if (originMove && !ch.emptyCell(p)) { 
+										if (ch.cellColor(p) == colorTurn){
+											stop = true;								
+											System.out.println("Moviment llegit: " + p.toString());
+										} else {
+											System.out.println("És el torn de " + colorTurn.toString());
+											System.out.println("Escull una peça de " + colorTurn.toString());
+										}
+									} else if (!originMove){ 
+										stop = true;
+									} else {
+										stop = false;
+									}
+								} else {
+									System.out.println("Fila fora de rang. Torna-hi...");
 								}
-							}else if(!originMove){ //Posicio desti
-								valid=true;
-							}else{
-								valid=false;
+							} catch (NumberFormatException e) {
+								System.out.println("Format incorrecte. Torna-hi...");
 							}
 						} else {
-							System.out.println("Fila fora de rang. Torna-hi...");
+							System.out.println("Columna fora de rang. Torna-hi...");
 						}
-					} catch (NumberFormatException e) {
-						System.out.println("Format incorrecte. Torna-hi...");
 					}
-				} else {
-					System.out.println("Columna fora de rang. Torna-hi...");
 				}
 			}
-		} while (!valid);
-		return p;
+		} while (!stop);
+		return s;
 	}
 }

@@ -7,11 +7,6 @@ public class Position {
         this.col = col; 
     }
 
-    @Override
-    public String toString() {
-	    return "(" + row() + "," + col() + ")";
-    }
-
     /**
      * @pre --
      * @post Returns the position's row
@@ -26,5 +21,16 @@ public class Position {
      */
     public int col(){
         return this.col;
+    }
+
+    public String toJson() {
+        StringBuilder s = new StringBuilder();
+        s.append(row).append(col);
+        return s.toString();
+    }
+
+    @Override
+    public String toString() {
+	    return "(" + row() + "," + col() + ")";
     }
 }

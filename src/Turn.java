@@ -1,11 +1,5 @@
 /*
  * @author Miquel de Domingo i Giralt
-<<<<<<< HEAD
- */
-
-/*
-=======
->>>>>>> 62071a8d0f37261f0ebc4f0b4051a260f54fe6ed
  * @file Turn.java
  * @class Turn 
  * @brief Helds the information of a turn
