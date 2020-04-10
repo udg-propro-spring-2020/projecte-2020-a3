@@ -1,9 +1,16 @@
+/*
+ * @author David Cáceres González
+ */
+
 import java.util.List;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-
+/* 
+ * @class Chess
+ * @brief Class that controls the movements and pieces
+ */
 public class Chess {
     private int rows;
     private int cols;
@@ -21,10 +28,20 @@ public class Chess {
     private List<Piece> pListWhite;
     private List<Piece> pListBlack;
 
-    /*
-    Descripcio:
-    Crea un Tauler d'escacs i inicialitza els atributs
-    */
+    /**
+     * @brief Chess constructor
+     * @param rows Board's row number
+     * @param cols Board's column number
+     * @param chessLimits Number maximum of chess in a game
+     * @param inactiveLimits Number maximum of inactive turns (without kill) in a game
+     * @param pList List of pieces
+     * @param castlings Special move
+     * @param initPositions Piece's initial default positions
+     * @param whiteInitPos White piece's initial positions
+     * @param blackInitPos Black piece's initial positions
+     * @param nextTurnColor Turn's color
+     * @param turnList Turn's list
+     */
     Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings,  
     List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
         this.rows = rows;
@@ -64,16 +81,7 @@ public class Chess {
                     Piece wPiece = new Piece(pList.get(j), wPos);
                     pListWhite.add(wPiece);
                     initPositionsWhite.put(wPos,wPiece);
-                    found=true;
-                }
-                j++;
-            }
-        }
-        for(int i = 0; i < blackInitPos.size(); i++){
-            int j = 0;
-            boolean found = false;
-            while(!found && j < pList.size()){
-                if(pList.get(j).name().charAt(0) == blackInitPos.get(i).second.charAt(0)){
+
                     Position bPos = new Position (Character.getNumericValue(blackInitPos.get(i).first.charAt(1)-1),c.indexOf(blackInitPos.get(i).first.charAt(0)));
                     Piece bPiece = new Piece(pList.get(j), bPos);
                     bPiece.symbolToLowerCase();
@@ -87,8 +95,10 @@ public class Chess {
     }
 
     /*
-    Coloca cada peça a la casella corresponent
-    */
+     * @brief Creates the board
+     * @pre Piece's initial positions are not empty
+     * @post Every piece is on her board's position
+     */
     private void createBoard(){
         for ( Position pos : initPositionsWhite.keySet() ) {
             board[pos.row()][pos.col()] = initPositionsWhite.get(pos);
@@ -98,14 +108,29 @@ public class Chess {
         }
     }
 
+    /*
+     * @brief Returns the piece's color
+     * @pre --
+     * @post Return the piece's color
+     */
     public PieceColor cellColor(Position p){
         return board[p.row()][p.col()].color();
     }
     
+    /*
+     * @brief Checks if the cell has any piece
+     * @pre --
+     * @post Return if the cell is empty
+     */
     public boolean emptyCell(Position p){
         return board[p.row()][p.col()]==null;
     }
 
+    /*
+     * @brief Show the board
+     * @pre --
+     * @post Show the board and every piece on her cell
+     */
     public String showBoard() {
 		String s;
 		String c = "abcdefghijklmnopqrstuvwxyz";
@@ -131,25 +156,38 @@ public class Chess {
 			s += c.charAt(j) + "   ";
 		return s;
     }
+
+    /*
+     * @brief Board's row number
+     * @pre --
+     * @post Return the board's row number
+     */
     public int rows(){
         return rows;
     }
+
+    /*
+     * @brief Board's column number
+     * @pre --
+     * @post Return the board's column number
+     */
     public int cols(){
         return cols;
     }
+    
     /*
-    Descripcio:
-    Comproba si la peça que es vol matar pertany al enemic i si es pot matar
-    Si la peça no es invulnerable o si es aliada, retorna false
+     * @brief Checks if a piece is from a diferent player
+     * @pre A piece is going to be killed
+     * @post Return if a piece is from a diferent player
      */
     private boolean diferentOwnerPiece(Piece originPiece, Piece destinyPiece){
         return originPiece.color() != destinyPiece.color();
     }
+    
     /*
-    Descripcio:
-    Comprova per les peces que es volen desplaçar amb un moviment que utilitzi
-    "a" si hi ha alguna peça en el seu cami.
-    Si no hi ha peces en el recorregut o la peça pot saltar retorna false
+     * @brief Checks if a piece is in any of the central squares of the movement
+     * @pre A movement is going to be realised 
+     * @post Return if there's any piece that the origin piece can't pass across
      */
     private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1){
         boolean pieceOnTheWay = false;
@@ -193,9 +231,12 @@ public class Chess {
         }
         return pieceOnTheWay;
     }
+
     /*
-    Descripcio:
-    Valida que un moviment sigui possible
+     * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
+     * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
+     * @pre A movement is going to be realised 
+     * @post Return if the moviment is possible to execute
      */
     public Pair<Boolean,Position> checkMovement(Position origin, Position destiny) {
 		Pair<Boolean,Position> r = new Pair<>(false,null);
