@@ -1,163 +1,78 @@
 /*
  * @author Miquel de Domingo i Giralt
- */
-
-import java.util.List;
-
-/*
  * @file Piece.java
  * @class Piece
  * @brief Holds the information of the piece
  */
+
 public class Piece {
-    private String name;                            ///< Piece name
-    private String symbol;                          ///< Piece symbol
-    private String wImage;                          ///< Piece white image location
-    private String bImage;                          ///< Piece black image location
-    private int value;                              ///< Piece in-game value
-    private boolean promotable;                     ///< Piece's capacity to be promotable
-    private boolean invulnerable;                   ///< Piece's capacity to be invulnerable
-    private List<Movement> movements;               ///< Piece's available movement options
-    private List<Movement> initialMovements;        ///< Piece's special movements when first move
-    private Position initialPosition;               ///< Piece's position when game starts
+    private static int idGenerator = 0;
 
-    /**
-     * @brief Piece constructor
-     * @param name             Piece's name
-     * @param symbol           Piece's symbol
-     * @param wImage           Piece's white image location
-     * @param bImage           Piece's black image location
-     * @param value            Piece's in-game value
-     * @param promotable       Piece's capacity to be promotable
-     * @param invulnerable     Piece's capacity to be invulnerable
-     * @param movements        Piece's available movement options
-     * @param initialMovements Piece's special movements when first move
-     */
-    Piece(String name, String symbol, String wImage, String bImage, int value, boolean promotable, boolean invulnerable,
-            List<Movement> movements, List<Movement> initialMovements) {
-        this.name = name;
-        this.symbol = symbol;
-        this.wImage = wImage;
-        this.bImage = bImage;
-        this.value = value;
-        this.promotable = promotable;
-        this.invulnerable = invulnerable;
-        this.movements = movements;
-        this.initialMovements = initialMovements;
-        this.initialPosition = null;
+    private int id;                 ///> Unique piece identifier
+    private PieceType type;         ///> Type of the piece
+    private String symbol;          ///> Piece's symbol
+    private boolean moved;          ///> Whether the piece has been moved or not
+    private PieceColor color;       ///> Piece's color
+
+    Piece(PieceType type, boolean moved, PieceColor color) {
+        this.id = idGenerator;
+        this.type = type;
+        this.moved = moved;
+        this.color = color;
+
+        /// Since type symbol will ALWAYS be uppercase, we only nee to change it
+        /// if the piece color is black.
+        this.symbol = color.toString().equals("NEGRES") 
+            ? type.ptSymbol().toLowerCase()
+            : type.ptSymbol();
+
+        idGenerator++;          /// Incement ID
     }
 
-    /// @brieg Copy constructor
-    /// @pre p is not null
-    /// @post Copies p properties to this
-    Piece(Piece p, Position pos) {
-        if (p == null) {
-            throw new NullPointerException();
-        } else {
-            this.name = p.name;
-            this.symbol = p.symbol;
-            this.wImage = p.wImage;
-            this.bImage = p.bImage;
-            this.value = p.value;
-            this.promotable = p.promotable;
-            this.invulnerable = p.invulnerable;
-            this.movements = p.movements;
-            this.initialMovements = p.initialMovements;
-            this.initialPosition = pos;
-        }
-    }
-
-    /// @brief Obtain the piece's symbol
+    /// @brief To know the piece's type
     /// @pre ---
-    /// @return @c this.symbol
-    /// @post Returns the piece's symbol which can't be @c null
+    /// @post Returns the piece's type
+    public PieceType type() {
+        return this.type;
+    }
+    
+    /// @brief To know the piece's symbol value
+    /// @pre ---
+    /// @post Returns the symbol value
     public String symbol() {
-        return symbol;
+        return this.symbol;
     }
 
-    /// @brief Obtain the piece's name
-    /// @pre --
-    /// @return @c this.name
-    /// @post Returns the piece's name which can't be @c null
-    public String name() {
-        return name;
+    /// @brief To know if the piece has moved or not
+    /// @pre ---
+    /// @post Returns the piece's moved current value
+    public boolean hasMoved() {
+        return this.moved;
     }
 
-    /// @brief Obtain the piece's list of movements
-    /// @pre --
-    /// @return @c this.movements
-    /// @post Returns the piece's list of movements which can't be @c null
-    public List<Movement> movements() {
-        return movements;
-    }
-
-    /// @brief Obtain the piece's list of initial movements
-    /// @pre --
-    /// @return @c this.initialMovements
-    /// @post Returns the piece's list of initialMovements which can be @c null
-    public List<Movement> initialMovements() {
-        return initialMovements;
-    }
-
-    /// @brief Obtain the piece's invulnerability
-    /// @pre --
-    /// @return @c this.invulnerable
-    /// @post Returns if the piece is invulnerable
-    public boolean invulnerability() {
-        return invulnerable;
-    }
-
-    /// @brief Change the symbol of the piece
-    /// @pre --
-    /// @post The piece's symbol is lower case
-    public void symbolToLowerCase() {
-        char act = Character.toLowerCase(this.symbol().charAt(0));
-        symbol = Character.toString(act);
-    }
-
+    /// @brief To know the piece's color
+    /// @pre ---
+    /// @post Returns the piece's color
     public PieceColor color() {
-        if (Character.isUpperCase(this.symbol().charAt(0))) {
-            return PieceColor.White;
+        return this.color;
+    }
+
+    /// @brief Toggles piece color
+    /// @pre ---
+    /// @post Inverts the value of the moved property
+    public void toggleMoved() {
+        this.moved = !this.moved;
+    }
+
+    /// @brief Piece comparator
+    /// @pre ---
+    /// @post Returns if the given piece equals the current 
+    /// @trhows NullPointerException if the given piece is null
+    public boolean equals(Piece p) throws NullPointerException {
+        if (p == null) {
+            throw new NullPointerException("Null piece");
         } else {
-            return PieceColor.Black;
+            return p.id == this.id;
         }
-    }
-
-    /// @brief Obtain the piece's initial position
-    /// @pre --
-    /// @return @c this.initialPosition
-    /// @post Returns the piece's initial position which can't be @c null
-    public Position initialPosition() {
-        return initialPosition;
-    }
-
-    /// @brief To know if the piece is still in the first position
-    /// @pre x, y > 0
-    /// @post True if the given coordinates are from the initial position
-    public boolean firstMove(int x, int y) {
-        return (this.initialPosition().row() == x && this.initialPosition().col() == y);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("\t").append(name).append(", ").append(symbol).append(", ").append(wImage).append(", ").append(bImage)
-                .append(", ").append(value).append(", ").append(promotable).append(", ").append(invulnerable)
-                .append("\n \t\tMOVEMENTS: \n");
-
-        for (Movement m : movements) {
-            s.append("\t\t" + m.toString());
-        }
-
-        if (initialMovements.isEmpty()) {
-            s.append("\t\tINITIAL MOVEMENTS: NONE\n");
-        } else {
-            s.append("\t\tINITIAL MOVEMENTS:\n");
-            for (Movement m : initialMovements) {
-                s.append("\t\t" + m.toString());
-            }
-        }
-
-        return s.toString();
     }
 }

@@ -197,8 +197,6 @@ public class ConsoleGame {
 				}
 			}
 		} while (!oValue.equals("X") && !oValue.equals("G"));
-
-		// TODO: Handle end of game
 	}
 
 	private static void showInstructions() {
