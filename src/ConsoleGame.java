@@ -107,21 +107,23 @@ public class ConsoleGame {
 	/// @post While the game has not finished nor been saved, will keep asking for
 	/// 	  turns. Once it has finished, prints who the winner is.
 	/// 
-	public static void play(Chess c) throws IOException {
+	public static void play(Chess chess) throws IOException {
 		String alph = "abcdefghijklmnopqrstuvwxyz";
 		String oValue = null;
 		String dValue = null;
-		int rows = c.rows();
-		int cols = c.cols();
-		PieceColor currentTurn = PieceColor.White; 		/// Always start whites
+		int rows = chess.rows();
+		int cols = chess.cols();
+		PieceColor currTurnColor = PieceColor.White; 		/// Always start whites
+		int turnNumber = 0;
+		int undoCount = 0;
 		List<Turn> turns = new ArrayList<>();
 
 		showInstructions();
 		
 		do {
-			System.out.println(c.showBoard());
+			System.out.println(chess.showBoard());
 			boolean originMove = true;
-			oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currentTurn, c, originMove);
+			oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
 			
 			switch (oValue) {
 				case "X": 
@@ -133,17 +135,30 @@ public class ConsoleGame {
 					System.out.println("Partida guardada!");
 					break;
 				case "D":
-					/// Todo: go backwards one movement
+					undoMovement(chess, turns, turnNumber);
+
+					/// Previous turn
+					turnNumber--;
+					/// Increase undone movements
+					undoCount++;
+
 					System.out.println("Moviment desfet!");
 					break;
 				case "R": 
-					/// Todo: go forwards one movement
+					/// There's no need to remove any of the movements done
+					redoMovement(chess, turns, turnNumber, undoCount);
+					
+					/// Next turn
+					turnNumber++;
+					/// Decrement the undone movements 
+					undoCount--;
+
 					System.out.println("Moviment refet!");
 					break;
 				default: {
 					originMove = false;
 					System.out.println("Origen: " + oValue);
-					dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currentTurn, c, originMove);
+					dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
 					
 					if (!dValue.equals("O")) {
 						System.out.println("Dest: " + dValue);
@@ -151,18 +166,28 @@ public class ConsoleGame {
 						/// Create positions with the read strings
 						Position origin = new Position(alph.indexOf(oValue.charAt(0)), Integer.parseInt(oValue.substring(1)) - 1);
 						Position dest =  new Position(alph.indexOf(dValue.charAt(0)), Integer.parseInt(dValue.substring(1)) - 1); 
-						Pair<Boolean, Position> r = c.checkMovement(origin, dest);
+						Pair<String, Position> moveResult = chess.checkMovement(origin, dest);
 
-						if (r.first) {
-							c.applyMovement(origin, dest, r.second);
+						if (moveResult != null) {
+							chess.applyMovement(origin, dest, moveResult.second);
 							
-							System.out.println("ERrr");
+							/// If the user has undone x movements, and not redone all of them
+							/// then the match mus continue from that and all the movements after the current
+							/// turn must be delelted.
+							if (undoCount > 0) {
+								/// turnNumber == turns.size() - undoCount
+								for (int i = turns.size() - 1; i >= turnNumber; i--) {
+									turns.remove(i);
+								}
+							}
+
 							/// Save turn
 							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
-							turns.add(new Turn(currentTurn, p, ""));
+							turns.add(new Turn(currTurnColor, p, "", moveResult));
+							turnNumber++;
 
 							/// Change turn
-							currentTurn = currentTurn == PieceColor.White 
+							currTurnColor = currTurnColor == PieceColor.White 
 								? PieceColor.Black 
 								: PieceColor.White;
 						} else {
@@ -172,8 +197,6 @@ public class ConsoleGame {
 				}
 			}
 		} while (!oValue.equals("X") && !oValue.equals("G"));
-
-		// TODO: Handle end of game
 	}
 
 	private static void showInstructions() {
@@ -190,7 +213,7 @@ public class ConsoleGame {
 		System.out.println();
 	}
 
-	/// brief Reads a chess position.
+	/// @brief Reads a chess position.
 	/// @pre ---
 	/// @post Prints the text held in t and reads positions like CN in which C is a
 	///      char (column of the chess table) and N a number (row of the chess
@@ -266,5 +289,44 @@ public class ConsoleGame {
 			}
 		} while (!stop);
 		return s;
+	}
+
+	private static void undoMovement(Chess chess, List<Turn> turns, int turnNumber) {
+		if (turnNumber == 0) {
+			/// Can't undo any movement
+			System.out.println("No és possible desfer el moviment!");
+			System.out.println("Per desfer un moviment se n'ha de fer un!");
+		} else {
+			/// Get current turn values
+			Turn temp = turns.get(turnNumber - 1);
+			Position origin = new Position(temp.origin());
+			Position destination = new Position(temp.destination());
+			Pair<String, Position> kill = temp.kill();
+
+			chess.undoMovement(origin, destination, kill);
+		}
+	}
+
+	/// @brief Redoes one movement
+	/// @pre turnNumber pointing after the last position of list
+	/// @post If possible, redoes one movement. It is only possible to redo if 
+	///       there has been at least one undone movement 
+	private static void redoMovement(Chess chess, List<Turn> turns, int turnNumber, int undoCount) throws Exception {
+		if (turnNumber == 0 || undoCount == 0) {
+			System.out.println("No és possible refer el moviment!");
+			System.out.println("Per refer un moviment se n'ha de desfer un!");
+		} else {
+			/// Get the current turn values
+			Turn temp = turns.get(turnNumber - 1);
+			Position origin = new Position(temp.origin());
+			Position destination = new Position(temp.destination());
+			Pair<Boolean, Position> movement = chess.checkMovement(origin, destination);
+			
+			if (movement != null) {
+				chess.applyMovement(origin, destination, movement.second);
+			} else {
+				throw new Exception("Redo movement incorrect");
+			}
+		}
 	}
 }

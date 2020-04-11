@@ -252,7 +252,7 @@ public class Chess {
      * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
      * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
      * @pre A movement is going to be realised 
-     * @post Return if the moviment is possible to execute
+     * @post Return if the moviment is possible to execute and the position of the piece to kill 
      */
     public Pair<Boolean,Position> checkMovement(Position origin, Position destiny) {
 		Pair<Boolean,Position> r = new Pair<>(false,null);
@@ -378,6 +378,32 @@ public class Chess {
         //this.isEqual(ch);
     }
 
+    /*
+     * @brief Checks all possible piece's movements and their values
+     * @pre -- 
+     * @post 
+     *//*
+    public List<Pair<Movement, int>> possibleMovesWithValues(Position origin){
+        List<Pair<Movement, int>> movesWithValues;
+        Piece p = board[origin.x()][origin.y()];
+        for(int i = 0; i < p.movements().size(); i++){
+            Movement mov = p.movements.get(i);            
+            if(p.color() == PieceColor.Black){
+                Position destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
+            }else{
+                Position destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
+            }
+            
+            Pair<Boolean,Position> punctuatedMovement = checkMovement(origin,destiny);
+            if(punctuatedMovement.first){
+                int value = board[destiny.row()][destiny.col()].value();
+                Pair<Movement, int> act= new Pair<>(mov,value);
+                movesWithValues.add(act);
+            }
+        }
+        return movesWithValues;
+        
+    }*/
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 

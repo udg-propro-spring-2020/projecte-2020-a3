@@ -33,7 +33,7 @@ public class ChessJSONParser {
         /// Skip two lines
         configSc.nextLine();
         configSc.nextLine();
-        List<Piece> pList = getListPieces(configSc);
+        List<PieceType> typeList = getListPieceTypes(configSc);
 
         /// Next two lines
         configSc.nextLine();
@@ -56,16 +56,16 @@ public class ChessJSONParser {
 
         /// INITIAL POSITIONS
         /// Read initial white positions
-        List<Pair<String, String>> whiteInitPos = !getString(mainSc.nextLine()).equals("[]")
-            ? getInitialPositionList(mainSc)            /// If not empty, read the list
-            : new ArrayList<>();                        /// If empty, create an empty list
+        List<Pair<Position, Piece>> whiteInitPos = !getString(mainSc.nextLine()).equals("[]")
+            ? getInitialPositionList(mainSc, typeList, PieceColor.White)            /// If not empty, read the list
+            : new ArrayList<>();                                                    /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
         /// Read initial white positions
-        List<Pair<String, String>> blackInitPos = !getString(mainSc.nextLine()).equals("[]")
-            ? getInitialPositionList(mainSc)            /// If not empty, read the list
-            : new ArrayList<>();                        /// If empty, create an empty list
+        List<Pair<Position, Piece>> blackInitPos = !getString(mainSc.nextLine()).equals("[]")
+            ? getInitialPositionList(mainSc, typeList, PieceColor.Black)            /// If not empty, read the list
+            : new ArrayList<>();                                                    /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
@@ -88,7 +88,7 @@ public class ChessJSONParser {
             nCols,
             chessLimits, 
             inactiveLimits, 
-            pList, 
+            typeList, 
             initialPos, 
             castlings,
             whiteInitPos,
@@ -160,8 +160,8 @@ public class ChessJSONParser {
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
     /// the line where the list ends.
-    private static List<Piece> getListPieces(Scanner fr) {
-        List<Piece> pList = new ArrayList<>();
+    private static List<PieceType> getListPieceTypes(Scanner fr) {
+        List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
 
         while (!s.equals("}")) { /// While not last object
@@ -208,7 +208,7 @@ public class ChessJSONParser {
             boolean invulnerable = getString(fr.nextLine()).equals("true") ? true : false;
 
             pList.add(
-                    new Piece(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements));
+                    new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements));
 
             s = fr.nextLine().trim();
         }
@@ -242,10 +242,10 @@ public class ChessJSONParser {
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
     /// the piece type.
-    private static List<Pair<String, String>> getInitialPositionList(Scanner fr) {
+    private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes, PieceColor color) {
         /// Skip {
         fr.nextLine();
-        List<Pair<String, String>> pList = new ArrayList<>();
+        List<Pair<Position, Piece>> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
         while (!s.equals("}")) {
             if (s.equals("},")) {
@@ -253,11 +253,30 @@ public class ChessJSONParser {
                 s = fr.nextLine().trim();
             }
 
-            String pos = getString(s);
-            String piece = getString(fr.nextLine());
-            boolean moved = getString(fr.nextLine()).equals("true") ? true : false; //? What to do with this boolean
+            Position pos = new Position(getString(s));
+            String ptName = getString(fr.nextLine())
+            PieceType type;
+            
+            for (PieceType pt : pTypes) {
+                /// Search for the type
+                if (pt.ptName() == ptName) {
+                    type = pt;
+                    break;
+                }
+            }
+            
+            boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
 
-            pList.add(new Pair<String, String>(pos, piece));
+            pList.add(
+                new Pair<Position, Piece>(
+                    pos,
+                    new Piece(
+                        type,
+                        moved,
+                        color
+                    )
+                )
+            );
             s = fr.nextLine().trim();
         }
 
