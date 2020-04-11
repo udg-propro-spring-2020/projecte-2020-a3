@@ -92,17 +92,17 @@ public class Chess {
             int j = 0;
             boolean found = false;
             while(!found && j < pList.size()){
-                if(pList.get(j).name().charAt(0) == whiteInitPos.get(i).second.charAt(0)){
+                if(pList.get(j).type().ptName().charAt(0) == whiteInitPos.get(i).second.charAt(0)){
                     Position wPos = new Position (Character.getNumericValue(whiteInitPos.get(i).first.charAt(1)-1),c.indexOf(whiteInitPos.get(i).first.charAt(0)));
-                    Piece wPiece = new Piece(pList.get(j), wPos);
-                    pListWhite.add(wPiece);
-                    initPositionsWhite.put(wPos,wPiece);
+                    Piece piece = pList.get(j);
+                    pListWhite.add(piece);
+                    initPositionsWhite.put(wPos,piece);
 
                     Position bPos = new Position (Character.getNumericValue(blackInitPos.get(i).first.charAt(1)-1),c.indexOf(blackInitPos.get(i).first.charAt(0)));
-                    Piece bPiece = new Piece(pList.get(j), bPos);
-                    bPiece.symbolToLowerCase();
-                    pListBlack.add(bPiece);
-                    initPositionsBlack.put(bPos,bPiece);
+                    //Piece bPiece = new Piece(pList.get(j));
+                    //bPiece.symbolToLowerCase();
+                    pListBlack.add(piece);
+                    initPositionsBlack.put(bPos,piece);
                     found=true;
                 }
                 j++;
@@ -162,7 +162,7 @@ public class Chess {
 			for (int j = 0; j < cols; ++j) {
 				Piece p = board[i][j];
 				if (p == null) s += " ";
-				else s += board[i][j].symbol();                        
+				else s += board[i][j].type().ptSymbol();                        
 				s += " | "; 
 			}
 			s += "\n" + l;
@@ -263,7 +263,7 @@ public class Chess {
 		int x1 = destiny.row;
 		int y1 = destiny.col;
         Piece p = board[x0][y0];
-        List<Movement> pieceMovements = p.movements();
+        List<Movement> pieceMovements = p.type().ptMovements();
         //Hi ha peça al origen
         if(board[x1][y1]!=null){//Hi ha peça al desti?
             enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
@@ -272,23 +272,22 @@ public class Chess {
         }
         int xMove=x1-x0;
         int yMove=y1-y0;
-        if(!Character.isUpperCase(board[x0][y0].symbol().charAt(0))){//Si la peça es negre (minuscula) invertim moviment
+        if(!Character.isUpperCase(board[x0][y0].type().ptSymbol().charAt(0))){//Si la peça es negre (minuscula) invertim moviment
             xMove = -1*xMove;
             yMove = -1*yMove;
         }                 
         List<Movement> allMoves = new ArrayList<Movement>();
         List<Movement> movesToRead = new ArrayList<Movement>();
-        if(p.initialMovements()!=null){  
+        if(p.type().ptInitMovements()!=null){  
             
-            allMoves.addAll(p.movements());
-            allMoves.addAll(p.initialMovements());
+            allMoves.addAll(p.type().ptMovements());
+            allMoves.addAll(p.type().ptInitMovements());
             //pieceMovements.addAll(p.initialMovements());
         }
-        if(p.firstMove(x0,y0)){
-            
+        if(p.hasMoved()){            
             movesToRead=allMoves;
         }else{
-            movesToRead=p.movements();
+            movesToRead=p.type().ptMovements();
         }
         int i = 0;
         boolean found = false;
@@ -382,12 +381,12 @@ public class Chess {
      * @brief Checks all possible piece's movements and their values
      * @pre -- 
      * @post 
-     *//*
+     */
     public List<Pair<Movement, int>> possibleMovesWithValues(Position origin){
         List<Pair<Movement, int>> movesWithValues;
         Piece p = board[origin.x()][origin.y()];
-        for(int i = 0; i < p.movements().size(); i++){
-            Movement mov = p.movements.get(i);            
+        for(int i = 0; i < p..type().ptMovements().size(); i++){
+            Movement mov = p.type().ptMovements.get(i);            
             if(p.color() == PieceColor.Black){
                 Position destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
             }else{
@@ -396,14 +395,14 @@ public class Chess {
             
             Pair<Boolean,Position> punctuatedMovement = checkMovement(origin,destiny);
             if(punctuatedMovement.first){
-                int value = board[destiny.row()][destiny.col()].value();
+                int value = board[destiny.row()][destiny.col()].type().ptValue();
                 Pair<Movement, int> act= new Pair<>(mov,value);
                 movesWithValues.add(act);
             }
         }
         return movesWithValues;
         
-    }*/
+    }
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
@@ -420,7 +419,7 @@ public class Chess {
                 Position p = new Position (i,j);
                 if(!emptyCell(p) && !c.emptyCell(p)){ //les dues plenes
                     //System.out.println("columna "+j+" de la fila "+i+" amb valors "+board[i][j].name()+" i "+c.board[i][j].name());
-                    if(board[i][j].color() != c.board[i][j].color() || board[i][j].name() != c.board[i][j].name()){
+                    if(board[i][j].color() != c.board[i][j].color() || board[i][j].type().ptName() != c.board[i][j].type().ptName()){
                         same = false;
                     }
                 }else{ //una es plena i l'altre no
