@@ -254,12 +254,12 @@ public class ChessJSONParser {
             }
 
             Position pos = new Position(getString(s));
-            String ptName = getString(fr.nextLine())
-            PieceType type;
+            String ptName = getString(fr.nextLine());
+            PieceType type = null;
             
             for (PieceType pt : pTypes) {
                 /// Search for the type
-                if (pt.ptName() == ptName) {
+                if (pt.ptName().equals(ptName)) {
                     type = pt;
                     break;
                 }
