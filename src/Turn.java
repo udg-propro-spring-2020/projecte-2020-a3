@@ -10,6 +10,13 @@ public class Turn {
     private String result;
     private Pair<String, Position> kill;
 
+    Turn(PieceColor color, Pair<String, String> move, String result) {
+        this.color = color;
+        this.move = move;
+        this.result = result;
+        this.kill = null;
+    }
+
     Turn(PieceColor color, Pair<String, String> move, String result, Pair<String, Position> kill) {
         this.color = color;
         this.move = move;
