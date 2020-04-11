@@ -65,6 +65,23 @@ public class Chess {
     }
 
     /*
+    Chess(Chess c){
+        this.rows = c.rows;
+        this.cols = c.cols;
+        this.chessLimits = c.chessLimits;
+        this.inactiveLimits = c.inactiveLimits;
+        this.pList = c.pList;
+        this.initPositions = c.initPositions;
+        this.castlings = c.castlings;
+        this.initPositionsWhite = c.initPositionsWhite;
+        this.initPositionsBlack = c.initPositionsBlack;
+        this.pListWhite = c.pListWhite;
+        this.pListBlack = c.pListBlack;
+        board = new Piece[this.rows][this.cols];
+        createBoard();
+    }*/
+
+    /*
      * @brief Create the initial position of the pieces
      * @pre --
      * @post Two HashMap with a pair of position / piece are created
@@ -329,6 +346,7 @@ public class Chess {
     S'ha modificat la llista de peces corresponent
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
+        //Chess ch = new Chess(this);
         if (death != null){
             int i=0;
             boolean found = false;
@@ -356,7 +374,40 @@ public class Chess {
         }
 
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
-		board[origin.row()][origin.col()] = null;      
+        board[origin.row()][origin.col()] = null;      
+        //this.isEqual(ch);
+    }
+
+    /*
+     * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
+     * @pre Chess is not null 
+     * @post Return if this chess is the same as another chess
+     */
+    public boolean isEqual(Chess c){
+        int i = 0;
+        int j = 0;
+        boolean same = true;
+        while(i < rows() && same){
+            //System.out.println("fila "+i);
+            j=0;
+            while(j < cols() && same){
+                Position p = new Position (i,j);
+                if(!emptyCell(p) && !c.emptyCell(p)){ //les dues plenes
+                    //System.out.println("columna "+j+" de la fila "+i+" amb valors "+board[i][j].name()+" i "+c.board[i][j].name());
+                    if(board[i][j].color() != c.board[i][j].color() || board[i][j].name() != c.board[i][j].name()){
+                        same = false;
+                    }
+                }else{ //una es plena i l'altre no
+                    if(emptyCell(p) && !c.emptyCell(p) || !emptyCell(p) && c.emptyCell(p)){
+                        same = false;
+                    }
+                }
+                j++;
+            }
+            i++;
+        }
+        //System.out.println("Els chess son iguals? "+same);
+        return same;
     }
 
     @Override
