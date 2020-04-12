@@ -16,8 +16,10 @@ public class Chess {
     private int cols;
     private int chessLimits;
     private int inactiveLimits;
-    private List<Piece> pList;
+    private List<PieceType> pList;
     private List<String> initPositions;
+    private List<Pair<Position, Piece>> whiteInitPos;
+    private List<Pair<Position, Piece>> blackInitPos;
     private HashMap<Position, Piece> initPositionsWhite;
     private HashMap<Position, Piece> initPositionsBlack;
     private List<Castling> castlings;
@@ -42,8 +44,8 @@ public class Chess {
      * @param nextTurnColor Turn's color
      * @param turnList Turn's list
      */
-    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<Piece> pList, List<String> initPositions, List<Castling> castlings,  
-    List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
+    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
+    List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
         this.rows = rows;
         this.cols = cols;
         this.chessLimits = chessLimits;
@@ -51,17 +53,19 @@ public class Chess {
         this.pList = pList;
         this.initPositions = initPositions;
         this.castlings = castlings;
-        
-        initPositionsWhite = new HashMap<Position,Piece>();
-        initPositionsBlack = new HashMap<Position,Piece>();
+        this.whiteInitPos = whiteInitPos;
+        this.blackInitPos = blackInitPos;
+        //initPositionsWhite = new HashMap<Position,Piece>();
+        //initPositionsBlack = new HashMap<Position,Piece>();
         pListWhite = new ArrayList<Piece>();
         pListBlack = new ArrayList<Piece>();
         if (this.rows < 4 || this.cols < 4 || this.cols > 16 || this.rows > 16)
                 throw new RuntimeException("El nombre de files i columnes ha de ser entre 4 i 16");
         board = new Piece[this.rows][this.cols];
         
-        createInitialPositions(whiteInitPos,blackInitPos);
+        //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        System.out.println(showBoard());
     }
 
     /*
@@ -85,7 +89,7 @@ public class Chess {
      * @brief Create the initial position of the pieces
      * @pre --
      * @post Two HashMap with a pair of position / piece are created
-     */
+     *//*
     private void createInitialPositions(List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos){
         String c = "abcdefghijklmnopqrstuvwxyz";
         for(int i = 0; i < whiteInitPos.size(); i++){
@@ -108,7 +112,7 @@ public class Chess {
                 j++;
             }
         }
-    }
+    }*/
 
     /*
      * @brief Creates the board
@@ -116,11 +120,11 @@ public class Chess {
      * @post Every piece is on her board's position
      */
     private void createBoard(){
-        for ( Position pos : initPositionsWhite.keySet() ) {
-            board[pos.row()][pos.col()] = initPositionsWhite.get(pos);
-        }
-        for ( Position pos : initPositionsBlack.keySet() ) {
-            board[pos.row()][pos.col()] = initPositionsBlack.get(pos);
+        for ( int i=0; i<blackInitPos.size(); i++) {
+            board[whiteInitPos.get(i).first.row()-1][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;
+            pListWhite.add(whiteInitPos.get(i).second);
+            board[blackInitPos.get(i).first.row()-1][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
+            pListBlack.add(blackInitPos.get(i).second);
         }
     }
 
@@ -151,15 +155,15 @@ public class Chess {
 		String s;
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		String l = "   ";
-		for (int j = 0; j < cols; ++j)
+		for (int j = 0; j < cols(); ++j)
 			l += "+---";
 		l += "+\n";
 		s = l;
-		for (int i = 0; i < rows; ++i) {
+		for (int i = 0; i < rows(); ++i) {
 			if (i < 9)
                             s += " ";
 			s += (i+1) + " | ";
-			for (int j = 0; j < cols; ++j) {
+			for (int j = 0; j < cols(); ++j) {
 				Piece p = board[i][j];
 				if (p == null) s += " ";
 				else s += board[i][j].type().ptSymbol();                        
@@ -168,8 +172,8 @@ public class Chess {
 			s += "\n" + l;
 		}
 		s += "     ";
-		for (int j = 0; j < cols; ++j)
-			s += c.charAt(j) + "   ";
+		for (int j = 0; j < cols(); ++j)
+            s += c.charAt(j) + "   ";            
 		return s;
     }
 
@@ -272,7 +276,7 @@ public class Chess {
         }
         int xMove=x1-x0;
         int yMove=y1-y0;
-        if(!Character.isUpperCase(board[x0][y0].type().ptSymbol().charAt(0))){//Si la peça es negre (minuscula) invertim moviment
+        if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
             xMove = -1*xMove;
             yMove = -1*yMove;
         }                 
@@ -284,7 +288,9 @@ public class Chess {
             allMoves.addAll(p.type().ptInitMovements());
             //pieceMovements.addAll(p.initialMovements());
         }
-        if(p.hasMoved()){            
+        System.out.println(p.hasMoved());
+        if(!p.hasMoved()){    
+            p.toggleMoved();
             movesToRead=allMoves;
         }else{
             movesToRead=p.type().ptMovements();
@@ -346,6 +352,7 @@ public class Chess {
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
+        possibleMovesWithValues(origin);
         if (death != null){
             int i=0;
             boolean found = false;
@@ -381,28 +388,36 @@ public class Chess {
      * @brief Checks all possible piece's movements and their values
      * @pre -- 
      * @post 
-     */
-    public List<Pair<Movement, int>> possibleMovesWithValues(Position origin){
-        List<Pair<Movement, int>> movesWithValues;
-        Piece p = board[origin.x()][origin.y()];
-        for(int i = 0; i < p..type().ptMovements().size(); i++){
-            Movement mov = p.type().ptMovements.get(i);            
+     *//*
+    public List<Pair<Movement, Integer>> possibleMovesWithValues(Position origin){
+        List<Pair<Movement, Integer>> movesWithValues = new ArrayList<Pair<Movement, Integer>>();
+        Position destiny;
+        int value = 0;
+        System.out.println("Revisem els moviments possibles: ");
+        Piece p = board[origin.row()][origin.col()];
+        for(int i = 0; i < p.type().ptMovements().size(); i++){
+            System.out.println("Mirem moviment: "+p.type().ptMovements().get(i).toString());
+            Movement mov = p.type().ptMovements().get(i);            
             if(p.color() == PieceColor.Black){
-                Position destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
+                destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
             }else{
-                Position destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
-            }
+                destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
+            }            
             
             Pair<Boolean,Position> punctuatedMovement = checkMovement(origin,destiny);
             if(punctuatedMovement.first){
-                int value = board[destiny.row()][destiny.col()].type().ptValue();
-                Pair<Movement, int> act= new Pair<>(mov,value);
+                System.out.println(destiny.row()+" "+destiny.col());
+                if(punctuatedMovement.second!=null){
+                    value = board[destiny.row()][destiny.col()].type().ptValue();
+                }
+                Pair<Movement, Integer> act= new Pair<>(mov,value);
                 movesWithValues.add(act);
             }
+            System.out.println("El desti es "+destiny+" i te un valor de "+value);
         }
         return movesWithValues;
         
-    }
+    }*/
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
@@ -444,7 +459,7 @@ public class Chess {
         .append("Inactive Turns Limits: " + inactiveLimits + ",\n")
         .append("PIECES: \n");
         
-        for (Piece p : pList) {
+        for (PieceType p : pList) {
             s.append(p.toString());
         }
 
