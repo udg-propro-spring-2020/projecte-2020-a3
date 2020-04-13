@@ -27,8 +27,8 @@ public class Chess {
     
     
     //Per ajudar amb coneixement / CPU
-    private List<Piece> pListWhite;
-    private List<Piece> pListBlack;
+    private List<Pair<Position, Piece>> pListWhite;
+    private List<Pair<Position, Piece>> pListBlack;
 
     /**
      * @brief Chess constructor
@@ -57,8 +57,8 @@ public class Chess {
         this.blackInitPos = blackInitPos;
         //initPositionsWhite = new HashMap<Position,Piece>();
         //initPositionsBlack = new HashMap<Position,Piece>();
-        pListWhite = new ArrayList<Piece>();
-        pListBlack = new ArrayList<Piece>();
+        pListWhite = new ArrayList<Pair<Position, Piece>>();
+        pListBlack = new ArrayList<Pair<Position, Piece>>();
         if (this.rows < 4 || this.cols < 4 || this.cols > 16 || this.rows > 16)
                 throw new RuntimeException("El nombre de files i columnes ha de ser entre 4 i 16");
         board = new Piece[this.rows][this.cols];
@@ -98,34 +98,6 @@ public class Chess {
         createBoard();
     }*/
 
-    /*
-     * @brief Create the initial position of the pieces
-     * @pre --
-     * @post Two HashMap with a pair of position / piece are created
-     *//*
-    private void createInitialPositions(List<Pair<String,String>> whiteInitPos, List<Pair<String,String>> blackInitPos){
-        String c = "abcdefghijklmnopqrstuvwxyz";
-        for(int i = 0; i < whiteInitPos.size(); i++){
-            int j = 0;
-            boolean found = false;
-            while(!found && j < pList.size()){
-                if(pList.get(j).type().ptName().charAt(0) == whiteInitPos.get(i).second.charAt(0)){
-                    Position wPos = new Position (Character.getNumericValue(whiteInitPos.get(i).first.charAt(1)-1),c.indexOf(whiteInitPos.get(i).first.charAt(0)));
-                    Piece piece = pList.get(j);
-                    pListWhite.add(piece);
-                    initPositionsWhite.put(wPos,piece);
-
-                    Position bPos = new Position (Character.getNumericValue(blackInitPos.get(i).first.charAt(1)-1),c.indexOf(blackInitPos.get(i).first.charAt(0)));
-                    //Piece bPiece = new Piece(pList.get(j));
-                    //bPiece.symbolToLowerCase();
-                    pListBlack.add(piece);
-                    initPositionsBlack.put(bPos,piece);
-                    found=true;
-                }
-                j++;
-            }
-        }
-    }*/
 
     /*
      * @brief Creates the board
@@ -134,11 +106,11 @@ public class Chess {
      */
     private void createBoard(){
         for ( int i=0; i<blackInitPos.size(); i++) {
-            board[whiteInitPos.get(i).first.row()-1][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;
-            pListWhite.add(whiteInitPos.get(i).second);
+            board[whiteInitPos.get(i).first.row()-1][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
             board[blackInitPos.get(i).first.row()-1][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
-            pListBlack.add(blackInitPos.get(i).second);
         }
+        pListWhite = whiteInitPos;
+        pListBlack = blackInitPos;
     }
 
     /*
@@ -213,7 +185,7 @@ public class Chess {
      * @pre --
      * @post Return a list of white pieces
      */
-    public List<Piece> pListWhite(){
+    public List<Pair<Position,Piece>> pListWhite(){
         return pListWhite;
     }
 
@@ -223,7 +195,7 @@ public class Chess {
      * @pre --
      * @post Return a list of black pieces
      */
-    public List<Piece> pListBlack(){
+    public List<Pair<Position,Piece>> pListBlack(){
         return pListBlack;
     }
 
@@ -395,35 +367,37 @@ public class Chess {
         //Chess ch = new Chess(this);
         //possibleMovesWithValues(origin);
         if (death != null){
-            int i=0;
-            boolean found = false;
-            char deathSymbol = board[death.row()][death.col()].symbol().charAt(0);//symbol de la peça a matar
-            if(Character.isUpperCase(deathSymbol)){//Treballem amb blanques
-                while(i < pListWhite.size() && !found){
-                    //System.out.println(pListWhite.get(i).symbol());
-                    if(pListWhite.get(i).symbol().charAt(0) == deathSymbol){
-                        pListWhite.remove(i);
-                        found = true;
-                    }
-                    i++;
-                }
-            }else{
-                while(i < pListBlack.size() && !found){
-                    if(pListBlack.get(i).symbol().charAt(0) == deathSymbol){
-                        pListBlack.remove(i);
-                        found = true;
-                    }
-                    i++;
-                }
-            }
-            deletePiece(board[death.row()][death.col()]);
+            deletePiece(board[death.row()][death.col()]);        
             board[death.row()][death.col()] = null;
-            
+            //AJUNTAR changePiece i deletePiece tot a cangePiece amb el param deadPiece.
         }
-
+        changePiecePosition(origin,destiny);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;      
         //this.isEqual(ch);
+    }
+
+    private void changePiecePosition(Position origin, Position destiny){
+        List<Pair<Position,Piece>> listToChange = new ArrayList<Pair<Position,Piece>>();
+        boolean search=true;
+        Piece pOrig = board[origin.row()][origin.col()];
+        if(pOrig.color() == PieceColor.White){
+            listToChange = pListWhite;
+        }else{
+            listToChange = pListBlack;
+        }
+        int i=0;
+        while(i<listToChange.size() && search){
+            if(listToChange.get(i).second.equals(pOrig)){
+                listToChange.get(i).first = destiny;
+                search = false;
+            }
+            i++;    
+        }/*
+        for(int j=0;j<listToChange.size();j++){
+            System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.toString());
+        }*/
+
     }
 
     /*
@@ -432,7 +406,7 @@ public class Chess {
      * @post A piece have been deleted from the list
      */
     private void deletePiece(Piece p){
-        List<Piece> listToRemoveOn = new ArrayList<Piece>();
+        List<Pair<Position,Piece>> listToRemoveOn = new ArrayList<Pair<Position,Piece>>();
         boolean search=true;
         if(p.color() == PieceColor.White){
             listToRemoveOn = pListWhite;
@@ -441,14 +415,17 @@ public class Chess {
         }
         int i=0;
         while(i<listToRemoveOn.size() && search){
-            if(listToRemoveOn.get(i).type().ptName() == p.type().ptName()){
+            if(listToRemoveOn.get(i).second.type().ptName() == p.type().ptName()){
                 listToRemoveOn.remove(i);
                 search = false;
             }
             i++;
-        }
+        }/*
+        for(int j=0;j<listToRemoveOn.size();j++){
+            System.out.println(listToRemoveOn.get(j).second.type().ptName());
+        }*/
     }
-    
+
     /*
      * @brief Checks all possible piece's movements and their values
      * @pre -- 
