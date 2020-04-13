@@ -43,9 +43,9 @@ public class Knowledge{
         Pair<Position,Position> tiradaGuanyadora;
         Pair<Position,Position> tiradaPerdedora;
 
-        if(guanyador==1){ //ens saltem la priemra blanca i tambe l'apliquem(encara s'ha de fer)
+        if(guanyador==1){ //si gunyen negres ens saltem el primer moviment
             tiradaPerdedora=reversePosition(it.next(),chess);
-            chess.applyMovement(tiradaPerdedora.first,tiradaPerdedora.second);
+            chess.applyMovement(tiradaPerdedora.first,tiradaPerdedora.second,null);
         }
 
         ant = null;
@@ -53,9 +53,9 @@ public class Knowledge{
         while(it.hasNext()){
             if(guanyador==0){//guanyen blanques
                 tiradaGuanyadora=it.next();
-                chess.applyMovement(tiradaGuanyadora.first,tiradaPerdedora.second);
+                chess.applyMovement(tiradaGuanyadora.first,tiradaPerdedora.second,null);
                 tiradaPerdedora=it.next();
-                chess.applyMovement(tiradaPerdedora.first,tiradaPerdedora.second);
+                chess.applyMovement(tiradaPerdedora.first,tiradaPerdedora.second,null);
                 Node n = new Node(tiradaGuanyadora,tiradaPerdedora); 
             }
             else{ //guanyen negres
