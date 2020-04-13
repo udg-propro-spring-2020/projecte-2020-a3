@@ -65,6 +65,19 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        Position p=new Position(7,1);
+        //Position p2=new Position(3,0);
+        Position p3=new Position(0,7);
+        board[1][7]=null;
+        board[6][3]=null;
+        board[6][2]=null;
+        board[0][6]=null;
+        //applyMovement(p,p2,null);
+        Position p4=new Position(7,3);
+        Position p5=new Position(5,3);
+        applyMovement(p4,p5,null);
+        destinyWithValues(p5);
+
         System.out.println(showBoard());
     }
 
@@ -194,6 +207,26 @@ public class Chess {
     public int cols(){
         return cols;
     }
+
+    /*
+     * @brief List of white pieces
+     * @pre --
+     * @post Return a list of white pieces
+     */
+    public List<Piece> pListWhite(){
+        return pListWhite;
+    }
+
+
+    /*
+     * @brief List of black pieces
+     * @pre --
+     * @post Return a list of black pieces
+     */
+    public List<Piece> pListBlack(){
+        return pListBlack;
+    }
+
     
     /*
      * @brief Checks if a piece is from a diferent player
@@ -252,6 +285,11 @@ public class Chess {
         return pieceOnTheWay;
     }
 
+
+
+    private boolean destinyInLimits(int x1, int y1){
+        return ((y1 >=0 && y1 < cols()) && (x1 >=0 && x1 < rows()));
+    }
     /*
      * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
      * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
@@ -269,37 +307,38 @@ public class Chess {
         Piece p = board[x0][y0];
         List<Movement> pieceMovements = p.type().ptMovements();
         //Hi ha peça al origen
-        if(board[x1][y1]!=null){//Hi ha peça al desti?
-            enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
-            //System.out.println("Hi ha peça");   
-            //System.out.println(enemiePieceOnDestiny);        
-        }
-        int xMove=x1-x0;
-        int yMove=y1-y0;
-        if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
-            xMove = -1*xMove;
-            yMove = -1*yMove;
-        }                 
-        List<Movement> allMoves = new ArrayList<Movement>();
-        List<Movement> movesToRead = new ArrayList<Movement>();
-        if(p.type().ptInitMovements()!=null){  
+        if(destinyInLimits(x1,y1)){
+            if(board[x1][y1]!=null)//Hi ha peça al desti?
+                enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
+                //System.out.println("Hi ha peça");   
+                //System.out.println(enemiePieceOnDestiny);        
             
-            allMoves.addAll(p.type().ptMovements());
-            allMoves.addAll(p.type().ptInitMovements());
-            //pieceMovements.addAll(p.initialMovements());
-        }
-        System.out.println(p.hasMoved());
-        if(!p.hasMoved()){    
-            p.toggleMoved();
-            movesToRead=allMoves;
-        }else{
-            movesToRead=p.type().ptMovements();
-        }
-        int i = 0;
-        boolean found = false;
-        boolean pieceOnTheWay = false;
-        boolean diagonalCorrect = true;
-        while(i < movesToRead.size() && !found){
+            int xMove=x1-x0;
+            int yMove=y1-y0;
+            if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
+                xMove = -1*xMove;
+                yMove = -1*yMove;
+            }                 
+            List<Movement> allMoves = new ArrayList<Movement>();
+            List<Movement> movesToRead = new ArrayList<Movement>();
+            if(p.type().ptInitMovements()!=null){  
+                
+                allMoves.addAll(p.type().ptMovements());
+                allMoves.addAll(p.type().ptInitMovements());
+                //pieceMovements.addAll(p.initialMovements());
+            }
+            System.out.println(p.hasMoved());
+            if(!p.hasMoved()){    
+                p.toggleMoved();
+                movesToRead=allMoves;
+            }else{
+                movesToRead=p.type().ptMovements();
+            }
+            int i = 0;
+            boolean found = false;
+            boolean pieceOnTheWay = false;
+            boolean diagonalCorrect = true;
+            while(i < movesToRead.size() && !found){
                 Movement act = movesToRead.get(i);         
                 System.out.println(act.toString());            
                 if((yMove == act.movY() || act.movY() == 50) && (xMove == act.movX() || act.movX() == 50)){                        
@@ -321,6 +360,7 @@ public class Chess {
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                 if(board[x1][y1]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
                                     System.out.println("La peça que vols matar es teva");
+                                
                                 }else{
                                     r.first = true;
                                     r.second = null; 
@@ -336,9 +376,10 @@ public class Chess {
                     }
                 }
             i++; 
-            //captura: 0=no, 1=si, 2=mov possible nomes al matar
-        }                     
-		return r;
+                //captura: 0=no, 1=si, 2=mov possible nomes al matar
+            }   
+        }                  
+    return r;
     }
 
     /** @brief Aplica un moviment
@@ -352,7 +393,7 @@ public class Chess {
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
-        possibleMovesWithValues(origin);
+        //possibleMovesWithValues(origin);
         if (death != null){
             int i=0;
             boolean found = false;
@@ -375,8 +416,9 @@ public class Chess {
                     i++;
                 }
             }
+            deletePiece(board[death.row()][death.col()]);
             board[death.row()][death.col()] = null;
-            //Afegir a List mortes ?
+            
         }
 
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
@@ -385,39 +427,162 @@ public class Chess {
     }
 
     /*
+     * @brief Delete a piece from the according list
+     * @pre --
+     * @post A piece have been deleted from the list
+     */
+    private void deletePiece(Piece p){
+        List<Piece> listToRemoveOn = new ArrayList<Piece>();
+        boolean search=true;
+        if(p.color() == PieceColor.White){
+            listToRemoveOn = pListWhite;
+        }else{
+            listToRemoveOn = pListBlack;
+        }
+        int i=0;
+        while(i<listToRemoveOn.size() && search){
+            if(listToRemoveOn.get(i).type().ptName() == p.type().ptName()){
+                listToRemoveOn.remove(i);
+                search = false;
+            }
+            i++;
+        }
+    }
+    
+    /*
      * @brief Checks all possible piece's movements and their values
      * @pre -- 
      * @post 
-     *//*
-    public List<Pair<Movement, Integer>> possibleMovesWithValues(Position origin){
-        List<Pair<Movement, Integer>> movesWithValues = new ArrayList<Pair<Movement, Integer>>();
-        Position destiny;
+    */
+    private boolean controller(Position origin, Position destiny, Movement mov, List<Pair<Position, Integer>> destinyWithValues){
+        Pair<Position, Integer> act = new Pair<>(destiny, 0);
         int value = 0;
-        System.out.println("Revisem els moviments possibles: ");
+        boolean continueFunc = true;    
+        if(board[destiny.row()][destiny.col()] == null && mov.captureSign() != 2){ //Moviment normal sense matar
+            act = new Pair<>(destiny, 0);
+            destinyWithValues.add(act);
+        }else if(board[destiny.row()][destiny.col()] != null && mov.captureSign() != 0 && diferentOwnerPiece(board[origin.row()][origin.col()],board[destiny.row()][destiny.col()])){
+            value = board[destiny.row()][destiny.col()].type().ptValue();
+            act = new Pair<>(destiny, value);
+            destinyWithValues.add(act);
+            continueFunc=false;      //Arriba fins que mata una                      
+        }else{                
+            continueFunc=false;  //Troba una peça aliada
+        }             
+    
+        return continueFunc;
+    }
+
+    /*Sempre mirem ambod costats: msg forum sobre a -a */
+    public List<Pair<Position, Integer>> destinyWithValues(Position origin){
+        List<Pair<Position, Integer>> destinyWithValues = new ArrayList<Pair<Position, Integer>>();
+        Position destiny;
+        int value = 0;        
         Piece p = board[origin.row()][origin.col()];
-        for(int i = 0; i < p.type().ptMovements().size(); i++){
-            System.out.println("Mirem moviment: "+p.type().ptMovements().get(i).toString());
-            Movement mov = p.type().ptMovements().get(i);            
-            if(p.color() == PieceColor.Black){
-                destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
-            }else{
-                destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
-            }            
-            
-            Pair<Boolean,Position> punctuatedMovement = checkMovement(origin,destiny);
-            if(punctuatedMovement.first){
-                System.out.println(destiny.row()+" "+destiny.col());
-                if(punctuatedMovement.second!=null){
-                    value = board[destiny.row()][destiny.col()].type().ptValue();
+        List<Movement> movesToRead = new ArrayList<Movement>();
+        movesToRead.addAll(p.type().ptMovements());
+        /*
+
+            initialMoves
+
+        */
+        for(int i=0; i<movesToRead.size(); i++){
+            boolean continueFunc = true; //False si es troba amb una peça pel cami
+            Movement mov = movesToRead.get(i);
+            System.out.println(mov.toString());
+            if((mov.movX() == 50 || mov.movX() == -50) && (mov.movY() == 50 || mov.movY() == -50)){//Diagonals            
+                continueFunc = true;
+                int y=1;
+                int x=1;
+                if(mov.movX() == 50 && mov.movY() == 50 || mov.movX() == -50 && mov.movY() == -50){
+                    while(destinyInLimits(origin.row()+x,origin.col()+y) && continueFunc){    //De dreta a esquerra , de dalt a baix 
+                        System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
+                        destiny = new Position(origin.row()+x, origin.col()+y);
+                        continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                        x++;
+                        y++;
+                    }
+                    continueFunc = true;
+                    y=1;
+                    x=1;
+                    while(destinyInLimits(origin.row()-x,origin.col()-y) && continueFunc){    //De esquerra a dreta, de baix a dalt 
+                        System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
+                        destiny = new Position(origin.row()-x, origin.col()-y);
+                        continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                        x++;
+                        y++;
+                    }
                 }
-                Pair<Movement, Integer> act= new Pair<>(mov,value);
-                movesWithValues.add(act);
+                if(mov.movX() == -50 && mov.movY() == 50 || mov.movX() == +50 && mov.movY() == -50){
+                    while(destinyInLimits(origin.row()-x,origin.col()+y) && continueFunc){    //De dreta a esquerra, de baix a dalt 
+                        System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
+                        destiny = new Position(origin.row()-x, origin.col()+y);
+                        continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                        x++;
+                        y++;
+                    }
+                    continueFunc=true;
+                    y=1;
+                    x=1;
+                    while(destinyInLimits(origin.row()+x,origin.col()-y) && continueFunc){    //De esquerra a dreta, de dalt a baix mentre estiguis dins els limits
+                        System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
+                        destiny = new Position(origin.row()+x, origin.col()-y);
+                        continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                        x++;
+                        y++;
+                    }
+                }
+            }else if((mov.movY() == 50 || mov.movY() == -50)){//Es mou horitzontal
+                int y=1;
+                while(destinyInLimits(origin.row()+mov.movX(), origin.col()+y) && continueFunc){    //De dreta a esquerra  
+                    System.out.println(mov.movX()+" "+y);                                                       
+                    destiny = new Position(origin.row()+mov.movX(), origin.col()+y);
+                    continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                    y++;
+                }
+                continueFunc=true;
+                y=1;
+                while(destinyInLimits(origin.row()+mov.movX(), origin.col()-y) && continueFunc){     //De esquerra a dreta 
+                    System.out.println(mov.movX()+" "+y);                                                       
+                    destiny = new Position(origin.row()-mov.movX(), origin.col()-y);
+                    continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                    y++;
+                }
             }
-            System.out.println("El desti es "+destiny+" i te un valor de "+value);
+            else if((mov.movX() == 50 || mov.movX() == -50)){//Es mou en vertical, nomes la fila cambia
+                int x=1;
+                while(destinyInLimits(origin.row()+x, origin.col()+mov.movY()) && continueFunc){  //De dalt a baix 
+                    System.out.println(x+" "+mov.movY());                                                       
+                    destiny = new Position(origin.row()+x, origin.col()+mov.movY());
+                    continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                    x++;
+                }
+                continueFunc=true; 
+                x=1;
+                while(destinyInLimits(origin.row()-x, origin.col()-mov.movY()) && continueFunc){  //De dalt a baix 
+                    System.out.println(x+" "+mov.movY());                                                       
+                    destiny = new Position(origin.row()-x, origin.col()-mov.movY());
+                    continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
+                    x++;
+                }
+            }else{      
+                //System.out.println("F");
+                if(p.color() == PieceColor.Black){
+                    destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
+                }else{
+                    destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
+                }
+                if(destinyInLimits(destiny.row(),destiny.col()))
+                    continueFunc=controller(origin,destiny,mov,destinyWithValues);
+            }
         }
-        return movesWithValues;
-        
-    }*/
+        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        return destinyWithValues;
+    }
+
+
+
+
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
