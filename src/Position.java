@@ -18,7 +18,7 @@ public class Position {
     /// @brief Construct a position from a string
     /// @pre s == XY where X is the column and Y the row
     public Position(String s) {
-        this.row = Character.getNumericValue(s.charAt(1));
+        this.row = Character.getNumericValue(s.charAt(1) - 1);
         this.col = alph.indexOf(s.charAt(0));
     }
 

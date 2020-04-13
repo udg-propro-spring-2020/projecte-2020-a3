@@ -106,8 +106,8 @@ public class Chess {
      */
     private void createBoard(){
         for ( int i=0; i<blackInitPos.size(); i++) {
-            board[whiteInitPos.get(i).first.row()-1][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
-            board[blackInitPos.get(i).first.row()-1][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
+            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
+            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
         }
         pListWhite = whiteInitPos;
         pListBlack = blackInitPos;
@@ -393,10 +393,10 @@ public class Chess {
                 search = false;
             }
             i++;    
-        }/*
+        }
         for(int j=0;j<listToChange.size();j++){
-            System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.toString());
-        }*/
+            System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
+        }
 
     }
 
