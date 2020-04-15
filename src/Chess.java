@@ -366,25 +366,35 @@ public class Chess {
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
         //possibleMovesWithValues(origin);
+        Piece deadPiece = null;
         if (death != null){
-            deletePiece(board[death.row()][death.col()]);        
+            //deletePiece(board[death.row()][death.col()]);  
+            deadPiece = board[death.row()][death.col()];      
             board[death.row()][death.col()] = null;
-            //AJUNTAR changePiece i deletePiece tot a cangePiece amb el param deadPiece.
         }
-        changePiecePosition(origin,destiny);
+        changePiecesList(origin,destiny,deadPiece);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;      
         //this.isEqual(ch);
     }
 
-    private void changePiecePosition(Position origin, Position destiny){
+    /*
+     * @brief Change the piece's position and remove a piece from the according list if necessary
+     * @pre --
+     * @post Lists of pieces has been updated
+     */
+    private void changePiecesList(Position origin, Position destiny, Piece deadPiece){
         List<Pair<Position,Piece>> listToChange = new ArrayList<Pair<Position,Piece>>();
+        List<Pair<Position,Piece>> listToRemoveOn = new ArrayList<Pair<Position,Piece>>();
         boolean search=true;
         Piece pOrig = board[origin.row()][origin.col()];
+        
         if(pOrig.color() == PieceColor.White){
             listToChange = pListWhite;
+            listToRemoveOn = pListBlack;
         }else{
             listToChange = pListBlack;
+            listToRemoveOn = pListWhite;
         }
         int i=0;
         while(i<listToChange.size() && search){
@@ -394,36 +404,22 @@ public class Chess {
             }
             i++;    
         }
+        if(deadPiece!=null){
+            i=0;
+            search=true;
+            while(i<listToRemoveOn.size() && search){
+                if(listToRemoveOn.get(i).second.equals(deadPiece)){
+                    System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
+                    listToRemoveOn.remove(i);
+                    search = false;
+                }
+                i++;
+            }
+        }
         for(int j=0;j<listToChange.size();j++){
             System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
         }
 
-    }
-
-    /*
-     * @brief Delete a piece from the according list
-     * @pre --
-     * @post A piece have been deleted from the list
-     */
-    private void deletePiece(Piece p){
-        List<Pair<Position,Piece>> listToRemoveOn = new ArrayList<Pair<Position,Piece>>();
-        boolean search=true;
-        if(p.color() == PieceColor.White){
-            listToRemoveOn = pListWhite;
-        }else{
-            listToRemoveOn = pListBlack;
-        }
-        int i=0;
-        while(i<listToRemoveOn.size() && search){
-            if(listToRemoveOn.get(i).second.type().ptName() == p.type().ptName()){
-                listToRemoveOn.remove(i);
-                search = false;
-            }
-            i++;
-        }/*
-        for(int j=0;j<listToRemoveOn.size();j++){
-            System.out.println(listToRemoveOn.get(j).second.type().ptName());
-        }*/
     }
 
     /*
