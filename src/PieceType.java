@@ -88,4 +88,19 @@ public class PieceType {
     public boolean ptInvulnerable() {
         return invulnerable;
     }
+
+    /// @brief To return the image location
+    /// @pre Color is not null
+    /// @post Returns the location of the image of the asked color
+    public String colorImageLocation(PieceColor color) throws NullPointerException {
+        if (color == null) {
+            throw new NullPointerException("When asking for a piece image, its color c");
+        } else {
+            if (color == PieceColor.Black) {
+                return this.bImage;
+            } 
+
+            return this.wImage;
+        }
+    }
 }

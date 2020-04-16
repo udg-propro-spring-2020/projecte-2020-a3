@@ -166,10 +166,11 @@ public class ConsoleGame {
 						System.out.println("Dest: " + dValue);
 
 						/// Create positions with the read strings
-						Position origin = new Position(alph.indexOf(oValue.charAt(0)), Integer.parseInt(oValue.substring(1)) - 1);
-						Position dest =  new Position(alph.indexOf(dValue.charAt(0)), Integer.parseInt(dValue.substring(1)) - 1); 
+						Position origin = new Position(oValue);
+						Position dest =  new Position(dValue); 
 						Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
-
+						System.out.print("CheckMovement Result: ");
+						System.out.println(moveResult.first);
 						if (moveResult.first) {
 							chess.applyMovement(origin, dest, moveResult.second);
 							
@@ -208,6 +209,7 @@ public class ConsoleGame {
 		System.out.println("|      - D: Desfer moviment               |");
 		System.out.println("|      - R: Refer moviment                |");
 		System.out.println("|      - G: Guardar partida               |");
+		System.out.println("|      - H: Mostrar ajuda                 |");
 		System.out.println("|                                         |");
 		System.out.println("|   [Quan es demana posicion destí]       |");
 		System.out.println("|      - O: Tornar a escollir origen      |");
@@ -298,9 +300,11 @@ public class ConsoleGame {
 			/// Can't undo any movement
 			System.out.println("No és possible desfer el moviment!");
 			System.out.println("Per desfer un moviment se n'ha de fer un!");
+			return false;
 		} else {
 			/// Get current turn values
-			chess.undoMovement();
+			//chess.undoMovement();
+			return true;
 		}
 	}
 
@@ -315,7 +319,7 @@ public class ConsoleGame {
 			return false;
 		} else {
 			/// Get the current turn values
-			chess.redoMovement();
+			//chess.redoMovement();
 			return true;
 		}
 	}
