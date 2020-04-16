@@ -8,20 +8,11 @@ public class Turn {
     private PieceColor color;
     private Pair<String, String> move;
     private String result;
-    private Pair<String, Position> kill;
 
     Turn(PieceColor color, Pair<String, String> move, String result) {
         this.color = color;
         this.move = move;
         this.result = result;
-        this.kill = null;
-    }
-
-    Turn(PieceColor color, Pair<String, String> move, String result, Pair<String, Position> kill) {
-        this.color = color;
-        this.move = move;
-        this.result = result;
-        this.kill = kill;
     }
 
     /// @brief To know the movement origin cell
@@ -36,14 +27,6 @@ public class Turn {
     /// @post Returns the movement destination cell
     public String destination() {
         return move.second;
-    }
-
-    /// @brief To know if in the movement a piece has been killed
-    /// @pre ---
-    /// @post Returns the pair holding the killed piece and its positino. If
-    ///       there was no piece killed, returns null.
-    public Pair<String, Position> kill() {
-        return kill;
     }
 
     /// @pre ---

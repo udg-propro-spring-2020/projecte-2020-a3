@@ -135,25 +135,27 @@ public class ConsoleGame {
 					System.out.println("Partida guardada!");
 					break;
 				case "D":
-					undoMovement(chess, turns, turnNumber);
+					if (undoMovement(chess, undoCount)) {	
+						/// Previous turn
+						turnNumber--;
+						/// Increase undone movements
+						undoCount++;
 
-					/// Previous turn
-					turnNumber--;
-					/// Increase undone movements
-					undoCount++;
-
-					System.out.println("Moviment desfet!");
+						System.out.println("Moviment desfet!");
+					}
 					break;
 				case "R": 
 					/// There's no need to remove any of the movements done
-					redoMovement(chess, turns, turnNumber, undoCount);
+					/// since we will overlap the data
+					if (redoMovement(chess, turnNumber, undoCount)) {
+						/// Next turn
+						turnNumber++;
+						/// Decrement the undone movements 
+						undoCount--;
+						
+						System.out.println("Moviment refet!");
+					}
 					
-					/// Next turn
-					turnNumber++;
-					/// Decrement the undone movements 
-					undoCount--;
-
-					System.out.println("Moviment refet!");
 					break;
 				default: {
 					originMove = false;
@@ -166,9 +168,9 @@ public class ConsoleGame {
 						/// Create positions with the read strings
 						Position origin = new Position(alph.indexOf(oValue.charAt(0)), Integer.parseInt(oValue.substring(1)) - 1);
 						Position dest =  new Position(alph.indexOf(dValue.charAt(0)), Integer.parseInt(dValue.substring(1)) - 1); 
-						Pair<String, Position> moveResult = chess.checkMovement(origin, dest);
+						Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
 
-						if (moveResult != null) {
+						if (moveResult.first) {
 							chess.applyMovement(origin, dest, moveResult.second);
 							
 							/// If the user has undone x movements, and not redone all of them
@@ -183,11 +185,11 @@ public class ConsoleGame {
 
 							/// Save turn
 							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
-							turns.add(new Turn(currTurnColor, p, "", moveResult));
+							turns.add(new Turn(currTurnColor, p, ""));
 							turnNumber++;
 
 							/// Change turn
-							currTurnColor = currTurnColor == PieceColor.White 
+							currTurnColor = (currTurnColor == PieceColor.White) 
 								? PieceColor.Black 
 								: PieceColor.White;
 						} else {
@@ -291,19 +293,14 @@ public class ConsoleGame {
 		return s;
 	}
 
-	private static void undoMovement(Chess chess, List<Turn> turns, int turnNumber) {
+	private static boolean undoMovement(Chess chess, int turnNumber) {
 		if (turnNumber == 0) {
 			/// Can't undo any movement
 			System.out.println("No és possible desfer el moviment!");
 			System.out.println("Per desfer un moviment se n'ha de fer un!");
 		} else {
 			/// Get current turn values
-			Turn temp = turns.get(turnNumber - 1);
-			Position origin = new Position(temp.origin());
-			Position destination = new Position(temp.destination());
-			Pair<String, Position> kill = temp.kill();
-
-			chess.undoMovement(origin, destination, kill);
+			chess.undoMovement();
 		}
 	}
 
@@ -311,22 +308,15 @@ public class ConsoleGame {
 	/// @pre turnNumber pointing after the last position of list
 	/// @post If possible, redoes one movement. It is only possible to redo if 
 	///       there has been at least one undone movement 
-	private static void redoMovement(Chess chess, List<Turn> turns, int turnNumber, int undoCount) throws Exception {
+	private static boolean redoMovement(Chess chess, int turnNumber, int undoCount) {
 		if (turnNumber == 0 || undoCount == 0) {
 			System.out.println("No és possible refer el moviment!");
 			System.out.println("Per refer un moviment se n'ha de desfer un!");
+			return false;
 		} else {
 			/// Get the current turn values
-			Turn temp = turns.get(turnNumber - 1);
-			Position origin = new Position(temp.origin());
-			Position destination = new Position(temp.destination());
-			Pair<Boolean, Position> movement = chess.checkMovement(origin, destination);
-			
-			if (movement != null) {
-				chess.applyMovement(origin, destination, movement.second);
-			} else {
-				throw new Exception("Redo movement incorrect");
-			}
+			chess.redoMovement();
+			return true;
 		}
 	}
 }
