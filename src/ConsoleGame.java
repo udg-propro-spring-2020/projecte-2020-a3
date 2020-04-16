@@ -20,15 +20,7 @@ public class ConsoleGame {
 	/// @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
 	/// 	  with modified rules (enter filename) 3. Enter a saved game
 	public static void start() {
-		System.out.println("+---------------- MENU ----------------+");
-		System.out.println("|                                      |");
-		System.out.println("|  Escull una opcio (num):             |");
-		System.out.println("|    1. Partida normal                 |");
-		System.out.println("|    2. Entrar partida configurada     |");
-		System.out.println("|    3. Entrar una partida carregada   |");
-		System.out.println("|    0. Sortir                         |");
-		System.out.println("|                                      |");
-		System.out.println("+--------------------------------------+");
+		showMenu();
 
 		Scanner in = new Scanner(System.in);
 		final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
@@ -67,6 +59,33 @@ public class ConsoleGame {
 		} catch (IOException i) {
 			System.out.println(i.getMessage());
 		}
+	}
+
+	private static void showMenu() {
+		System.out.println("+---------------- MENU ----------------+");
+		System.out.println("|                                      |");
+		System.out.println("|  Escull una opcio (num):             |");
+		System.out.println("|    1. Partida normal                 |");
+		System.out.println("|    2. Entrar partida configurada     |");
+		System.out.println("|    3. Entrar una partida carregada   |");
+		System.out.println("|    0. Sortir                         |");
+		System.out.println("|                                      |");
+		System.out.println("+--------------------------------------+");
+	}
+
+	private static void showInstructions() {
+		System.out.println("+--------------  COMANDES  ---------------+");
+		System.out.println("|  [Quan es demana posicion d'origen]     |");
+		System.out.println("|      - X: Acabar la partida             |");
+		System.out.println("|      - D: Desfer moviment               |");
+		System.out.println("|      - R: Refer moviment                |");
+		System.out.println("|      - G: Guardar partida               |");
+		System.out.println("|      - H: Mostrar ajuda                 |");
+		System.out.println("|                                         |");
+		System.out.println("|   [Quan es demana posicion destí]       |");
+		System.out.println("|      - O: Tornar a escollir origen      |");
+		System.out.println("+-----------------------------------------+");
+		System.out.println();
 	}
 
 	/// @brief Asks for the filename of the configuration and starts the game
@@ -108,7 +127,6 @@ public class ConsoleGame {
 	/// 	  turns. Once it has finished, prints who the winner is.
 	/// 
 	public static void play(Chess chess) throws IOException {
-		String alph = "abcdefghijklmnopqrstuvwxyz";
 		String oValue = null;
 		String dValue = null;
 		int rows = chess.rows();
@@ -135,7 +153,7 @@ public class ConsoleGame {
 					System.out.println("Partida guardada!");
 					break;
 				case "D":
-					if (undoMovement(chess, undoCount)) {	
+					if (undoMovement(chess, turnNumber)) {	
 						/// Previous turn
 						turnNumber--;
 						/// Increase undone movements
@@ -144,10 +162,13 @@ public class ConsoleGame {
 						System.out.println("Moviment desfet!");
 					}
 					break;
+				case "H":
+					showInstructions();
+					break;
 				case "R": 
 					/// There's no need to remove any of the movements done
 					/// since we will overlap the data
-					if (redoMovement(chess, turnNumber, undoCount)) {
+					if (redoMovement(chess, undoCount)) {
 						/// Next turn
 						turnNumber++;
 						/// Decrement the undone movements 
@@ -169,8 +190,7 @@ public class ConsoleGame {
 						Position origin = new Position(oValue);
 						Position dest =  new Position(dValue); 
 						Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
-						System.out.print("CheckMovement Result: ");
-						System.out.println(moveResult.first);
+
 						if (moveResult.first) {
 							chess.applyMovement(origin, dest, moveResult.second);
 							
@@ -187,6 +207,7 @@ public class ConsoleGame {
 							/// Save turn
 							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
 							turns.add(new Turn(currTurnColor, p, ""));
+							
 							turnNumber++;
 
 							/// Change turn
@@ -200,21 +221,6 @@ public class ConsoleGame {
 				}
 			}
 		} while (!oValue.equals("X") && !oValue.equals("G"));
-	}
-
-	private static void showInstructions() {
-		System.out.println("+--------------  COMANDES  ---------------+");
-		System.out.println("|  [Quan es demana posicion d'origen]     |");
-		System.out.println("|      - X: Acabar la partida             |");
-		System.out.println("|      - D: Desfer moviment               |");
-		System.out.println("|      - R: Refer moviment                |");
-		System.out.println("|      - G: Guardar partida               |");
-		System.out.println("|      - H: Mostrar ajuda                 |");
-		System.out.println("|                                         |");
-		System.out.println("|   [Quan es demana posicion destí]       |");
-		System.out.println("|      - O: Tornar a escollir origen      |");
-		System.out.println("+-----------------------------------------+");
-		System.out.println();
 	}
 
 	/// @brief Reads a chess position.
@@ -258,6 +264,10 @@ public class ConsoleGame {
 						break;
 					case "R": 
 						System.out.println("Refent moviment...");
+						stop = true;
+						break;
+					case "H":
+						System.out.println("Mostrant menu...");
 						stop = true;
 						break;
 					default: {
@@ -312,8 +322,8 @@ public class ConsoleGame {
 	/// @pre turnNumber pointing after the last position of list
 	/// @post If possible, redoes one movement. It is only possible to redo if 
 	///       there has been at least one undone movement 
-	private static boolean redoMovement(Chess chess, int turnNumber, int undoCount) {
-		if (turnNumber == 0 || undoCount == 0) {
+	private static boolean redoMovement(Chess chess, int undoCount) {
+		if (undoCount == 0) {
 			System.out.println("No és possible refer el moviment!");
 			System.out.println("Per refer un moviment se n'ha de desfer un!");
 			return false;
