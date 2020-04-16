@@ -350,7 +350,8 @@ public class Chess {
             i++; 
                 //captura: 0=no, 1=si, 2=mov possible nomes al matar
             }   
-        }                  
+        }        
+        System.out.println(r.first);          
     return r;
     }
 
