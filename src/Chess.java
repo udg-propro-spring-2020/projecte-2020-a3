@@ -24,6 +24,8 @@ public class Chess {
     private HashMap<Position, Piece> initPositionsBlack;
     private List<Castling> castlings;
     private Piece[][] board;
+    private List<Piece[][]> boardArray;
+    private int actualTurn;
     
     
     //Per ajudar amb coneixement / CPU
@@ -55,6 +57,8 @@ public class Chess {
         this.castlings = castlings;
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
+        this.boardArray = new ArrayList<Piece[][]>();
+        this.actualTurn = 0;
         //initPositionsWhite = new HashMap<Position,Piece>();
         //initPositionsBlack = new HashMap<Position,Piece>();
         pListWhite = new ArrayList<Pair<Position, Piece>>();
@@ -65,7 +69,7 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
-        Position p=new Position(7,1);
+        /*Position p=new Position(7,1);
         //Position p2=new Position(3,0);
         Position p3=new Position(0,7);
         board[1][7]=null;
@@ -78,7 +82,7 @@ public class Chess {
         applyMovement(p4,p5,null);
         destinyWithValues(p5);
 
-        System.out.println(showBoard());
+        System.out.println(showBoard());*/
     }
 
     /*
@@ -229,22 +233,22 @@ public class Chess {
             finalY=y0;
         }
         if(x0==x1){//es mou en la mateixa fila
-            System.out.println("entro a row");           
-            System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
+            //System.out.println("entro a row");           
+            //System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
             for(int i=initialY+1; i<finalY; i++){
                 if(board[x0][i] != null){
                     pieceOnTheWay = true;
                 }
             }
         }else if(y0==y1){//es mou en la mateixa columna         
-            System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
+            //System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][y0] != null){
                     pieceOnTheWay = true;
                 }
             }
         }else{//es mou en diagonal
-            System.out.println("entro a diagonal");
+            //System.out.println("entro a diagonal");
             int j=initialY+1;
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][j] != null){
@@ -312,23 +316,23 @@ public class Chess {
             boolean diagonalCorrect = true;
             while(i < movesToRead.size() && !found){
                 Movement act = movesToRead.get(i);         
-                System.out.println(act.toString());            
+                //System.out.println(act.toString());            
                 if((yMove == act.movY() || act.movY() == 50) && (xMove == act.movX() || act.movX() == 50)){                        
                     if(act.movY()==50 && act.movX()==50){
                         diagonalCorrect = Math.abs(yMove) == Math.abs(xMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
-                        System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
+                        //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
                     if(diagonalCorrect){
                         if((xMove > 1 || yMove > 1) && !act.canJump()){//Si s'ha de desplaçar mes de una posicio i no pot saltar
                             pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1);
-                            System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
+                            //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
                         if(!pieceOnTheWay){ //Si pot saltar, no s'activa   
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
                                 r.first = true;
                                 r.second = new Position(x1,y1); 
                                 found = true;
-                                System.out.println("Mov matar");
+                                //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                 if(board[x1][y1]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
                                     System.out.println("La peça que vols matar es teva");
@@ -337,7 +341,7 @@ public class Chess {
                                     r.first = true;
                                     r.second = null; 
                                     found = true;
-                                    System.out.println("Mov normal");
+                                    //System.out.println("Mov normal");
                                 }
                             }                   
                         }else{
@@ -351,7 +355,7 @@ public class Chess {
                 //captura: 0=no, 1=si, 2=mov possible nomes al matar
             }   
         }        
-        System.out.println(r.first);          
+        //System.out.println(r.first);          
     return r;
     }
 
@@ -362,7 +366,7 @@ public class Chess {
 	@post La fitxa de la posició \p origen s'ha mogut a la posició
 	\p destí, i si \p matar no és null, s'ha eliminat la fitxa
 	d'aquesta posició.
-    S'ha modificat la llista de peces corresponent
+    S'ha modificat la llista de peces corresponent i creat una copia del tauler d'aquest turn
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
@@ -375,8 +379,53 @@ public class Chess {
         }
         changePiecesList(origin,destiny,deadPiece);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
-        board[origin.row()][origin.col()] = null;      
+        board[origin.row()][origin.col()] = null;
         //this.isEqual(ch);
+        
+        Piece[][] boardCopy = new Piece[rows()][cols()];
+        for(int i=0;i<rows();i++){
+            for(int j=0;j<cols();j++){
+                boardCopy[i][j]=this.board[i][j];
+            }
+        }
+        boardArray.add(actualTurn,boardCopy);
+        /*if(actualTurn==2)
+        undoMovement();*/
+        actualTurn++;    
+    }
+
+    public void remakeBoard(Piece[][] boardCopy){
+        for(int i=0;i<rows();i++){
+            for(int j=0;j<cols();j++){
+                this.board[i][j]=boardCopy[i][j];
+            }
+        }
+        
+    }
+
+    /*
+     * @brief Change the board for the previous on the list of boards
+     * @pre It's not the first turn
+     * @post Board has been updated
+     */
+    public void undoMovement(){
+        //System.out.println("Normal undo"+showBoard());
+        actualTurn--;
+        remakeBoard(boardArray.get(actualTurn));
+        //System.out.println("Guardat undo"+showBoard());
+        //redoMovement();
+    }
+
+    /*
+     * @brief Change the board for the next on the list of boards
+     * @pre undoMovement has been used before
+     * @post Board has been updated
+     */
+    public void redoMovement(){
+        //System.out.println("Normal redo"+showBoard());
+        actualTurn++;
+        remakeBoard(boardArray.get(actualTurn));
+        //System.out.println("Guardat redo"+showBoard());
     }
 
     /*
@@ -410,16 +459,16 @@ public class Chess {
             search=true;
             while(i<listToRemoveOn.size() && search){
                 if(listToRemoveOn.get(i).second.equals(deadPiece)){
-                    System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
+                    //System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
                     listToRemoveOn.remove(i);
                     search = false;
                 }
                 i++;
             }
-        }
+        }/*
         for(int j=0;j<listToChange.size();j++){
             System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
-        }
+        }*/
 
     }
 
@@ -463,14 +512,14 @@ public class Chess {
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
             Movement mov = movesToRead.get(i);
-            System.out.println(mov.toString());
+            //System.out.println(mov.toString());
             if((mov.movX() == 50 || mov.movX() == -50) && (mov.movY() == 50 || mov.movY() == -50)){//Diagonals            
                 continueFunc = true;
                 int y=1;
                 int x=1;
                 if(mov.movX() == 50 && mov.movY() == 50 || mov.movX() == -50 && mov.movY() == -50){
                     while(destinyInLimits(origin.row()+x,origin.col()+y) && continueFunc){    //De dreta a esquerra , de dalt a baix 
-                        System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
+                        //System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
                         destiny = new Position(origin.row()+x, origin.col()+y);
                         continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                         x++;
@@ -480,7 +529,7 @@ public class Chess {
                     y=1;
                     x=1;
                     while(destinyInLimits(origin.row()-x,origin.col()-y) && continueFunc){    //De esquerra a dreta, de baix a dalt 
-                        System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
+                        //System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()-x, origin.col()-y);
                         continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                         x++;
@@ -489,7 +538,7 @@ public class Chess {
                 }
                 if(mov.movX() == -50 && mov.movY() == 50 || mov.movX() == +50 && mov.movY() == -50){
                     while(destinyInLimits(origin.row()-x,origin.col()+y) && continueFunc){    //De dreta a esquerra, de baix a dalt 
-                        System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
+                        //System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
                         destiny = new Position(origin.row()-x, origin.col()+y);
                         continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                         x++;
@@ -499,7 +548,7 @@ public class Chess {
                     y=1;
                     x=1;
                     while(destinyInLimits(origin.row()+x,origin.col()-y) && continueFunc){    //De esquerra a dreta, de dalt a baix mentre estiguis dins els limits
-                        System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
+                        //System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()+x, origin.col()-y);
                         continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                         x++;
@@ -509,7 +558,7 @@ public class Chess {
             }else if((mov.movY() == 50 || mov.movY() == -50)){//Es mou horitzontal
                 int y=1;
                 while(destinyInLimits(origin.row()+mov.movX(), origin.col()+y) && continueFunc){    //De dreta a esquerra  
-                    System.out.println(mov.movX()+" "+y);                                                       
+                    //System.out.println(mov.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()+mov.movX(), origin.col()+y);
                     continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                     y++;
@@ -517,7 +566,7 @@ public class Chess {
                 continueFunc=true;
                 y=1;
                 while(destinyInLimits(origin.row()+mov.movX(), origin.col()-y) && continueFunc){     //De esquerra a dreta 
-                    System.out.println(mov.movX()+" "+y);                                                       
+                    //System.out.println(mov.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()-mov.movX(), origin.col()-y);
                     continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                     y++;
@@ -526,7 +575,7 @@ public class Chess {
             else if((mov.movX() == 50 || mov.movX() == -50)){//Es mou en vertical, nomes la fila cambia
                 int x=1;
                 while(destinyInLimits(origin.row()+x, origin.col()+mov.movY()) && continueFunc){  //De dalt a baix 
-                    System.out.println(x+" "+mov.movY());                                                       
+                    //System.out.println(x+" "+mov.movY());                                                       
                     destiny = new Position(origin.row()+x, origin.col()+mov.movY());
                     continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                     x++;
@@ -534,7 +583,7 @@ public class Chess {
                 continueFunc=true; 
                 x=1;
                 while(destinyInLimits(origin.row()-x, origin.col()-mov.movY()) && continueFunc){  //De dalt a baix 
-                    System.out.println(x+" "+mov.movY());                                                       
+                    //System.out.println(x+" "+mov.movY());                                                       
                     destiny = new Position(origin.row()-x, origin.col()-mov.movY());
                     continueFunc = controller(origin,destiny,mov,destinyWithValues);                    
                     x++;
@@ -550,7 +599,7 @@ public class Chess {
                     continueFunc=controller(origin,destiny,mov,destinyWithValues);
             }
         }
-        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
