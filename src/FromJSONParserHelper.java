@@ -40,7 +40,6 @@ public class FromJSONParserHelper {
         configSc.nextLine();
         configSc.nextLine();
         List<String> initialPos = getListStrings(configSc); // ? Needed
-        System.out.println(ToJSONParserHelper.primitiveListToJSON("posInicial", initialPos, "\t", true));
 
         int chessLimits = getInt(configSc.nextLine());
         int inactiveLimits = getInt(configSc.nextLine());
@@ -51,7 +50,7 @@ public class FromJSONParserHelper {
             /// If castlings list is not empty
             castlings = getListCastlings(configSc);
         }
-
+        
         /// Close scanner
         configSc.close();
         /// END OF FILE CONFIGURATION
@@ -59,26 +58,27 @@ public class FromJSONParserHelper {
         /// INITIAL POSITIONS
         /// Read initial white positions
         List<Pair<Position, Piece>> whiteInitPos = !getString(mainSc.nextLine()).equals("[]")
-                ? getInitialPositionList(mainSc, typeList, PieceColor.White) /// If not empty, read the list
-                : new ArrayList<>(); /// If empty, create an empty list
+            ? getInitialPositionList(mainSc, typeList, PieceColor.White)    /// If not empty, read the list
+            : new ArrayList<>();                                            /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
         /// Read initial white positions
         List<Pair<Position, Piece>> blackInitPos = !getString(mainSc.nextLine()).equals("[]")
-                ? getInitialPositionList(mainSc, typeList, PieceColor.Black) /// If not empty, read the list
-                : new ArrayList<>(); /// If empty, create an empty list
+            ? getInitialPositionList(mainSc, typeList, PieceColor.Black)    /// If not empty, read the list
+            : new ArrayList<>();                                            /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
         /// Next turn
-        PieceColor nextTurnColor = getString(mainSc.nextLine()).toLowerCase().equals("blanques") ? PieceColor.White
-                : PieceColor.Black;
+        PieceColor nextTurnColor = getString(mainSc.nextLine()).toLowerCase().equals("blanques") 
+            ? PieceColor.White
+            : PieceColor.Black;
 
         /// Read turns
-        List<Turn> turnList = !getString(mainSc.nextLine()).equals("[]") ? getTurnList(mainSc) /// If not empty, read
-                                                                                               /// the list
-                : new ArrayList<>(); /// If empty, create an empty list
+        List<Turn> turnList = !getString(mainSc.nextLine()).equals("[]") 
+            ? getTurnList(mainSc)                                           /// If not empty, read the list
+            : new ArrayList<>();                                            /// If empty, create an empty list
 
         /// Next lines are not necessaruy
         /// Close scanner
