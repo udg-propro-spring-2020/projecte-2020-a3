@@ -187,6 +187,52 @@ public class Chess {
     }
 
     /*
+     * @brief Pieces initial positions
+     * @pre --
+     * @post Return the pieces initial positions
+     */
+    public List<String> initialPositions(){
+        return this.initPositions;
+    }
+
+    /*
+     * @brief Number of chess limits
+     * @pre --
+     * @post Return the limits of chess in a game
+     */
+    public int chessLimits(){
+        return this.chessLimits;
+    }
+
+    /*
+     * @brief Type list
+     * @pre --
+     * @post Return the types of the pieces
+     */
+    public List<PieceType> typeList(){
+        return this.pList;
+    }
+
+    /*
+     * @brief Number of inactive turn limits
+     * @pre --
+     * @post Return the limits of turns without kill in a game
+     */
+    public int inactiveLimits(){
+        return this.inactiveLimits;
+    }
+
+    /*
+     * @brief Chess castilngs
+     * @pre --
+     * @post Return the chess castlings
+     */
+    public List<Castling> castlings(){
+        return this.castlings;
+    }
+
+
+    /*
      * @brief List of white pieces
      * @pre --
      * @post Return a list of white pieces
