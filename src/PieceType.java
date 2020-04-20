@@ -7,7 +7,7 @@
 
 import java.util.List;
 
-public class PieceType {
+public class PieceType implements JSON {
     private String name;                            /// < Piece name
     private String symbol;                          /// < Piece symbol
     private String wImage;                          /// < Piece white image location
@@ -102,5 +102,28 @@ public class PieceType {
 
             return this.wImage;
         }
+    }
+
+    @Override
+    public String toJSON() {
+        StringBuilder s = new StringBuilder();
+        try {
+            s.append(JSONParserHelper.TWO_TABS)
+                .append(JSONParserHelper.OBJ_START)
+                .append(JSONParserHelper.propertyToJSON("name", name, true, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("simbol", symbol, true, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("imatgeBlanca", wImage, true, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("imatgeNegre", bImage, true, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("valor", value, false, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.listToJSON("moviments", movements, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.listToJSON("movimentsInicials", initialMovements, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("promocio", promotable, false, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.propertyToJSON("invulnerabilitat", invulnerable, false, JSONParserHelper.THREE_TABS))
+                .append(JSONParserHelper.TWO_TABS)
+                .append(JSONParserHelper.OBJ_END);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return s.toString();
     }
 }

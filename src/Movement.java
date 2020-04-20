@@ -4,7 +4,7 @@
  * @class Movement
  * @brief Holds the information of the movement
  */
-public class Movement {
+public class Movement implements JSON {
     /// @param X Fixed int or a 50 (-50) - meaning anything but 0 -
     private int x;
     /// @param Y Fixed int or a 50 (-50) - meaning anything but 0 -
@@ -14,9 +14,7 @@ public class Movement {
     /// @param jump Whether it can jump other pieces or not
     private boolean jump;
 
-    /*
-     * @brief Default movement constructor
-     */
+    /// @brief Default movement constructor
     Movement(int x, int y, int capture, int jump){
         this.x = x;
         this.y = y;
@@ -24,79 +22,57 @@ public class Movement {
         this.jump = jump == 1 ? true : false;
     }
 
-    /*
-     * @pre ---
-     * @post Returns the X property of the movement
-     */
+    /// @brief To know the X property value
+    /// @pre ---
+    /// @post Returns the X property of the movement
     public int movX(){
         return x;
     }
 
-    /*
-     * @pre ---
-     * @post Returns the Y property of the movement
-     */
+   /// @brief To know the Y property value
+    /// @pre ---
+    /// @post Returns the Y property of the movement
     public int movY(){
         return y;
     }
     
-    /*
-     * @pre ---
-     * @post Returns the capture sign
-     */
+    /// @brief To know the capture sign property value
+    /// @pre ---
+    /// @post Returns the capture sign property of the movement
     public int captureSign(){
         return capture;
     }
 
-    /**
-     * @pre --
-     * @post Returns if the piece can jump
-     */
+    /// @brief To know if the piece can jump
+    /// @pre ---
+    /// @post Returns if the piece can jump
     public boolean canJump(){
         return jump;
     } 
 
-    /*
-     * @pre ---
-     * @post Returns a String of the object properties in JSON format (tabbed)
-     */
+    @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append("\t\t\t\t[\n")
-            .append("\t\t\t\t\t")                 /// Indentation
+        s.append(JSONParserHelper.FOUR_TABS)
+            .append(JSONParserHelper.LIST_START)
+            .append(JSONParserHelper.FIVE_TABS)                 /// Indentation
             .append(
                 x == 50 ? "\"a\"" : 
-                    (x == -50 ? "\"-a\"" : Integer.toString(x)
-                )
+                    (x == -50 ? "\"-a\"" : Integer.toString(x))
             ).append(", \n")
-            .append("\t\t\t\t\t")                 /// Indentation
+            .append(JSONParserHelper.FIVE_TABS)                 /// Indentation
             .append(
                 y == 50 ? "\"a\"" : 
-                    (y == -50 ? "\"-a\"" : Integer.toString(y)
-                )
+                    (y == -50 ? "\"-a\"" : Integer.toString(y))
             ).append(", \n")
-            .append("\t\t\t\t\t")                 /// Indentation
+            .append(JSONParserHelper.FIVE_TABS)                 /// Indentation
             .append(Integer.toString(capture))
             .append(", \n")
-            .append("\t\t\t\t\t")                 /// Indentation
+            .append(JSONParserHelper.FIVE_TABS)                 /// Indentation
             .append(jump ? "1 \n" : "0 \n")
-            .append("\t\t\t\t]\n");
+            .append(JSONParserHelper.FOUR_TABS)
+            .append(JSONParserHelper.LIST_END);
         
         return (s.toString());
-    }
-    
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("[")
-        .append(x)
-        .append(", ")
-        .append(y)
-        .append(", ")
-        .append(capture)
-        .append(", ")
-        .append(jump)
-        .append("] \n");
-        
-        return s.toString();
     }
 }
