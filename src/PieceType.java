@@ -8,27 +8,28 @@
 import java.util.List;
 
 public class PieceType implements JSON {
-    private String name;                            /// < Piece name
-    private String symbol;                          /// < Piece symbol
-    private String wImage;                          /// < Piece white image location
-    private String bImage;                          /// < Piece black image location
-    private int value;                              /// < Piece in-game value
-    private boolean promotable;                     /// < Piece's capacity to be promotable
-    private boolean invulnerable;                   /// < Piece's capacity to be invulnerable
-    private List<Movement> movements;               /// < Piece's available movement options
-    private List<Movement> initialMovements;        /// < Piece's special movements when first move
+    private String name;                        /// < Piece name
+    private String symbol;                      /// < Piece symbol
+    private String wImage;                      /// < Piece white image location
+    private String bImage;                      /// < Piece black image location
+    private int value;                          /// < Piece in-game value
+    private boolean promotable;                 /// < Piece's capacity to be promotable
+    private boolean invulnerable;               /// < Piece's capacity to be invulnerable
+    private List<Movement> movements;           /// < Piece's available movement options
+    private List<Movement> initialMovements;    /// < Piece's special movements when first move
 
     /// @brief Piece constructor
-    /// @param name             Piece's name
-    /// @param symbol           Piece's symbol
-    /// @param wImage           Piece's white image location
-    /// @param bImage           Piece's black image location
-    /// @param value            Piece's in-game value
-    /// @param promotable       Piece's capacity to be promotable
-    /// @param invulnerable     Piece's capacity to be invulnerable
-    /// @param movements        Piece's available movement options
+    /// @param name Piece's name
+    /// @param symbol Piece's symbol
+    /// @param wImage Piece's white image location
+    /// @param bImage Piece's black image location
+    /// @param value Piece's in-game value
+    /// @param promotable Piece's capacity to be promotable
+    /// @param invulnerable Piece's capacity to be invulnerable
+    /// @param movements Piece's available movement options
     /// @param initialMovements Piece's special movements when first move
-    PieceType(String name, String symbol, String wImage, String bImage, int value, boolean promotable, boolean invulnerable, List<Movement> movements, List<Movement> initialMovements) {
+    PieceType(String name, String symbol, String wImage, String bImage, int value, boolean promotable,
+            boolean invulnerable, List<Movement> movements, List<Movement> initialMovements) {
         this.name = name;
         this.symbol = symbol;
         this.wImage = wImage;
@@ -98,7 +99,7 @@ public class PieceType implements JSON {
         } else {
             if (color == PieceColor.Black) {
                 return this.bImage;
-            } 
+            }
 
             return this.wImage;
         }
@@ -108,19 +109,19 @@ public class PieceType implements JSON {
     public String toJSON() {
         StringBuilder s = new StringBuilder();
         try {
-            s.append(JSONParserHelper.TWO_TABS)
-                .append(JSONParserHelper.OBJ_START)
-                .append(JSONParserHelper.propertyToJSON("name", name, true, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("simbol", symbol, true, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("imatgeBlanca", wImage, true, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("imatgeNegre", bImage, true, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("valor", value, false, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.listToJSON("moviments", movements, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.listToJSON("movimentsInicials", initialMovements, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("promocio", promotable, false, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.propertyToJSON("invulnerabilitat", invulnerable, false, JSONParserHelper.THREE_TABS))
-                .append(JSONParserHelper.TWO_TABS)
-                .append(JSONParserHelper.OBJ_END);
+            s.append(ToJSONParserHelper.TWO_TABS)
+                .append(ToJSONParserHelper.OBJ_START)
+                .append(ToJSONParserHelper.propertyToJSON("name", name, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("simbol", symbol, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("imatgeBlanca", wImage, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("imatgeNegre", bImage, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("valor", value, false, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.objectListToJSON("moviments", movements, false, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.objectListToJSON("movimentsInicials", initialMovements, false, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("promocio", promotable, false, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("invulnerabilitat", invulnerable, false, false, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.TWO_TABS)
+                .append(ToJSONParserHelper.OBJ_END);
         } catch(Exception e) {
             System.out.println(e.getMessage());
         }

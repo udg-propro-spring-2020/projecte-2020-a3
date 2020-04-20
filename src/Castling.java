@@ -1,4 +1,10 @@
-public class Castling {
+/**
+ * @author Miquel de Domingo i Giralt
+ * @file Castling.java
+ * @class Castling
+ * @brief Holds the castling information
+ */
+public class Castling implements JSON {
     private String aPiece;
     private String bPiece;
     private boolean stand;
@@ -12,17 +18,18 @@ public class Castling {
     }
 
     @Override
-    public String toString() {
+    public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append("[")
-         .append(aPiece)
-         .append(", ")
-         .append(bPiece)
-         .append(", ")
-         .append(stand)
-         .append(", ")
-         .append(emptyMid)
-         .append("]");
+        
+        s.append(ToJSONParserHelper.TWO_TABS)
+            .append(ToJSONParserHelper.OBJ_START)
+            .append(ToJSONParserHelper.propertyToJSON("peçaA", aPiece, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("peçaB", bPiece, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("quiets", stand, false, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("buitAlMig", emptyMid, false, false, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.TWO_TABS)
+            .append(ToJSONParserHelper.OBJ_END);
+
         return s.toString();
     }
 }
