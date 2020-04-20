@@ -2,17 +2,18 @@ import java.util.List;
 
 /**
  * @author Miquel de Domingo i Giralt
- * @file JSONParserHelper.java
- * @class JSONParserHelper
+ * @file ToJSONParserHelper.java
+ * @class ToJSONParserHelper
  * @brief Functional class to help parsing objects to JSON
  */
-public class JSONParserHelper {
+public class ToJSONParserHelper {
     /// CONSTANTS
     /// @brief JSON Style control constants
     private static final String NEXT_LINE = "\n";
     private static final String EOL = ",\n";
     private static final String EMPTY_LIST = "[]";
     private static final String QUOTE = "\"";
+    private static final String SEPARATOR = ": ";
 
     /// PUBLIC UTIL CONSTANTS
     /// @brief Util constants to avoid code repetition and meaningless strings
@@ -48,6 +49,7 @@ public class JSONParserHelper {
             } else {
                 s.append(value);
             }
+
             s.append(EOL);
 
             return s.toString();
@@ -69,23 +71,58 @@ public class JSONParserHelper {
     }
 
     /// @brief Parses the given list to a JSON list
-    /// @pre ---
+    /// @pre Objects must be indented
     /// @post Parses the given list to a String of a JSON style list
-    public static String listToJSON(String listName, List<? extends JSON> list, String identation) {
-        StringBuilder s = new StringBuilder();
-        s.append(identation).append(valueToJSONString(listName)).append(": ");
-
-        if (list.isEmpty() || list == null) {
-            s.append(EMPTY_LIST).append(EOL);
+    public static String objectListToJSON(String listName, List<? extends JSON> list, String identation) {
+        if (listName.isEmpty() || listName == null) {
+            throw new IllegalArgumentException("primitiveListToJSON listName value cannot be null nor empty");
         } else {
-            s.append(LIST_START);
-            for (int i = 0; i < list.size() - 1; i++) {
-                s.append(list.get(i).toJSON()).append(EOL);
-            }
-            s.append(list.get(list.size() - 1).toJSON()).append(NEXT_LINE).append(identation).append(LIST_END)
-                    .append(EOL);
-        }
+            StringBuilder s = new StringBuilder();
+            s.append(identation).append(valueToJSONString(listName)).append(SEPARATOR);
 
-        return s.toString();
+            if (list.isEmpty() || list == null) {
+                s.append(EMPTY_LIST).append(EOL);
+            } else {
+                s.append(LIST_START);
+                for (int i = 0; i < list.size() - 1; i++) {
+                    s.append(list.get(i).toJSON()).append(EOL);
+                }
+                s.append(list.get(list.size() - 1).toJSON()).append(NEXT_LINE).append(identation).append(LIST_END)
+                        .append(EOL);
+            }
+
+            return s.toString();
+        }
+    }
+
+    /// @brieg Parses the given list to a JSON list
+    /// @pre ---
+    /// @post Parses the give list containing java primitive types to a String
+    /// of a JSON style list. Objectes indented automatically, inner list elements
+    /// tabbed one more.
+    public static String primitiveListToJSON(String listName, List<? extends Object> list, String identation,
+            Boolean inQuotes) {
+        if (listName.isEmpty() || listName == null) {
+            throw new IllegalArgumentException("primitiveListToJSON listName value cannot be null nor empty");
+        } else {
+            StringBuilder s = new StringBuilder();
+            s.append(identation).append(valueToJSONString(listName)).append(SEPARATOR);
+
+            if (list.isEmpty() || list == null) {
+                s.append(EMPTY_LIST).append(EOL);
+            } else {
+                s.append(LIST_START);
+                for (int i = 0; i < list.size() - 1; i++) {
+                    s.append(identation).append(ONE_TAB).append(inQuotes ? valueToJSONString(list.get(i)) : list.get(i))
+                            .append(EOL);
+                }
+
+                s.append(identation).append(ONE_TAB)
+                        .append(inQuotes ? valueToJSONString(list.get(list.size() - 1)) : list.get(list.size() - 1))
+                        .append(NEXT_LINE).append(identation).append(LIST_END).append(EOL);
+            }
+
+            return s.toString();
+        }
     }
 }
