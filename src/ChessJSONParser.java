@@ -7,16 +7,17 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 /**
+ * @file ChessJSONParser.java
  * @class ChessJSONParser
  * @brief Parses the given file with the chess configuration to a chess object
  */
 public class ChessJSONParser {
-
+    /// @brief Builds a chess with the given configuration
     /// @pre ---
     /// @post Creates a chess game with the given configuration form the JSON file
-    public static Chess buildChess(String fileLocation) throws FileNotFoundException {
-        
+    public static Chess buildChess(String fileLocation) throws FileNotFoundException { 
         Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
         mainSc.nextLine();
@@ -108,7 +109,7 @@ public class ChessJSONParser {
 
     /// @pre s == "x": "y"
     /// @post Returns the y value as a String without the double quotes, commas and
-    /// trimmed
+    ///       trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
         return values[1].isEmpty() ? "" : values[1].trim();
@@ -145,7 +146,7 @@ public class ChessJSONParser {
 
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<String> getListStrings(Scanner fr) {
         List<String> posList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -159,7 +160,7 @@ public class ChessJSONParser {
 
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<PieceType> getListPieceTypes(Scanner fr) {
         List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -206,10 +207,10 @@ public class ChessJSONParser {
             boolean promotable = getString(fr.nextLine()).equals("true") ? true : false;
             /// Invulnerable
             boolean invulnerable = getString(fr.nextLine()).equals("true") ? true : false;
-
+            
             pList.add(
-                    new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements));
-
+                new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements));
+                
             s = fr.nextLine().trim();
         }
         return pList;
@@ -241,7 +242,7 @@ public class ChessJSONParser {
 
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
-    /// the piece type.
+    ///       the piece type.
     private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes, PieceColor color) {
         /// Skip {
         fr.nextLine();
