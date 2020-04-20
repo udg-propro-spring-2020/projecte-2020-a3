@@ -20,12 +20,13 @@ public class Chess {
     private List<String> initPositions;
     private List<Pair<Position, Piece>> whiteInitPos;
     private List<Pair<Position, Piece>> blackInitPos;
-    private HashMap<Position, Piece> initPositionsWhite;
-    private HashMap<Position, Piece> initPositionsBlack;
     private List<Castling> castlings;
     private Piece[][] board;
     private List<Piece[][]> boardArray;
     private int actualTurn;
+    private List<List<Pair<Position, Piece>>> whitePiecesTurn;
+    private List<List<Pair<Position, Piece>>> blackPiecesTurn;
+
     
     
     //Per ajudar amb coneixement / CPU
@@ -59,10 +60,11 @@ public class Chess {
         this.blackInitPos = blackInitPos;
         this.boardArray = new ArrayList<Piece[][]>();
         this.actualTurn = 0;
-        //initPositionsWhite = new HashMap<Position,Piece>();
-        //initPositionsBlack = new HashMap<Position,Piece>();
-        pListWhite = new ArrayList<Pair<Position, Piece>>();
-        pListBlack = new ArrayList<Pair<Position, Piece>>();
+        this.whitePiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
+        this.blackPiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
+
+        this.pListWhite = new ArrayList<Pair<Position, Piece>>();
+        this.pListBlack = new ArrayList<Pair<Position, Piece>>();
         if (this.rows < 4 || this.cols < 4 || this.cols > 16 || this.rows > 16)
                 throw new RuntimeException("El nombre de files i columnes ha de ser entre 4 i 16");
         board = new Piece[this.rows][this.cols];
@@ -162,7 +164,7 @@ public class Chess {
 		}
 		s += "     ";
 		for (int j = 0; j < cols(); ++j)
-            s += c.charAt(j) + "   ";            
+            s += c.charAt(j) + "   ";    
 		return s;
     }
 
@@ -366,7 +368,7 @@ public class Chess {
 	@post La fitxa de la posició \p origen s'ha mogut a la posició
 	\p destí, i si \p matar no és null, s'ha eliminat la fitxa
 	d'aquesta posició.
-    S'ha modificat la llista de peces corresponent i creat una copia del tauler d'aquest turn
+    S'ha modificat la llista de peces corresponent i creat una copia del tauler i peces d'aquest turn
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
@@ -377,6 +379,7 @@ public class Chess {
             deadPiece = board[death.row()][death.col()];      
             board[death.row()][death.col()] = null;
         }
+        
         changePiecesList(origin,destiny,deadPiece);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
@@ -388,19 +391,25 @@ public class Chess {
                 boardCopy[i][j]=this.board[i][j];
             }
         }
+
         boardArray.add(actualTurn,boardCopy);
+        whitePiecesTurn.add(actualTurn,pListWhite);
+        blackPiecesTurn.add(actualTurn,pListBlack);
+                
         /*if(actualTurn==2)
         undoMovement();*/
         actualTurn++;    
     }
 
-    public void remakeBoard(Piece[][] boardCopy){
+    public void remakeBoard(/*Piece[][] boardCopy*/){
+        Piece[][] boardCopy = this.boardArray.get(actualTurn);
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-        
+        this.pListWhite=this.whitePiecesTurn.get(actualTurn);
+        this.pListBlack=this.blackPiecesTurn.get(actualTurn);
     }
 
     /*
@@ -409,10 +418,9 @@ public class Chess {
      * @post Board has been updated
      */
     public void undoMovement(){
-        //System.out.println("Normal undo"+showBoard());
+        System.out.println("Normal undo"+showBoard());
         actualTurn--;
-        remakeBoard(boardArray.get(actualTurn));
-        //System.out.println("Guardat undo"+showBoard());
+        remakeBoard(/*boardArray.get(actualTurn)*/);
         //redoMovement();
     }
 
@@ -424,7 +432,7 @@ public class Chess {
     public void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         actualTurn++;
-        remakeBoard(boardArray.get(actualTurn));
+        remakeBoard(/*boardArray.get(actualTurn)*/);
         //System.out.println("Guardat redo"+showBoard());
     }
 
