@@ -27,6 +27,32 @@ public class ToJSONParserHelper {
     public static final String OBJ_START  = "{\n";
     public static final String OBJ_END    = "}";
 
+    /// @brief Saves the chess configuration in a JSON file
+    /// @pre ---
+    /// @post Configuration saved
+    public static String saveChessConfiguration(Chess c, String fileName) 
+        throws NullPointerException {
+        if (c == null) {
+            throw new NullPointerException("saveChessConfiguration given chess cannot be null");
+        } else {
+            StringBuilder s = new StringBuilder();
+            
+            // TODO: Implement Chess methods
+            s.append(ToJSONParserHelper.OBJ_START)
+                .append(ToJSONParserHelper.propertyToJSON("nFiles", c.rows(), false, true, "\t"))
+                .append(ToJSONParserHelper.propertyToJSON("nCols", c.cols(), false, true, "\t"))
+                .append(ToJSONParserHelper.objectListToJSON("peces", c.typeList(), false, "\t"))
+                .append(ToJSONParserHelper.primitiveListToJSON("posInicial", c.initialPositions(), "\t", true, false))
+                .append(ToJSONParserHelper.propertyToJSON("limitEscacsSeguits", c.chessLimits(), false, true, "\t"))
+                .append(ToJSONParserHelper.propertyToJSON("limitTornsInnaccio", c.inactiveLimits(), false, true, "\t"))
+                .append(ToJSONParserHelper.objectListToJSON("enrocs", c.castlings(), true, "\t"))
+                .append(ToJSONParserHelper.OBJ_END);
+            
+            return s.toString();
+        }
+    
+    }
+
     /// @brief Parses a property to a JSON object property
     /// @pre ---
     /// @post Returns a object property String in JSON style ["propName": value],
