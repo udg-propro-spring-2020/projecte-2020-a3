@@ -85,6 +85,17 @@ public class ConsoleGame {
 		System.out.println("+-------------------------------+");
 	}
 
+	private static void dificultyLevels() {
+		System.out.println("+---- ESCULL LA DIFICULTAT ----+");
+		System.out.println("|                              |");
+		System.out.println("|    1. Principiant            |");
+		System.out.println("|    2. Intermedi              |");
+		System.out.println("|    3. Difícil                |");
+		System.out.println("|    0. Sortir                 |");
+		System.out.println("|                              |");
+		System.out.println("+------------------------------+");
+	}
+
 	/// @brief Function that simply reads a line from the user input
 	/// @pre ---
 	/// @post Returs the read line (trimmed)
@@ -343,7 +354,27 @@ public class ConsoleGame {
 		int turnNumber = 0;
 		int undoCount = 0;
 		List<Turn> turns = new ArrayList<>();
-		Cpu cpu = new Cpu(null, chess, 5, playerIsWhite ? PieceColor.Black : PieceColor.White);
+
+		dificultyLevels();
+		System.out.print("Escull la dificultat: ");
+
+		int difficulty;
+		switch (readOption()) {
+			case 1:
+				difficulty = 2;
+				break;
+			case 2:
+				difficulty = 4;
+				break;
+			case 3:
+				difficulty = 6;
+				break;
+			case 0:
+				System.out.println("Sortint de l'aplicació...");
+				System.exit(0);
+		}
+
+		Cpu cpu = new Cpu(null, chess, difficulty, playerIsWhite ? PieceColor.Black : PieceColor.White);
 		
 		do {
 			if (currTurnColor == PieceColor.White && !playerIsWhite ||
