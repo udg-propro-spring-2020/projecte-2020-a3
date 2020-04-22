@@ -37,7 +37,6 @@ public class ToJSONParserHelper {
         } else {
             StringBuilder s = new StringBuilder();
             
-            // TODO: Implement Chess methods
             s.append(ToJSONParserHelper.OBJ_START)
                 .append(ToJSONParserHelper.propertyToJSON("nFiles", c.rows(), false, true, "\t"))
                 .append(ToJSONParserHelper.propertyToJSON("nCols", c.cols(), false, true, "\t"))
@@ -50,7 +49,6 @@ public class ToJSONParserHelper {
             
             return s.toString();
         }
-    
     }
 
     /// @brief Parses a property to a JSON object property
