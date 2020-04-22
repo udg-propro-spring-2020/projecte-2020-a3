@@ -1,83 +1,88 @@
+import java.util.List;
+import java.util.Iterator;
+
 /** @file Cpu.java
-    @brief Un jugador automàtic.
+    @brief Automatic player.
  */
 
 /**
     @class Cpu
-    @brief Jugador automàtic amb coneixement sobre partides guanyadores.
+    @brief Automatic player with knowledge of previous games.
  */
 
 public class Cpu{
 
-    private Coneixament _knowledge;     ///< Coneixament de sequencies de partides guanyadores
-    private Chess _chess;             ///< Referencia al objecte Chess del joc
-    private int _profunditat;           ///< Nivell de profunditat de cerca en l'arbre de possibiles moviments
-    private string _color;              ///< Color de les peçes de la CPU
+    private Knowledge _knowledge;   ///< Knwoledge of winner sequencies
+    private Chess _chess;           ///< Reference to global chess object
+    private int _profundity;       ///< Profunidty level for search the possibilities movements tree.
+    private PieceColor _color;      ///< Color of the CPU player
 
-    /** @brief Crea la cpu
+
+    /** @brief CPU constructor
     @pre --
-    @post La cpu té el coneixament \p coneixament,una referencia al joc d'escacs \p escacs
-    i una profunidtat de busqueda de moviments \p profunditat.
+    @post La cpu has the Knowledge @p knowledge,reference to global chess @p chess,
+    profundity for searching possibles movements @p profundity and his color is @p color.
      */
-    public Cpu(Knowledge knowledge,Chess chess,int profunditat,int color){
+    public Cpu(Knowledge knowledge,Chess chess,int profundity,PieceColor color){
         _knowledge=knowledge;
         _chess=chess;
-        _profunditat=profunditat;
+        _profundity=profundity;
         _color=color;
     }
 
-    /** @brief Fa una tirada
+    /** @brief Makes a movement
     @pre --
-    @return Retorna parella de la tirada indiciant la Position de origen i la Position desti d'una fitxa. Si el coneixament ja segueix una sequencia
-    i la \p tiradaAnterior concideix amb la tirada esperada la retorna la tirada. Altrament Si estat de _escacs concideix amb un guardat a _knowledge
-    retorna retorna la tirada. D'altre banda retorna la millor tirada possible de totes les possibles fins la profunidat _profunditat. 
+        @return Returns a pair which indicates the origin position and final position of the pice movmement choose.
+        If the knowledge its following a sequence and the @p anteriorMovement matches with the expected movement returns
+        the next sequence movement. Otherwise if the state of @c _chess matches with one saved at knowledge returns the
+        movement to do. On the other hand returns the best movement possible of all possible movements inside the profunidty
+        @c _profundity. (In the actual version just returning minmax)
      */
-    public Pair<Position,Position> ferTirada(Pair<Position,Position> tiradaAnterior){
-        /**
-        logica seria:
-        Pair<Position,Position> tirada = _knowledge.tiradaSeguent(tiradaAnterior);
-        if(tirada == null) tirada = _knowledge.buscarConeixament(_escacs);
-        if(tirada == null) tirada = ferBacktracking(_escacs,_profunditat...);
-         */
-         //potser mes d'una opcio
-        
+    public Pair<Position,Position> doMovement(Pair<Position,Position> anteriorMovement){
+        return minMax();    
     }
 
-    /** @biref Pesudocodi recrusiva algoritma MinMax sense podar de moment
+    /** @biref Returns the optimal movement to do.
     @pre --
-    @return  
+    @return Returns the optimal movement to do inside the decision tree with profundity @c _profunidty.
      */
     private Pair<Position,Position> minMax(){ 
-        Pair<Position,Position> moviment = new Pair<Position,Position>(null,null);
-        return i_minMax(0,0,moviment,Integer.MIN_VALUE,Integer.MAX_VALUE);
-
+        Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
+        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE);
+        return movement;
     }
-
-    private int i_minMax(int puntuacio,int tipusJugador,Pair<Position,Position> moviment,int mesGranAnterior,int mesPetitAnterior){
-        if(profunditat==_profunditat)return puntuacio;
-        else if(tipusJugador==0){
+    /** @brief Immersion function for minMaxAlgorsim
+    @pre --
+    @return Returns the puntuation choosen for the @p playerType of the actual profunity.
+     */
+    private int i_minMax(int score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior){
+        if(profundity==_profundity)return score;
+        else if(playerType==0){
             Integer max = Integer.MIN_VALUE;
             List<Pair<Position,Piece>> pieces;
-            if(_color==0)pieces=_chess.pListWhite();
+            if(_color==PieceColor.White)pieces=_chess.pListWhite();
             else pieces=_chess.pListBlack();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            while(itPieces.hasNext()){//per cada fitxa
-                List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(itPieces.second);
-                Iterator<Pair<Position,Integer>> itMoviments;
-                while(itMoviments.hasNext()){//per cada moviment
-                    Pair<Position,Integer> moviment = itMoviments.next();
-                    Integer score=moviment.second + puntuacio;
-                    if(moviment.second>0)_chess.applyMovement(itPieces.second,null,moviment.first);//aplicar
-                    else _chess.applyMovement(itPieces.second,moviment.first,null);
-                    score = minMax(score,profunditat+1,1,moviment);
-                    //desfer !!!
-                    if(score>max){
-                        mesGranAnterior=score;
-                        max=score;
-                        moviment.first=itPieces.second,
-                        movimient.second=moviment.second;
+            while(itPieces.hasNext()){  // FOR EACH PIECE
+                Pair<Position,Piece> piece = itPieces.next();
+                System.out.println("tauler actual:"+_chess.showBoard());
+                System.out.println("Posició de la peça actual provant:\n"+piece.first.toString());
+                List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
+                Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
+                while(itMoviments.hasNext()){// FOR EACH MOVEMENT
+                    Pair<Position,Integer> pieceMovement = itMoviments.next();
+                    Integer result=pieceMovement.second + score;
+                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,null,pieceMovement.first);//aplicar
+                    else _chess.applyMovement(piece.first,pieceMovement.first,null);
+                    result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior);
+                    _chess.undoMovement();
+                    if(result>max){
+                        biggestAnterior=result;
+                        max=result;
+                        movement.first=piece.first;
+                        movement.second=pieceMovement.first;
                     }
-                    if(mesPetitAnterior<=mesGranAnterior)break;
+                    if(smallerAnterior<=biggestAnterior)break;
                 }
             }
             return max;
@@ -85,28 +90,29 @@ public class Cpu{
         else{
             Integer min = Integer.MAX_VALUE;
             List<Pair<Position,Piece>> pieces;
-            if(_color==1)pieces=_chess.pListWhite();
+            if(_color==PieceColor.Black)pieces=_chess.pListWhite();
             else pieces=_chess.pListBlack();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            while(itPieces.hasNext()){//per cada fitxa
-                List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(itPieces.second);
-                Iterator<Pair<Position,Integer>> itMoviments;
-                while(itMoviments.hasNext()){//per cada moviment
-                    Pair<Position,Integer> moviment = itMoviments.next();
-                    Integer score= -moviment.second + puntuacio;
-                    if(moviment.second>0)_chess.applyMovement(itPieces.second,null,moviment.first);//aplicar
-                    else _chess.applyMovement(itPieces.second,moviment.first,null);
-                    score = minMax(score,profunditat+1,0,moviment);
-                    //desfer !!!
-                    if(score>max){
-                        mesGranAnterior=score;
-                        max=score;
-                        moviment.first=itPieces.second,
-                        movimient.second=moviment.second;
+            while(itPieces.hasNext()){  //FOR EACH PIECE
+                Pair<Position,Piece> piece = itPieces.next();
+                List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
+                Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
+                while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
+                    Pair<Position,Integer> pieceMovement = itMoviments.next();
+                    Integer result= -pieceMovement.second + score;
+                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,null,pieceMovement.first);//aplicar
+                    else _chess.applyMovement(piece.first,pieceMovement.first,null);
+                    result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior);
+                    _chess.undoMovement();
+                    if(result<min){
+                        smallerAnterior=result;
+                        min=result;
+                        movement.first=piece.first;
+                        movement.second=pieceMovement.first;
                     }
-                    if(mesGranAnterior>=mesPetitAnterior)break;
-                    }
+                    if(biggestAnterior>=smallerAnterior)break;
                 }
+            }
             return min;
         }
     }
