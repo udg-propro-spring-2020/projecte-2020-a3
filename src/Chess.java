@@ -461,11 +461,16 @@ public class Chess {
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-        this.pListWhite=this.whitePiecesTurn.get(val);
-        this.pListBlack=this.blackPiecesTurn.get(val);
-        /*for(int i=0;i<whitePiecesTurn.get(val).size(); i++){
-            System.out.println("Original "+whitePiecesTurn.get(val).get(i).first.toString()+" copia "+whitePiecesTurn.get(val).get(i).first.toString());
-        }*/
+     /*this.pListWhite.clear();
+        this.pListBlack.clear();
+        System.out.println("a");*/
+        this.pListWhite=whitePiecesTurn.get(val);
+        this.pListBlack=blackPiecesTurn.get(val);
+        for(int i=0;i<whitePiecesTurn.size(); i++){
+            for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
+            System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
+            }
+        }
     }
 
     /*
