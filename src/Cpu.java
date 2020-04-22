@@ -49,6 +49,7 @@ public class Cpu{
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE);
+        System.out.println("best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
         return movement;
     }
     /** @brief Immersion function for minMaxAlgorsim
@@ -65,8 +66,9 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  // FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
-                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
+                Position initialPosition = new Position(piece.first.row(),piece.first.col());
+                //System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
+                //System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){// FOR EACH MOVEMENT
@@ -76,11 +78,14 @@ public class Cpu{
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
+                    piece.first=initialPosition;
+                    
                     if(result>max){
                         biggestAnterior=result;
                         max=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
+                        System.out.println("new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(smallerAnterior<=biggestAnterior)break;
                 }
@@ -95,8 +100,9 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
-                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
+                Position initialPosition = new Position(piece.first.row(),piece.first.col());
+                //System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
+                //System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
@@ -106,11 +112,13 @@ public class Cpu{
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
+                    piece.first=initialPosition;
                     if(result<min){
                         smallerAnterior=result;
                         min=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
+                        System.out.println("new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(biggestAnterior>=smallerAnterior)break;
                 }
