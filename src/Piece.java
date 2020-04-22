@@ -29,6 +29,22 @@ public class Piece {
         idGenerator++;          /// Incement ID
     }
 
+    /// @brief Copy constructor
+    /// @pre @p copy cannot be null
+    /// @post Creates a Piece copy of @p copy
+    /// @throw NullPointerException if @p copy is null
+    Piece(Piece copy) {
+        if (copy == null) {
+            throw new NullPointerException("Copy Piece cannot pass a null element");
+        } else {    
+            this.id = copy.id;
+            this.type = copy.type;
+            this.moved = copy.moved;
+            this.color = copy.color;
+            this.symbol = copy.symbol;
+        }
+    }
+
     /// @brief To know the piece's type
     /// @pre ---
     /// @post Returns the piece's type
@@ -67,7 +83,7 @@ public class Piece {
     /// @brief Piece comparator
     /// @pre ---
     /// @post Returns if the given piece equals the current 
-    /// @trhows NullPointerException if the given piece is null
+    /// @trhow NullPointerException if the given piece is null
     public boolean equals(Piece p) throws NullPointerException {
         if (p == null) {
             throw new NullPointerException("Null piece");

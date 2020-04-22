@@ -4,15 +4,27 @@
  * @class Position
  * @brief Holds the position information 
  */
-public class Position {
+public class Position implements JSON{
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
-
-    public int row;
-    public int col;
+    private int row;
+    private int col;
     
-    public Position(int row, int col) {
+    Position(int row, int col) {
 	    this.row = row; 
         this.col = col; 
+    }
+
+    /// @brief Copy constructor
+    /// @pre @p copy cannot be null
+    /// @post Creates a Position copy of @p copy
+    /// @throw NullPointerException if @p copy is null
+    Position(Position copy) throws NullPointerException{
+        if (copy == null) {
+            throw new NullPointerException("Copy Position cannot pass a null element");
+        } else {
+            this.row = copy.row;
+            this.col = copy.col;
+        }
     }
 
     /// @brief Construct a position from a string
@@ -21,26 +33,24 @@ public class Position {
         this.row = Character.getNumericValue(s.charAt(1) - 1);
         this.col = alph.indexOf(s.charAt(0));
     }
-
-    /**
-     * @pre --
-     * @post Returns the position's row
-     */
+    
+    /// @pre --
+    /// @post Returns the position's row
     public int row(){
         return this.row;
     }
     
-    /**
-     * @pre --
-     * @post Returns the position's column
-     */
+    /// @pre --
+    /// @post Returns the position's column
     public int col(){
         return this.col;
     }
 
-    public String toJson() {
+    @Override
+    public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append(row).append(col);
+        s.append(row)
+            .append(col);
         return s.toString();
     }
 
