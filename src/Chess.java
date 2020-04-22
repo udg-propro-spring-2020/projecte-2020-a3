@@ -459,7 +459,7 @@ public class Chess {
      * @post Board has been updated
      */
     public void undoMovement(){
-        System.out.println("Normal undo"+showBoard());
+        //System.out.println("Normal undo"+showBoard());
         actualTurn--;
         remakeBoard(/*boardArray.get(actualTurn)*/);
         //redoMovement();
