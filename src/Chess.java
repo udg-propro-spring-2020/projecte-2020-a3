@@ -117,6 +117,8 @@ public class Chess {
         }
         pListWhite = whiteInitPos;
         pListBlack = blackInitPos;
+
+        copyChessTurn();
     }
 
     /*
@@ -403,6 +405,20 @@ public class Chess {
     return r;
     }
 
+
+    public void copyChessTurn(){
+        Piece[][] boardCopy = new Piece[rows()][cols()];
+        for(int i=0;i<rows();i++){
+            for(int j=0;j<cols();j++){
+                boardCopy[i][j]=this.board[i][j];
+            }
+        }
+        boardArray.add(actualTurn,boardCopy);
+        whitePiecesTurn.add(actualTurn,pListWhite);
+        blackPiecesTurn.add(actualTurn,pListBlack);
+        actualTurn++;
+    }
+
     /** @brief Aplica un moviment
 	@pre \p origen i \p desti són posicions vàlides del tauler;
 	si \p matar no és null, aleshores és una posició vàlida del
@@ -414,6 +430,7 @@ public class Chess {
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
+        //System.out.println("actualTurn "+actualTurn);
         Piece deadPiece = null;
         if (death != null){
             //deletePiece(board[death.row()][death.col()]);  
@@ -425,32 +442,30 @@ public class Chess {
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
         //this.isEqual(ch);
-        
-        Piece[][] boardCopy = new Piece[rows()][cols()];
-        for(int i=0;i<rows();i++){
-            for(int j=0;j<cols();j++){
-                boardCopy[i][j]=this.board[i][j];
-            }
-        }
-
-        boardArray.add(actualTurn,boardCopy);
-        whitePiecesTurn.add(actualTurn,pListWhite);
-        blackPiecesTurn.add(actualTurn,pListBlack);
-                
+        copyChessTurn();
+        /*for(int i=0;i<whitePiecesTurn.get(actualTurn).size(); i++){
+            System.out.println("Original "+pListWhite.get(i).first.toString()+" copia "+whitePiecesTurn.get(actualTurn).get(i).first.toString());
+        }*/
         /*if(actualTurn==2)
         undoMovement();*/
-        actualTurn++;    
+            
     }
 
-    public void remakeBoard(/*Piece[][] boardCopy*/){
-        Piece[][] boardCopy = this.boardArray.get(actualTurn);
+    public void remakeBoard(){
+        //System.out.println("taulers "+boardArray.size());
+        int val = actualTurn;
+        val--;
+        Piece[][] boardCopy = this.boardArray.get(val);
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-        this.pListWhite=this.whitePiecesTurn.get(actualTurn);
-        this.pListBlack=this.blackPiecesTurn.get(actualTurn);
+        this.pListWhite=this.whitePiecesTurn.get(val);
+        this.pListBlack=this.blackPiecesTurn.get(val);
+        for(int i=0;i<whitePiecesTurn.get(val).size(); i++){
+            System.out.println("Original "+whitePiecesTurn.get(val).get(i).first.toString()+" copia "+whitePiecesTurn.get(val).get(i).first.toString());
+        }
     }
 
     /*
@@ -460,6 +475,7 @@ public class Chess {
      */
     public void undoMovement(){
         //System.out.println("Normal undo"+showBoard());
+        
         actualTurn--;
         remakeBoard(/*boardArray.get(actualTurn)*/);
         //redoMovement();
@@ -473,7 +489,9 @@ public class Chess {
     public void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         actualTurn++;
+        System.out.println("redo "+actualTurn);
         remakeBoard(/*boardArray.get(actualTurn)*/);
+        
         //System.out.println("Guardat redo"+showBoard());
     }
 
