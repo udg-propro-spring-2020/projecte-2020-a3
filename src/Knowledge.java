@@ -1,3 +1,7 @@
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /** @file Knowledge.java
     @brief Coneixement de partides guanyadores.
  */
@@ -12,7 +16,7 @@
 public class Knowledge{
 
     private Node _actual;                   ///< Node actual de la sequencia de tirades guanyadores que s'està seguin
-    private Map<Escacs,ArrayList<Node>> _knowledge;    ///< Map per guardar per cada situacio del tauler la seva sequencia de tirades guanyadores
+    private HashMap<Chess,ArrayList<Node>> _knowledge;    ///< Map per guardar per cada situacio del tauler la seva sequencia de tirades guanyadores
     //private Set<Node> nodes;                ///< Set per guardar tots els nodes que tenim
     
     private class Node{
@@ -34,7 +38,7 @@ public class Knowledge{
     @post Es crea el coneixement.
      */
     public Knowledge(ArrayList<Pair<Position,Position>> tirades,int guanyador,Chess chess){
-        _knowledge = new HashMap<Escacs,Node>();
+        /*_knowledge = new HashMap<Chess,Node>();
         _actual = null;
 
 
@@ -75,22 +79,22 @@ public class Knowledge{
                 ant.afegirNode(n);
             }
             ant = n;
-        }
+        }*/
         
     }
 
-    /** @brieF Busca una tirada de nodes que concordi amb la situació actual de Escacs
+    /** @brieF Busca una tirada de nodes que concordi amb la situació actual de Chess
     @pre --
-    @return Retorna la jugada guanyadora del node que cocideix amb la situacio actual de \p escacs
+    @return Retorna la jugada guanyadora del node que cocideix amb la situacio actual de \p Chess
     si la troba i actualitza _actual amb el valor del primer node. Altrament retorna null.
     */
     public Pair<Position,Position> buscarConeixament(Chess chess,int color){
-        if(_knowledge.containsKey(chess)){
+        /*if(_knowledge.containsKey(chess)){
             Node _actual=_knowledge[chess].get(0);
             if(color==0)return n._tiradaGuanyadora;
             else return reversePosition(n._tiradaGuanyadora,chess);
         }
-        else return null;
+        else */return null;
     }
 
     /** @brief Comprova la tirada anteriror i retorna la jugada seguent a fer
@@ -100,7 +104,7 @@ public class Knowledge{
     retorna la seva jugadaGuanyadora.
      */
     public Pair<Position,Position> tiradaSeguent(Pair<Position,Position> tiradaAnterior,int color,Chess chess){
-        if(_actual==null)return null;
+        /*if(_actual==null)return null;
         else{
             if(color==0 && _actual._tiradaPerdedora.first==tiradaAnterior.first && _actual._tiradaPerdedora.second==tiradaAnterior.second){
                 _actual=_actual._nodesSeguents.get(0);
@@ -111,7 +115,8 @@ public class Knowledge{
                 return _actual._tiradaGuanyadora;
             }
             else return null;
-        }
+        }*/
+        return null;
     }
 
     /** @brief Cambia les positionnes de la tirada com si fosin de l'altre color
@@ -119,10 +124,11 @@ public class Knowledge{
     @return Retorna el pair /p tirades modificat com si ho hagués fet l'altre color
      */
     private Pair<Position,Position> reversePosition(Pair<Position,Position> tirada,Chess chess){
-        Pair<Position,Position> t;
+       /* Pair<Position,Position> t;
             t.first=Position(chess.rows()-1-t.first.row(),chess.columns()-1-t.first.columns());
             t.second=Position(chess.rows()-1-t.second.row(),chess.columns()-1-t.second.columns());
-        return t;
+        return t;*/
+        return null;
     }
     
 }
