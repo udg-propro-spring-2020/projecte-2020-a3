@@ -363,6 +363,10 @@ public class ConsoleGame {
 					cpuTurn(chess, cpu, null); */
 				}
 				turnNumber++;
+                                /// Change turn
+                                currTurnColor = (currTurnColor == PieceColor.White) 
+					? PieceColor.Black
+					: PieceColor.White;
 
 			} else {
 				showInstructions();
