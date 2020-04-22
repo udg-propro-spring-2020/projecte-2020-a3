@@ -99,7 +99,7 @@ public class FromJSONParserHelper {
 
     /// @pre s == "x": "y"
     /// @post Returns the y value as a String without the double quotes, commas and
-    /// trimmed
+    ///       trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
         return values[1].isEmpty() ? "" : values[1].trim();
@@ -107,7 +107,7 @@ public class FromJSONParserHelper {
 
     /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<Movement> getListMovements(Scanner fr) {
         String s = fr.nextLine().trim();
         List<Movement> mList = new ArrayList<>();
@@ -136,7 +136,7 @@ public class FromJSONParserHelper {
 
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<String> getListStrings(Scanner fr) {
         List<String> posList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -150,7 +150,7 @@ public class FromJSONParserHelper {
 
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<PieceType> getListPieceTypes(Scanner fr) {
         List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -232,7 +232,7 @@ public class FromJSONParserHelper {
 
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
-    /// the piece type.
+    ///       the piece type.
     private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes,
             PieceColor color) {
         /// Skip {
