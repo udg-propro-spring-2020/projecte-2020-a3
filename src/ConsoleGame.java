@@ -360,9 +360,6 @@ public class ConsoleGame {
 
 		int difficulty;
 		switch (readOption()) {
-			case 1:
-				difficulty = 2;
-				break;
 			case 2:
 				difficulty = 4;
 				break;
@@ -372,6 +369,8 @@ public class ConsoleGame {
 			case 0:
 				System.out.println("Sortint de l'aplicació...");
 				System.exit(0);
+			default:
+				difficulty = 2;
 		}
 
 		Cpu cpu = new Cpu(null, chess, difficulty, playerIsWhite ? PieceColor.Black : PieceColor.White);
