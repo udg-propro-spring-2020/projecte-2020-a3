@@ -463,9 +463,9 @@ public class Chess {
         }
         this.pListWhite=this.whitePiecesTurn.get(val);
         this.pListBlack=this.blackPiecesTurn.get(val);
-        for(int i=0;i<whitePiecesTurn.get(val).size(); i++){
+        /*for(int i=0;i<whitePiecesTurn.get(val).size(); i++){
             System.out.println("Original "+whitePiecesTurn.get(val).get(i).first.toString()+" copia "+whitePiecesTurn.get(val).get(i).first.toString());
-        }
+        }*/
     }
 
     /*
