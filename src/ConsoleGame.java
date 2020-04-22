@@ -14,11 +14,11 @@ import java.io.IOException;
  * @brief Class that controls the game played in a console display.
  */
 public class ConsoleGame {
-	
+
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
 	/// @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
-	/// 	  with modified rules (enter filename) 3. Enter a saved game
+	///       with modified rules (enter filename) 3. Enter a saved game
 	public static void start() {
 		showMenu();
 
@@ -33,12 +33,11 @@ public class ConsoleGame {
 				System.out.print("Opció: ");
 				option = in.nextInt();
 			}
-			
 
 			switch (option) {
 				case 1:
 					System.out.println("Creant una partida normal...\n");
-					play(ChessJSONParser.buildChess("./data/default_game.json"));
+					play(FromJSONParserHelper.buildChess("./data/default_game.json"));
 					break;
 				case 2:
 					System.out.println("Creant una partida personalitzada...");
@@ -56,8 +55,8 @@ public class ConsoleGame {
 			in.close();
 		} catch (FileNotFoundException f) {
 			System.out.println(f.getMessage());
-		} catch (IOException i) {
-			System.out.println(i.getMessage());
+		} catch (IOException i) { 
+			System.out.println(i.getMessage()); 
 		}
 	}
 
@@ -103,7 +102,7 @@ public class ConsoleGame {
 				if (fileLocation.toUpperCase().equals("EXIT")) {
 					System.out.println("Sortint de l'aplicació");
 				} else {
-					Chess c = ChessJSONParser.buildChess(fileLocation);
+					Chess c = FromJSONParserHelper.buildChess(fileLocation);
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
 
@@ -125,7 +124,6 @@ public class ConsoleGame {
 	/// @pre Chess is loaded.
 	/// @post While the game has not finished nor been saved, will keep asking for
 	/// 	  turns. Once it has finished, prints who the winner is.
-	/// 
 	public static void play(Chess chess) throws IOException {
 		String oValue = null;
 		String dValue = null;
@@ -137,14 +135,14 @@ public class ConsoleGame {
 		List<Turn> turns = new ArrayList<>();
 
 		showInstructions();
-		
+
 		do {
 			System.out.println(chess.showBoard());
 			boolean originMove = true;
 			oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
-			
+
 			switch (oValue) {
-				case "X": 
+				case "X":
 					/// Do not save anything
 					System.out.println("Partida acabada!");
 					break;
@@ -153,7 +151,7 @@ public class ConsoleGame {
 					System.out.println("Partida guardada!");
 					break;
 				case "D":
-					if (undoMovement(chess, turnNumber)) {	
+					if (undoMovement(chess, turnNumber)) {
 						/// Previous turn
 						turnNumber--;
 						/// Increase undone movements
@@ -165,38 +163,38 @@ public class ConsoleGame {
 				case "H":
 					showInstructions();
 					break;
-				case "R": 
+				case "R":
 					/// There's no need to remove any of the movements done
 					/// since we will overlap the data
 					if (redoMovement(chess, undoCount)) {
 						/// Next turn
 						turnNumber++;
-						/// Decrement the undone movements 
+						/// Decrement the undone movements
 						undoCount--;
-						
+
 						System.out.println("Moviment refet!");
 					}
-					
+
 					break;
 				default: {
 					originMove = false;
 					System.out.println("Origen: " + oValue);
 					dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
-					
+
 					if (!dValue.equals("O")) {
 						System.out.println("Dest: " + dValue);
 
 						/// Create positions with the read strings
 						Position origin = new Position(oValue);
-						Position dest =  new Position(dValue); 
+						Position dest = new Position(dValue);
 						Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
 
 						if (moveResult.first) {
 							chess.applyMovement(origin, dest, moveResult.second);
-							
+
 							/// If the user has undone x movements, and not redone all of them
-							/// then the match mus continue from that and all the movements after the current
-							/// turn must be delelted.
+							/// then the match mus continue from that and all the movements after the
+							/// current turn must be delelted.
 							if (undoCount > 0) {
 								/// turnNumber == turns.size() - undoCount
 								for (int i = turns.size() - 1; i >= turnNumber; i--) {
@@ -207,12 +205,12 @@ public class ConsoleGame {
 							/// Save turn
 							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
 							turns.add(new Turn(currTurnColor, p, ""));
-							
+
 							turnNumber++;
 
 							/// Change turn
 							currTurnColor = (currTurnColor == PieceColor.White) 
-								? PieceColor.Black 
+								? PieceColor.Black
 								: PieceColor.White;
 						} else {
 							System.out.println("Moviment incorrecte!");
@@ -226,18 +224,18 @@ public class ConsoleGame {
 	/// @brief Reads a chess position.
 	/// @pre ---
 	/// @post Prints the text held in t and reads positions like CN in which C is a
-	///      char (column of the chess table) and N a number (row of the chess
-	///      table). While this positions is not valid it will keep asking for
-	///      positions. If the coordinate is valid returns the position and if it is
-	///      an X, returns a null position.
-	///
-	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch, boolean originMove) throws IOException {
+	///       char (column of the chess table) and N a number (row of the chess
+	///       table). While this positions is not valid it will keep asking for
+	///       positions. If the coordinate is valid returns the position and if it is
+	///       an X, returns a null position.
+	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch, boolean originMove)
+			throws IOException {
 		Scanner in = new Scanner(System.in);
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		String s;
 		Position p = new Position(0, 0);
 		boolean stop = false;
-		
+
 		do {
 			System.out.print(t);
 			s = in.nextLine();
@@ -250,7 +248,7 @@ public class ConsoleGame {
 				stop = true;
 			} else {
 				switch (s) {
-					case "X": 
+					case "X":
 						System.out.println("Sortint del joc (la partida no es guardarà)...");
 						stop = true;
 						break;
@@ -262,7 +260,7 @@ public class ConsoleGame {
 						System.out.println("Desfent moviment...");
 						stop = true;
 						break;
-					case "R": 
+					case "R":
 						System.out.println("Refent moviment...");
 						stop = true;
 						break;
@@ -276,15 +274,15 @@ public class ConsoleGame {
 							try {
 								p.row = Integer.parseInt(s.substring(1)) - 1;
 								if (p.row >= 0 && p.row < rows) {
-									if (originMove && !ch.emptyCell(p)) { 
-										if (ch.cellColor(p) == colorTurn){
-											stop = true;								
+									if (originMove && !ch.emptyCell(p)) {
+										if (ch.cellColor(p) == colorTurn) {
+											stop = true;
 											System.out.println("Moviment llegit: " + p.toString());
 										} else {
 											System.out.println("És el torn de " + colorTurn.toString());
 											System.out.println("Escull una peça de " + colorTurn.toString());
 										}
-									} else if (!originMove){ 
+									} else if (!originMove) {
 										stop = true;
 									} else {
 										stop = false;
@@ -313,15 +311,15 @@ public class ConsoleGame {
 			return false;
 		} else {
 			/// Get current turn values
-			//chess.undoMovement();
+			// chess.undoMovement();
 			return true;
 		}
 	}
 
 	/// @brief Redoes one movement
 	/// @pre turnNumber pointing after the last position of list
-	/// @post If possible, redoes one movement. It is only possible to redo if 
-	///       there has been at least one undone movement 
+	/// @post If possible, redoes one movement. It is only possible to redo if
+	///       there has been at least one undone movement
 	private static boolean redoMovement(Chess chess, int undoCount) {
 		if (undoCount == 0) {
 			System.out.println("No és possible refer el moviment!");
@@ -329,7 +327,7 @@ public class ConsoleGame {
 			return false;
 		} else {
 			/// Get the current turn values
-			//chess.redoMovement();
+			// chess.redoMovement();
 			return true;
 		}
 	}
