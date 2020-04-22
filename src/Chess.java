@@ -71,20 +71,20 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
-        /*Position p=new Position(7,1);
-        //Position p2=new Position(3,0);
-        Position p3=new Position(0,7);
-        board[1][7]=null;
+        //Position p=new Position(7,1);
+        //Position p2=new Position(3,0)/*
+        Position p3=new Position(1,0);
+        /*board[1][7]=null;
         board[6][3]=null;
         board[6][2]=null;
         board[0][6]=null;
         //applyMovement(p,p2,null);
         Position p4=new Position(7,3);
         Position p5=new Position(5,3);
-        applyMovement(p4,p5,null);
-        destinyWithValues(p5);
+        applyMovement(p4,p5,null);*/
+        //destinyWithValues(p3);
 
-        System.out.println(showBoard());*/
+       // System.out.println(showBoard());
     }
 
     /*
@@ -345,16 +345,12 @@ public class Chess {
             }                 
             List<Movement> allMoves = new ArrayList<Movement>();
             List<Movement> movesToRead = new ArrayList<Movement>();
-            if(p.type().ptInitMovements()!=null){  
-                
-                allMoves.addAll(p.type().ptMovements());
-                allMoves.addAll(p.type().ptInitMovements());
-                //pieceMovements.addAll(p.initialMovements());
-            }
-            System.out.println(p.hasMoved());
+            //destinyWithValues(origin);
             if(!p.hasMoved()){    
                 p.toggleMoved();
-                movesToRead=allMoves;
+                if(p.type().ptInitMovements()!=null){  
+                    movesToRead=p.type().ptInitMovements();
+                }
             }else{
                 movesToRead=p.type().ptMovements();
             }
@@ -418,7 +414,6 @@ public class Chess {
     */
     public void applyMovement(Position origin, Position destiny, Position death) {
         //Chess ch = new Chess(this);
-        //possibleMovesWithValues(origin);
         Piece deadPiece = null;
         if (death != null){
             //deletePiece(board[death.row()][death.col()]);  
@@ -556,17 +551,25 @@ public class Chess {
         Position destiny;
         int value = 0;        
         Piece p = board[origin.row()][origin.col()];
-        List<Movement> movesToRead = new ArrayList<Movement>();
-        movesToRead.addAll(p.type().ptMovements());
+        List<Movement> movesToRead = new ArrayList<Movement>(); 
+
+        if(!p.hasMoved()){    
+            if(p.type().ptInitMovements()!=null){  
+                movesToRead=p.type().ptInitMovements();
+            }
+        }else{
+            movesToRead=p.type().ptMovements();
+        }
         /*
-
-            initialMoves
-
-        */
+        for(int i=0; i<movesToRead.size(); i++){
+            Movement mov = movesToRead.get(i);
+            System.out.println(mov.movX()+" "+mov.movY());
+        }*/
+       // movesToRead.addAll(p.type().ptMovements());
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
             Movement mov = movesToRead.get(i);
-            //System.out.println(mov.toString());
+            //System.out.println(mov.movX()+" "+mov.movY());
             if((mov.movX() == 50 || mov.movX() == -50) && (mov.movY() == 50 || mov.movY() == -50)){//Diagonals            
                 continueFunc = true;
                 int y=1;
@@ -649,11 +652,13 @@ public class Chess {
                 }else{
                     destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
                 }
-                if(destinyInLimits(destiny.row(),destiny.col()))
+                if(destinyInLimits(destiny.row(),destiny.col())){
                     continueFunc=controller(origin,destiny,mov,destinyWithValues);
+                    System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
+                }
             }
         }
-        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
