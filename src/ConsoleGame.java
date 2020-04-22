@@ -356,7 +356,6 @@ public class ConsoleGame {
 		List<Turn> turns = new ArrayList<>();
 
 		dificultyLevels();
-		System.out.print("Escull la dificultat: ");
 
 		int difficulty;
 		switch (readOption()) {
