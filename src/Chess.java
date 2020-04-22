@@ -477,14 +477,13 @@ public class Chess {
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-     /*this.pListWhite.clear();
-        this.pListBlack.clear();
-        System.out.println("a");*/
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
+        
         for(int i=0;i<whitePiecesTurn.size(); i++){
+            System.out.println("--------------"+i+"-----------------------");
             for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
-            System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
+                System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
             }
         }
     }
@@ -510,7 +509,7 @@ public class Chess {
     public void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         actualTurn++;
-        System.out.println("redo "+actualTurn);
+        //System.out.println("redo "+actualTurn);
         remakeBoard(/*boardArray.get(actualTurn)*/);
         
         //System.out.println("Guardat redo"+showBoard());
