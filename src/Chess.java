@@ -414,8 +414,24 @@ public class Chess {
             }
         }
         boardArray.add(actualTurn,boardCopy);
-        whitePiecesTurn.add(actualTurn,pListWhite);
-        blackPiecesTurn.add(actualTurn,pListBlack);
+
+        List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
+        for(int i=0;i<pListWhite.size();i++){
+            Position wPos = new Position(pListWhite.get(i).first);
+            Piece wPiece = new Piece(pListWhite.get(i).second);
+            Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
+            whiteListCopy.add(wPair);
+        }
+        whitePiecesTurn.add(actualTurn,whiteListCopy);
+
+        List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
+        for(int i=0;i<pListBlack.size();i++){
+            Position bPos = new Position(pListBlack.get(i).first);
+            Piece bPiece = new Piece(pListBlack.get(i).second);
+            Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
+            whiteListCopy.add(bPair);
+        }
+        blackPiecesTurn.add(actualTurn,blackListCopy);
         actualTurn++;
     }
 
