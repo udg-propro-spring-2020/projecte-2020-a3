@@ -6,8 +6,8 @@
  */
 public class Position implements JSON{
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
-    private int row;
-    private int col;
+    public int row;
+    public int col;
     
     Position(int row, int col) {
 	    this.row = row; 

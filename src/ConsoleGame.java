@@ -327,7 +327,7 @@ public class ConsoleGame {
 							}
 
 							/// Save turn
-							Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
+							Pair<String, String> p = new Pair<String, String>(origin.toJSON(), dest.toJSON());
 							turns.add(new Turn(currTurnColor, p, ""));
 
 							turnNumber++;
@@ -468,7 +468,7 @@ public class ConsoleGame {
 								}
 
 								/// Save turn
-								Pair<String, String> p = new Pair<String, String>(origin.toJson(), dest.toJson());
+								Pair<String, String> p = new Pair<String, String>(origin.toJSON(), dest.toJSON());
 								turns.add(new Turn(currTurnColor, p, ""));
 
 								turnNumber++;
