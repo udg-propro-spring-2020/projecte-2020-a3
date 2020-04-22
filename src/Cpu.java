@@ -65,8 +65,8 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  // FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("tauler actual:"+_chess.showBoard());
-                System.out.println("Posició de la peça actual provant:\n"+piece.first.toString());
+                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
+                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){// FOR EACH MOVEMENT
@@ -95,6 +95,8 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
+                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
+                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
