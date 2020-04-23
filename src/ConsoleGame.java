@@ -321,7 +321,7 @@ public class ConsoleGame {
 		
 		do {
 			if (currTurnColor == PieceColor.White && !playerIsWhite ||
-				currTurnColor == PieceColor.White && playerIsWhite) {
+				currTurnColor == PieceColor.Black && playerIsWhite) {
 				/// CPU
 				if (turnNumber == 0) {
 					cpuTurn(chess, cpu, null);
