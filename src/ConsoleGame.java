@@ -170,12 +170,12 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					validFileLocation = true;
 				} else {
-					Chess c = FromJSONParserHelper.buildChess(fileLocation);
+					Chess chess = FromJSONParserHelper.buildChess(fileLocation);
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
 
 					/// Start game
-					initiateGame(c);
+					initiateGame(chess);
 				}
 			} catch (FileNotFoundException e) {
 				/// Keep asking for files
@@ -184,6 +184,9 @@ public class ConsoleGame {
 		}
 	}
 
+	/// @brief Functions that initiates the class data
+	/// @pre ---
+	/// @post Initiates data if not has been set 
 	private static void initiateData() {
 		if (!dataSet) {
 			currTurnColor = PieceColor.White;			/// White always start
@@ -197,7 +200,7 @@ public class ConsoleGame {
 	/// @brief Function that sets the game users and starts the game
 	/// @pre Loaded chess
 	/// @post Asks for the players and chooses which game style to play
-	private static void initiateGame(Chess c) {
+	private static void initiateGame(Chess chess) {
 		initiateData();
 		playerOptions();
 		switch (readOption()) {
@@ -230,9 +233,9 @@ public class ConsoleGame {
 				} while (!valid);
 
 				if (pOneWhite) {
-					twoPlayersGame(c, pOne, pTwo);
+					twoPlayersGame(chess, pOne, pTwo);
 				} else {
-					twoPlayersGame(c, pTwo, pOne);
+					twoPlayersGame(chess, pTwo, pOne);
 				}
 
 				break;
@@ -253,13 +256,14 @@ public class ConsoleGame {
 					}
 				} while (!valid);
 				
-				playerCPUGame(c, playerIsWhite);
+				playerCPUGame(chess, playerIsWhite);
 
 				break;
 			}
 			case 3: {
 				/// CPU vs CPU
 				System.out.println("Dues CPUs");
+				twoCPUsGame(chess);
 				break;
 			}
 			case 0:
@@ -300,24 +304,8 @@ public class ConsoleGame {
 		int cols = chess.cols();
 		String playerOption = "";
 
-		dificultyLevels();
-
-		int difficulty;
-		switch (readOption()) {
-			case 2:
-				difficulty = 4;
-				break;
-			case 3:
-				difficulty = 6;
-				break;
-			case 0:
-				System.out.println("Sortint de l'aplicació...");
-				System.exit(0);
-			default:
-				difficulty = 2;
-		}
-
-		Cpu cpu = new Cpu(null, chess, difficulty, playerIsWhite ? PieceColor.Black : PieceColor.White);
+		int diff = cpuDifficulty();
+		Cpu cpu = new Cpu(null, chess, diff, playerIsWhite ? PieceColor.Black : PieceColor.White);
 		
 		do {
 			if (currTurnColor == PieceColor.White && !playerIsWhite ||
@@ -357,7 +345,22 @@ public class ConsoleGame {
 	/// @post The game can only end. It cannot be stopped since the cpu can only do new moves.
 	///       Finishes the game with the winning cpu.
 	private static void twoCPUsGame(Chess chess) {
-		/// To be done
+		System.out.println("NIVELL CPU 1");
+		int diff = cpuDifficulty();
+		Cpu cpu1 = new Cpu(null, chess, diff, PieceColor.White);
+
+		System.out.println("NIVELL CPU 2");
+		diff = cpuDifficulty();
+		Cpu cpu2 = new Cpu(null, chess, diff, PieceColor.Black);
+
+		do {
+			if (currTurnColor == PieceColor.White) {
+				cpuTurn(chess, cpu1, null);
+			} else {
+				cpuTurn(chess, cpu2, null);
+			}
+		} while (true);
+		/// Condition to be analised 
 	}
 
 	/// @brief Controls a player turn 
@@ -452,6 +455,27 @@ public class ConsoleGame {
 		return result;
 	}
 
+	private static int cpuDifficulty() {
+		dificultyLevels();
+
+		int difficulty;
+		switch (readOption()) {
+			case 2:
+				difficulty = 4;
+				break;
+			case 3:
+				difficulty = 6;
+				break;
+			case 0:
+				System.out.println("Sortint de l'aplicació...");
+				System.exit(0);
+			default:
+				difficulty = 2;
+		}
+
+		return difficulty;
+	}
+
 	/// @brief Changes turn value
 	/// @pre @p currTurnColor != null
 	/// @post Changes currTurnValue to the oposite
@@ -465,6 +489,9 @@ public class ConsoleGame {
 			: PieceColor.White;
 	}
 
+	/// @brief Saves turn information
+	/// @pre @p p cannot be null
+	/// @post Creates a new turn with the given movement and increments @p turnNumber.
 	private static void saveTurn(Pair<String, String> p) {
 		turns.add(new Turn(currTurnColor, p, ""));
 		turnNumber++;
@@ -473,18 +500,18 @@ public class ConsoleGame {
 	/// @brief Controls a cpu turn
 	/// @pre @p c & @p cpu cannot be null
 	/// @post Executes a cpu turn
-	private static void cpuTurn(Chess c, Cpu cpu, Pair<Position, Position> lastMovement) {
-		if (c == null || cpu == null) {
+	private static void cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
+		if (chess == null || cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
 		
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 		
 		/// CPU movement is always correct
-		c.applyMovement(
+		chess.applyMovement(
 			cpuMove.first,
 			cpuMove.second,
-			c.checkMovement(cpuMove.first, cpuMove.second).second
+			chess.checkMovement(cpuMove.first, cpuMove.second).second
 		);
 	}
 
@@ -495,7 +522,7 @@ public class ConsoleGame {
 	///       table). While this positions is not valid it will keep asking for
 	///       positions. If the coordinate is valid returns the position and if it is
 	///       an X, returns a null position
-	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess ch, boolean originMove) {
+	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess chess, boolean originMove) {
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		String s;
 		Position p = new Position(0, 0);
@@ -539,8 +566,8 @@ public class ConsoleGame {
 							try {
 								p.row = Integer.parseInt(s.substring(1)) - 1;
 								if (p.row >= 0 && p.row < rows) {
-									if (originMove && !ch.emptyCell(p)) {
-										if (ch.cellColor(p) == colorTurn) {
+									if (originMove && !chess.emptyCell(p)) {
+										if (chess.cellColor(p) == colorTurn) {
 											stop = true;
 											System.out.println("Moviment llegit: " + p.toString());
 										} else {
