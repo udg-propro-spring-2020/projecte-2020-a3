@@ -15,6 +15,14 @@ import java.io.InputStreamReader;
  * @brief Class that controls the game played in a console display.
  */
 public class ConsoleGame {
+	/// IN-GAME CONTROL VARIABLES
+	private static PieceColor currTurnColor = null;;
+	private static Integer turnNumber = null;
+	private static Integer undoCount = null;
+	private static List<Turn> turns = null;
+	private static boolean dataSet = false;
+
+	/// CONSTANTS
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 	/// @brief Shows a menu asking how to start a game
@@ -47,6 +55,9 @@ public class ConsoleGame {
 		} 
 	}
 
+	/// @brief Shows the menu options
+	/// @pre ---
+	/// @post Prints the menu options
 	private static void showMenu() {
 		System.out.println("+---------------- MENU ----------------+");
 		System.out.println("|                                      |");
@@ -59,6 +70,9 @@ public class ConsoleGame {
 		System.out.println("+--------------------------------------+");
 	}
 
+	/// @brief Shows the different in-game commands
+	/// @pre ---
+	/// @post Prints the different in-game commands
 	private static void showInstructions() {
 		System.out.println("+--------------  COMANDES  ---------------+");
 		System.out.println("|  [Quan es demana posicion d'origen]     |");
@@ -74,6 +88,9 @@ public class ConsoleGame {
 		System.out.println();
 	}
 
+	/// @brief Shows the choose players of game options
+	/// @pre ---
+	/// @post Prints the choose players of game options
 	private static void playerOptions() {
 		System.out.println("+------- ESCULL JUGADORS -------+");
 		System.out.println("|                               |");
@@ -85,6 +102,9 @@ public class ConsoleGame {
 		System.out.println("+-------------------------------+");
 	}
 
+	/// @brief Shows the different difficulty options
+	/// @pre ---
+	/// @post Prints the different difficulty options
 	private static void dificultyLevels() {
 		System.out.println("+---- ESCULL LA DIFICULTAT ----+");
 		System.out.println("|                              |");
@@ -164,10 +184,21 @@ public class ConsoleGame {
 		}
 	}
 
+	private static void initiateData() {
+		if (!dataSet) {
+			currTurnColor = PieceColor.White;			/// White always start
+			turnNumber = 0;
+			undoCount = 0;
+			turns = new ArrayList<>();
+			dataSet = true;
+		}
+	}
+
 	/// @brief Function that sets the game users and starts the game
 	/// @pre Loaded chess
 	/// @post Asks for the players and chooses which game style to play
 	private static void initiateGame(Chess c) {
+		initiateData();
 		playerOptions();
 		switch (readOption()) {
 			case 1: {
@@ -240,120 +271,34 @@ public class ConsoleGame {
 	/// @brief Function that controls the game flow while it has not finished for two players
 	/// @pre ---
 	/// @post While the game has not finished nor been saved, will keep asking for
-	/// 	  turns. Once it has finished, prints who the winner is
+	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(Chess chess, String pOne, String pTwo) {
-		String oValue = null;
-		String dValue = null;
+		String playerOption = "";
 		int rows = chess.rows();
 		int cols = chess.cols();
-		PieceColor currTurnColor = PieceColor.White; 		/// Always start whites
-		int turnNumber = 0;
-		int undoCount = 0;
-		List<Turn> turns = new ArrayList<>();
 
 		showInstructions();
 
 		do {
-			System.out.println(chess.showBoard());
-			boolean originMove = true;
-
 			if (currTurnColor == PieceColor.White) {
 				System.out.println("Torn de " + pOne + " - BLANQUES");
 			} else {
 				System.out.println("Torn de " + pTwo + " - NEGRES");
 			}
 
-			oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
-
-			switch (oValue) {
-				case "X":
-					/// Do not save anything
-					System.out.println("Partida acabada!");
-					break;
-				case "G":
-					/// Todo: Save game to JSON and print filename
-					System.out.println("Partida guardada!");
-					break;
-				case "D":
-					if (undoMovement(chess, turnNumber)) {
-						/// Previous turn
-						turnNumber--;
-						/// Increase undone movements
-						undoCount++;
-
-						System.out.println("Moviment desfet!");
-					}
-					break;
-				case "H":
-					showInstructions();
-					break;
-				case "R":
-					/// There's no need to remove any of the movements done
-					/// since we will overlap the data
-					if (redoMovement(chess, undoCount)) {
-						/// Next turn
-						turnNumber++;
-						/// Decrement the undone movements
-						undoCount--;
-
-						System.out.println("Moviment refet!");
-					}
-
-					break;
-				default: {
-					originMove = false;
-					System.out.println("Origen: " + oValue);
-					dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
-
-					if (!dValue.equals("O")) {
-						System.out.println("Dest: " + dValue);
-
-						/// Create positions with the read strings
-						Position origin = new Position(oValue);
-						Position dest = new Position(dValue);
-						Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
-
-						if (moveResult.first) {
-							chess.applyMovement(origin, dest, moveResult.second);
-
-							/// If the user has undone x movements, and not redone all of them
-							/// then the match mus continue from that and all the movements after the
-							/// current turn must be delelted.
-							if (undoCount > 0) {
-								/// turnNumber == turns.size() - undoCount
-								for (int i = turns.size() - 1; i >= turnNumber; i--) {
-									turns.remove(i);
-								}
-							}
-
-							/// Save turn
-							Pair<String, String> p = new Pair<String, String>(origin.toJSON(), dest.toJSON());
-							turns.add(new Turn(currTurnColor, p, ""));
-
-							turnNumber++;
-
-							/// Change turn
-							currTurnColor = (currTurnColor == PieceColor.White) 
-								? PieceColor.Black
-								: PieceColor.White;
-						} else {
-							System.out.println("Moviment incorrecte!");
-						}
-					}
-				}
-			}
-		} while (!oValue.equals("X") && !oValue.equals("G"));
+			playerOption = playerTurn(chess, rows, cols);			
+		} while (!playerOption.equals("X") && !playerOption.equals("G"));
 	}
 
+	/// @brief Function that controls the flow of the game between a cpu and a player
+	/// @pre ---
+	/// @post The player is the only one who can stop the game or save it. While the
+	///       game has not finished, will keep askig for turns to the user. The cpu
+	///       works automatically. If it finishes, prints the winner
 	private static void playerCPUGame(Chess chess, boolean playerIsWhite) {
-		String oValue = null;
-		String dValue = null;
 		int rows = chess.rows();
 		int cols = chess.cols();
-		PieceColor currTurnColor = PieceColor.White; 		/// Always start whites
-		int turnNumber = 0;
-		int undoCount = 0;
-		List<Turn> turns = new ArrayList<>();
+		String playerOption = "";
 
 		dificultyLevels();
 
@@ -376,7 +321,7 @@ public class ConsoleGame {
 		
 		do {
 			if (currTurnColor == PieceColor.White && !playerIsWhite ||
-				currTurnColor == PieceColor.White && playerIsWhite) {
+				currTurnColor == PieceColor.Black && playerIsWhite) {
 				/// CPU
 				if (turnNumber == 0) {
 					cpuTurn(chess, cpu, null);
@@ -392,106 +337,147 @@ public class ConsoleGame {
 					cpuTurn(chess, cpu, null); */
 				}
 				turnNumber++;
-                                /// Change turn
-                                currTurnColor = (currTurnColor == PieceColor.White) 
-					? PieceColor.Black
-					: PieceColor.White;
+				/// Change turn
+				toggleTurn();
 
 			} else {
-				showInstructions();
-			
-				System.out.println(chess.showBoard());
-				boolean originMove = true;
+				if (turnNumber % 10 == 0 || turnNumber % 10 == 1) {
+					/// Avoid showing instructions every now and then
+					showInstructions();
+				}
 
 				System.out.println("Torn del jugador");
-				oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
+				playerOption = playerTurn(chess, rows, cols);
+			}
+		} while (!playerOption.equals("X") && !playerOption.equals("G"));
+	}
 
-				switch (oValue) {
-					case "X":
-						/// Do not save anything
-						System.out.println("Partida acabada!");
-						break;
-					case "G":
-						/// Todo: Save game to JSON and print filename
-						System.out.println("Partida guardada!");
-						break;
-					case "D":
-						if (undoMovement(chess, turnNumber)) {
-							/// Previous turn
-							turnNumber--;
-							/// Increase undone movements
-							undoCount++;
+	/// @brief Function that controls the game flow while it has not finished for two cpus
+	/// @pre ---
+	/// @post The game can only end. It cannot be stopped since the cpu can only do new moves.
+	///       Finishes the game with the winning cpu.
+	private static void twoCPUsGame(Chess chess) {
+		/// To be done
+	}
 
-							System.out.println("Moviment desfet!");
-						}
-						break;
-					case "H":
-						showInstructions();
-						break;
-					case "R":
-						/// There's no need to remove any of the movements done
-						/// since we will overlap the data
-						if (redoMovement(chess, undoCount)) {
-							/// Next turn
-							turnNumber++;
-							/// Decrement the undone movements
-							undoCount--;
+	/// @brief Controls a player turn 
+	/// @brief ---
+	/// @post Executes a player movement. If the player chooses to exit or save
+	///       the game, it will be returned (X or G respectively). Elsewise returns empty string
+	private static String playerTurn(Chess chess, int rows, int cols) {
+		String oValue = null;
+		String dValue = null;
+		String result = "";
 
-							System.out.println("Moviment refet!");
-						}
+		System.out.println(chess.showBoard());
+		boolean originMove = true;
 
-						break;
-					default: {
-						originMove = false;
-						System.out.println("Origen: " + oValue);
-						dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
+		oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
 
-						if (!dValue.equals("O")) {
-							System.out.println("Dest: " + dValue);
+		switch (oValue) {
+			case "X":
+				/// Do not save anything
+				System.out.println("Partida acabada!");
+				result = "X";
+				break;
+			case "G":
+				/// Todo: Save game to JSON and print filename
+				System.out.println("Partida guardada!");
+				result = "G";
+				break;
+			case "D":
+				if (undoMovement(chess, turnNumber)) {
+					/// Previous turn
+					turnNumber--;
+					/// Increase undone movements
+					undoCount++;
 
-							/// Create positions with the read strings
-							Position origin = new Position(oValue);
-							Position dest = new Position(dValue);
-							Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
+					System.out.println("Moviment desfet!");
+				}
+				break;
+			case "H":
+				showInstructions();
+				break;
+			case "R":
+				/// There's no need to remove any of the movements done
+				/// since we will overlap the data
+				if (redoMovement(chess, undoCount)) {
+					/// Next turn
+					turnNumber++;
+					/// Decrement the undone movements
+					undoCount--;
 
-							if (moveResult.first) {
-								chess.applyMovement(origin, dest, moveResult.second);
+					System.out.println("Moviment refet!");
+				}
 
-								/// If the user has undone x movements, and not redone all of them
-								/// then the match mus continue from that and all the movements after the
-								/// current turn must be delelted.
-								if (undoCount > 0) {
-									/// turnNumber == turns.size() - undoCount
-									for (int i = turns.size() - 1; i >= turnNumber; i--) {
-										turns.remove(i);
-									}
-								}
+				break;
+			default: {
+				originMove = false;
+				System.out.println("Origen: " + oValue);
+				dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
 
-								/// Save turn
-								Pair<String, String> p = new Pair<String, String>(origin.toJSON(), dest.toJSON());
-								turns.add(new Turn(currTurnColor, p, ""));
+				if (!dValue.equals("O")) {
+					System.out.println("Dest: " + dValue);
 
-								turnNumber++;
+					/// Create positions with the read strings
+					Position origin = new Position(oValue);
+					Position dest = new Position(dValue);
+					Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
 
-								/// Change turn
-								currTurnColor = (currTurnColor == PieceColor.White) 
-									? PieceColor.Black
-									: PieceColor.White;
-							} else {
-								System.out.println("Moviment incorrecte!");
+					if (moveResult.first) {
+						chess.applyMovement(origin, dest, moveResult.second);
+
+						/// If the user has undone x movements, and not redone all of them
+						/// then the match mus continue from that and all the movements after the
+						/// current turn must be delelted.
+						if (undoCount > 0) {
+							/// turnNumber == turns.size() - undoCount
+							for (int i = turns.size() - 1; i >= turnNumber; i--) {
+								turns.remove(i);
 							}
 						}
+
+						/// Save turn
+						saveTurn(new Pair<String, String>(origin.toJSON(), dest.toJSON()));
+
+						/// Change turn
+						toggleTurn();
+					} else {
+						System.out.println("Moviment incorrecte!");
 					}
 				}
 			}
-		} while (!oValue.equals("X") && !oValue.equals("G"));
+		}
+		
+		return result;
 	}
 
-	//private static void twoCPUsGame(Chess chess) {}
+	/// @brief Changes turn value
+	/// @pre @p currTurnColor != null
+	/// @post Changes currTurnValue to the oposite
+	private static void toggleTurn() {
+		if (currTurnColor == null) {
+			throw new NullPointerException("ToggleTurn cannot toggle a null value");
+		}
 
-	//private static void playerMovement() {}
+		currTurnColor = (currTurnColor == PieceColor.White) 
+			? PieceColor.Black
+			: PieceColor.White;
+	}
 
+	private static void saveTurn(Pair<String, String> p) {
+		turns.add(new Turn(currTurnColor, p, ""));
+		turnNumber++;
+	}
+
+	/// @brief Controls a cpu turn
+	/// @pre @p c & @p cpu cannot be null
+	/// @post Executes a cpu turn
 	private static void cpuTurn(Chess c, Cpu cpu, Pair<Position, Position> lastMovement) {
+		if (c == null || cpu == null) {
+			throw new NullPointerException("CpuTurn given arguments cannot be null");
+		}
+		
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 		
 		/// CPU movement is always correct

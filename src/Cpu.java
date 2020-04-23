@@ -24,6 +24,7 @@ public class Cpu{
     profundity for searching possibles movements @p profundity and his color is @p color.
      */
     public Cpu(Knowledge knowledge,Chess chess,int profundity,PieceColor color){
+
         _knowledge=knowledge;
         _chess=chess;
         _profundity=profundity;
@@ -48,7 +49,9 @@ public class Cpu{
      */
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
+        System.out.println("profunditat:"+_profundity);
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE);
+        System.out.println("best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
         return movement;
     }
     /** @brief Immersion function for minMaxAlgorsim
@@ -65,22 +68,29 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  // FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
-                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
+                Position initialPosition = new Position(piece.first.row(),piece.first.col());
+                System.out.println("(cpu.java 70)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                //System.out.println(_chess.showBoard());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){// FOR EACH MOVEMENT
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;
-                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,null,pieceMovement.first);//aplicar
+                    System.out.println("(cpu.java 77)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
+                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
+                    System.out.println("(cpu.java 80) tauler despres d'aplicar moviment:"+_chess.showBoard());
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
+                    piece.first=initialPosition;
+                    System.out.println("(cpu.java 84) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
+
                     if(result>max){
                         biggestAnterior=result;
                         max=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
+                        System.out.println("(cpu.java 91)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(smallerAnterior<=biggestAnterior)break;
                 }
@@ -95,22 +105,29 @@ public class Cpu{
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java)tauler actual:"+_chess.showBoard());
-                System.out.println("(cpu.java)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString());
+                Position initialPosition = new Position(piece.first.row(),piece.first.col());
+                System.out.println("(cpu.java 107)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                //System.out.println("(cpu.java 108)"+_chess.showBoard());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,null,pieceMovement.first);//aplicar
+                    System.out.println("(cpu.java 114)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
+                    if(pieceMovement.second>0)_chess.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
+                    System.out.println("(cpu.java 117) tauler despres d'aplicar moviment:"+_chess.showBoard());
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
+                    piece.first=initialPosition;
+                    System.out.println("(cpu.java 121) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
+
                     if(result<min){
                         smallerAnterior=result;
                         min=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
+                        System.out.println("(cpu.java 128)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(biggestAnterior>=smallerAnterior)break;
                 }
