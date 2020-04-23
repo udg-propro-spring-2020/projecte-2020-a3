@@ -414,8 +414,24 @@ public class Chess {
             }
         }
         boardArray.add(actualTurn,boardCopy);
-        whitePiecesTurn.add(actualTurn,pListWhite);
-        blackPiecesTurn.add(actualTurn,pListBlack);
+
+        List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
+        for(int i=0;i<pListWhite.size();i++){
+            Position wPos = new Position(pListWhite.get(i).first);
+            Piece wPiece = new Piece(pListWhite.get(i).second);
+            Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
+            whiteListCopy.add(wPair);
+        }
+        whitePiecesTurn.add(actualTurn,whiteListCopy);
+
+        List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
+        for(int i=0;i<pListBlack.size();i++){
+            Position bPos = new Position(pListBlack.get(i).first);
+            Piece bPiece = new Piece(pListBlack.get(i).second);
+            Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
+            whiteListCopy.add(bPair);
+        }
+        blackPiecesTurn.add(actualTurn,blackListCopy);
         actualTurn++;
     }
 
@@ -461,11 +477,15 @@ public class Chess {
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-        this.pListWhite=this.whitePiecesTurn.get(val);
-        this.pListBlack=this.blackPiecesTurn.get(val);
-        /*for(int i=0;i<whitePiecesTurn.get(val).size(); i++){
-            System.out.println("Original "+whitePiecesTurn.get(val).get(i).first.toString()+" copia "+whitePiecesTurn.get(val).get(i).first.toString());
-        }*/
+        this.pListWhite=whitePiecesTurn.get(val);
+        this.pListBlack=blackPiecesTurn.get(val);
+        
+        for(int i=0;i<whitePiecesTurn.size(); i++){
+            System.out.println("--------------"+i+"-----------------------");
+            for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
+                System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
+            }
+        }
     }
 
     /*
@@ -489,7 +509,7 @@ public class Chess {
     public void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         actualTurn++;
-        System.out.println("redo "+actualTurn);
+        //System.out.println("redo "+actualTurn);
         remakeBoard(/*boardArray.get(actualTurn)*/);
         
         //System.out.println("Guardat redo"+showBoard());
