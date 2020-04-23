@@ -19,7 +19,7 @@ public class ItemBuilder {
     }
 
     /// @brief Builds a default button item
-    /// @pre @param btn has been initialized
+    /// @pre @p btn has been initialized
     /// @post Sets the button with the desired properties
     public static void buildButton(Button btn, String text, Double width, BtnType type) {
         btn.setText(text);
@@ -44,7 +44,7 @@ public class ItemBuilder {
     }
 
     /// @brief Builds a default VBox
-    /// @pre @param layout has been initialized
+    /// @pre @p layout has been initialized
     /// @post Sets the VBox with the desired properties
     public static void buildVBox(VBox layout, Double spacing, Collection<? extends Node> children) {
         layout.setSpacing((spacing == null) ? 12.0 : spacing);
