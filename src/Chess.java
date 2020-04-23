@@ -433,9 +433,9 @@ public class Chess {
                     boardCopy[i][j] = null;
             }
         }
-        /*if(boardArray.get(actualTurn)!=null)
+        if(boardArray.size()>actualTurn)
             boardArray.set(actualTurn,boardCopy);
-        else*/
+        else
             boardArray.add(actualTurn,boardCopy);
 
         List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
@@ -444,10 +444,10 @@ public class Chess {
             Piece wPiece = new Piece(pListWhite.get(i).second);
             Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
             whiteListCopy.add(wPair);
-        }/*
-        if(actualTurn==0)
-            whitePiecesTurn.add(actualTurn,whiteListCopy);
-        else*/
+        }
+        if(whitePiecesTurn.size()>actualTurn)
+            whitePiecesTurn.set(actualTurn,whiteListCopy);
+        else
             whitePiecesTurn.add(actualTurn,whiteListCopy);
 
         List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
@@ -455,11 +455,11 @@ public class Chess {
             Position bPos = new Position(pListBlack.get(i).first);
             Piece bPiece = new Piece(pListBlack.get(i).second);
             Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
-            whiteListCopy.add(bPair);
-        }/*
-        if(actualTurn==0)
-            blackPiecesTurn.add(actualTurn,blackListCopy);
-        else*/    
+            blackListCopy.add(bPair);
+        }
+        if(blackPiecesTurn.size()>actualTurn)
+            blackPiecesTurn.set(actualTurn,blackListCopy);
+        else  
             blackPiecesTurn.add(actualTurn,blackListCopy);
 
         actualTurn++;
@@ -509,12 +509,12 @@ public class Chess {
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
 
-        for(int i=0;i<whitePiecesTurn.size(); i++){
+        /*for(int i=0;i<whitePiecesTurn.size(); i++){
             System.out.println("--------------"+i+"-----------------------");
             for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
-                System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
+                System.out.println(whitePiecesTurn.get(i).get(j).first.toString());
             }
-        }
+        }*/
     }
 
     /*
