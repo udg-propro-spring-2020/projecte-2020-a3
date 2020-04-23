@@ -159,7 +159,12 @@ public class Chess {
 			for (int j = 0; j < cols(); ++j) {
 				Piece p = board[i][j];
 				if (p == null) s += " ";
-				else s += board[i][j].type().ptSymbol();                        
+				else{
+                    if(board[i][j].color() == PieceColor.White)
+                        s += board[i][j].type().ptSymbol();
+                    else
+                        s += Character.toLowerCase(board[i][j].type().ptSymbol().charAt(0));
+                }                         
 				s += " | "; 
 			}
 			s += "\n" + l;
@@ -406,14 +411,32 @@ public class Chess {
     }
 
 
+
+    /*
+    
+    SET/ADD
+    NULL AL TAULER
+    LLISTES COPY
+    
+    
+    */
     public void copyChessTurn(){
         Piece[][] boardCopy = new Piece[rows()][cols()];
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
-                boardCopy[i][j]=this.board[i][j];
+                //System.out.println(rows()+" "+cols()+" "+this.board[i][j].type().ptName());
+                if(this.board[i][j]!=null){
+                    Piece p = new Piece(this.board[i][j]);
+                    boardCopy[i][j] = p;
+                }
+                else
+                    boardCopy[i][j] = null;
             }
         }
-        boardArray.add(actualTurn,boardCopy);
+        if(boardArray.size()>actualTurn)
+            boardArray.set(actualTurn,boardCopy);
+        else
+            boardArray.add(actualTurn,boardCopy);
 
         List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
         for(int i=0;i<pListWhite.size();i++){
@@ -422,16 +445,23 @@ public class Chess {
             Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
             whiteListCopy.add(wPair);
         }
-        whitePiecesTurn.add(actualTurn,whiteListCopy);
+        if(whitePiecesTurn.size()>actualTurn)
+            whitePiecesTurn.set(actualTurn,whiteListCopy);
+        else
+            whitePiecesTurn.add(actualTurn,whiteListCopy);
 
         List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
         for(int i=0;i<pListBlack.size();i++){
             Position bPos = new Position(pListBlack.get(i).first);
             Piece bPiece = new Piece(pListBlack.get(i).second);
             Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
-            whiteListCopy.add(bPair);
+            blackListCopy.add(bPair);
         }
-        blackPiecesTurn.add(actualTurn,blackListCopy);
+        if(blackPiecesTurn.size()>actualTurn)
+            blackPiecesTurn.set(actualTurn,blackListCopy);
+        else  
+            blackPiecesTurn.add(actualTurn,blackListCopy);
+
         actualTurn++;
     }
 
@@ -469,8 +499,7 @@ public class Chess {
 
     public void remakeBoard(){
         //System.out.println("taulers "+boardArray.size());
-        int val = actualTurn;
-        val--;
+        int val = actualTurn-1;
         Piece[][] boardCopy = this.boardArray.get(val);
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
@@ -479,13 +508,13 @@ public class Chess {
         }
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
-        
-        for(int i=0;i<whitePiecesTurn.size(); i++){
+
+        /*for(int i=0;i<whitePiecesTurn.size(); i++){
             System.out.println("--------------"+i+"-----------------------");
             for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
-                System.out.println(whitePiecesTurn.get(val).get(j).first.toString());
+                System.out.println(whitePiecesTurn.get(i).get(j).first.toString());
             }
-        }
+        }*/
     }
 
     /*
