@@ -71,6 +71,7 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
         Position p3=new Position(1,0);
@@ -405,7 +406,8 @@ public class Chess {
             i++; 
                 //captura: 0=no, 1=si, 2=mov possible nomes al matar
             }   
-        }        
+        } 
+        //if(r.first) applyMovement(origin, destiny, r.second);
         //System.out.println(r.first);          
     return r;
     }
@@ -478,7 +480,7 @@ public class Chess {
         //Chess ch = new Chess(this);
         //System.out.println("actualTurn "+actualTurn);
         Piece deadPiece = null;
-        if (death != null){
+        if (destiny != null){
             //deletePiece(board[death.row()][death.col()]);  
             deadPiece = board[death.row()][death.col()];      
             board[death.row()][death.col()] = null;
@@ -509,12 +511,22 @@ public class Chess {
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
 
-        /*for(int i=0;i<whitePiecesTurn.size(); i++){
-            System.out.println("--------------"+i+"-----------------------");
-            for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
-                System.out.println(whitePiecesTurn.get(i).get(j).first.toString());
+        for(int i=0;i<whitePiecesTurn.size(); i++){
+            System.out.println("--------------"+i+" valor: "+val+"-----------------------");
+            if(i==val){
+                for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
+                    System.out.println(whitePiecesTurn.get(i).get(j).first.toString());
+                }
             }
-        }*/
+        }
+        System.out.println("Peces actuals B");
+        for(int j=0;j<pListWhite.size(); j++){
+            System.out.println(pListWhite.get(j).first.toString());
+        }
+        System.out.println("Peces actuals N");
+        for(int j=0;j<pListBlack.size(); j++){
+            System.out.println(pListBlack.get(j).first.toString());
+        }
     }
 
     /*
@@ -729,15 +741,29 @@ public class Chess {
         return destinyWithValues;
     }
 
-
-
-
+    /*
+    public int hashCode(){
+        int num = 0;
+        int dec = 1;
+        for(int i=0; i<rows(); i++){
+            for(int j=0; j<cols(); j++){
+                if(board[i][j]==null){
+                    num += 1*dec;
+                }else{
+                    num += (int)board[i][j].type().ptSymbol().charAt(0)*dec;
+                }
+                dec *= 10;
+            }
+        }
+        System.out.println(num);
+        return num;
+    }
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
      * @post Return if this chess is the same as another chess
      */
-    public boolean isEqual(Chess c){
+    public boolean equals(Chess c){
         int i = 0;
         int j = 0;
         boolean same = true;
