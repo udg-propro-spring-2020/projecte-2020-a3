@@ -50,6 +50,8 @@ public class Cpu{
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
         System.out.println("profunditat:"+_profundity);
+        if(_color==PieceColor.White)System.out.println("cpu es blanca");
+        else System.out.println("cpu es negra");
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE);
         System.out.println("best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
         return movement;
@@ -65,11 +67,18 @@ public class Cpu{
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.White)pieces=_chess.pListWhite();
             else pieces=_chess.pListBlack();
+            /*Iterator<Pair<Position,Piece>> itPieces1 = pieces.iterator();
+            System.out.println("------------------");
+            while(itPieces1.hasNext()){
+                Pair<Position,Piece> piece1 = itPieces1.next();
+                System.out.println("color:"+piece1.second.color());
+            }
+            System.out.println("------------------");*/
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  // FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 Position initialPosition = new Position(piece.first.row(),piece.first.col());
-                System.out.println("(cpu.java 70)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                //System.out.println("(cpu.java 70)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
                 //System.out.println(_chess.showBoard());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
@@ -79,18 +88,18 @@ public class Cpu{
                     System.out.println("(cpu.java 77)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
                     if(pieceMovement.second>0)_chess.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
-                    System.out.println("(cpu.java 80) tauler despres d'aplicar moviment:"+_chess.showBoard());
+                    //System.out.println("(cpu.java 80) tauler despres d'aplicar moviment:"+_chess.showBoard());
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
                     piece.first=initialPosition;
-                    System.out.println("(cpu.java 84) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
+                    //System.out.println("(cpu.java 84) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
 
                     if(result>max){
                         biggestAnterior=result;
                         max=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
-                        System.out.println("(cpu.java 91)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
+                        //System.out.println("(cpu.java 91)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(smallerAnterior<=biggestAnterior)break;
                 }
@@ -102,32 +111,40 @@ public class Cpu{
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.Black)pieces=_chess.pListWhite();
             else pieces=_chess.pListBlack();
+            /*Iterator<Pair<Position,Piece>> itPieces1 = pieces.iterator();
+            System.out.println("------------------");
+            while(itPieces1.hasNext()){
+                Pair<Position,Piece> piece1 = itPieces1.next();
+                System.out.println("color:"+piece1.second.color());
+            }
+            System.out.println("------------------");*/
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 Position initialPosition = new Position(piece.first.row(),piece.first.col());
-                System.out.println("(cpu.java 107)color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                //System.out.println("(cpu.java 107)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
                 //System.out.println("(cpu.java 108)"+_chess.showBoard());
                 List<Pair<Position,Integer>> destinyWithScores = _chess.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    System.out.println("(cpu.java 114)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
+                    System.out.println("(cpu.java 132)"+_chess.showBoard());
+                    System.out.println("(cpu.java 133)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
                     if(pieceMovement.second>0)_chess.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
                     else _chess.applyMovement(piece.first,pieceMovement.first,null);
-                    System.out.println("(cpu.java 117) tauler despres d'aplicar moviment:"+_chess.showBoard());
+                    //System.out.println("(cpu.java 117) tauler despres d'aplicar moviment:"+_chess.showBoard());
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior);
                     _chess.undoMovement();
                     piece.first=initialPosition;
-                    System.out.println("(cpu.java 121) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
+                    //System.out.println("(cpu.java 121) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+_chess.showBoard());
 
                     if(result<min){
                         smallerAnterior=result;
                         min=result;
-                        movement.first=piece.first;
-                        movement.second=pieceMovement.first;
-                        System.out.println("(cpu.java 128)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
+                        //movement.first=piece.first;
+                        //movement.second=pieceMovement.first;
+                        //System.out.println("(cpu.java 128)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
                     if(biggestAnterior>=smallerAnterior)break;
                 }
