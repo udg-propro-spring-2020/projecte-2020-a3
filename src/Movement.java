@@ -11,15 +11,15 @@ public class Movement implements JSON {
     private int y;
     /// @param capture 0 (can't capture), 1 (can capture), 2 (movement valid only when capturing)
     private int capture;
-    /// @param jump Whether it can jump other pieces or not
-    private boolean jump;
+    /// @param jump 0 (can't jump), 1 (can jump not capture), 2 (jump and capture)
+    private int jump;
 
     /// @brief Default movement constructor
     Movement(int x, int y, int capture, int jump){
         this.x = x;
         this.y = y;
         this.capture = capture;
-        this.jump = jump == 1 ? true : false;
+        this.jump = jump;
     }
 
     /// @brief To know the X property value
@@ -43,10 +43,10 @@ public class Movement implements JSON {
         return capture;
     }
 
-    /// @brief To know if the piece can jump
+    /// @brief To know the jump value
     /// @pre ---
-    /// @post Returns if the piece can jump
-    public boolean canJump(){
+    /// @post Returns the jump value
+    public int canJump(){
         return jump;
     } 
 
@@ -69,7 +69,7 @@ public class Movement implements JSON {
             .append(Integer.toString(capture))
             .append(", \n")
             .append(ToJSONParserHelper.FIVE_TABS)                 /// Indentation
-            .append(jump ? "1 \n" : "0 \n")
+            .append(jump)
             .append(ToJSONParserHelper.FOUR_TABS)
             .append(ToJSONParserHelper.LIST_END);
         
