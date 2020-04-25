@@ -71,6 +71,8 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        //Chess ch = this.copy(this);
+        //System.out.println(ch.showBoard());
         //hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
@@ -87,25 +89,34 @@ public class Chess {
 
        // System.out.println(showBoard());
     }
-
-    Chess (Chess c){
-        this.rows = c.rows;
-        this.cols = c.cols;
-        this.chessLimits = c.chessLimits;
-        this.inactiveLimits = c.inactiveLimits;
-        this.pList = c.pList;
-        this.initPositions = c.initPositions;
-        this.castlings = c.castlings;
-        this.whiteInitPos = c.whiteInitPos;
-        this.blackInitPos = c.blackInitPos;
-        this.boardArray = c.boardArray;
-        this.actualTurn = c.actualTurn;
-        this.whitePiecesTurn = c.whitePiecesTurn;
-        this.blackPiecesTurn = c.blackPiecesTurn;
-
-        this.pListWhite = c.pListWhite;
-        this.pListBlack = c.pListBlack;
-        this.board = c.board;
+    Chess copy(Chess c){
+        Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
+        c.inactiveLimits,c.pList,c.initPositions,c.castlings,
+        c.whiteInitPos,c.blackInitPos,c.boardArray,c.actualTurn,
+        c.whitePiecesTurn, c.blackPiecesTurn,c.pListWhite,
+        c.pListBlack, c.board);
+        return ch;
+    }
+    Chess (int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
+    List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, List<Piece[][]> boardArray,int actualTurn,
+    List<List<Pair<Position, Piece>>> whitePiecesTurn, List<List<Pair<Position, Piece>>> blackPiecesTurn, List<Pair<Position, Piece>> pListWhite, 
+    List<Pair<Position, Piece>> pListBlack, Piece[][] board){
+        this.rows = rows;
+        this.cols = cols;
+        this.chessLimits = chessLimits;
+        this.inactiveLimits = inactiveLimits;
+        this.pList = pList;
+        this.initPositions = initPositions;
+        this.castlings = castlings;
+        this.whiteInitPos = whiteInitPos;
+        this.blackInitPos = blackInitPos;
+        this.boardArray = boardArray;
+        this.actualTurn = actualTurn;
+        this.whitePiecesTurn = whitePiecesTurn;
+        this.blackPiecesTurn = blackPiecesTurn;
+        this.pListWhite = pListWhite;
+        this.pListBlack = pListBlack;
+        this.board = board;
     }
 
     /*
@@ -276,13 +287,12 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if there's any piece that the origin piece can't pass across
      */
-    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1,List<Position> piecesToKill){
+    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1){
         boolean pieceOnTheWay = false;
         int initialX=x0;
         int finalX=x1;
         int initialY=y0;
         int finalY=y1;
-        Piece pOrig = board[x0][y0];
         if(x1 < x0){//Si movem peça en direccio de baix cap a dalt, mirem de adalt cap abaix (cambiem 8 5 per 5 8 per tenir un sol for) 
             initialX=x1;
             finalX=x0;
@@ -296,22 +306,14 @@ public class Chess {
             //System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
             for(int i=initialY+1; i<finalY; i++){
                 if(board[x0][i] != null){
-                    if(p.jump()==2){
-                        piecesToKill.add(new Position(x0,i));
-                    }else{
-                        pieceOnTheWay = true;
-                    }
+                    pieceOnTheWay = true;
                 }
             }
         }else if(y0==y1){//es mou en la mateixa columna         
             //System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][y0] != null){
-                    if(p.jump()==2){
-                        piecesToKill.add(new Position(i,y0));
-                    }else{
-                        pieceOnTheWay = true;
-                    }
+                    pieceOnTheWay = true;
                 }
             }
         }else{//es mou en diagonal
@@ -319,11 +321,7 @@ public class Chess {
             int j=initialY+1;
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][j] != null){
-                    if(p.jump()==2){
-                        piecesToKill.add(new Position(i,j);
-                    }else{
-                        pieceOnTheWay = true;
-                    }
+                    pieceOnTheWay = true;
                    // System.out.println(board[i][j].symbol());
                 }
                 j++;
@@ -343,15 +341,8 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if the moviment is possible to execute and the position of the piece to kill 
      */
-    public Pair<Boolean,List<Position>> checkMovement(Position origin, Position destiny) {
-        /*
-        - pair.second = list de peces a matar
-            - si es mou varies caselles i pot matar saltant afegir al list (a les combinades no)
-            - si desti hi ha èça i pot matar afegir al list
-        - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
-        */
-        Pair<Boolean,List<Position>> r = new Pair<>(false,null);
-        List<Position> piecesToKill = new ArrayList<Position>();
+    public Pair<Boolean,Position> checkMovement(Position origin, Position destiny) {
+		Pair<Boolean,Position> r = new Pair<>(false,null);
         boolean enemiePieceOnDestiny = false;
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row;
@@ -386,7 +377,7 @@ public class Chess {
             }
             int i = 0;
             boolean found = false;
-            boolean jumpPieceOnTheWay = false;
+            boolean pieceOnTheWay = false;
             boolean diagonalCorrect = true;
             while(i < movesToRead.size() && !found){
                 Movement act = movesToRead.get(i);         
@@ -397,14 +388,14 @@ public class Chess {
                         //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
                     if(diagonalCorrect){
-                        if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
-                            jumpPieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,piecesToKill);
+                        if((xMove > 1 || yMove > 1) && act.canJump()==1){//Si s'ha de desplaçar mes de una posicio i no pot saltar
+                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1);
                             //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
-                        if(!jumpPieceOnTheWay){ //Si pot saltar, no s'activa   
+                        if(!pieceOnTheWay){ //Si pot saltar, no s'activa   
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
                                 r.first = true;
-                                r.second.add(new Position(x1,y1)); 
+                                r.second = new Position(x1,y1); 
                                 found = true;
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
@@ -502,7 +493,7 @@ public class Chess {
         //Chess ch = new Chess(this);
         //System.out.println("actualTurn "+actualTurn);
         Piece deadPiece = null;
-        if (destiny != null){
+        if (death != null){
             //deletePiece(board[death.row()][death.col()]);  
             deadPiece = board[death.row()][death.col()];      
             board[death.row()][death.col()] = null;
