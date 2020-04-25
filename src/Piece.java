@@ -91,4 +91,12 @@ public class Piece {
             return p.id == this.id;
         }
     }
+
+    /// @brief Piece's hashcode
+    /// @pre ---
+    /// @post Piece's hashcode made fom it's symbol
+    @Override
+    public int hashCode() {
+        return Integer.parseInt(symbol);
+    }
 }
