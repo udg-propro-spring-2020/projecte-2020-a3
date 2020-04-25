@@ -71,7 +71,7 @@ public class Chess {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
-        hashCode();
+        //hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
         Position p3=new Position(1,0);
@@ -88,8 +88,7 @@ public class Chess {
        // System.out.println(showBoard());
     }
 
-    /*
-    Chess(Chess c){
+    Chess (Chess c){
         this.rows = c.rows;
         this.cols = c.cols;
         this.chessLimits = c.chessLimits;
@@ -97,14 +96,17 @@ public class Chess {
         this.pList = c.pList;
         this.initPositions = c.initPositions;
         this.castlings = c.castlings;
-        this.initPositionsWhite = c.initPositionsWhite;
-        this.initPositionsBlack = c.initPositionsBlack;
+        this.whiteInitPos = c.whiteInitPos;
+        this.blackInitPos = c.blackInitPos;
+        this.boardArray = c.boardArray;
+        this.actualTurn = c.actualTurn;
+        this.whitePiecesTurn = c.whitePiecesTurn;
+        this.blackPiecesTurn = c.blackPiecesTurn;
+
         this.pListWhite = c.pListWhite;
         this.pListBlack = c.pListBlack;
-        board = new Piece[this.rows][this.cols];
-        createBoard();
-    }*/
-
+        this.board = c.board;
+    }
 
     /*
      * @brief Creates the board
