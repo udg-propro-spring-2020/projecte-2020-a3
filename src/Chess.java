@@ -276,12 +276,13 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if there's any piece that the origin piece can't pass across
      */
-    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1){
+    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1,List<Position> piecesToKill){
         boolean pieceOnTheWay = false;
         int initialX=x0;
         int finalX=x1;
         int initialY=y0;
         int finalY=y1;
+        Piece pOrig = board[x0][y0];
         if(x1 < x0){//Si movem peça en direccio de baix cap a dalt, mirem de adalt cap abaix (cambiem 8 5 per 5 8 per tenir un sol for) 
             initialX=x1;
             finalX=x0;
@@ -295,14 +296,22 @@ public class Chess {
             //System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
             for(int i=initialY+1; i<finalY; i++){
                 if(board[x0][i] != null){
-                    pieceOnTheWay = true;
+                    if(p.jump()==2){
+                        piecesToKill.add(new Position(x0,i));
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                 }
             }
         }else if(y0==y1){//es mou en la mateixa columna         
             //System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][y0] != null){
-                    pieceOnTheWay = true;
+                    if(p.jump()==2){
+                        piecesToKill.add(new Position(i,y0));
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                 }
             }
         }else{//es mou en diagonal
@@ -310,7 +319,11 @@ public class Chess {
             int j=initialY+1;
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][j] != null){
-                    pieceOnTheWay = true;
+                    if(p.jump()==2){
+                        piecesToKill.add(new Position(i,j);
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                    // System.out.println(board[i][j].symbol());
                 }
                 j++;
@@ -330,8 +343,15 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if the moviment is possible to execute and the position of the piece to kill 
      */
-    public Pair<Boolean,Position> checkMovement(Position origin, Position destiny) {
-		Pair<Boolean,Position> r = new Pair<>(false,null);
+    public Pair<Boolean,List<Position>> checkMovement(Position origin, Position destiny) {
+        /*
+        - pair.second = list de peces a matar
+            - si es mou varies caselles i pot matar saltant afegir al list (a les combinades no)
+            - si desti hi ha èça i pot matar afegir al list
+        - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
+        */
+        Pair<Boolean,List<Position>> r = new Pair<>(false,null);
+        List<Position> piecesToKill = new ArrayList<Position>();
         boolean enemiePieceOnDestiny = false;
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row;
@@ -366,7 +386,7 @@ public class Chess {
             }
             int i = 0;
             boolean found = false;
-            boolean pieceOnTheWay = false;
+            boolean jumpPieceOnTheWay = false;
             boolean diagonalCorrect = true;
             while(i < movesToRead.size() && !found){
                 Movement act = movesToRead.get(i);         
@@ -377,14 +397,14 @@ public class Chess {
                         //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
                     if(diagonalCorrect){
-                        if((xMove > 1 || yMove > 1) && !act.canJump()){//Si s'ha de desplaçar mes de una posicio i no pot saltar
-                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1);
+                        if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
+                            jumpPieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,piecesToKill);
                             //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
-                        if(!pieceOnTheWay){ //Si pot saltar, no s'activa   
+                        if(!jumpPieceOnTheWay){ //Si pot saltar, no s'activa   
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
                                 r.first = true;
-                                r.second = new Position(x1,y1); 
+                                r.second.add(new Position(x1,y1)); 
                                 found = true;
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
