@@ -21,10 +21,9 @@ public class Position implements JSON{
     Position(Position copy) throws NullPointerException{
         if (copy == null) {
             throw new NullPointerException("Copy Position cannot pass a null element");
-        } else {
-            this.row = copy.row;
-            this.col = copy.col;
         }
+        this.row = copy.row;
+        this.col = copy.col;
     }
 
     /// @brief Construct a position from a string
