@@ -76,18 +76,28 @@ public class Chess {
         //hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
-        Position p3=new Position(1,0);
+        /*Position p1=new Position(1,0);
+        Position p2=new Position(3,0);
+        applyMovement(p1,p2,null);
+        Position p3=new Position(6,1);
+        Position p4=new Position(4,1);
+        applyMovement(p3,p4,null);
+        Position p5=new Position(3,0);
+        Position p6=new Position(4,1);
+        List<Position> lp = new ArrayList<Position>();
+        lp.add(p6);
+        applyMovement(p5,p6,lp);*/
         /*board[1][7]=null;
         board[6][3]=null;
         board[6][2]=null;
-        board[0][6]=null;
+        board[0][6]=null;*/
         //applyMovement(p,p2,null);
-        Position p4=new Position(7,3);
-        Position p5=new Position(5,3);
-        applyMovement(p4,p5,null);*/
+        /*Position p4=new Position(7,3);
+        Position p5=new Position(5,3);*/
+        //applyMovement(p4,p5,null);
         //destinyWithValues(p3);
 
-       // System.out.println(showBoard());
+       System.out.println(showBoard());
     }
     Chess copy(Chess c){
         Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
@@ -272,7 +282,24 @@ public class Chess {
         return pListBlack;
     }
 
-    
+    /*
+     * @brief List of initial white positions
+     * @pre --
+     * @post Return the initial list of white positions
+     */
+    public List<Pair<Position, Piece>> whiteInitPos(){
+        return whiteInitPos;
+    }
+
+    /*
+     * @brief List of initial black positions
+     * @pre --
+     * @post Return the initial list of black positions
+     */
+    public List<Pair<Position, Piece>> blackInitPos(){
+        return blackInitPos;
+    }
+
     /*
      * @brief Checks if a piece is from a diferent player
      * @pre A piece is going to be killed
@@ -287,12 +314,13 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if there's any piece that the origin piece can't pass across
      */
-    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1){
+    private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1, Movement act, List<Position> piecesToKill){
         boolean pieceOnTheWay = false;
         int initialX=x0;
         int finalX=x1;
         int initialY=y0;
         int finalY=y1;
+        //Piece pOrig = board[x0][y0];
         if(x1 < x0){//Si movem peça en direccio de baix cap a dalt, mirem de adalt cap abaix (cambiem 8 5 per 5 8 per tenir un sol for) 
             initialX=x1;
             finalX=x0;
@@ -306,14 +334,22 @@ public class Chess {
             //System.out.println("entro a row i miro de "+initialY+" fins a "+finalY);
             for(int i=initialY+1; i<finalY; i++){
                 if(board[x0][i] != null){
-                    pieceOnTheWay = true;
+                    if(act.canJump()==2){
+                        piecesToKill.add(new Position(x0,i));
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                 }
             }
         }else if(y0==y1){//es mou en la mateixa columna         
             //System.out.println("entro a col i miro de "+initialX+" fins a "+finalX);
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][y0] != null){
-                    pieceOnTheWay = true;
+                    if(act.canJump()==2){
+                        piecesToKill.add(new Position(i,y0));
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                 }
             }
         }else{//es mou en diagonal
@@ -321,7 +357,11 @@ public class Chess {
             int j=initialY+1;
             for(int i=initialX+1; i<finalX; i++){
                 if(board[i][j] != null){
-                    pieceOnTheWay = true;
+                    if(act.canJump()==2){
+                        piecesToKill.add(new Position(i,j));
+                    }else{
+                        pieceOnTheWay = true;
+                    }
                    // System.out.println(board[i][j].symbol());
                 }
                 j++;
@@ -341,9 +381,14 @@ public class Chess {
      * @pre A movement is going to be realised 
      * @post Return if the moviment is possible to execute and the position of the piece to kill 
      */
-    public Pair<Boolean,Position> checkMovement(Position origin, Position destiny) {
-		Pair<Boolean,Position> r = new Pair<>(false,null);
-        boolean enemiePieceOnDestiny = false;
+    public Pair<Boolean,List<Position>> checkMovement(Position origin, Position destiny) {
+        /*
+        - pair.second = list de peces a matar
+            - si es mou varies caselles i pot matar saltant afegir al list (a les combinades no)
+            - si desti hi ha èça i pot matar afegir al list
+        - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
+        */
+        Pair<Boolean,List<Position>> r = new Pair<>(false,null);
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row;
 		int y0 = origin.col;
@@ -351,13 +396,13 @@ public class Chess {
 		int y1 = destiny.col;
         Piece p = board[x0][y0];
         List<Movement> pieceMovements = p.type().ptMovements();
-        //Hi ha peça al origen
-        if(destinyInLimits(x1,y1)){
-            if(board[x1][y1]!=null)//Hi ha peça al desti?
-                enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
+        boolean enemiePieceOnDestiny = false;
+                if(board[x1][y1]!=null)//Hi ha peça al desti?
+                    enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
                 //System.out.println("Hi ha peça");   
                 //System.out.println(enemiePieceOnDestiny);        
-            
+        //Hi ha peça al origen
+        if(destinyInLimits(x1,y1)){
             int xMove=x1-x0;
             int yMove=y1-y0;
             if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
@@ -377,9 +422,10 @@ public class Chess {
             }
             int i = 0;
             boolean found = false;
-            boolean pieceOnTheWay = false;
+            boolean jumpPieceOnTheWay = false;
             boolean diagonalCorrect = true;
             while(i < movesToRead.size() && !found){
+                List<Position> piecesToKill = new ArrayList<Position>();
                 Movement act = movesToRead.get(i);         
                 //System.out.println(act.toString());            
                 if((yMove == act.movY() || act.movY() == 50) && (xMove == act.movX() || act.movX() == 50)){                        
@@ -388,14 +434,16 @@ public class Chess {
                         //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
                     if(diagonalCorrect){
-                        if((xMove > 1 || yMove > 1) && act.canJump()==1){//Si s'ha de desplaçar mes de una posicio i no pot saltar
-                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1);
+                        if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
+                            jumpPieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);
                             //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
-                        if(!pieceOnTheWay){ //Si pot saltar, no s'activa   
+                        if(!jumpPieceOnTheWay){ //Si no pot saltar 
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
                                 r.first = true;
-                                r.second = new Position(x1,y1); 
+                                Position pp=new Position(x1,y1);
+                                System.out.println(pp.toString());
+                                r.second.add(pp); 
                                 found = true;
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
@@ -489,17 +537,20 @@ public class Chess {
 	d'aquesta posició.
     S'ha modificat la llista de peces corresponent i creat una copia del tauler i peces d'aquest turn
     */
-    public void applyMovement(Position origin, Position destiny, Position death) {
+    public void applyMovement(Position origin, Position destiny, List<Position> deathPositions) {
         //Chess ch = new Chess(this);
         //System.out.println("actualTurn "+actualTurn);
-        Piece deadPiece = null;
-        if (death != null){
+        List<Piece> deadPieces = new ArrayList<Piece>();
+        if (deathPositions != null){
             //deletePiece(board[death.row()][death.col()]);  
-            deadPiece = board[death.row()][death.col()];      
-            board[death.row()][death.col()] = null;
+            for(int i=0; i<deathPositions.size(); i++){
+                Piece deadPiece = board[deathPositions.get(i).row()][deathPositions.get(i).col()]; 
+                deadPieces.add(deadPiece);     
+                board[deathPositions.get(i).row()][deathPositions.get(i).col()] = null;
+            }
         }
         
-        changePiecesList(origin,destiny,deadPiece);
+        changePiecesList(origin,destiny,deadPieces);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
         //this.isEqual(ch);
@@ -574,7 +625,7 @@ public class Chess {
      * @pre --
      * @post Lists of pieces has been updated
      */
-    private void changePiecesList(Position origin, Position destiny, Piece deadPiece){
+    private void changePiecesList(Position origin, Position destiny, List<Piece> deadPieces){
         List<Pair<Position,Piece>> listToChange = new ArrayList<Pair<Position,Piece>>();
         List<Pair<Position,Piece>> listToRemoveOn = new ArrayList<Pair<Position,Piece>>();
         boolean search=true;
@@ -595,16 +646,18 @@ public class Chess {
             }
             i++;    
         }
-        if(deadPiece!=null){
-            i=0;
-            search=true;
-            while(i<listToRemoveOn.size() && search){
-                if(listToRemoveOn.get(i).second.equals(deadPiece)){
-                    //System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
-                    listToRemoveOn.remove(i);
-                    search = false;
+        if(deadPieces!=null){
+            for(int j=0; j<deadPieces.size(); j++){
+                i=0;
+                search=true;
+                while(i<listToRemoveOn.size() && search){
+                    if(listToRemoveOn.get(i).second.equals(deadPieces.get(j))){
+                        //System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
+                        listToRemoveOn.remove(i);
+                        search = false;
+                    }
+                    i++;
                 }
-                i++;
             }
         }/*
         for(int j=0;j<listToChange.size();j++){
