@@ -5,8 +5,11 @@
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -16,13 +19,15 @@ import java.io.InputStreamReader;
  */
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
-	private static PieceColor currTurnColor = null;;
+	private static String defaultConfigFileName = null;
+	private static PieceColor currTurnColor = null;
 	private static Integer turnNumber = null;
 	private static Integer undoCount = null;
 	private static List<Turn> turns = null;
 	private static boolean dataSet = false;
 
 	/// CONSTANTS
+	private static String DEFAULT_CONFIGURATION = "./data/default_game.json";
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 	/// @brief Shows a menu asking how to start a game
@@ -36,7 +41,8 @@ public class ConsoleGame {
 			switch (readOption()) {
 				case 1:
 					System.out.println("Creant una partida normal...\n");
-					initiateGame(FromJSONParserHelper.buildChess("./data/default_game.json"));
+					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(DEFAULT_CONFIGURATION);
+					initiateGame(FromJSONParserHelper.buildChess(DEFAULT_CONFIGURATION));
 					break;
 				case 2:
 					System.out.println("Creant una partida personalitzada...");
@@ -170,6 +176,7 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					validFileLocation = true;
 				} else {
+					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
 					Chess chess = FromJSONParserHelper.buildChess(fileLocation);
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
@@ -384,7 +391,7 @@ public class ConsoleGame {
 				result = "X";
 				break;
 			case "G":
-				/// Todo: Save game to JSON and print filename
+				saveGame(chess);
 				System.out.println("Partida guardada!");
 				result = "G";
 				break;
@@ -425,7 +432,7 @@ public class ConsoleGame {
 					/// Create positions with the read strings
 					Position origin = new Position(oValue);
 					Position dest = new Position(dValue);
-					Pair<Boolean, Position> moveResult = chess.checkMovement(origin, dest);
+					Pair<Boolean, List<Position>> moveResult = chess.checkMovement(origin, dest);
 
 					if (moveResult.first) {
 						chess.applyMovement(origin, dest, moveResult.second);
@@ -625,6 +632,31 @@ public class ConsoleGame {
 			/// Get the current turn values
 			chess.redoMovement();
 			return true;
+		}
+	}
+
+	/// @brief Saves the game in a file
+	/// @pre ---
+	/// @post Saves the game in two JSON files, pulling away the configuration and
+	///       the game developement.
+	private static void saveGame(Chess chess) {
+		try {
+			/// Configuration
+			File configurationFile = new File(defaultConfigFileName + ".json");
+			configurationFile.createNewFile();
+			FileWriter configWriter = new FileWriter(configurationFile);
+			configWriter.write(ToJSONParserHelper.saveChessConfigToJSON(chess));
+			configWriter.close();
+
+			/// Game
+			Long fileName = new Date().getTime();
+			File gameFile = new File(fileName.toString() + ".json");
+			gameFile.createNewFile();
+			FileWriter gameWriter = new FileWriter(gameFile);
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, ""));
+			gameWriter.close();			
+		} catch (IOException e) {
+
 		}
 	}
 }
