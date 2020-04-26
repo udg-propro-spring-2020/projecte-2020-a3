@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /* 
  * @class Chess
@@ -807,22 +808,17 @@ public class Chess {
         return destinyWithValues;
     }
 
-    /*
+    
     public int hashCode(){
-        int num = 0;
-        int dec = 1;
+        int act=0;
+        Piece[] p = new Piece[rows()*cols()];
         for(int i=0; i<rows(); i++){
             for(int j=0; j<cols(); j++){
-                if(board[i][j]==null){
-                    num += 1*dec;
-                }else{
-                    num += (int)board[i][j].type().ptSymbol().charAt(0)*dec;
-                }
-                dec *= 10;
+                p[act] = board[i][j];
+                act++;
             }
         }
-        System.out.println(num);
-        return num;
+        return p.hashCode();
     }
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
