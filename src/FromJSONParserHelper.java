@@ -14,6 +14,21 @@ import java.util.Scanner;
  * @brief Parses the given file with the chess configuration to a chess object
  */
 public class FromJSONParserHelper {
+    /// @brief Function that returns the name of the game configuration
+    /// @pre ---
+    /// @post Returns the name of the file containing the configuration
+    public static String getConfigurationFileName(String fileLocation) throws FileNotFoundException {
+        Scanner mainSc = new Scanner(new File(fileLocation));
+        /// Skip first {
+        mainSc.nextLine();
+        /// Get the file location
+        String configFileName = getString(mainSc.nextLine());
+        /// Closing file scanner
+        mainSc.close();
+
+        return configFileName;
+    }
+
     /// @brief Builds a chess with the given configuration
     /// @pre ---
     /// @post Creates a chess game with the given configuration form the JSON file

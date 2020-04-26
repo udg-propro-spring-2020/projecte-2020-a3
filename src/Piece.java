@@ -5,7 +5,7 @@
  * @brief Holds the information of the piece
  */
 
-public class Piece {
+public class Piece implements JSON {
     private static int idGenerator = 0;
 
     private int id;                 ///> Unique piece identifier
@@ -92,9 +92,14 @@ public class Piece {
         }
     }
 
-    /// @brief Piece's hashcode
-    /// @pre ---
-    /// @post Piece's hashcode made fom it's symbol
+    @Override
+    public String toJSON() {
+        StringBuilder s = new StringBuilder();
+        s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false, ToJSONParserHelper.THREE_TABS));
+        return null;
+    }
+
     @Override
     public int hashCode() {
         return Integer.parseInt(symbol);

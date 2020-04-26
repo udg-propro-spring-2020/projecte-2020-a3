@@ -55,21 +55,18 @@ public class Movement implements JSON {
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.FOUR_TABS)
             .append(ToJSONParserHelper.LIST_START)
-            .append(ToJSONParserHelper.FIVE_TABS)                 /// Indentation
-            .append(
-                x == 50 ? "\"a\"" : 
-                    (x == -50 ? "\"-a\"" : Integer.toString(x))
-            ).append(", \n")
-            .append(ToJSONParserHelper.FIVE_TABS)                 /// Indentation
-            .append(
-                y == 50 ? "\"a\"" : 
-                    (y == -50 ? "\"-a\"" : Integer.toString(y))
-            ).append(", \n")
-            .append(ToJSONParserHelper.FIVE_TABS)                 /// Indentation
-            .append(Integer.toString(capture))
-            .append(", \n")
-            .append(ToJSONParserHelper.FIVE_TABS)                 /// Indentation
-            .append(jump)
+            .append(ToJSONParserHelper.valueToJSON(x == 50 
+                ? "\"a\"" 
+                : (x == -50 ? "\"-a\"" : Integer.toString(x)),
+                ToJSONParserHelper.FIVE_TABS, true)
+            )
+            .append(ToJSONParserHelper.valueToJSON(y == 50 
+                ? "\"a\"" 
+                : (y == -50 ? "\"-a\"" : Integer.toString(y)),
+                ToJSONParserHelper.FIVE_TABS, true)
+            )
+            .append(ToJSONParserHelper.valueToJSON(capture, ToJSONParserHelper.FIVE_TABS, true))
+            .append(ToJSONParserHelper.valueToJSON(jump, ToJSONParserHelper.FIVE_TABS, false))
             .append(ToJSONParserHelper.FOUR_TABS)
             .append(ToJSONParserHelper.LIST_END);
         

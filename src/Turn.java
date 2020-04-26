@@ -4,7 +4,7 @@
  * @class Turn 
  * @brief Helds the information of a turn
  */
-public class Turn {
+public class Turn implements JSON {
     private PieceColor color;
     private Pair<String, String> move;
     private String result;
@@ -31,23 +31,17 @@ public class Turn {
 
     /// @pre ---
     /// @post Returns a String of the object properties in JSON format (tabbed)
+    @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append("\t\t{\n")                             /// Start
-            .append("\t\t\t")                           /// Identation
-            .append("\"torn\": ")                       /// Key
-            .append("\"" + color.toString() + "\", \n") /// Value
-            .append("\t\t\t")                           /// Identation
-            .append("\"origen\": ")                     /// Key
-            .append("\"" + move.first + "\", \n")       /// Value
-            .append("\t\t\t")                           /// Identation
-            .append("\"desti\": ")                      /// Key
-            .append("\"" + move.second + "\", \n")      /// Value
-            .append("\t\t\t")                           /// Identation
-            .append("\"resultat\": ")                   /// Key
-            .append("\"" + result + "\", \n")           /// Value
-            .append("\t\t}\n");                         /// End
-
+        s.append(ToJSONParserHelper.TWO_TABS)
+            .append(ToJSONParserHelper.OBJ_START)
+            .append(ToJSONParserHelper.propertyToJSON("torn", color.toString(), true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("origen", move.first, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("desti", move.second, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("resultat", result, true, false, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.TWO_TABS)
+            .append(ToJSONParserHelper.OBJ_END);
         return s.toString();
     }
 

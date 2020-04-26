@@ -5,10 +5,16 @@
  * @brief Holds the position information 
  */
 public class Position implements JSON{
+    /// TRANSFORMATION CONSTANTS
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
-    public int row;
-    public int col;
+
+    private char rowLetter;         ///< Row character value
+    public int row;                 ///< Integer row value
+    public int col;                 ///< Integer column value
     
+    /// @brief Create a positon from the chess coordinates
+    /// @pre ---
+    /// @post Creates a position from the given coordinates
     Position(int row, int col) {
 	    this.row = row; 
         this.col = col; 
@@ -28,17 +34,21 @@ public class Position implements JSON{
 
     /// @brief Construct a position from a string
     /// @pre s == XY where X is the column and Y the row
-    public Position(String s) {
+    /// @post Creates a position from the given string
+    Position(String s) {
+        rowLetter = s.charAt(1);
         this.row = Character.getNumericValue(s.charAt(1) - 1);
         this.col = alph.indexOf(s.charAt(0));
     }
     
+    /// @brief Return the row's value
     /// @pre --
     /// @post Returns the position's row
     public int row(){
         return this.row;
     }
     
+    /// @brief Return the col's value
     /// @pre --
     /// @post Returns the position's column
     public int col(){
@@ -47,9 +57,12 @@ public class Position implements JSON{
 
     @Override
     public String toJSON() {
-        StringBuilder s = new StringBuilder();
-        s.append(row)
+        StringBuilder value = new StringBuilder()
+            .append(rowLetter)
             .append(col);
+        
+        StringBuilder s = new StringBuilder();
+        s.append(ToJSONParserHelper.propertyToJSON("pos", value.toString(), true, true, ToJSONParserHelper.THREE_TABS));
         return s.toString();
     }
 
