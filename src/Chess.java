@@ -380,7 +380,7 @@ public class Chess {
      * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
      * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
      * @pre A movement is going to be realised 
-     * @post Return if the moviment is possible to execute and the position of the piece to kill 
+     * @post Return if the moviment is possible to execute, a position's list of the pieces to kill and a possible move efect
      */
     public Pair<Boolean,List<Position>> checkMovement(Position origin, Position destiny) {
         /*
