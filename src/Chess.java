@@ -12,7 +12,7 @@ import java.util.Arrays;
  * @class Chess
  * @brief Class that controls the movements and pieces
  */
-public class Chess {
+public class Chess implements Cloneable {
     private int rows;
     private int cols;
     private int chessLimits;
@@ -128,6 +128,78 @@ public class Chess {
         this.pListWhite = pListWhite;
         this.pListBlack = pListBlack;
         this.board = board;
+    }
+
+    @Override
+    public Object clone(){
+        Chess chess = null;
+        try{
+            chess = (Chess)super.clone();
+        }
+        catch(CloneNotSupportedException e){
+            System.out.println("Chess clone exception");
+        }
+        List<PieceType> pListCopy = new ArrayList<PieceType>();
+        this.pList.forEach((p)->pListCopy.add( (PieceType)p.clone() ));
+        chess.pList = pListCopy;        
+        
+        List<String> initialPositionsCopy = new ArrayList<String>();
+        this.initPositions.forEach((s)->initialPositionsCopy.add(s));
+        chess.initPositions = initialPositionsCopy;
+
+        List<Castling> castlingsCopy = new ArrayList<Castling>();
+        this.castlings.forEach((p)->castlingsCopy.add( (Castling)p.clone() ));
+        chess.castlings = castlingsCopy;
+
+        List<Pair<Position, Piece>> whiteInitPosCopy = new ArrayList<Pair<Position, Piece>>();
+        this.whiteInitPos.forEach((p)->whiteInitPosCopy.add( (Pair<Position, Piece>) p.clone() ));
+        chess.whiteInitPos = whiteInitPosCopy; 
+
+        List<Pair<Position, Piece>> blackInitPosCopy = new ArrayList<Pair<Position, Piece>>();
+        this.blackInitPos.forEach((p)->blackInitPosCopy.add( (Pair<Position, Piece>)p.clone() ));
+        chess.blackInitPos = blackInitPosCopy;
+
+        List<Piece[][]> boardArrayCopy = new ArrayList<Piece[][]>();
+        this.boardArray.forEach((p)->{
+            Piece[][] matrix = new Piece[this.rows][this.cols];
+            for(int i=0;i<this.rows;i++)
+                for(int j=0;j<this.cols;j++)
+                    matrix[i][j] = (Piece) p[i][j].clone();
+            boardArrayCopy.add(matrix);
+        });
+        chess.boardArray = boardArrayCopy;
+
+        List<List<Pair<Position, Piece>>> whitePiecesTurnCopy = new ArrayList<List<Pair<Position, Piece>>>();
+        this.whitePiecesTurn.forEach((p)->{
+            List<Pair<Position, Piece>> turns = new ArrayList<Pair<Position, Piece>>();
+            p.forEach((pair)->turns.add( (Pair<Position, Piece>) pair.clone() ));
+            whitePiecesTurnCopy.add(turns);
+        } );
+        chess.whitePiecesTurn = whitePiecesTurnCopy;
+
+        List<List<Pair<Position, Piece>>> blackPiecesTurnCopy = new ArrayList<List<Pair<Position, Piece>>>();
+        this.blackPiecesTurn.forEach((p)->{
+            List<Pair<Position, Piece>> turns = new ArrayList<Pair<Position, Piece>>();
+            p.forEach((pair)->turns.add( (Pair<Position, Piece>) pair.clone() ));
+            blackPiecesTurnCopy.add(turns);
+        } );
+        chess.blackPiecesTurn = blackPiecesTurnCopy;
+
+        List<Pair<Position, Piece>> pListWhiteCopy = new ArrayList<Pair<Position, Piece>>();
+        this.pListWhite.forEach((p)->pListWhiteCopy.add( (Pair<Position, Piece>)p.clone() ));
+        chess.pListWhite = pListWhiteCopy;
+
+        List<Pair<Position, Piece>> pListBlackCopy = new ArrayList<Pair<Position, Piece>>();
+        this.pListBlack.forEach((p)->pListBlackCopy.add( (Pair<Position, Piece>)p.clone() ));
+        chess.pListBlack = pListBlackCopy;
+
+        Piece[][] boardCopy = new Piece[this.rows][this.cols];
+            for(int i=0;i<this.rows;i++)
+                for(int j=0;j<this.cols;j++)
+                    boardCopy[i][j] = (Piece) board[i][j].clone();
+        chess.board = boardCopy;
+
+        return chess;
     }
 
     /*
