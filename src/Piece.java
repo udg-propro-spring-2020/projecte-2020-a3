@@ -92,7 +92,7 @@ public class Piece implements JSON, Cloneable {
     /// @pre ---
     /// @post Inverts the value of the moved property
     public void toggleMoved() {
-        this.moved = !this.moved;
+        this.moved = false;
     }
 
     /// @brief Returns the possible movements list from the piece type
