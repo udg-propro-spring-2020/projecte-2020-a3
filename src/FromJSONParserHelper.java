@@ -103,6 +103,40 @@ public class FromJSONParserHelper {
                 blackInitPos, nextTurnColor, turnList);
     }
 
+    /// @biref Gets the information needed for the knowledge
+    /// @pre ---
+    /// @post Reads the information needed for the knowledge from the file. Returns a pair
+    ///       containing a list of pairs (origin position, destination position) and the winning
+    ///       piece color.
+    public static Pair<List<Pair<Position, Position>>, PieceColor> matchInformation(String fileLocation) throws FileNotFoundException {
+        Scanner in = new Scanner(new File(fileLocation));
+
+        /// Skip 167 lines
+        for (int i = 0; i < 168; i++) {
+            in.nextLine();
+        }
+
+        /// Start reading information
+        List<Pair<Position, Position>> positions = new ArrayList<>();
+        /// Reusing this function, since each turn holds the posision
+        getTurnList(in).forEach(
+            (t) -> positions.add(t.moveAsPair())
+        );
+        
+        /// Skip ],
+        in.nextLine();
+        String s = getString(in.nextLine());
+        PieceColor temp = s.contains("BLANQUES") 
+            ? PieceColor.White
+            : PieceColor.Black;
+        
+        return new Pair<List<Pair<Position, Position>>, PieceColor>(
+            positions,
+            temp
+        );
+    }
+
+    /// @brief Returns the int from a JSON property
     /// @pre s == "x": y
     /// @post Returns the y value as an integer
     private static int getInt(String s) {
@@ -111,6 +145,7 @@ public class FromJSONParserHelper {
         return Integer.valueOf(values[1].trim());
     }
 
+    /// @brief Returns the string from a JSON property
     /// @pre s == "x": "y"
     /// @post Returns the y value as a String without the double quotes, commas and
     ///       trimmed
@@ -119,6 +154,7 @@ public class FromJSONParserHelper {
         return values[1].isEmpty() ? "" : values[1].trim();
     }
 
+    /// @brief Gets the movement list from the file
     /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
     ///       the line where the list ends.
@@ -148,6 +184,7 @@ public class FromJSONParserHelper {
         return mList;
     }
 
+    /// @brief Gets the string (positions) list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
     ///       the line where the list ends.
@@ -162,6 +199,7 @@ public class FromJSONParserHelper {
         return posList;
     }
 
+    /// @brief Gets the piece type list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
     ///       the line where the list ends.
@@ -220,6 +258,7 @@ public class FromJSONParserHelper {
         return pList;
     }
 
+    /// @brief Gets the castling list from the file
     /// @pre ---
     /// @post Returns the JSON castling list which can be empty
     private static List<Castling> getListCastlings(Scanner fr) {
@@ -244,6 +283,7 @@ public class FromJSONParserHelper {
         return cList;
     }
 
+    /// @pre Gets the initial positios list fro the file 
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
     ///       the piece type.
@@ -280,6 +320,7 @@ public class FromJSONParserHelper {
         return pList;
     }
 
+    /// @brief Gets the turn list from the file
     /// @pre Scanner pointing at {
     /// @post Returns the list of turns which can't be empty
     private static List<Turn> getTurnList(Scanner fr) {
