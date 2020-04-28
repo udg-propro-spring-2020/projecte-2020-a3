@@ -18,7 +18,7 @@ public class Position implements JSON, Cloneable {
     Position(int row, int col) {
 	    this.row = row; 
         this.col = col; 
-        rowLetter = alph.charAt(row - 1);
+        rowLetter = alph.charAt(row);
     }
 
     /// @brief Copy constructor
