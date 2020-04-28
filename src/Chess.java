@@ -442,7 +442,7 @@ public class Chess implements Cloneable {
                 j++;
             }
         }
-        System.out.print(piecesToKill.size());
+        System.out.println("Aquesta peça n'ha trobat pel mig? "+pieceOnTheWay);
         return pieceOnTheWay;
     }
 
@@ -497,7 +497,7 @@ public class Chess implements Cloneable {
 
         */
         Piece pOrig = board[origin.row()][origin.col()];
-        Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),null);
+        Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row();
 		int y0 = origin.col();
@@ -536,44 +536,37 @@ public class Chess implements Cloneable {
             while(i < movesToRead.size() && !found){
                 List<Position> piecesToKill = new ArrayList<Position>();
                 Movement act = movesToRead.get(i);         
-                //System.out.println(act.toString());            
+                System.out.println(act.movX()+" "+act.movY());            
                 if((yMove == act.movY() || act.movY() == 50) && (xMove == act.movX() || act.movX() == 50)){                        
                     if(act.movY()==50 && act.movX()==50){
                         diagonalCorrect = Math.abs(yMove) == Math.abs(xMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
-                        //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
+                        System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
                     if(diagonalCorrect){
                         if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
-                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);//passem directament r.first.second??
+                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);//passem directament r.second??
                             if(piecesToKill.size()!=0) r.second.addAll(piecesToKill);  
-                            //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
+                            System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
                         //Si pot matar saltant haura recopilat totes les peces que pot matar al camí
                         if(!pieceOnTheWay){ //Si pots saltar les peces o no n'hi ha pel mig
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
                                 r.first.add(MoveAction.Correct);
-                                Position np=new Position(x1,y1);
                                 //System.out.println(pp.toString());
-                                r.second.add(np); 
+                                r.second.add(new Position(x1,y1)); 
                                 found = true;
-                                //System.out.println("Mov matar");
+                                System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                 if(board[x1][y1]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
                                     System.out.println("La peça que vols matar es teva");
                                 
                                 }else{
                                     r.first.add(MoveAction.Correct);
-                                    r.second = null; 
+                                    //r.second = null; 
                                     found = true;
-                                    //System.out.println("Mov normal");
+                                    System.out.println("Mov normal");
                                 }
-                            }
-                            if(r.first==null){
-                                r.first.add(MoveAction.Incorrect);
-                            }else{
-                                if(canPromote(pOrig, destiny))
-                                    r.first.add(MoveAction.Promote);
-                            }                
+                            }              
                         }else{
                             System.out.println("La teva peça no en pot saltar d'altres");
                         }  
@@ -584,9 +577,16 @@ public class Chess implements Cloneable {
             i++; 
                 //captura: 0=no, 1=si, 2=mov possible nomes al matar
             }   
-        } 
+        }
+        if(r.first.size()==0){
+            r.first.add(MoveAction.Incorrect);
+        }else{
+            if(canPromote(pOrig, destiny))
+                r.first.add(MoveAction.Promote);
+        }   
         //if(r.first) applyMovement(origin, destiny, r.second);
-        //System.out.println(r.first);    
+        for(int i=0;i<r.first.size();i++)
+            System.out.println(r.first.get(i).toString());    
     
     return r;
     }
