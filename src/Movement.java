@@ -50,6 +50,14 @@ public class Movement implements JSON, Cloneable {
         return jump;
     } 
 
+    /// @brief Toggles x and y values sign
+    /// @pre ---
+    /// @post Changes x and y values sign to its opposite
+    public void toggleDirection() {
+        this.x *= -1;
+        this.y *= -1;
+    }
+
     @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
