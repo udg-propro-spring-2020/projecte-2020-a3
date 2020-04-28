@@ -531,6 +531,9 @@ public class ConsoleGame {
 
 			} else if (!s.toUpperCase().equals("N")) {
 				valid = false;
+			} else {
+				/// If N
+				valid = true;
 			}
 		} while (!valid);
 
