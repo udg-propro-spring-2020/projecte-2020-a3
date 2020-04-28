@@ -72,8 +72,6 @@ public class Chess implements Cloneable {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
-        chessStringView(PieceColor.White);
-        chessStringView(PieceColor.Black);
         //Chess ch = this.copy(this);
         //System.out.println(ch.showBoard());
         //hashCode();
@@ -953,7 +951,6 @@ public class Chess implements Cloneable {
                 }
             }
         }
-        System.out.println(s);
         return s;
     }
     
