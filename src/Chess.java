@@ -442,6 +442,7 @@ public class Chess implements Cloneable {
                 j++;
             }
         }
+        System.out.print(piecesToKill.size());
         return pieceOnTheWay;
     }
 
@@ -459,11 +460,10 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if the piece can promote
      */
-    private boolean canPromote(Position destiny){
+    private boolean canPromote(Piece pOrig, Position destiny){
         boolean promote = false;
-        Piece p = board[destiny.row()][destiny.col()];
-        if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
-            promote = p.type().ptPromotable();
+        if((pOrig.color()==PieceColor.White && destiny.row()==rows()) || (pOrig.color()==PieceColor.Black && destiny.row()==0)){
+            promote = pOrig.type().ptPromotable();
         }
         return promote;
     }
@@ -496,6 +496,7 @@ public class Chess implements Cloneable {
         - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
 
         */
+        Piece pOrig = board[origin.row()][origin.col()];
         Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),null);
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row();
@@ -544,7 +545,7 @@ public class Chess implements Cloneable {
                     if(diagonalCorrect){
                         if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
                             pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);//passem directament r.first.second??
-                            r.second.addAll(piecesToKill);  
+                            if(piecesToKill.size()!=0) r.second.addAll(piecesToKill);  
                             //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
                         //Si pot matar saltant haura recopilat totes les peces que pot matar al camí
@@ -570,7 +571,7 @@ public class Chess implements Cloneable {
                             if(r.first==null){
                                 r.first.add(MoveAction.Incorrect);
                             }else{
-                                if(canPromote(destiny))
+                                if(canPromote(pOrig, destiny))
                                     r.first.add(MoveAction.Promote);
                             }                
                         }else{
