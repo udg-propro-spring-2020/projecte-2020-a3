@@ -436,9 +436,9 @@ public class ConsoleGame {
 					/// Create positions with the read strings
 					Position origin = new Position(oValue);
 					Position dest = new Position(dValue);
-					Pair<Boolean, List<Position>> moveResult = chess.checkMovement(origin, dest);
+					Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(origin, dest);
 
-					if (moveResult.first) {
+					if (moveResult.first.contains(MoveAction.Correct)) {
 						chess.applyMovement(origin, dest, moveResult.second);
 
 						/// If the user has undone x movements, and not redone all of them
