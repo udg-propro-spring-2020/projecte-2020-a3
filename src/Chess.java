@@ -506,7 +506,7 @@ public class Chess implements Cloneable {
 		int x1 = destiny.row();
 		int y1 = destiny.col();
         Piece p = board[x0][y0];
-        List<Movement> pieceMovements = p.type().ptMovements();
+        List<Movement> movesToRead = p.pieceMovements();
         boolean enemiePieceOnDestiny = false;
                 if(board[x1][y1]!=null)//Hi ha peça al desti?
                     enemiePieceOnDestiny = diferentOwnerPiece(board[x0][y0],board[x1][y1]);
@@ -516,10 +516,10 @@ public class Chess implements Cloneable {
         if(destinyInLimits(x1,y1)){
             int xMove=x1-x0;
             int yMove=y1-y0;
-            if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
+            /*if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
                 xMove = -1*xMove;
                 yMove = -1*yMove;//AFEGIR ATRIBUT DIRECTION (1 o -1) A PIECE I QUAN ARRIBA AL FINAL DE TAULER, CAMBIAR-LO
-            }                 
+            }             
             List<Movement> allMoves = new ArrayList<Movement>();
             List<Movement> movesToRead = new ArrayList<Movement>();
             //destinyWithValues(origin);
@@ -530,7 +530,7 @@ public class Chess implements Cloneable {
                 }
             }else{
                 movesToRead=p.type().ptMovements();
-            }
+            }*/
             int i = 0;
             boolean found = false;
             boolean pieceOnTheWay = false;
