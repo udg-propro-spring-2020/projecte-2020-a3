@@ -940,8 +940,8 @@ public class Chess implements Cloneable {
                 }
             }
         }else{
-            for(int i=rows(); i>0; i--){
-                for(int j=cols(); j>0; j--){
+            for(int i=rows()-1; i>0; i--){
+                for(int j=cols()-1; j>0; j--){
                     if(board[i][j]==null)
                         s += "-";
                     else if(board[i][j].color()==PieceColor.White)
