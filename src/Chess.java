@@ -311,9 +311,11 @@ public class Chess {
     }
     
     /*
-     * @brief Checks if a piece is in any of the central squares of the movement
+     * @brief Checks if a piece is in any of the central squares of the movement. If the origin piece
+     * can kill while jumping, the positions containing pieces are added to a list. If the origin piece
+     * cannot jump, boolean gets true value.
      * @pre A movement is going to be realised 
-     * @post Return if there's any piece that the origin piece can't pass across
+     * @post Return if there's any piece that the origin piece can't pass across and fill the list if necessary
      */
     private boolean checkPieceOnTheWay(int x0, int y0, int x1, int y1, Movement act, List<Position> piecesToKill){
         boolean pieceOnTheWay = false;
@@ -371,9 +373,43 @@ public class Chess {
         return pieceOnTheWay;
     }
 
+    /*
+     * @brief Checks if the movement is in range
+     * @pre --
+     * @post Return if the movement is in range
+     */
     private boolean destinyInLimits(int x1, int y1){
         return ((y1 >=0 && y1 < cols()) && (x1 >=0 && x1 < rows()));
     }
+
+    /*
+     * @brief Checks the promotion
+     * @pre --
+     * @post Return if the piece can promote
+     */
+    private boolean canPromote(Position destiny){
+        boolean promote = false;
+        Piece p = board[destiny.row()][destiny.col()];
+        if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
+            promote = p.type().ptPromotable();
+        }
+        return promote;
+    }
+
+    /*
+     * @brief Promote a piece
+     * @pre The piece want to promote
+     * @post Piece has been promoted
+     */
+    public void promotePiece(Piece originalPiece, Piece pieceToPromote){
+        //actualment esta fet perque el consoleGame demani al jugador quina peça escull per promocionar
+        //i es retorna la peça. Altres opcions, arriba un char ("T"), fer-ho per posicions...
+        originalPiece = new Piece(pieceToPromote);
+        //Comprobar si s'ha cambiat tot, systout de peces
+    }
+
+
+
     /*
      * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
      * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
@@ -390,10 +426,10 @@ public class Chess {
         */
         Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),null);
         boolean blackDirection = false; //Saber si juga el negre
-		int x0 = origin.row;
-		int y0 = origin.col;
-		int x1 = destiny.row;
-		int y1 = destiny.col;
+		int x0 = origin.row();
+		int y0 = origin.col();
+		int x1 = destiny.row();
+		int y1 = destiny.col();
         Piece p = board[x0][y0];
         List<Movement> pieceMovements = p.type().ptMovements();
         boolean enemiePieceOnDestiny = false;
@@ -461,7 +497,10 @@ public class Chess {
                             }
                             if(r.first==null){
                                 r.first.add(MoveAction.Incorrect);
-                            }                  
+                            }else{
+                                if(canPromote(destiny))
+                                    r.first.add(MoveAction.Promote);
+                            }                
                         }else{
                             System.out.println("La teva peça no en pot saltar d'altres");
                         }  
