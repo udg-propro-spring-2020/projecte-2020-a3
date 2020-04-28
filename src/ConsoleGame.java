@@ -263,46 +263,6 @@ public class ConsoleGame {
 						valid = false;
 					}
 				} while (!valid);
-
-				valid = true;
-				do {
-					System.out.println("Vols afegir coneixement a la CPU [S/N]? ");
-					String s = readInputLine();
-					if (s.toUpperCase().equals("S")) {
-						valid = true;
-
-						/// Get the file locations
-						System.out.println("Entra cada ubicació separada per una línia [EXIT per acabar]: ");
-						List<String> list = new ArrayList<>();
-						String temp;
-
-						do {
-							System.out.print("Ubicació: ");
-							temp = readInputLine();
-
-							if (!temp.toUpperCase().equals("EXIT")) {
-								list.add(temp);
-							}
-							
-						} while (!temp.toUpperCase().equals("EXIT"));
-
-						List<Pair<List<Pair<Position, Position>>, PieceColor>> complexList = new ArrayList<>();
-						for (String location : list) {
-							try {
-								complexList.add(
-									FromJSONParserHelper.matchInformation(location)
-								);
-							} catch (FileNotFoundException e) {
-								System.out.println("Fitxer [" + location + "] no trobat.");
-							}
-						}
-
-						/// TODO: create knowledge for CPU
-
-					} else if (!s.toUpperCase().equals("N")) {
-						valid = false;
-					}
-				} while (!valid);
 				
 				playerCPUGame(chess, playerIsWhite);
 
@@ -353,7 +313,10 @@ public class ConsoleGame {
 		String playerOption = "";
 
 		int diff = cpuDifficulty();
-		Cpu cpu = new Cpu(null, chess, diff, playerIsWhite ? PieceColor.Black : PieceColor.White);
+
+		Knowledge knowledge = cpuKnowledge(chess, "CPU");
+
+		Cpu cpu = new Cpu(knowledge, chess, diff, playerIsWhite ? PieceColor.Black : PieceColor.White);
 		
 		do {
 			if (currTurnColor == PieceColor.White && !playerIsWhite ||
@@ -522,6 +485,56 @@ public class ConsoleGame {
 		}
 
 		return difficulty;
+	}
+
+	/// @brief Asks if wanted to add CPU knowledge
+	/// @pre ---
+	/// @post Returns the knowlegde added or null if any.
+	private static Knowledge cpuKnowledge(Chess chess, String name) {
+		boolean valid = false;
+		Knowledge knowledge = null;
+		do {
+			System.out.println("Vols afegir coneixement a la " + name + " [S/N]? ");
+			String s = readInputLine();
+			if (s.toUpperCase().equals("S")) {
+				valid = true;
+
+				/// Get the file locations
+				System.out.println("Entra cada ubicació separada per una línia [EXIT per acabar]: ");
+				List<String> list = new ArrayList<>();
+				String temp;
+
+				do {
+					System.out.print("Ubicació: ");
+					temp = readInputLine();
+
+					if (!temp.toUpperCase().equals("EXIT")) {
+						list.add(temp);
+					}
+					
+				} while (!temp.toUpperCase().equals("EXIT"));
+
+				List<Pair<List<Pair<Position, Position>>, PieceColor>> complexList = new ArrayList<>();
+				for (String location : list) {
+					try {
+						complexList.add(
+							FromJSONParserHelper.matchInformation(location)
+						);
+					} catch (FileNotFoundException e) {
+						System.out.println("Fitxer [" + location + "] no trobat.");
+					}
+				}
+
+				if (!complexList.isEmpty()) {
+					knowledge = new Knowledge(complexList, chess);
+				}
+
+			} else if (!s.toUpperCase().equals("N")) {
+				valid = false;
+			}
+		} while (!valid);
+
+		return knowledge;
 	}
 
 	/// @brief Changes turn value
