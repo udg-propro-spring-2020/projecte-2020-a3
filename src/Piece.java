@@ -127,7 +127,7 @@ public class Piece implements JSON, Cloneable {
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true, ToJSONParserHelper.THREE_TABS))
             .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false, ToJSONParserHelper.THREE_TABS));
-        return null;
+        return s.toString();
     }
 
     @Override
@@ -148,6 +148,6 @@ public class Piece implements JSON, Cloneable {
 
     @Override
     public int hashCode() {
-        return Integer.parseInt(symbol);
+        return symbol.hashCode();
     }
 }

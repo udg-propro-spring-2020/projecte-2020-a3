@@ -69,7 +69,8 @@ public class ToJSONParserHelper {
             .append(initPosListToJSON(chess.blackInitPos(), "posIniNegres", ONE_TAB, false))
             .append(propertyToJSON("proper_nom", nextTurn.toString(), true, true, ONE_TAB))
             .append(objectListToJSON("tirades", turns, false, ONE_TAB))
-            .append(propertyToJSON("resultat_final", finalResult, true, false, ONE_TAB));
+            .append(propertyToJSON("resultat_final", finalResult, true, false, ONE_TAB))
+            .append(OBJ_END);
         
         return s.toString();
     }
@@ -122,8 +123,13 @@ public class ToJSONParserHelper {
 
         StringBuilder s = new StringBuilder();
         s.append(identation)
-            .append(value)
-            .append(EOL);
+            .append(value);
+
+        if (trailingComa) {
+            s.append(EOL);
+        } else {
+            s.append(NEXT_LINE);
+        }
         return s.toString();
     }
 
@@ -273,12 +279,18 @@ public class ToJSONParserHelper {
 
             for (int i = 0; i < list.size() - 1; i++) {
                 Pair<Position, Piece> item = list.get(i);
+                System.err.println(item.second.symbol());
                 if (item == null || item.first == null || item.second == null) {
                     throw new NullPointerException("initPosListToJSON list contains a null value at " + i);
                 }
 
-                s.append(item.first.toJSON())
+                s.append(identation + ONE_TAB)
+                    .append(OBJ_START)
+                    .append(item.first.toJSON())
                     .append(item.second.toJSON())
+                    .append(NEXT_LINE)
+                    .append(identation + ONE_TAB)
+                    .append(OBJ_END)
                     .append(EOL);
             }
 
@@ -287,11 +299,15 @@ public class ToJSONParserHelper {
                 throw new NullPointerException("initPosListToJSON list contains a null value at last item");
             }
 
-            s.append(item.first.toJSON())
+            s.append(identation + ONE_TAB)
+                .append(OBJ_START)
+                .append(item.first.toJSON())
                 .append(item.second.toJSON())
                 .append(NEXT_LINE)
+                .append(identation + ONE_TAB)
+                .append(OBJ_END)
                 .append(identation)
-                .append(NEXT_LINE);                
+                .append(LIST_END);                
         }
 
         if (lastItem) {
