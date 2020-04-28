@@ -252,6 +252,7 @@ public class ConsoleGame {
 				System.out.println("Jugador vs CPU");
 				boolean playerIsWhite = true;
 				boolean valid = true;
+
 				do {
 					System.out.print("Color del jugador [B/N]: ");
 					String s = readInputLine();
@@ -259,6 +260,46 @@ public class ConsoleGame {
 						playerIsWhite = false;
 						valid = true;
 					} else if (!s.toUpperCase().equals("B")) {
+						valid = false;
+					}
+				} while (!valid);
+
+				valid = true;
+				do {
+					System.out.println("Vols afegir coneixement a la CPU [S/N]? ");
+					String s = readInputLine();
+					if (s.toUpperCase().equals("S")) {
+						valid = true;
+
+						/// Get the file locations
+						System.out.println("Entra cada ubicació separada per una línia [EXIT per acabar]: ");
+						List<String> list = new ArrayList<>();
+						String temp;
+
+						do {
+							System.out.print("Ubicació: ");
+							temp = readInputLine();
+
+							if (!temp.toUpperCase().equals("EXIT")) {
+								list.add(temp);
+							}
+							
+						} while (!temp.toUpperCase().equals("EXIT"));
+
+						List<Pair<List<Pair<Position, Position>>, PieceColor>> complexList = new ArrayList<>();
+						for (String location : list) {
+							try {
+								complexList.add(
+									FromJSONParserHelper.matchInformation(location)
+								);
+							} catch (FileNotFoundException e) {
+								System.out.println("Fitxer [" + location + "] no trobat.");
+							}
+						}
+
+						/// TODO: create knowledge for CPU
+
+					} else if (!s.toUpperCase().equals("N")) {
 						valid = false;
 					}
 				} while (!valid);

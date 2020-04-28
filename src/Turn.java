@@ -29,6 +29,16 @@ public class Turn implements JSON {
         return move.second;
     }
 
+    /// @brief Returns the move as a pair of positions
+    /// @pre ---
+    /// @post Returns the move as a pair of positions
+    public Pair<Position, Position> moveAsPair() {
+        return new Pair<Position, Position>(
+            new Position(origin()),
+            new Position(destination())
+        );
+    }
+
     /// @pre ---
     /// @post Returns a String of the object properties in JSON format (tabbed)
     @Override
