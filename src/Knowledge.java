@@ -40,7 +40,7 @@ public class Knowledge{
     @pre --
     @post Es crea el coneixement.
      */
-    public Knowledge(ArrayList<Pair<Position,Position>> turns,PieceColor winner,Chess chess){
+    public Knowledge(List<Pair<List<Pair<Position, Position>>, PieceColor>> turns,Chess chess){
         
         /*_knowledge = new HashMap<Chess,Pair<Position,Position>>();
         Iterator<Pair<Position,Position>> itTurns = turns.iterator();
@@ -54,7 +54,7 @@ public class Knowledge{
             actualTurn = itTurns.next();
             if(winner==PieceColor.White){
                 if(!_knowledge.containsKey(chess)){
-                    _knowledge[chess] = actualTurn;
+                    _knowledge.put(chess,actualTurn);
                 }
                 chess.applyMovement(actualTurn.first,actualTurn.second,null);
                 if(itTurns.hasNext()){
@@ -65,7 +65,7 @@ public class Knowledge{
             else{
                 actualTurn = reversePosition(actualTurn,chess);
                 if(!_knowledge.containsKey(chess)){
-                    _knowledge[chess] = actualTurn;
+                    _knowledge.put(chess,actualTurn);
                 }
                 chess.applyMovement(actualTurn.first,actualTurn.second,null);
                 if(itTurns.hasNext()){
@@ -83,10 +83,10 @@ public class Knowledge{
     si la troba i actualitza _actual amb el valor del primer node. Altrament retorna null.
     */
     public Pair<Position,Position> buscarConeixament(Chess chess,int color){
-       /* if(_knowledge.containsKey(chess)){
-            return _knowledge[chess];
+        if(_knowledge.containsKey(chess)){
+            return _knowledge.get(chess);
         }
-        else */return null;
+        else return null;
     }
 
     /** @brief Comprova la tirada anteriror i retorna la jugada seguent a fer
@@ -116,10 +116,11 @@ public class Knowledge{
     @return Retorna el pair /p tirades modificat com si ho hagués fet l'altre color
      */
     private Pair<Position,Position> reversePosition(Pair<Position,Position> tirada,Chess chess){
-       /* Pair<Position,Position> t;
-            t.first=Position(chess.rows()-1-t.first.row(),chess.columns()-1-t.first.columns());
-            t.second=Position(chess.rows()-1-t.second.row(),chess.columns()-1-t.second.columns());
-        return t;*/return null;
+        Pair<Position,Position> t =new Pair<Position,Position>(
+            new Position(chess.rows()-1-tirada.first.row(),chess.cols()-1-tirada.first.col()),
+            new Position(chess.rows()-1-tirada.second.row(),chess.cols()-1-tirada.second.col())
+            );
+        return t;
     }
     
 }
