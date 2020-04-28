@@ -4,7 +4,7 @@
  * @class Position
  * @brief Holds the position information 
  */
-public class Position implements JSON{
+public class Position implements JSON, Cloneable {
     /// TRANSFORMATION CONSTANTS
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
 
@@ -18,6 +18,7 @@ public class Position implements JSON{
     Position(int row, int col) {
 	    this.row = row; 
         this.col = col; 
+        rowLetter = alph.charAt(row - 1);
     }
 
     /// @brief Copy constructor
@@ -30,6 +31,7 @@ public class Position implements JSON{
         }
         this.row = copy.row;
         this.col = copy.col;
+        this.rowLetter = copy.rowLetter;
     }
 
     /// @brief Construct a position from a string
@@ -64,6 +66,19 @@ public class Position implements JSON{
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.propertyToJSON("pos", value.toString(), true, true, ToJSONParserHelper.THREE_TABS));
         return s.toString();
+    }
+
+    @Override
+    public Object clone() {
+        Position cloned = null;
+        
+        try {
+            cloned = (Position) super.clone();
+        } catch (CloneNotSupportedException c) {
+            System.err.println("Position clone exception");
+        }
+
+        return cloned;
     }
 
     @Override

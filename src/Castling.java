@@ -4,7 +4,7 @@
  * @class Castling
  * @brief Holds the castling information
  */
-public class Castling implements JSON {
+public class Castling implements JSON, Cloneable {
     private String aPiece;
     private String bPiece;
     private boolean stand;
@@ -31,5 +31,18 @@ public class Castling implements JSON {
             .append(ToJSONParserHelper.OBJ_END);
 
         return s.toString();
+    }
+
+    @Override
+    public Object clone() {
+        Castling cloned = null;
+        
+        try {
+            cloned = (Castling) super.clone();
+        } catch (CloneNotSupportedException c) {
+            System.out.println("Castling clone exception");
+        }
+        
+        return cloned;
     }
 }

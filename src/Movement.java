@@ -4,7 +4,7 @@
  * @class Movement
  * @brief Holds the information of the movement
  */
-public class Movement implements JSON {
+public class Movement implements JSON, Cloneable {
     /// @param X Fixed int or a 50 (-50) - meaning anything but 0 -
     private int x;
     /// @param Y Fixed int or a 50 (-50) - meaning anything but 0 -
@@ -71,5 +71,18 @@ public class Movement implements JSON {
             .append(ToJSONParserHelper.LIST_END);
         
         return (s.toString());
+    }
+
+    @Override
+    protected Object clone() {
+        Movement cloned = null;
+        
+        try {
+            cloned = (Movement) super.clone();
+        } catch (CloneNotSupportedException c) {
+            System.err.println("Movement clone exception");
+        }
+
+        return cloned;
     }
 }

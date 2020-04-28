@@ -5,9 +5,10 @@
  * @brief Holds the common information of all pieces from the same type
  */
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class PieceType implements JSON {
+public class PieceType implements JSON, Cloneable {
     private String name;                        /// < Piece name
     private String symbol;                      /// < Piece symbol
     private String wImage;                      /// < Piece white image location
@@ -53,6 +54,20 @@ public class PieceType implements JSON {
     /// @post Returns the piece type symbol
     public String ptSymbol() {
         return this.symbol;
+    }
+
+    /// @brief To know the piece type white image name
+    /// @pre ---
+    /// @post Returns the piece type white image name
+    public String ptwImage() {
+        return this.wImage;
+    }
+
+    /// @brief To know the piece type black image name
+    /// @pre ---
+    /// @post Returns the piece type black image name
+    public String ptbImage() {
+        return this.bImage;
     }
 
     /// @brief To know the piece type movements
@@ -126,5 +141,38 @@ public class PieceType implements JSON {
             System.out.println(e.getMessage());
         }
         return s.toString();
+    }
+
+    @Override
+    public Object clone() {
+        PieceType cloned = null;
+        
+        try {
+            cloned = (PieceType) super.clone();
+        } catch (CloneNotSupportedException c) {
+            System.err.println("PieceType clone exception");
+        }
+
+        /// Cloning movements
+        List<Movement> movAux = new ArrayList<>();
+        this.ptMovements().forEach(
+            (m) -> movAux.add(
+                (Movement) m.clone()
+            )
+        );
+
+        /// Cloning initial movements
+        List<Movement> initAux = new ArrayList<>();
+        this.ptInitMovements().forEach(
+            (m) -> initAux.add(
+                (Movement) m.clone()
+            )
+        );
+
+        /// Adding the movements
+        cloned.movements = movAux;
+        cloned.initialMovements = initAux; 
+
+        return cloned;
     }
 }
