@@ -34,47 +34,61 @@ public class Knowledge{
         }
     }*/
 
-    private HashMap<Chess,Pair<Position,Position>> _knowledge;
+    private HashMap<String,Pair<Position,Position>> _knowledge;
 
     /** @brief Crea el coneixement
     @pre --
     @post Es crea el coneixement.
      */
-    public Knowledge(List<Pair<List<Pair<Position, Position>>, PieceColor>> turns,Chess chess){
+    public Knowledge(List<Pair<List<Pair<Position, Position>>, PieceColor>> games,Chess chess){
         
-        /*_knowledge = new HashMap<Chess,Pair<Position,Position>>();
-        Iterator<Pair<Position,Position>> itTurns = turns.iterator();
-        Pair<Position,Position> actualTurn = null;
-        if(winner==PieceColor.Black){
-            actualTurn = itTurns.next();
-            actualTurn = reversePosition(actualTurn,chess);
-            chess.applyMovement(actualTurn.first,actualTurn.second,null);
-        }
-        while(itTurns.hasNext()){
-            actualTurn = itTurns.next();
-            if(winner==PieceColor.White){
-                if(!_knowledge.containsKey(chess)){
-                    _knowledge.put(chess,actualTurn);
-                }
-                chess.applyMovement(actualTurn.first,actualTurn.second,null);
-                if(itTurns.hasNext()){
-                    actualTurn = itTurns.next();
-                    chess.applyMovement(actualTurn.first,actualTurn.second,null);
-                }
-            }
-            else{
+        _knowledge = new HashMap<String,Pair<Position,Position>>();
+
+        games.forEach((game)->{
+            int movementCounter = 0;
+            PieceColor winner = game.second;
+
+            Iterator<Pair<Position,Position>> itTurns = game.first.iterator();
+            Pair<Position,Position> actualTurn = null;
+
+            if(winner==PieceColor.Black){
+                actualTurn = itTurns.next();
                 actualTurn = reversePosition(actualTurn,chess);
-                if(!_knowledge.containsKey(chess)){
-                    _knowledge.put(chess,actualTurn);
-                }
                 chess.applyMovement(actualTurn.first,actualTurn.second,null);
-                if(itTurns.hasNext()){
-                    actualTurn = itTurns.next();
-                    actualTurn = reversePosition(actualTurn,chess);
+                movementCounter++;
+            }
+            while(itTurns.hasNext()){
+                actualTurn = itTurns.next();
+                if(winner==PieceColor.White){
+                    if(!_knowledge.containsKey(chess)){
+                        _knowledge.put(chess.chessStringView(winner),actualTurn);
+                    }
                     chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                    movementCounter++;
+                    if(itTurns.hasNext()){
+                        actualTurn = itTurns.next();
+                        chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                        movementCounter++;
+                    }
+                }
+                else{
+                    actualTurn = reversePosition(actualTurn,chess);
+                    if(!_knowledge.containsKey(chess)){
+                        _knowledge.put(chess.chessStringView(winner),actualTurn);
+                    }
+                    chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                    movementCounter++;
+                    if(itTurns.hasNext()){
+                        actualTurn = itTurns.next();
+                        actualTurn = reversePosition(actualTurn,chess);
+                        chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                        movementCounter++;
+                    }
                 }
             }
-        }*/
+            while(movementCounter>0){chess.undoMovement();movementCounter--;}
+        });
+
     }
 
     /** @brieF Busca una tirada de nodes que concordi amb la situació actual de Chess
@@ -82,9 +96,10 @@ public class Knowledge{
     @return Retorna la jugada guanyadora del node que cocideix amb la situacio actual de \p Chess
     si la troba i actualitza _actual amb el valor del primer node. Altrament retorna null.
     */
-    public Pair<Position,Position> buscarConeixament(Chess chess,int color){
-        if(_knowledge.containsKey(chess)){
-            return _knowledge.get(chess);
+    public Pair<Position,Position> buscarConeixament(Chess chess,PieceColor color){
+        if(_knowledge.containsKey(chess.chessStringView(color))){
+            if(color==PieceColor.White)return _knowledge.get(chess.chessStringView(color));
+            else return reversePosition(_knowledge.get(chess.chessStringView(color)),chess);
         }
         else return null;
     }
