@@ -49,14 +49,14 @@ public class Cpu{
      */
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
-        System.out.println("profunditat:"+_profundity);
-        if(_color==PieceColor.White)System.out.println("cpu es blanca");
-        else System.out.println("cpu es negra");
-        Chess copia = _chess.copy(_chess);
+        //System.out.println("profunditat:"+_profundity);
+        //if(_color==PieceColor.White)System.out.println("cpu es blanca");
+        //else System.out.println("cpu es negra");
+        //Chess copia = _chess.copy(_chess);
         //copia.applyMovement(new Position(1,0),new Position(2,0),null);
-        System.out.println(_chess.showBoard());
-        System.out.println(copia.showBoard());
-        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,copia);
+        //System.out.println(_chess.showBoard());
+        //System.out.println(copia.showBoard());
+        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,_chess);
         System.out.println("best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
         return movement;
     }
@@ -65,33 +65,47 @@ public class Cpu{
     @return Returns the puntuation choosen for the @p playerType of the actual profunity.
      */
     private int i_minMax(int score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
-        /*if(profundity==_profundity)return score;
+        if(profundity==_profundity)return score;
         else if(playerType==0){
             Integer max = Integer.MIN_VALUE;
             List<Pair<Position,Piece>> pieces;
+            
             if(_color==PieceColor.White)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
+            
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             int i=0;
             while(itPieces.hasNext()){  // FOR EACH PIECE
+                
                 i++;
+                
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java 70)profunitat:"+profundity+"peçes provades    :"+i+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
-                //System.out.println(_chess.showBoard());
+                
+                System.out.println("(cpu.java 84)profunitat:"+profundity+"peçes provades    :"+i+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                System.out.println(_chess.showBoard());
+                
                 List<Pair<Position,Integer>> destinyWithScores = tauler.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){// FOR EACH MOVEMENT
-                    Chess taulerCopia = tauler.copy(tauler);
+                    
+                    Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;
-                    System.out.println("(cpu.java 77)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
-                    if(pieceMovement.second>0)tauler.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
+                    
+                    System.out.println("(cpu.java 95)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
+                    
+                    Pair<List<MoveAction>,List<Position>> check = tauler.checkMovement(piece.first,pieceMovement.first);
+                    if(pieceMovement.second>0)tauler.applyMovement(piece.first,pieceMovement.first,check.second);
                     else tauler.applyMovement(piece.first,pieceMovement.first,null);
-                    System.out.println("(cpu.java 80) tauler despres d'aplicar moviment:"+taulerCopia.showBoard());
+                    
+                    System.out.println("(cpu.java 101) tauler despres d'aplicar moviment:"+taulerCopia.showBoard());
+                    
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,tauler);
+                    
                     //_chess = originalChess.copy(originalChess);
                     tauler = taulerCopia;
-                    System.out.println("(cpu.java 84) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
+                    
+                    System.out.println("(cpu.java 108) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
 
                     if(result>max){
                         biggestAnterior=result;
@@ -110,26 +124,36 @@ public class Cpu{
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.Black)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
+            
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                System.out.println("(cpu.java 107)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
-                System.out.println("(cpu.java 108)"+tauler.showBoard());
+                
+                System.out.println("(cpu.java 132)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                System.out.println("(cpu.java 133)"+tauler.showBoard());
+                
                 List<Pair<Position,Integer>> destinyWithScores = tauler.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
-                    Chess taulerCopia = tauler.copy(tauler);
+                    
+                    Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    //System.out.println("(cpu.java 132)"+ta.showBoard());
-                    //System.out.println("(cpu.java 133)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
-                    if(pieceMovement.second>0)tauler.applyMovement(piece.first,pieceMovement.first,pieceMovement.first);//aplicar
+                    
+                    System.out.println("(cpu.java 142)"+tauler.showBoard());
+                    System.out.println("(cpu.java 143)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
+                    
+                    Pair<List<MoveAction>,List<Position>> check = tauler.checkMovement(piece.first,pieceMovement.first);
+                    if(pieceMovement.second>0)tauler.applyMovement(piece.first,pieceMovement.first,check.second);
                     else tauler.applyMovement(piece.first,pieceMovement.first,null);
-                    System.out.println("(cpu.java 117) tauler despres d'aplicar moviment:"+tauler.showBoard());
+                    
+                    System.out.println("(cpu.java 149) tauler despres d'aplicar moviment:"+tauler.showBoard());
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,tauler);
+                    
                     //_chess = originalChess.copy(originalChess);
                     tauler = taulerCopia;
-                    System.out.println("(cpu.java 121) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
+                    
+                    System.out.println("(cpu.java 155) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
 
                     if(result<min){
                         smallerAnterior=result;
@@ -142,6 +166,6 @@ public class Cpu{
                 }
             }
             return min;
-        }*/return 0;
+        }
     }
 }
