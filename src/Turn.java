@@ -4,7 +4,7 @@
  * @class Turn 
  * @brief Helds the information of a turn
  */
-public class Turn implements JSON {
+public class Turn implements JSON, Cloneable {
     private PieceColor color;
     private Pair<String, String> move;
     private String result;
@@ -62,5 +62,18 @@ public class Turn implements JSON {
         s.append("[" + color.toString() + ", " + move.first + "-" + move.second + ", " + result + "]");
 
         return s.toString();
+    }
+
+    @Override
+    public Object clone() {
+        Turn cloned = null;
+        
+        try {
+            cloned = (Turn) super.clone();
+        } catch (CloneNotSupportedException c) {
+            System.err.println("Turn clone exception");
+        }
+
+        return cloned;
     }
 }
