@@ -72,6 +72,8 @@ public class Chess implements Cloneable {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        chessStringView(PieceColor.White);
+        chessStringView(PieceColor.Black);
         //Chess ch = this.copy(this);
         //System.out.println(ch.showBoard());
         //hashCode();
@@ -940,8 +942,8 @@ public class Chess implements Cloneable {
                 }
             }
         }else{
-            for(int i=rows()-1; i>0; i--){
-                for(int j=cols()-1; j>0; j--){
+            for(int i=rows()-1; i>=0; i--){
+                for(int j=cols()-1; j>=0; j--){
                     if(board[i][j]==null)
                         s += "-";
                     else if(board[i][j].color()==PieceColor.White)
@@ -951,6 +953,7 @@ public class Chess implements Cloneable {
                 }
             }
         }
+        System.out.println(s);
         return s;
     }
     
