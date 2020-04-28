@@ -65,19 +65,12 @@ public class Cpu{
     @return Returns the puntuation choosen for the @p playerType of the actual profunity.
      */
     private int i_minMax(int score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
-        if(profundity==_profundity)return score;
+        /*if(profundity==_profundity)return score;
         else if(playerType==0){
             Integer max = Integer.MIN_VALUE;
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.White)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
-            /*Iterator<Pair<Position,Piece>> itPieces1 = pieces.iterator();
-            System.out.println("------------------");
-            while(itPieces1.hasNext()){
-                Pair<Position,Piece> piece1 = itPieces1.next();
-                System.out.println("color:"+piece1.second.color());
-            }
-            System.out.println("------------------");*/
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             int i=0;
             while(itPieces.hasNext()){  // FOR EACH PIECE
@@ -117,13 +110,6 @@ public class Cpu{
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.Black)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
-            /*Iterator<Pair<Position,Piece>> itPieces1 = pieces.iterator();
-            System.out.println("------------------");
-            while(itPieces1.hasNext()){
-                Pair<Position,Piece> piece1 = itPieces1.next();
-                System.out.println("color:"+piece1.second.color());
-            }
-            System.out.println("------------------");*/
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
@@ -156,6 +142,6 @@ public class Cpu{
                 }
             }
             return min;
-        }
+        }*/return 0;
     }
 }
