@@ -164,7 +164,8 @@ public class Chess implements Cloneable {
             Piece[][] matrix = new Piece[this.rows][this.cols];
             for(int i=0;i<this.rows;i++)
                 for(int j=0;j<this.cols;j++)
-                    matrix[i][j] = (Piece) p[i][j].clone();
+                    if(p[i][j]!=null)
+                        matrix[i][j] = (Piece) p[i][j].clone();
             boardArrayCopy.add(matrix);
         });
         chess.boardArray = boardArrayCopy;
@@ -196,7 +197,8 @@ public class Chess implements Cloneable {
         Piece[][] boardCopy = new Piece[this.rows][this.cols];
             for(int i=0;i<this.rows;i++)
                 for(int j=0;j<this.cols;j++)
-                    boardCopy[i][j] = (Piece) board[i][j].clone();
+                    if(board[i][j]!=null)
+                        boardCopy[i][j] = (Piece) board[i][j].clone();
         chess.board = boardCopy;
 
         return chess;
