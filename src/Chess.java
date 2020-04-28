@@ -371,8 +371,6 @@ public class Chess {
         return pieceOnTheWay;
     }
 
-
-
     private boolean destinyInLimits(int x1, int y1){
         return ((y1 >=0 && y1 < cols()) && (x1 >=0 && x1 < rows()));
     }
@@ -380,16 +378,17 @@ public class Chess {
      * @brief Checks if the movement is possible. It validates the cell status, the piece that is going to be killed if it's the case,
      * the possiblity of the piece to jump and kill and checks if the movement is on the piece's movement list.
      * @pre A movement is going to be realised 
-     * @post Return if the moviment is possible to execute and the position of the piece to kill 
+     * @post Return if the moviment is possible to execute, a position's list of the pieces to kill and a possible move efect
      */
-    public Pair<Boolean,List<Position>> checkMovement(Position origin, Position destiny) {
+    public Pair<List<MoveAction>,List<Position>> checkMovement(Position origin, Position destiny) {
         /*
         - pair.second = list de peces a matar
             - si es mou varies caselles i pot matar saltant afegir al list (a les combinades no)
             - si desti hi ha èça i pot matar afegir al list
         - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
+
         */
-        Pair<Boolean,List<Position>> r = new Pair<>(false,null);
+        Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),null);
         boolean blackDirection = false; //Saber si juga el negre
 		int x0 = origin.row;
 		int y0 = origin.col;
@@ -408,7 +407,7 @@ public class Chess {
             int yMove=y1-y0;
             if(board[x0][y0].color()==PieceColor.Black){//Si la peça es negre (minuscula) invertim moviment
                 xMove = -1*xMove;
-                yMove = -1*yMove;
+                yMove = -1*yMove;//AFEGIR ATRIBUT DIRECTION (1 o -1) A PIECE I QUAN ARRIBA AL FINAL DE TAULER, CAMBIAR-LO
             }                 
             List<Movement> allMoves = new ArrayList<Movement>();
             List<Movement> movesToRead = new ArrayList<Movement>();
@@ -423,7 +422,7 @@ public class Chess {
             }
             int i = 0;
             boolean found = false;
-            boolean jumpPieceOnTheWay = false;
+            boolean pieceOnTheWay = false;
             boolean diagonalCorrect = true;
             while(i < movesToRead.size() && !found){
                 List<Position> piecesToKill = new ArrayList<Position>();
@@ -436,15 +435,17 @@ public class Chess {
                     }
                     if(diagonalCorrect){
                         if((xMove > 1 || yMove > 1) && act.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
-                            jumpPieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);
+                            pieceOnTheWay = checkPieceOnTheWay(x0,y0,x1,y1,act,piecesToKill);//passem directament r.first.second??
+                            r.second.addAll(piecesToKill);  
                             //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                         }
-                        if(!jumpPieceOnTheWay){ //Si no pot saltar 
+                        //Si pot matar saltant haura recopilat totes les peces que pot matar al camí
+                        if(!pieceOnTheWay){ //Si pots saltar les peces o no n'hi ha pel mig
                             if(enemiePieceOnDestiny && act.captureSign() != 0){//Si hi ha peça i la pot matar
-                                r.first = true;
-                                Position pp=new Position(x1,y1);
-                                System.out.println(pp.toString());
-                                r.second.add(pp); 
+                                r.first.add(MoveAction.Correct);
+                                Position np=new Position(x1,y1);
+                                //System.out.println(pp.toString());
+                                r.second.add(np); 
                                 found = true;
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && act.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
@@ -452,12 +453,15 @@ public class Chess {
                                     System.out.println("La peça que vols matar es teva");
                                 
                                 }else{
-                                    r.first = true;
+                                    r.first.add(MoveAction.Correct);
                                     r.second = null; 
                                     found = true;
                                     //System.out.println("Mov normal");
                                 }
-                            }                   
+                            }
+                            if(r.first==null){
+                                r.first.add(MoveAction.Incorrect);
+                            }                  
                         }else{
                             System.out.println("La teva peça no en pot saltar d'altres");
                         }  
@@ -470,7 +474,8 @@ public class Chess {
             }   
         } 
         //if(r.first) applyMovement(origin, destiny, r.second);
-        //System.out.println(r.first);          
+        //System.out.println(r.first);    
+    
     return r;
     }
 
@@ -529,7 +534,7 @@ public class Chess {
         actualTurn++;
     }
 
-    /** @brief Aplica un moviment
+    /** @brief Aplica un moviment i fa canvis a les llistes de peces i les seves posicions
 	@pre \p origen i \p desti són posicions vàlides del tauler;
 	si \p matar no és null, aleshores és una posició vàlida del
 	tauler.
@@ -576,7 +581,7 @@ public class Chess {
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
 
-        for(int i=0;i<whitePiecesTurn.size(); i++){
+        /*for(int i=0;i<whitePiecesTurn.size(); i++){
             System.out.println("--------------"+i+" valor: "+val+"-----------------------");
             if(i==val){
                 for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
@@ -591,7 +596,7 @@ public class Chess {
         System.out.println("Peces actuals N");
         for(int j=0;j<pListBlack.size(); j++){
             System.out.println(pListBlack.get(j).first.toString());
-        }
+        }*/
     }
 
     /*
@@ -809,17 +814,31 @@ public class Chess {
     }
 
     
-    public int hashCode(){
-        int act=0;
+    public String chessStringView(PieceColor pc){
+        String s = "";
         Piece[] p = new Piece[rows()*cols()];
-        for(int i=0; i<rows(); i++){
-            for(int j=0; j<cols(); j++){
-                p[act] = board[i][j];
-                act++;
+        if(pc==PieceColor.White){
+            for(int i=0; i<rows(); i++){
+                for(int j=0; j<cols(); j++){
+                    if(board[i][j].color()==PieceColor.Black)
+                        s += board[i][j].type().ptSymbol().toLowerCase();
+                    else
+                        s += board[i][j].type().ptSymbol();
+                }
+            }
+        }else{
+            for(int i=rows(); i>0; i--){
+                for(int j=cols(); j>0; j--){
+                    if(board[i][j].color()==PieceColor.White)
+                        s += board[i][j].type().ptSymbol().toLowerCase();
+                    else
+                        s += board[i][j].type().ptSymbol();
+                }
             }
         }
-        return p.hashCode();
+        return s;
     }
+    
     /*
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
