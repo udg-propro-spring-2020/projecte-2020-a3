@@ -491,7 +491,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Returns the knowlegde added or null if any.
 	private static Knowledge cpuKnowledge(Chess chess, String name) {
-		boolean valid = false;
+		boolean valid = true;
 		Knowledge knowledge = null;
 		do {
 			System.out.println("Vols afegir coneixement a la " + name + " [S/N]? ");
