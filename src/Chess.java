@@ -27,6 +27,8 @@ public class Chess implements Cloneable {
     private int actualTurn;
     private List<List<Pair<Position, Piece>>> whitePiecesTurn;
     private List<List<Pair<Position, Piece>>> blackPiecesTurn;
+    private final static int unlimitateMove = 50; //es pot moure les caselles que vulgui
+    
 
     
     
@@ -599,8 +601,8 @@ public class Chess implements Cloneable {
                 List<Position> piecesToKill = new ArrayList<Position>();
                 Movement actMovement = movesToRead.get(i);         
                 System.out.println(actMovement.movX()+" "+actMovement.movY());            
-                if((yMove == actMovement.movY() || Math.abs(actMovement.movY()) == 50) && (xMove == actMovement.movX() || Math.abs(actMovement.movX()) == 50)){                        
-                    if(Math.abs(actMovement.movY())==50 && Math.abs(actMovement.movX())==50){
+                if((yMove == actMovement.movY() || Math.abs(actMovement.movY()) == unlimitateMove) && (xMove == actMovement.movX() || Math.abs(actMovement.movX()) == unlimitateMove)){                        
+                    if(Math.abs(actMovement.movY())==unlimitateMove && Math.abs(actMovement.movX())==unlimitateMove){
                         diagonalCorrect = Math.abs(yMove) == Math.abs(xMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
                         //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                     }
@@ -897,11 +899,11 @@ public class Chess implements Cloneable {
             boolean continueFunc = true; //False si es troba amb una peça pel cami
             Movement mov = movesToRead.get(i);
             //System.out.println(mov.movX()+" "+mov.movY());
-            if((mov.movX() == 50 || mov.movX() == -50) && (mov.movY() == 50 || mov.movY() == -50)){//Diagonals            
+            if((mov.movX() == unlimitateMove || mov.movX() == -unlimitateMove) && (mov.movY() == unlimitateMove || mov.movY() == -unlimitateMove)){//Diagonals            
                 continueFunc = true;
                 int y=1;
                 int x=1;
-                if(mov.movX() == 50 && mov.movY() == 50 || mov.movX() == -50 && mov.movY() == -50){
+                if(mov.movX() == unlimitateMove && mov.movY() == unlimitateMove || mov.movX() == -unlimitateMove && mov.movY() == -unlimitateMove){
                     while(destinyInLimits(origin.row()+x,origin.col()+y) && continueFunc){    //De dreta a esquerra , de dalt a baix 
                         //System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
                         destiny = new Position(origin.row()+x, origin.col()+y);
@@ -920,7 +922,7 @@ public class Chess implements Cloneable {
                         y++;
                     }
                 }
-                if(mov.movX() == -50 && mov.movY() == 50 || mov.movX() == +50 && mov.movY() == -50){
+                if(mov.movX() == -unlimitateMove && mov.movY() == unlimitateMove || mov.movX() == unlimitateMove && mov.movY() == -unlimitateMove){
                     while(destinyInLimits(origin.row()-x,origin.col()+y) && continueFunc){    //De dreta a esquerra, de baix a dalt 
                         //System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
                         destiny = new Position(origin.row()-x, origin.col()+y);
@@ -939,7 +941,7 @@ public class Chess implements Cloneable {
                         y++;
                     }
                 }
-            }else if((mov.movY() == 50 || mov.movY() == -50)){//Es mou horitzontal
+            }else if((mov.movY() == unlimitateMove || mov.movY() == -unlimitateMove)){//Es mou horitzontal
                 int y=1;
                 while(destinyInLimits(origin.row()+mov.movX(), origin.col()+y) && continueFunc){    //De dreta a esquerra  
                     //System.out.println(mov.movX()+" "+y);                                                       
@@ -956,7 +958,7 @@ public class Chess implements Cloneable {
                     y++;
                 }
             }
-            else if((mov.movX() == 50 || mov.movX() == -50)){//Es mou en vertical, nomes la fila cambia
+            else if((mov.movX() == unlimitateMove || mov.movX() == -unlimitateMove)){//Es mou en vertical, nomes la fila cambia
                 int x=1;
                 while(destinyInLimits(origin.row()+x, origin.col()+mov.movY()) && continueFunc){  //De dalt a baix 
                     //System.out.println(x+" "+mov.movY());                                                       
