@@ -43,7 +43,6 @@ public class Knowledge{
     public Knowledge(List<Pair<List<Pair<Position, Position>>, PieceColor>> games,Chess chess){
         
         _knowledge = new HashMap<String,Pair<Position,Position>>();
-
         games.forEach((game)->{
             int movementCounter = 0;
             PieceColor winner = game.second;
@@ -87,8 +86,7 @@ public class Knowledge{
                 }
             }
             while(movementCounter>0){chess.undoMovement();movementCounter--;}
-        });
-
+        }); 
     }
 
     /** @brieF Busca una tirada de nodes que concordi amb la situació actual de Chess

@@ -24,7 +24,6 @@ public class Cpu{
     profundity for searching possibles movements @p profundity and his color is @p color.
      */
     public Cpu(Knowledge knowledge,Chess chess,int profundity,PieceColor color){
-
         _knowledge=knowledge;
         _chess=chess;
         _profundity=profundity;
@@ -40,7 +39,15 @@ public class Cpu{
         @c _profundity. (In the actual version just returning minmax)
      */
     public Pair<Position,Position> doMovement(Pair<Position,Position> anteriorMovement){
-        return minMax();    
+        if(_knowledge!=null){
+            Pair<Position,Position> movement = _knowledge.buscarConeixament(_chess,_color);
+            if(movement!=null){
+                System.out.println("Moviment escollit del coneixament: orig:"+movement.first.toString()+" dest:"+movement.second.toString());
+                return movement;
+            }
+            else return minMax();
+        }
+        else return minMax();
     }
 
     /** @biref Returns the optimal movement to do.
@@ -49,15 +56,16 @@ public class Cpu{
      */
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
-        //System.out.println("profunditat:"+_profundity);
+        System.out.println("profunditat:"+_profundity);
         //if(_color==PieceColor.White)System.out.println("cpu es blanca");
         //else System.out.println("cpu es negra");
         //Chess copia = _chess.copy(_chess);
         //copia.applyMovement(new Position(1,0),new Position(2,0),null);
         //System.out.println(_chess.showBoard());
         //System.out.println(copia.showBoard());
-        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,_chess);
-        System.out.println("best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
+        Chess taulerCopia = (Chess)_chess.clone();
+        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
+        System.out.println("Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
         return movement;
     }
     /** @brief Immersion function for minMaxAlgorsim
@@ -114,7 +122,7 @@ public class Cpu{
                         movement.second=pieceMovement.first;
                         //System.out.println("(cpu.java 91)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
-                    if(smallerAnterior<=biggestAnterior)break;
+                    if(smallerAnterior<=biggestAnterior){break;}
                 }
             }
             return max;
@@ -162,7 +170,7 @@ public class Cpu{
                         //movement.second=pieceMovement.first;
                         //System.out.println("(cpu.java 128)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
-                    if(biggestAnterior>=smallerAnterior)break;
+                    if(biggestAnterior>=smallerAnterior){break;}
                 }
             }
             return min;

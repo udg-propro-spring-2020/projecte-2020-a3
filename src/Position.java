@@ -38,9 +38,9 @@ public class Position implements JSON, Cloneable {
     /// @pre s == XY where X is the column and Y the row
     /// @post Creates a position from the given string
     Position(String s) {
-        rowLetter = s.charAt(1);
         this.row = Character.getNumericValue(s.charAt(1) - 1);
         this.col = alph.indexOf(s.charAt(0));
+        this.rowLetter = alph.charAt(row);
     }
     
     /// @brief Return the row's value

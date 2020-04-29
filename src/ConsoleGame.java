@@ -714,6 +714,8 @@ public class ConsoleGame {
 			gameWriter.close();			
 		} catch (IOException e) {
 
+		} catch (NullPointerException e) {
+			System.out.println(e.getMessage());
 		}
 	}
 }
