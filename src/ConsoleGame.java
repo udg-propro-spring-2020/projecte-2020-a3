@@ -699,11 +699,26 @@ public class ConsoleGame {
 	private static void saveGame(Chess chess) {
 		try {
 			/// Configuration
-			File configurationFile = new File(defaultConfigFileName + ".json");
-			configurationFile.createNewFile();
-			FileWriter configWriter = new FileWriter(configurationFile);
-			configWriter.write(ToJSONParserHelper.saveChessConfigToJSON(chess));
-			configWriter.close();
+			File configurationFile = new File(defaultConfigFileName);
+
+			if (configurationFile.exists()) {
+				System.out.println("El fitxer de configuració ja existeix. Vols sobreesciure'l [S/N]?");
+				String res = readInputLine();
+
+				if (res.toUpperCase().equals("S")) {
+					configurationFile.createNewFile();
+					FileWriter configWriter = new FileWriter(configurationFile);
+					configWriter.write(ToJSONParserHelper.saveChessConfigToJSON(chess));
+					configWriter.close();		
+
+					System.out.println("Fitxer sobreescrit.");
+				}
+			} else {
+				configurationFile.createNewFile();
+				FileWriter configWriter = new FileWriter(configurationFile);
+				configWriter.write(ToJSONParserHelper.saveChessConfigToJSON(chess));
+				configWriter.close();
+			}
 
 			/// Game
 			Long fileName = new Date().getTime();

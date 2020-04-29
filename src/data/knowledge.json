@@ -165,6 +165,49 @@
         }
     ],
     "proper_torn": "BLANQUES",
-    "tirades": [],
+    "tirades": [
+        {
+            "torn": "BLANQUES",
+            "origen": "e2",
+            "desti": "e4",
+            "resultat": ""
+        },
+        {
+            "torn": "NEGRES",
+            "origen": "e7",
+            "desti": "e5",
+            "resultat": ""
+        },
+        {
+            "torn": "BLANQUES",
+            "origen": "d1",
+            "desti": "h5",
+            "resultat": ""
+        },
+        {
+            "torn": "NEGRES",
+            "origen": "b8",
+            "desti": "c6",
+            "resultat": ""
+        },
+        {
+            "torn": "BLANQUES",
+            "origen": "f1",
+            "desti": "c4",
+            "resultat": ""
+        },
+        {
+            "torn": "NEGRES",
+            "origen": "g8",
+            "desti": "f6",
+            "resultat": ""
+        },
+        {
+            "torn": "BLANQUES",
+            "origen": "h5",
+            "desti": "f7",
+            "resultat": "ESCAC I MAT"
+        }
+    ],
     "resultat_final": "BLANQUES GUANYEN"
 }
