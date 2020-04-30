@@ -45,7 +45,7 @@ public class ToJSONParserHelper {
             .append(objectListToJSON("peces", chess.typeList(), false, "\t"))
             .append(primitiveListToJSON("posInicial", chess.initialPositions(), "\t", true, false))
             .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, "\t"))
-            .append(propertyToJSON("limitTornsInnaccio", chess.inactiveLimits(), false, true,"\t"))
+            .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,"\t"))
             .append(objectListToJSON("enrocs", chess.castlings(), true, "\t"))
             .append(OBJ_END);
 
@@ -279,7 +279,6 @@ public class ToJSONParserHelper {
 
             for (int i = 0; i < list.size() - 1; i++) {
                 Pair<Position, Piece> item = list.get(i);
-                System.err.println(item.second.symbol());
                 if (item == null || item.first == null || item.second == null) {
                     throw new NullPointerException("initPosListToJSON list contains a null value at " + i);
                 }

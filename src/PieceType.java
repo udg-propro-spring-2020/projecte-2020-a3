@@ -126,10 +126,10 @@ public class PieceType implements JSON, Cloneable {
         try {
             s.append(ToJSONParserHelper.TWO_TABS)
                 .append(ToJSONParserHelper.OBJ_START)
-                .append(ToJSONParserHelper.propertyToJSON("name", name, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("nom", name, true, true, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.propertyToJSON("simbol", symbol, true, true, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.propertyToJSON("imatgeBlanca", wImage, true, true, ToJSONParserHelper.THREE_TABS))
-                .append(ToJSONParserHelper.propertyToJSON("imatgeNegre", bImage, true, true, ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("imatgeNegra", bImage, true, true, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.propertyToJSON("valor", value, false, true, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.objectListToJSON("moviments", movements, false, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.objectListToJSON("movimentsInicials", initialMovements, false, ToJSONParserHelper.THREE_TABS))
