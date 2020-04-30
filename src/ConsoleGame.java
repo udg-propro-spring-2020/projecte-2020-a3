@@ -132,6 +132,8 @@ public class ConsoleGame {
 		boolean success = false;
 		String res = "";
 		do {
+			System.out.println("Opció: ");
+
 			try {
 				res = br.readLine().trim();
 				success = true;
@@ -149,8 +151,6 @@ public class ConsoleGame {
 	private static int readOption() {		
 		int val = 0;
 		do {
-			System.out.print("Opció: ");
-
 			try {
 				val = Integer.parseInt(readInputLine());
 			} catch (NumberFormatException e) {
@@ -328,17 +328,12 @@ public class ConsoleGame {
 					/// While knowledge is not implemented, pass null
 					cpuTurn(chess, cpu, null);
 					/// When knowledge is implemented, get last movement
-					/* Pair<Position, Position> lastMove = 
-						new Pair<Position, Position>(
-							new Position(turns.get(turnNumber).origin()),
-							new Position(turns.get(turnNumber).destination())
-						);
-					cpuTurn(chess, cpu, null); */
+					cpuTurn(chess, cpu, lastMovement());
 				}
+
 				turnNumber++;
 				/// Change turn
 				toggleTurn();
-
 			} else {
 				if (turnNumber % 10 == 0 || turnNumber % 10 == 1) {
 					/// Avoid showing instructions every now and then
@@ -348,7 +343,18 @@ public class ConsoleGame {
 				System.out.println("Torn del jugador");
 				playerOption = playerTurn(chess, rows, cols);
 			}
-		} while (!playerOption.equals("X") && !playerOption.equals("G"));
+		} while (
+			!playerOption.equals("X") && 
+			!playerOption.equals("G") &&
+			!playerOption.equals("E")
+		);
+
+		if (playerOption.equals("E")) {
+			System.out.println("Partida acabada.");
+			System.out.println("Guanyador: " + currTurnColor.toString());
+
+			saveGame(chess, currTurnColor.toString() + " GUANYEN");
+		}
 	}
 
 	/// @brief Function that controls the game flow while it has not finished for two cpus
@@ -366,9 +372,9 @@ public class ConsoleGame {
 
 		do {
 			if (currTurnColor == PieceColor.White) {
-				cpuTurn(chess, cpu1, null);
+				cpuTurn(chess, cpu1, lastMovement());
 			} else {
-				cpuTurn(chess, cpu2, null);
+				cpuTurn(chess, cpu2, lastMovement());
 			}
 		} while (true);
 		/// Condition to be analised 
@@ -377,7 +383,8 @@ public class ConsoleGame {
 	/// @brief Controls a player turn 
 	/// @brief ---
 	/// @post Executes a player movement. If the player chooses to exit or save
-	///       the game, it will be returned (X or G respectively). Elsewise returns empty string
+	///       the game, it will be returned (X or G respectively). If there's a checkmate
+	///       returns E. Elsewise returns empty string
 	private static String playerTurn(Chess chess, int rows, int cols) {
 		String oValue = null;
 		String dValue = null;
@@ -390,12 +397,24 @@ public class ConsoleGame {
 
 		switch (oValue) {
 			case "X":
-				/// Do not save anything
-				System.out.println("Partida acabada!");
-				result = "X";
+				/// Ask for saving
+				System.out.println("Vols sortir sense guardar la partida [S/N]?");
+				String s = readInputLine();
+
+				if (s.toUpperCase().equals("S")) {
+					/// Save game
+					saveGame(chess, "");
+					System.out.println("Partida guardada!");
+					result = "G";
+				} else {
+					/// Do not save the game
+					System.out.println("Partida acabada!");
+					result = "X";
+				}
+
 				break;
 			case "G":
-				saveGame(chess);
+				saveGame(chess, "");
 				System.out.println("Partida guardada!");
 				result = "G";
 				break;
@@ -452,10 +471,24 @@ public class ConsoleGame {
 						}
 
 						/// Save turn
-						saveTurn(new Pair<String, String>(origin.toJSON(), dest.toJSON()));
+						saveTurn(
+							new Pair<String, String>(
+								origin.toJSON(),
+								dest.toJSON()
+							),
+							moveResult.first.size() > 1
+								? moveResult.first.get(1)
+								: null
+						);
 
-						/// Change turn
-						toggleTurn();
+						if (moveResult.first.contains(MoveAction.Escacimat)) {
+							/// End of game
+							System.out.println("Escac i mat de " + currTurnColor.toString());
+							result = "E";
+						} else {
+							/// Change turn
+							toggleTurn();
+						}
 					} else {
 						System.out.println("Moviment incorrecte!");
 					}
@@ -466,6 +499,9 @@ public class ConsoleGame {
 		return result;
 	}
 
+	/// @brief Asks for the cpu difficulty and returns the equivalent
+	/// @pre ---
+	/// @post Returns the equivalent cpu level with the given input
 	private static int cpuDifficulty() {
 		dificultyLevels();
 
@@ -556,8 +592,13 @@ public class ConsoleGame {
 	/// @brief Saves turn information
 	/// @pre @p p cannot be null
 	/// @post Creates a new turn with the given movement and increments @p turnNumber.
-	private static void saveTurn(Pair<String, String> p) {
-		turns.add(new Turn(currTurnColor, p, ""));
+	private static void saveTurn(Pair<String, String> p, MoveAction result) {
+		if (result == null) {
+			turns.add(new Turn(currTurnColor, p, ""));	
+		} else {
+			turns.add(new Turn(currTurnColor, p, result.toString()));
+		}
+		
 		turnNumber++;
 	}
 
@@ -692,11 +733,21 @@ public class ConsoleGame {
 		}
 	}
 
+	/// @brief To get the last movement of the game
+	/// @pre @p turnNumber > 0
+	/// @post Returns the last movement of the game
+	private static Pair<Position, Position> lastMovement() {
+		return new Pair<Position, Position>(
+			new Position(turns.get(turnNumber).origin()),
+			new Position(turns.get(turnNumber).destination())
+		);
+	}
+
 	/// @brief Saves the game in a file
 	/// @pre ---
 	/// @post Saves the game in two JSON files, pulling away the configuration and
 	///       the game developement.
-	private static void saveGame(Chess chess) {
+	private static void saveGame(Chess chess, String finalResult) {
 		try {
 			/// Configuration
 			File configurationFile = new File(defaultConfigFileName);
@@ -725,7 +776,7 @@ public class ConsoleGame {
 			File gameFile = new File(fileName.toString() + ".json");
 			gameFile.createNewFile();
 			FileWriter gameWriter = new FileWriter(gameFile);
-			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, ""));
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, finalResult));
 			gameWriter.close();			
 		} catch (IOException e) {
 
