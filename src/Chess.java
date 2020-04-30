@@ -74,13 +74,20 @@ public class Chess implements Cloneable {
         
         //createInitialPositions(whiteInitPos,blackInitPos);
         createBoard();
+        //System.out.println(kingPosition(PieceColor.White));
         //Chess ch = this.copy(this);
         //System.out.println(ch.showBoard());
         //hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
-        /*Position p1=new Position(1,0);
-        Position p2=new Position(3,0);
+       /* board[1][7]=null;
+        //board[6][3]=board[7][3];
+        //board[6][2]=null;
+        board[0][6]=null;
+        board[0][3]=null;
+        board[1][3]=null;
+        Position p1=new Position(6,3);
+        Position p2=new Position(1,3);
         applyMovement(p1,p2,null);
         Position p3=new Position(6,1);
         Position p4=new Position(4,1);
@@ -89,18 +96,18 @@ public class Chess implements Cloneable {
         Position p6=new Position(4,1);
         List<Position> lp = new ArrayList<Position>();
         lp.add(p6);
-        applyMovement(p5,p6,lp);*/
-        /*board[1][7]=null;
-        board[6][3]=null;
-        board[6][2]=null;
-        board[0][6]=null;*/
+        //applyMovement(p5,p6,lp);
+        System.out.println(showBoard());
+        System.out.println(isEscac(PieceColor.Black));*/
+        
+        //System.out.println(showBoard());
         //applyMovement(p,p2,null);
         /*Position p4=new Position(7,3);
         Position p5=new Position(5,3);*/
         //applyMovement(p4,p5,null);
-        //destinyWithValues(p3);
+        //destinyWithValues(p2);
 
-       System.out.println(showBoard());
+       //System.out.println(showBoard());
     }
 
     Chess copy(Chess c){
@@ -240,43 +247,6 @@ public class Chess implements Cloneable {
     public boolean emptyCell(Position p){
         return board[p.row()][p.col()]==null;
     }
-
-    /*
-     * @brief Show the board
-     * @pre --
-     * @post Show the board and every piece on her cell
-     */
-    public String showBoard() {
-		String s;
-		String c = "abcdefghijklmnopqrstuvwxyz";
-		String l = "   ";
-		for (int j = 0; j < cols(); ++j)
-			l += "+---";
-		l += "+\n";
-		s = l;
-		for (int i = 0; i < rows(); ++i) {
-			if (i < 9)
-                            s += " ";
-			s += (i+1) + " | ";
-			for (int j = 0; j < cols(); ++j) {
-				Piece p = board[i][j];
-				if (p == null) s += " ";
-				else{
-                    if(board[i][j].color() == PieceColor.White)
-                        s += board[i][j].type().ptSymbol();
-                    else
-                        s += Character.toLowerCase(board[i][j].type().ptSymbol().charAt(0));
-                }                         
-				s += " | "; 
-			}
-			s += "\n" + l;
-		}
-		s += "     ";
-		for (int j = 0; j < cols(); ++j)
-            s += c.charAt(j) + "   ";    
-		return s;
-    }
-
     /*
      * @brief Board's row number
      * @pre --
@@ -547,7 +517,41 @@ public class Chess implements Cloneable {
         }
         return promote;
     }
-
+    /*
+     * @brief Checks if escac
+     * @pre --
+     * @post Return if escac
+     */
+    private boolean isEscac(PieceColor pc){
+        boolean escacKing = false;
+        boolean found = false;
+        List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
+        List<Pair<Position,Piece>> listToCheck = new ArrayList<Pair<Position,Piece>>();
+        if(pc == PieceColor.White)
+            listToCheck = pListWhite;
+        else 
+            listToCheck = pListBlack;
+        
+        listToCheck.forEach((p)->allMovesWithValues.add(destinyWithValues(p.first)));
+        
+        int i = 0;
+        while(i<allMovesWithValues.size() && !found){
+            //System.out.println(i);
+            List<Pair<Position, Integer>> listValues = new ArrayList<Pair<Position, Integer>>();
+            listValues = allMovesWithValues.get(i);
+            int j = 0;
+            while(j<listValues.size()){
+               // System.out.println(j);
+                if(listValues.get(j).second == 100){
+                    escacKing = true;
+                    found = true;
+                }
+                j++;
+            }
+            i++;
+        }
+        return escacKing;
+    }
     /*
      * @brief Promote a piece
      * @pre The piece want to promote
@@ -567,16 +571,17 @@ public class Chess implements Cloneable {
      */
     public Position kingPosition(PieceColor pc){
         Position p = new Position(0,0);
-        if(pc == PieceColor.White){
-            for(int i=0; i<pListWhite.size(); i++){
-                if(pListWhite.get(i).second.type().ptSymbol().charAt(0)=='R')
-                    p = pListWhite.get(i).first;   
-            }
-        }else{
-            for(int i=0; i<pListBlack.size(); i++){
-                if(pListBlack.get(i).second.type().ptSymbol().charAt(0)=='R')
-                    p = pListBlack.get(i).first;
-            }
+        boolean found = false;
+        List<Pair<Position,Piece>> listToCheck = new ArrayList<Pair<Position,Piece>>();
+        if(pc == PieceColor.White)
+            listToCheck = pListWhite;
+        else
+            listToCheck = pListBlack;
+        int i=0;
+        while(i<listToCheck.size() && !found){
+            if(listToCheck.get(i).second.type().ptSymbol().charAt(0)=='R')
+                p = listToCheck.get(i).first; 
+            i++;
         }
         return p;
     }
@@ -673,8 +678,8 @@ public class Chess implements Cloneable {
                 r.first.add(MoveAction.Promote);
         }   
         //if(r.first) applyMovement(origin, destiny, r.second);
-        for(int i=0;i<r.first.size();i++)
-            System.out.println(r.first.get(i).toString());    
+        /*for(int i=0;i<r.first.size();i++)
+            System.out.println(r.first.get(i).toString()); */   
     
     return r;
     }
@@ -903,19 +908,15 @@ public class Chess implements Cloneable {
         int value = 0;        
         Piece p = board[origin.row()][origin.col()];
         List<Movement> movesToRead = new ArrayList<Movement>(); 
-
-        if(!p.hasMoved()){    
-            if(p.type().ptInitMovements()!=null){  
-                movesToRead=p.type().ptInitMovements();
-            }
-        }else{
-            movesToRead=p.type().ptMovements();
-        }
-        /*
+        //System.out.println("Li toca a "+p.type().ptName());
+        movesToRead=p.pieceMovements();
+        if(!p.hasMoved())
+            p.toggleMoved();   
+        
         for(int i=0; i<movesToRead.size(); i++){
             Movement mov = movesToRead.get(i);
-            System.out.println(mov.movX()+" "+mov.movY());
-        }*/
+            //System.out.println(p.type().ptName()+" "+mov.movX()+" "+mov.movY());
+        }
        // movesToRead.addAll(p.type().ptMovements());
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
@@ -998,18 +999,19 @@ public class Chess implements Cloneable {
                 }
             }else{      
                 //System.out.println("F");
-                if(p.color() == PieceColor.Black){
-                    destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
-                }else{
-                    destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
-                }
-                if(destinyInLimits(destiny.row(),destiny.col())){
-                    continueFunc=controller(origin,destiny,mov,destinyWithValues);
-                    System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
-                }
+                //if(p.color() == PieceColor.Black){
+                //    destiny = new Position(origin.row()-mov.movX(), origin.col()-mov.movY());
+                //}else{
+                    if(destinyInLimits(origin.row()+mov.movX(), origin.col()+mov.movY())){
+                    //System.out.println(p.type().ptName()+" Origin row "+origin.row()+" Origin col "+origin.col()+" Moviment "+mov.movX()+" "+mov.movY()+" i anem a "+(origin.row()+mov.movX())+","+(origin.col()+mov.movY()));
+                        destiny = new Position(origin.row()+mov.movX(), origin.col()+mov.movY());
+                //}
+                        continueFunc=controller(origin,destiny,mov,destinyWithValues);
+                    }
+                    //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
-        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
@@ -1073,6 +1075,42 @@ public class Chess implements Cloneable {
         }
         //System.out.println("Els chess son iguals? "+same);
         return same;
+    }
+
+     /*
+     * @brief Show the board
+     * @pre --
+     * @post Show the board and every piece on her cell
+     */
+    public String showBoard() {
+		String s;
+		String c = "abcdefghijklmnopqrstuvwxyz";
+		String l = "   ";
+		for (int j = 0; j < cols(); ++j)
+			l += "+---";
+		l += "+\n";
+		s = l;
+		for (int i = 0; i < rows(); ++i) {
+			if (i < 9)
+                            s += " ";
+			s += (i+1) + " | ";
+			for (int j = 0; j < cols(); ++j) {
+				Piece p = board[i][j];
+				if (p == null) s += " ";
+				else{
+                    if(board[i][j].color() == PieceColor.White)
+                        s += board[i][j].type().ptSymbol();
+                    else
+                        s += Character.toLowerCase(board[i][j].type().ptSymbol().charAt(0));
+                }                         
+				s += " | "; 
+			}
+			s += "\n" + l;
+		}
+		s += "     ";
+		for (int j = 0; j < cols(); ++j)
+            s += c.charAt(j) + "   ";    
+		return s;
     }
 
     @Override
