@@ -102,6 +102,7 @@ public class Chess implements Cloneable {
 
        System.out.println(showBoard());
     }
+
     Chess copy(Chess c){
         Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
         c.inactiveLimits,c.pList,c.initPositions,c.castlings,
@@ -557,6 +558,27 @@ public class Chess implements Cloneable {
         //i es retorna la peça. Altres opcions, arriba un char ("T"), fer-ho per posicions...
         originalPiece = new Piece(pieceToPromote);
         //Comprobar si s'ha cambiat tot, systout de peces
+    }
+
+    /*
+     * @brief Position of the king
+     * @pre --
+     * @post Return the king's position
+     */
+    public Position kingPosition(PieceColor pc){
+        Position p = new Position(0,0);
+        if(pc == PieceColor.White){
+            for(int i=0; i<pListWhite.size(); i++){
+                if(pListWhite.get(i).second.type().ptSymbol().charAt(0)=='R')
+                    p = pListWhite.get(i).first;   
+            }
+        }else{
+            for(int i=0; i<pListBlack.size(); i++){
+                if(pListBlack.get(i).second.type().ptSymbol().charAt(0)=='R')
+                    p = pListBlack.get(i).first;
+            }
+        }
+        return p;
     }
 
 
