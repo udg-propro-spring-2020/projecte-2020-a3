@@ -39,6 +39,13 @@ public class Turn implements JSON, Cloneable {
         );
     }
 
+    /// @brief Returns the result of the turn
+    /// @pre ---
+    /// @post Returns the result of the movement
+    public String turnResult() {
+        return this.result;
+    }
+
     /// @pre ---
     /// @post Returns a String of the object properties in JSON format (tabbed)
     @Override

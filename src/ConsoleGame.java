@@ -299,7 +299,15 @@ public class ConsoleGame {
 			}
 
 			playerOption = playerTurn(chess, rows, cols);			
-		} while (!playerOption.equals("X") && !playerOption.equals("G"));
+		} while (
+			!playerOption.equals("X") && 
+			!playerOption.equals("G") &&
+			!playerOption.equals("E")
+		);
+
+		if (playerOption.equals("E")) {
+			endOfGame(chess);
+		}
 	}
 
 	/// @brief Function that controls the flow of the game between a cpu and a player
@@ -350,10 +358,7 @@ public class ConsoleGame {
 		);
 
 		if (playerOption.equals("E")) {
-			System.out.println("Partida acabada.");
-			System.out.println("Guanyador: " + currTurnColor.toString());
-
-			saveGame(chess, currTurnColor.toString() + " GUANYEN");
+			endOfGame(chess);
 		}
 	}
 
@@ -370,14 +375,17 @@ public class ConsoleGame {
 		diff = cpuDifficulty();
 		Cpu cpu2 = new Cpu(null, chess, diff, PieceColor.Black);
 
+		MoveAction result = null;
 		do {
 			if (currTurnColor == PieceColor.White) {
-				cpuTurn(chess, cpu1, lastMovement());
+				result = cpuTurn(chess, cpu1, lastMovement());
 			} else {
-				cpuTurn(chess, cpu2, lastMovement());
+				result = cpuTurn(chess, cpu2, lastMovement());
 			}
-		} while (true);
-		/// Condition to be analised 
+		} while (result == null);
+		
+		/// Game finished
+		endOfGame(chess);
 	}
 
 	/// @brief Controls a player turn 
@@ -457,7 +465,9 @@ public class ConsoleGame {
 					Position dest = new Position(dValue);
 					Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(origin, dest);
 
-					if (moveResult.first.contains(MoveAction.Correct)) {
+					boolean lastTurnMate = turns.get(turnNumber - 1).turnResult().equals(MoveAction.Escac.toString());
+					if (moveResult.first.contains(MoveAction.Correct) && 
+						!(moveResult.first.contains(MoveAction.Escac) && lastTurnMate)) {
 						chess.applyMovement(origin, dest, moveResult.second);
 
 						/// If the user has undone x movements, and not redone all of them
@@ -489,6 +499,9 @@ public class ConsoleGame {
 							/// Change turn
 							toggleTurn();
 						}
+					} else if (moveResult.first.contains(MoveAction.Escac) && lastTurnMate) {
+						/// Movement has not saved the king from a mate
+						System.out.println("Has de moure el rei!");
 					} else {
 						System.out.println("Moviment incorrecte!");
 					}
@@ -604,13 +617,16 @@ public class ConsoleGame {
 
 	/// @brief Controls a cpu turn
 	/// @pre @p c & @p cpu cannot be null
-	/// @post Executes a cpu turn
-	private static void cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
+	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
+	///       returns null.
+	private static MoveAction cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
 		if (chess == null || cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
 		
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
+
+		Pair<List<MoveAction>, List<Position>> res = chess.checkMovement(cpuMove.first, cpuMove.second);
 		
 		/// CPU movement is always correct
 		chess.applyMovement(
@@ -618,6 +634,12 @@ public class ConsoleGame {
 			cpuMove.second,
 			chess.checkMovement(cpuMove.first, cpuMove.second).second
 		);
+
+		if (res.first.contains(MoveAction.Escacimat)) {
+			return MoveAction.Escacimat;
+		} else {
+			return null;
+		}
 	}
 
 	/// @brief Reads a chess position
@@ -743,11 +765,26 @@ public class ConsoleGame {
 		);
 	}
 
+	/// @brief Handles the end of game
+	/// @pre ---
+	/// @post Prints the game result and saves the game developement
+	private static void endOfGame(Chess chess) {
+		System.out.println("Partida acabada.");
+		System.out.println("Guanyador: " + currTurnColor.toString());
+
+		String fileName = saveGame(chess, currTurnColor.toString() + " GUANYEN");
+		if (fileName == null) {
+			System.out.println("Error en guardar la partida!");
+		} else {
+			System.out.println("Partida guardada amb nom: " + fileName);
+		}
+	}
+
 	/// @brief Saves the game in a file
 	/// @pre ---
 	/// @post Saves the game in two JSON files, pulling away the configuration and
-	///       the game developement.
-	private static void saveGame(Chess chess, String finalResult) {
+	///       the game developement. Returns the fileName or null if there's an error
+	private static String saveGame(Chess chess, String finalResult) {
 		try {
 			/// Configuration
 			File configurationFile = new File(defaultConfigFileName);
@@ -777,11 +814,14 @@ public class ConsoleGame {
 			gameFile.createNewFile();
 			FileWriter gameWriter = new FileWriter(gameFile);
 			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, finalResult));
-			gameWriter.close();			
+			gameWriter.close();	
+			
+			return fileName.toString() + ".json";
 		} catch (IOException e) {
-
+			return null;
 		} catch (NullPointerException e) {
 			System.out.println(e.getMessage());
+			return null;
 		}
 	}
 }
