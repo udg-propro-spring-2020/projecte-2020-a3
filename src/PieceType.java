@@ -105,6 +105,13 @@ public class PieceType implements JSON, Cloneable {
         return invulnerable;
     }
 
+    /// @brief To know if this is the piece type of the king
+    /// @pre ---
+    /// @post Returns true if this is the piece type of the king
+    public boolean isKingType() {
+        return ptName().toUpperCase().equals("REI");
+    }
+
     /// @brief To return the image location
     /// @pre Color is not null
     /// @post Returns the location of the image of the asked color

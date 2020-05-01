@@ -25,6 +25,7 @@ public class ConsoleGame {
 	private static Integer undoCount = null;
 	private static List<Turn> turns = null;
 	private static boolean dataSet = false;
+	private static boolean lastTurnCheck = false;
 
 	/// CONSTANTS
 	private static String DEFAULT_CONFIGURATION = "./data/default_game.json";
@@ -87,6 +88,7 @@ public class ConsoleGame {
 		System.out.println("|      - R: Refer moviment                |");
 		System.out.println("|      - G: Guardar partida               |");
 		System.out.println("|      - H: Mostrar ajuda                 |");
+		System.out.println("|      - T: Demanar Taules                |");
 		System.out.println("|                                         |");
 		System.out.println("|   [Quan es demana posicion destí]       |");
 		System.out.println("|      - O: Tornar a escollir origen      |");
@@ -286,6 +288,7 @@ public class ConsoleGame {
 	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(Chess chess, String pOne, String pTwo) {
 		String playerOption = "";
+		boolean draw = false;
 		int rows = chess.rows();
 		int cols = chess.cols();
 
@@ -298,7 +301,18 @@ public class ConsoleGame {
 				System.out.println("Torn de " + pTwo + " - NEGRES");
 			}
 
-			playerOption = playerTurn(chess, rows, cols);			
+			if (playerOption.equals("T")) {
+				/// Player asks for tables
+				System.out.println("El contrincant demana taules, acceptes [S/N]?");
+				String s = readInputLine();
+				if (s.toUpperCase().equals("S")) {
+					playerOption = "E";
+					draw = true;
+				} else {
+					System.out.println("La partida continua.");
+					playerOption = playerTurn(chess, rows, cols);			
+				}
+			}
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
@@ -306,7 +320,7 @@ public class ConsoleGame {
 		);
 
 		if (playerOption.equals("E")) {
-			endOfGame(chess);
+			endOfGame(chess, draw);
 		}
 	}
 
@@ -354,11 +368,14 @@ public class ConsoleGame {
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
-			!playerOption.equals("E")
+			!playerOption.equals("E") &&
+			!playerOption.equals("T")
 		);
 
 		if (playerOption.equals("E")) {
-			endOfGame(chess);
+			endOfGame(chess, false);
+		} else if (playerOption.equals("T")) {
+			endOfGame(chess, true);
 		}
 	}
 
@@ -384,8 +401,8 @@ public class ConsoleGame {
 			}
 		} while (result == null);
 		
-		/// Game finished
-		endOfGame(chess);
+		/// Game finished - can't never be draw
+		endOfGame(chess, false);
 	}
 
 	/// @brief Controls a player turn 
@@ -465,9 +482,11 @@ public class ConsoleGame {
 					Position dest = new Position(dValue);
 					Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(origin, dest);
 
-					boolean lastTurnMate = turns.get(turnNumber - 1).turnResult().equals(MoveAction.Escac.toString());
-					if (moveResult.first.contains(MoveAction.Correct) && 
-						!(moveResult.first.contains(MoveAction.Escac) && lastTurnMate)) {
+					if (chess.isEscac(oppositeColor(currTurnColor)) && lastTurnCheck) {
+						/// Player's king still in danger
+						/// Cancel movement
+						System.out.println("Has de moure el rei!");
+					} else if (moveResult.first.contains(MoveAction.Correct)) {
 						chess.applyMovement(origin, dest, moveResult.second);
 
 						/// If the user has undone x movements, and not redone all of them
@@ -480,15 +499,16 @@ public class ConsoleGame {
 							}
 						}
 
+						/// Handle promotion
+						handlePromotion(chess, dest);
+
 						/// Save turn
 						saveTurn(
+							moveResult.first,
 							new Pair<String, String>(
 								origin.toJSON(),
 								dest.toJSON()
-							),
-							moveResult.first.size() > 1
-								? moveResult.first.get(1)
-								: null
+							)
 						);
 
 						if (moveResult.first.contains(MoveAction.Escacimat)) {
@@ -499,9 +519,6 @@ public class ConsoleGame {
 							/// Change turn
 							toggleTurn();
 						}
-					} else if (moveResult.first.contains(MoveAction.Escac) && lastTurnMate) {
-						/// Movement has not saved the king from a mate
-						System.out.println("Has de moure el rei!");
 					} else {
 						System.out.println("Moviment incorrecte!");
 					}
@@ -510,6 +527,17 @@ public class ConsoleGame {
 		}
 		
 		return result;
+	}
+
+	/// @brief Returns the opposite color from the given PieceColor
+	/// @pre ---
+	/// @post Returns white if color == black and viceversa
+	private static PieceColor oppositeColor(PieceColor color) {
+		if (color == PieceColor.White) {
+			return PieceColor.Black;
+		} else {
+			return PieceColor.White;
+		}
 	}
 
 	/// @brief Asks for the cpu difficulty and returns the equivalent
@@ -605,11 +633,18 @@ public class ConsoleGame {
 	/// @brief Saves turn information
 	/// @pre @p p cannot be null
 	/// @post Creates a new turn with the given movement and increments @p turnNumber.
-	private static void saveTurn(Pair<String, String> p, MoveAction result) {
-		if (result == null) {
+	private static void saveTurn(List<MoveAction> results, Pair<String, String> p) {
+		MoveAction res = null;
+		if (results.contains(MoveAction.Escacimat)) {
+			res = MoveAction.Escacimat;
+		} else if (results.contains(MoveAction.Escac)) {
+			res = MoveAction.Escac;
+		}
+
+		if (res == null) {
 			turns.add(new Turn(currTurnColor, p, ""));	
 		} else {
-			turns.add(new Turn(currTurnColor, p, result.toString()));
+			turns.add(new Turn(currTurnColor, p, res.toString()));
 		}
 		
 		turnNumber++;
@@ -722,6 +757,49 @@ public class ConsoleGame {
 		return s;
 	}
 
+	/// @brief Handles user promotion
+	/// @pre User has a piece ready to promote
+	/// @post Returns whether the user has promoted a piece or not
+	private static void handlePromotion(Chess chess, Position piecePosition) {
+		System.out.println("Vols promocionar la peça [S/N]?");
+		String s = readInputLine();
+		if (s.toUpperCase().equals("S")) {
+			List<PieceType> tempList = new ArrayList<>();
+
+			/// Cannot become a king, so filter it
+			for (PieceType t : chess.typeList()) {
+				if (!t.isKingType()) {
+					tempList.add(t);
+				}
+			}
+			
+			/// Display the possibilities
+			System.out.println("Tipus disponibles: ");
+			for (int i = 1; i <= tempList.size(); i++) {
+				System.out.println(String.valueOf(i) + ": " + tempList.get(i).ptName());
+			}
+			
+			boolean valid = false;
+			do {
+				System.out.println("Entra una opció: ");
+				try {
+					int r = Integer.parseInt(readInputLine());
+
+					if (r - 1 > tempList.size()) {
+						System.out.println("Número no vàlid.");
+					} else {
+						chess.promotePiece(piecePosition, tempList.get(r - 1));
+						valid = true;
+					}
+				} catch (NumberFormatException e) {
+					System.out.println("El format és incorrecte, entra un número.");
+				}
+			} while (!valid);
+
+			
+		} 
+	}
+
 	/// @brief Undoes one movement
 	/// @pre ---
 	/// @post If possible, undoes one movement. It is only possible to undo
@@ -768,11 +846,18 @@ public class ConsoleGame {
 	/// @brief Handles the end of game
 	/// @pre ---
 	/// @post Prints the game result and saves the game developement
-	private static void endOfGame(Chess chess) {
-		System.out.println("Partida acabada.");
-		System.out.println("Guanyador: " + currTurnColor.toString());
+	private static void endOfGame(Chess chess, boolean draw) {
+		String fileName = null;
+		System.out.println("Partida acabada");
 
-		String fileName = saveGame(chess, currTurnColor.toString() + " GUANYEN");
+		if (draw) {
+			System.out.println("S'han acceptat taules.");
+			fileName = saveGame(chess, "TAULES");
+		} else {
+			System.out.println("Guanyador: " + currTurnColor.toString());
+			fileName = saveGame(chess, currTurnColor.toString() + " GUANYEN");
+		}
+
 		if (fileName == null) {
 			System.out.println("Error en guardar la partida!");
 		} else {
