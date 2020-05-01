@@ -522,7 +522,7 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if escac
      */
-    private boolean isEscac(PieceColor pc){
+    public boolean isEscac(PieceColor pc){
         boolean escacKing = false;
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
@@ -676,6 +676,8 @@ public class Chess implements Cloneable {
         }else{
             if(canPromote(board[origin.row()][origin.col()], destiny))
                 r.first.add(MoveAction.Promote);
+            if(isEscac(board[origin.row()][origin.col()].color()))
+                r.first.add(MoveAction.Escac);
         }   
         //if(r.first) applyMovement(origin, destiny, r.second);
         /*for(int i=0;i<r.first.size();i++)
