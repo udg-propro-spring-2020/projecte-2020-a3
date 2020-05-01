@@ -557,11 +557,9 @@ public class Chess implements Cloneable {
      * @pre The piece want to promote
      * @post Piece has been promoted
      */
-    public void promotePiece(Piece originalPiece, Piece pieceToPromote){
-        //actualment esta fet perque el consoleGame demani al jugador quina peça escull per promocionar
-        //i es retorna la peça. Altres opcions, arriba un char ("T"), fer-ho per posicions...
-        originalPiece = new Piece(pieceToPromote);
-        //Comprobar si s'ha cambiat tot, systout de peces
+    public void promotePiece(Position originalPiecePosition, PieceType promotionPieceType){
+        Piece originalPiece = board[originalPiecePosition.row()][originalPiecePosition.col()];     
+        originalPiece.promoteType(promotionPieceType);
     }
 
     /*
