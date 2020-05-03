@@ -122,6 +122,13 @@ public class Piece implements JSON, Cloneable {
         return temp;
     }
 
+    /// @brief Changes the PieceType value to the given one
+    /// @pre ---
+    /// @post Changes the PieceType value to the given one
+    public void promoteType(PieceType p) {
+        this.type = p;
+    }
+
     @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
