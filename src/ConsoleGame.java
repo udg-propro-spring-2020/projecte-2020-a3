@@ -29,6 +29,7 @@ public class ConsoleGame {
 
 	/// CONSTANTS
 	private static String DEFAULT_CONFIGURATION = "./data/default_game.json";
+	private static String SAVED_GAMES_LOCATION = "./saved_games/";
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 	/// @brief Shows a menu asking how to start a game
@@ -47,11 +48,11 @@ public class ConsoleGame {
 					break;
 				case 2:
 					System.out.println("Creant una partida personalitzada...");
-					configuredChessGame("Entra el nom del fitxer amb la configuració: ");
+					configuredChessGame("Entra el nom del fitxer amb la configuració: ", false);
 					break;
 				case 3:
 					System.out.println("Carregant una partida guardada...");
-					configuredChessGame("Entra el nom del fitxer amb la partida: ");
+					configuredChessGame("Entra el nom del fitxer amb la partida: ", true);
 					break;
 				default:
 					System.out.println("Sortint de l'aplicació...");
@@ -66,15 +67,15 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the menu options
 	private static void showMenu() {
-		System.out.println("+---------------- MENU ----------------+");
-		System.out.println("|                                      |");
-		System.out.println("|  Escull una opcio (num):             |");
-		System.out.println("|    1. Partida normal                 |");
-		System.out.println("|    2. Entrar partida configurada     |");
-		System.out.println("|    3. Entrar una partida carregada   |");
-		System.out.println("|    0. Sortir                         |");
-		System.out.println("|                                      |");
-		System.out.println("+--------------------------------------+");
+		System.out.println("+------------------ MENU -----------------+");
+		System.out.println("|                                         |");
+		System.out.println("|  Escull una opcio (num):                |");
+		System.out.println("|    1. Partida normal                    |");
+		System.out.println("|    2. Entrar partida configurada        |");
+		System.out.println("|    3. Entrar una partida carregada      |");
+		System.out.println("|    0. Sortir                            |");
+		System.out.println("|                                         |");
+		System.out.println("+-----------------------------------------+");
 	}
 
 	/// @brief Shows the different in-game commands
@@ -100,14 +101,14 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the choose players of game options
 	private static void playerOptions() {
-		System.out.println("+------- ESCULL JUGADORS -------+");
-		System.out.println("|                               |");
-		System.out.println("|    1. Jugador vs Jugador      |");
-		System.out.println("|    2. Jugador vs CPU          |");
-		System.out.println("|    3. CPU vs CPU              |");
-		System.out.println("|    0. Sortir                  |");
-		System.out.println("|                               |");
-		System.out.println("+-------------------------------+");
+		System.out.println("+------------ ESCULL JUGADORS ------------+");
+		System.out.println("|                                         |");
+		System.out.println("|         1. Jugador vs Jugador           |");
+		System.out.println("|         2. Jugador vs CPU               |");
+		System.out.println("|         3. CPU vs CPU                   |");
+		System.out.println("|         0. Sortir                       |");
+		System.out.println("|                                         |");
+		System.out.println("+-----------------------------------------+");
 	}
 
 	/// @brief Shows the different difficulty options
@@ -166,7 +167,7 @@ public class ConsoleGame {
 	/// @brief Asks for the filename of the configuration and starts the game
 	/// @pre ---
 	/// @post If the file name from the user is correct, starts the game with that configuration.
-	private static void configuredChessGame(String text) {
+	private static void configuredChessGame(String text, boolean hasStarted) {
 		boolean validFileLocation = false;
 
 		while (!validFileLocation) {
@@ -180,6 +181,29 @@ public class ConsoleGame {
 				} else {
 					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
 					Chess chess = FromJSONParserHelper.buildChess(fileLocation);
+
+					if (hasStarted) {
+						/// Get the match information
+						/// Check if the match has started
+						Pair<List<Turn>, PieceColor> complexPair = FromJSONParserHelper.matchInformation(fileLocation);
+						List<Turn> auxList = complexPair.first;
+
+						if (!auxList.isEmpty()) {
+							auxList.forEach((t) -> {
+								Pair<Position, Position> temp = t.moveAsPair();
+
+								/// Apply movements to the game
+								Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(temp.first, temp.second);
+
+								/// All movements must be right!
+								chess.applyMovement(temp.first, temp.second, moveResult.second);
+
+								/// Add the turn
+								turns.add(t);
+							});
+						}
+					}
+
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
 
@@ -300,6 +324,8 @@ public class ConsoleGame {
 			} else {
 				System.out.println("Torn de " + pTwo + " - NEGRES");
 			}
+
+			playerOption = playerTurn(chess, rows, cols);
 
 			if (playerOption.equals("T")) {
 				/// Player asks for tables
@@ -591,7 +617,7 @@ public class ConsoleGame {
 					
 				} while (!temp.toUpperCase().equals("EXIT"));
 
-				List<Pair<List<Pair<Position, Position>>, PieceColor>> complexList = new ArrayList<>();
+				List<Pair<List<Turn>, PieceColor>> complexList = new ArrayList<>();
 				for (String location : list) {
 					try {
 						complexList.add(
@@ -602,9 +628,9 @@ public class ConsoleGame {
 					}
 				}
 
-				if (!complexList.isEmpty()) {
+				/* if (!complexList.isEmpty()) {
 					knowledge = new Knowledge(complexList, chess);
-				}
+				} */
 
 			} else if (!s.toUpperCase().equals("N")) {
 				valid = false;
@@ -894,8 +920,9 @@ public class ConsoleGame {
 			}
 
 			/// Game
+			createSavedGameDirectory();
 			Long fileName = new Date().getTime();
-			File gameFile = new File(fileName.toString() + ".json");
+			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
 			gameFile.createNewFile();
 			FileWriter gameWriter = new FileWriter(gameFile);
 			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, finalResult));
@@ -907,6 +934,18 @@ public class ConsoleGame {
 		} catch (NullPointerException e) {
 			System.out.println(e.getMessage());
 			return null;
+		}
+	}
+
+	/// @brief If not exists, creates a directory for the saved games
+	/// @pre ---
+	/// @post Creates a directory for the saved games if does not exist
+	private static void createSavedGameDirectory() {
+		File newDir = new File(SAVED_GAMES_LOCATION);
+		if (!newDir.exists()) {
+			if (!newDir.mkdir()) {
+				System.out.println("Fatal error on creating saved games folder.");
+			}
 		}
 	}
 }

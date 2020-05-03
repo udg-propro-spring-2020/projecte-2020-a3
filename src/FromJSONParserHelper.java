@@ -103,36 +103,37 @@ public class FromJSONParserHelper {
                 blackInitPos, nextTurnColor, turnList);
     }
 
-    /// @biref Gets the information needed for the knowledge
+    /// @biref Gets the game developement
     /// @pre ---
-    /// @post Reads the information needed for the knowledge from the file. Returns a pair
-    ///       containing a list of pairs (origin position, destination position) and the winning
-    ///       piece color.
-    public static Pair<List<Pair<Position, Position>>, PieceColor> matchInformation(String fileLocation) throws FileNotFoundException {
+    /// @post Reads the game developement from the file. Returns a pair containing a 
+    ///       list of turns and the winning piece color.
+    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation) throws FileNotFoundException {
         Scanner in = new Scanner(new File(fileLocation));
 
         /// Skip 167 lines
-        for (int i = 0; i < 168; i++) {
+        for (int i = 0; i < 167; i++) {
             in.nextLine();
         }
 
-        /// Start reading information
-        List<Pair<Position, Position>> positions = new ArrayList<>();
-        /// Reusing this function, since each turn holds the posision
-        getTurnList(in).forEach(
-            (t) -> positions.add(t.moveAsPair())
-        );
-        
-        /// Skip ],
-        in.nextLine();
+        /// Read turns
+        boolean hasTurns = !getString(in.nextLine()).equals("[]");
+
+        List<Turn> turnList = hasTurns
+            ? getTurnList(in)                                               /// If not empty, read the list
+            : new ArrayList<>();                                            /// If empty, create an empty list
+        if (hasTurns) {
+            /// Skip ],
+            in.nextLine();
+        }
+
         String s = getString(in.nextLine());
-        PieceColor temp = s.contains("BLANQUES") 
+        PieceColor tempColor = s.contains("BLANQUES") 
             ? PieceColor.White
             : PieceColor.Black;
         
-        return new Pair<List<Pair<Position, Position>>, PieceColor>(
-            positions,
-            temp
+        return new Pair<List<Turn>, PieceColor>(
+            turnList,
+            tempColor
         );
     }
 
