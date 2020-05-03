@@ -8,7 +8,7 @@ public class Position implements JSON, Cloneable {
     /// TRANSFORMATION CONSTANTS
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
 
-    private char rowLetter;         ///< Row character value
+    private char colLetter;         ///< Col character value
     public int row;                 ///< Integer row value
     public int col;                 ///< Integer column value
     
@@ -18,7 +18,7 @@ public class Position implements JSON, Cloneable {
     Position(int row, int col) {
 	    this.row = row; 
         this.col = col; 
-        rowLetter = alph.charAt(row);
+        colLetter = alph.charAt(col);
     }
 
     /// @brief Copy constructor
@@ -31,7 +31,7 @@ public class Position implements JSON, Cloneable {
         }
         this.row = copy.row;
         this.col = copy.col;
-        this.rowLetter = copy.rowLetter;
+        this.colLetter = copy.colLetter;
     }
 
     /// @brief Construct a position from a string
@@ -40,7 +40,7 @@ public class Position implements JSON, Cloneable {
     Position(String s) {
         this.row = Character.getNumericValue(s.charAt(1) - 1);
         this.col = alph.indexOf(s.charAt(0));
-        this.rowLetter = alph.charAt(row);
+        this.colLetter = alph.charAt(col);
     }
     
     /// @brief Return the row's value
@@ -60,8 +60,8 @@ public class Position implements JSON, Cloneable {
     @Override
     public String toJSON() {
         StringBuilder value = new StringBuilder()
-            .append(rowLetter)
-            .append(col);
+            .append(colLetter)
+            .append(row + 1);
         
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.propertyToJSON("pos", value.toString(), true, true, ToJSONParserHelper.THREE_TABS));
