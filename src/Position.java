@@ -58,13 +58,9 @@ public class Position implements JSON, Cloneable {
     }
 
     @Override
-    public String toJSON() {
-        StringBuilder value = new StringBuilder()
-            .append(colLetter)
-            .append(row + 1);
-        
+    public String toJSON() {        
         StringBuilder s = new StringBuilder();
-        s.append(ToJSONParserHelper.propertyToJSON("pos", value.toString(), true, true, ToJSONParserHelper.THREE_TABS));
+        s.append(ToJSONParserHelper.propertyToJSON("pos", this.toString(), true, true, ToJSONParserHelper.THREE_TABS));
         return s.toString();
     }
 
@@ -83,6 +79,9 @@ public class Position implements JSON, Cloneable {
 
     @Override
     public String toString() {
-	    return "(" + row() + "," + col() + ")";
+	    StringBuilder value = new StringBuilder()
+            .append(colLetter)
+            .append(row + 1);
+        return value.toString();
     }
 }

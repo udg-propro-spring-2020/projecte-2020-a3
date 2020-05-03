@@ -42,7 +42,7 @@ public class ConsoleGame {
 		try {
 			switch (readOption()) {
 				case 1:
-					System.out.println("Creant una partida normal...\n");
+					System.out.println("Creant una partida normal...");
 					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(DEFAULT_CONFIGURATION);
 					initiateGame(FromJSONParserHelper.buildChess(DEFAULT_CONFIGURATION));
 					break;
@@ -67,6 +67,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the menu options
 	private static void showMenu() {
+		System.out.println();
 		System.out.println("+------------------ MENU -----------------+");
 		System.out.println("|                                         |");
 		System.out.println("|  Escull una opcio (num):                |");
@@ -82,6 +83,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the different in-game commands
 	private static void showInstructions() {
+		System.out.println();
 		System.out.println("+--------------  COMANDES  ---------------+");
 		System.out.println("|  [Quan es demana posicion d'origen]     |");
 		System.out.println("|      - X: Acabar la partida             |");
@@ -101,6 +103,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the choose players of game options
 	private static void playerOptions() {
+		System.out.println();
 		System.out.println("+------------ ESCULL JUGADORS ------------+");
 		System.out.println("|                                         |");
 		System.out.println("|         1. Jugador vs Jugador           |");
@@ -115,6 +118,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the different difficulty options
 	private static void dificultyLevels() {
+		System.out.println();
 		System.out.println("+---- ESCULL LA DIFICULTAT ----+");
 		System.out.println("|                              |");
 		System.out.println("|    1. Principiant            |");
@@ -128,14 +132,16 @@ public class ConsoleGame {
 	/// @brief Function that simply reads a line from the user input
 	/// @pre ---
 	/// @post Returs the read line (trimmed)
-	private static String readInputLine() {
+	private static String readInputLine(boolean showText) {
 		BufferedReader br = new BufferedReader(
 			new InputStreamReader(System.in)
 		);
 		boolean success = false;
 		String res = "";
 		do {
-			System.out.println("Opció: ");
+			if (showText) {
+				System.out.print("Opció: ");
+			}
 
 			try {
 				res = br.readLine().trim();
@@ -155,7 +161,7 @@ public class ConsoleGame {
 		int val = 0;
 		do {
 			try {
-				val = Integer.parseInt(readInputLine());
+				val = Integer.parseInt(readInputLine(true));
 			} catch (NumberFormatException e) {
 				System.out.println("Has d'entrar un nombre");
 			} 
@@ -174,7 +180,7 @@ public class ConsoleGame {
 			System.out.println("[Escriu EXIT per sortir]");
 			System.out.println(text);
 			try {
-				String fileLocation = readInputLine();
+				String fileLocation = readInputLine(false);
 				if (fileLocation.toUpperCase().equals("EXIT")) {
 					System.out.println("Sortint de l'aplicació...");
 					validFileLocation = true;
@@ -239,16 +245,16 @@ public class ConsoleGame {
 		switch (readOption()) {
 			case 1: {
 				/// 2 Players
-				System.out.println("Vols posar nom als jugadors? [S/N]");
+				System.out.print("Vols posar nom als jugadors? [S/N]: ");
 				String pOne = "Jugador 1";
 				String pTwo = "Jugador 2";
 				
 				/// Optional - more fun :D
-				if (readInputLine().toUpperCase().equals("S")) {
+				if (readInputLine(false).toUpperCase().equals("S")) {
 					System.out.print("Nom del jugador 1: ");
-					pOne = readInputLine();
+					pOne = readInputLine(false);
 					System.out.print("Nom del jugador 2: ");
-					pTwo = readInputLine();
+					pTwo = readInputLine(false);
 				}
 
 				/// Choose colors
@@ -256,7 +262,7 @@ public class ConsoleGame {
 				boolean valid = true;
 				do {
 					System.out.print("Color de " + pOne + " [B/N]: ");
-					String s = readInputLine();
+					String s = readInputLine(false);
 					if (s.toUpperCase().equals("N")) {
 						pOneWhite = false;
 						valid = true;
@@ -281,7 +287,7 @@ public class ConsoleGame {
 
 				do {
 					System.out.print("Color del jugador [B/N]: ");
-					String s = readInputLine();
+					String s = readInputLine(false);
 					if (s.toUpperCase().equals("N")) {
 						playerIsWhite = false;
 						valid = true;
@@ -329,8 +335,8 @@ public class ConsoleGame {
 
 			if (playerOption.equals("T")) {
 				/// Player asks for tables
-				System.out.println("El contrincant demana taules, acceptes [S/N]?");
-				String s = readInputLine();
+				System.out.print("El contrincant demana taules, acceptes? [S/N]: ");
+				String s = readInputLine(false);
 				if (s.toUpperCase().equals("S")) {
 					playerOption = "E";
 					draw = true;
@@ -373,13 +379,9 @@ public class ConsoleGame {
 				if (turnNumber == 0) {
 					cpuTurn(chess, cpu, null);
 				} else {
-					/// While knowledge is not implemented, pass null
-					cpuTurn(chess, cpu, null);
-					/// When knowledge is implemented, get last movement
 					cpuTurn(chess, cpu, lastMovement());
 				}
 
-				turnNumber++;
 				/// Change turn
 				toggleTurn();
 			} else {
@@ -444,13 +446,13 @@ public class ConsoleGame {
 		System.out.println(chess.showBoard());
 		boolean originMove = true;
 
-		oValue = readMovement("Coordenada origen (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
+		oValue = readMovement("Coordenada origen (ex. a6)", rows, cols, currTurnColor, chess, originMove);
 
 		switch (oValue) {
 			case "X":
 				/// Ask for saving
-				System.out.println("Vols sortir sense guardar la partida [S/N]?");
-				String s = readInputLine();
+				System.out.println("Vols sortir sense guardar la partida? [S/N]: ");
+				String s = readInputLine(false);
 
 				if (s.toUpperCase().equals("S")) {
 					/// Save game
@@ -497,12 +499,9 @@ public class ConsoleGame {
 				break;
 			default: {
 				originMove = false;
-				System.out.println("Origen: " + oValue);
 				dValue = readMovement("Coordenada destí  (ex. a6): ", rows, cols, currTurnColor, chess, originMove);
 
 				if (!dValue.equals("O")) {
-					System.out.println("Dest: " + dValue);
-
 					/// Create positions with the read strings
 					Position origin = new Position(oValue);
 					Position dest = new Position(dValue);
@@ -525,15 +524,17 @@ public class ConsoleGame {
 							}
 						}
 
-						/// Handle promotion
-						handlePromotion(chess, dest);
+						if (moveResult.first.contains(MoveAction.Promote)) {
+							/// Handle promotion
+							handlePromotion(chess, dest);
+						}
 
 						/// Save turn
 						saveTurn(
 							moveResult.first,
 							new Pair<String, String>(
-								origin.toJSON(),
-								dest.toJSON()
+								origin.toString(),
+								dest.toString()
 							)
 						);
 
@@ -597,8 +598,8 @@ public class ConsoleGame {
 		boolean valid = true;
 		Knowledge knowledge = null;
 		do {
-			System.out.println("Vols afegir coneixement a la " + name + " [S/N]? ");
-			String s = readInputLine();
+			System.out.print("Vols afegir coneixement a la " + name + "? [S/N]: ");
+			String s = readInputLine(false);
 			if (s.toUpperCase().equals("S")) {
 				valid = true;
 
@@ -609,7 +610,7 @@ public class ConsoleGame {
 
 				do {
 					System.out.print("Ubicació: ");
-					temp = readInputLine();
+					temp = readInputLine(false);
 
 					if (!temp.toUpperCase().equals("EXIT")) {
 						list.add(temp);
@@ -687,7 +688,7 @@ public class ConsoleGame {
 		
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 
-		Pair<List<MoveAction>, List<Position>> res = chess.checkMovement(cpuMove.first, cpuMove.second);
+		Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(cpuMove.first, cpuMove.second);
 		
 		/// CPU movement is always correct
 		chess.applyMovement(
@@ -696,7 +697,16 @@ public class ConsoleGame {
 			chess.checkMovement(cpuMove.first, cpuMove.second).second
 		);
 
-		if (res.first.contains(MoveAction.Escacimat)) {
+		/// Save turn
+		saveTurn(
+			moveResult.first,
+			new Pair<String, String>(
+				cpuMove.first.toString(),
+				cpuMove.second.toString()
+			)
+		);
+
+		if (moveResult.first.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
 			return null;
@@ -717,8 +727,8 @@ public class ConsoleGame {
 		boolean stop = false;
 
 		do {
-			System.out.print(t);
-			s = readInputLine();
+			System.out.println(t);
+			s = readInputLine(true);
 
 			/// Check if user wants to enter the origin coordinate again
 			if (s.equals("O") && originMove) {
@@ -757,7 +767,6 @@ public class ConsoleGame {
 									if (originMove && !chess.emptyCell(p)) {
 										if (chess.cellColor(p) == colorTurn) {
 											stop = true;
-											System.out.println("Moviment llegit: " + p.toString());
 										} else {
 											System.out.println("És el torn de " + colorTurn.toString());
 											System.out.println("Escull una peça de " + colorTurn.toString());
@@ -787,8 +796,8 @@ public class ConsoleGame {
 	/// @pre User has a piece ready to promote
 	/// @post Returns whether the user has promoted a piece or not
 	private static void handlePromotion(Chess chess, Position piecePosition) {
-		System.out.println("Vols promocionar la peça [S/N]?");
-		String s = readInputLine();
+		System.out.print("Vols promocionar la peça? [S/N]: ");
+		String s = readInputLine(false);
 		if (s.toUpperCase().equals("S")) {
 			List<PieceType> tempList = new ArrayList<>();
 
@@ -809,7 +818,7 @@ public class ConsoleGame {
 			do {
 				System.out.println("Entra una opció: ");
 				try {
-					int r = Integer.parseInt(readInputLine());
+					int r = Integer.parseInt(readInputLine(false));
 
 					if (r - 1 > tempList.size()) {
 						System.out.println("Número no vàlid.");
@@ -864,8 +873,8 @@ public class ConsoleGame {
 	/// @post Returns the last movement of the game
 	private static Pair<Position, Position> lastMovement() {
 		return new Pair<Position, Position>(
-			new Position(turns.get(turnNumber).origin()),
-			new Position(turns.get(turnNumber).destination())
+			new Position(turns.get(turnNumber - 1).origin()),
+			new Position(turns.get(turnNumber - 1).destination())
 		);
 	}
 
@@ -901,8 +910,8 @@ public class ConsoleGame {
 			File configurationFile = new File(defaultConfigFileName);
 
 			if (configurationFile.exists()) {
-				System.out.println("El fitxer de configuració ja existeix. Vols sobreesciure'l [S/N]?");
-				String res = readInputLine();
+				System.out.println("El fitxer de configuració ja existeix. Vols sobreesciure'l? [S/N]: ");
+				String res = readInputLine(false);
 
 				if (res.toUpperCase().equals("S")) {
 					configurationFile.createNewFile();
