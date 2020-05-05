@@ -40,24 +40,24 @@ public class Knowledge{
     @pre --
     @post Es crea el coneixement.
      */
-    public Knowledge(List<Pair<List<Pair<Position, Position>>, PieceColor>> games,Chess chess){
+    public Knowledge(List<Pair<List<Turn>, PieceColor>> games,Chess chess){
         
         _knowledge = new HashMap<String,Pair<Position,Position>>();
         games.forEach((game)->{
             int movementCounter = 0;
             PieceColor winner = game.second;
 
-            Iterator<Pair<Position,Position>> itTurns = game.first.iterator();
+            Iterator<Turn> itTurns = game.first.iterator();
             Pair<Position,Position> actualTurn = null;
 
             if(winner==PieceColor.Black){
-                actualTurn = itTurns.next();
+                actualTurn = itTurns.next().moveAsPair();
                 actualTurn = reversePosition(actualTurn,chess);
                 chess.applyMovement(actualTurn.first,actualTurn.second,null);
                 movementCounter++;
             }
             while(itTurns.hasNext()){
-                actualTurn = itTurns.next();
+                actualTurn = itTurns.next().moveAsPair();
                 if(winner==PieceColor.White){
                     if(!_knowledge.containsKey(chess)){
                         _knowledge.put(chess.chessStringView(winner),actualTurn);
@@ -65,7 +65,7 @@ public class Knowledge{
                     chess.applyMovement(actualTurn.first,actualTurn.second,null);
                     movementCounter++;
                     if(itTurns.hasNext()){
-                        actualTurn = itTurns.next();
+                        actualTurn = itTurns.next().moveAsPair();
                         chess.applyMovement(actualTurn.first,actualTurn.second,null);
                         movementCounter++;
                     }
@@ -78,7 +78,7 @@ public class Knowledge{
                     chess.applyMovement(actualTurn.first,actualTurn.second,null);
                     movementCounter++;
                     if(itTurns.hasNext()){
-                        actualTurn = itTurns.next();
+                        actualTurn = itTurns.next().moveAsPair();
                         actualTurn = reversePosition(actualTurn,chess);
                         chess.applyMovement(actualTurn.first,actualTurn.second,null);
                         movementCounter++;
