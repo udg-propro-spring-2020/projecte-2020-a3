@@ -387,7 +387,7 @@ public class Chess implements Cloneable {
             }
         }else{
             for(int i=origin.row(); i>destiny.row(); i--){
-                System.out.println(i+" "+origin.col());
+                //System.out.println(i+" "+origin.col());
                 if(board[i][origin.col()] != null && board[i][origin.col()]!=pieceToMove){
                     if(actMovement.canJump()==2){
                         if(diferentOwnerPiece(pieceToMove, board[i][origin.col()]))
@@ -791,7 +791,7 @@ public class Chess implements Cloneable {
         changePiecesList(origin,destiny,deadPieces);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
-        pintarLlistes();
+        //pintarLlistes();
         //this.isEqual(ch);
         //copyChessTurn();
         /*if(actualTurn==2)
