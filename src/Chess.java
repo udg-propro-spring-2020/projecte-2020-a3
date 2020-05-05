@@ -106,8 +106,22 @@ public class Chess implements Cloneable {
         Position p5=new Position(5,3);*/
         //applyMovement(p4,p5,null);
         //destinyWithValues(p2);
-
-       //System.out.println(showBoard());
+        /*Position p1=new Position(6,7);
+        Position p2=new Position(4,7);
+        applyMovement(p1,p2,null);
+        Position p5=new Position(4,7);
+        Position p6=new Position(3,7);
+        applyMovement(p5,p6,null);
+        destinyWithValues(p6);
+        Position p7=new Position(3,7);
+        Position p8=new Position(2,7);
+        applyMovement(p7,p8,null);
+        System.out.println("HOLA");
+        destinyWithValues(p8);*//*
+        Position p1=new Position(4,7);
+        Position p2=new Position(3,7);
+        applyMovement(p1,p2,null);*/
+        System.out.println(showBoard());
     }
 
     Chess copy(Chess c){
@@ -857,15 +871,20 @@ public class Chess implements Cloneable {
             }
             i++;    
         }
+        System.out.println(deadPieces.size());
         if(deadPieces!=null){
             for(int j=0; j<deadPieces.size(); j++){
                 i=0;
                 search=true;
                 while(i<listToRemoveOn.size() && search){
                     if(listToRemoveOn.get(i).second.equals(deadPieces.get(j))){
-                        //System.out.println("He matat "+listToRemoveOn.get(i).second.type().ptName());
+                        System.out.println("Matare al peo en i:"+listToRemoveOn.get(i).first);
                         listToRemoveOn.remove(i);
+                        System.out.println("Peo en i :"+listToRemoveOn.get(i).first);
                         search = false;
+                        for(int x=0;x<pListBlack.size();x++){
+                            System.out.println("Piece: "+pListBlack.get(x).second.type().ptName()+"   Pos "+pListBlack.get(x).first.toString());
+                        }
                     }
                     i++;
                 }
@@ -908,15 +927,19 @@ public class Chess implements Cloneable {
         int value = 0;        
         Piece p = board[origin.row()][origin.col()];
         List<Movement> movesToRead = new ArrayList<Movement>(); 
-        //System.out.println("Li toca a "+p.type().ptName());
+        /*for(int i=0;i<pListWhite.size();i++){
+            System.out.println(pListWhite.get(i).first.row()+" "+pListWhite.get(i).first.col()+" "+pListWhite.get(i).second.type().ptName());
+        }
+        System.out.println("Li toca a "+origin.row()+" "+origin.col());
+        System.out.println("Li toca a "+p.type().ptName());*/
         movesToRead=p.pieceMovements();
         if(!p.hasMoved())
             p.toggleMoved();   
-        
+        /*
         for(int i=0; i<movesToRead.size(); i++){
             Movement mov = movesToRead.get(i);
-            //System.out.println(p.type().ptName()+" "+mov.movX()+" "+mov.movY());
-        }
+            System.out.println(p.type().ptName()+" "+mov.movX()+" "+mov.movY());
+        }*/
        // movesToRead.addAll(p.type().ptMovements());
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
@@ -1011,7 +1034,7 @@ public class Chess implements Cloneable {
                     //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
-        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
