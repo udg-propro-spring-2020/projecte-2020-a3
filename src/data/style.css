@@ -1,0 +1,21 @@
+* {
+	-fx-background-color: #f4f4f4;
+}
+
+.btn { 
+	-fx-padding: 0.4em 0.6em;
+	-fx-margin: 50 75;
+	-fx-font-size: 14px;
+	-fx-background-radius: 25;
+	-jfx-button-type: RAISED;
+	-fx-pref-width: 200;
+	-fx-text-fill: WHITE;
+}
+
+.btn-exit {
+	-fx-background-color: rgb(253, 59, 59);
+}
+
+.btn-primary {
+	-fx-background-color: rgb(77,102,204);
+}
