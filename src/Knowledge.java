@@ -43,49 +43,50 @@ public class Knowledge{
     public Knowledge(List<Pair<List<Turn>, PieceColor>> games,Chess chess){
         
         _knowledge = new HashMap<String,Pair<Position,Position>>();
-        games.forEach((game)->{
+        
+            games.forEach((game)->{
             int movementCounter = 0;
             PieceColor winner = game.second;
-
+            Chess chessCopy = (Chess)chess.clone();
+            
             Iterator<Turn> itTurns = game.first.iterator();
             Pair<Position,Position> actualTurn = null;
 
             if(winner==PieceColor.Black){
                 actualTurn = itTurns.next().moveAsPair();
-                actualTurn = reversePosition(actualTurn,chess);
-                chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                actualTurn = reversePosition(actualTurn,chessCopy);
+                chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
                 movementCounter++;
             }
             while(itTurns.hasNext()){
                 actualTurn = itTurns.next().moveAsPair();
                 if(winner==PieceColor.White){
-                    if(!_knowledge.containsKey(chess)){
-                        _knowledge.put(chess.chessStringView(winner),actualTurn);
+                    if(!_knowledge.containsKey(chessCopy)){
+                        _knowledge.put(chessCopy.chessStringView(winner),actualTurn);
                     }
-                    chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                    chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
                     movementCounter++;
                     if(itTurns.hasNext()){
                         actualTurn = itTurns.next().moveAsPair();
-                        chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
                         movementCounter++;
                     }
                 }
                 else{
-                    actualTurn = reversePosition(actualTurn,chess);
-                    if(!_knowledge.containsKey(chess)){
-                        _knowledge.put(chess.chessStringView(winner),actualTurn);
+                    actualTurn = reversePosition(actualTurn,chessCopy);
+                    if(!_knowledge.containsKey(chessCopy)){
+                        _knowledge.put(chessCopy.chessStringView(winner),actualTurn);
                     }
-                    chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                    chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
                     movementCounter++;
                     if(itTurns.hasNext()){
                         actualTurn = itTurns.next().moveAsPair();
-                        actualTurn = reversePosition(actualTurn,chess);
-                        chess.applyMovement(actualTurn.first,actualTurn.second,null);
+                        actualTurn = reversePosition(actualTurn,chessCopy);
+                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
                         movementCounter++;
                     }
                 }
             }
-            while(movementCounter>0){chess.undoMovement();movementCounter--;}
         }); 
     }
 
