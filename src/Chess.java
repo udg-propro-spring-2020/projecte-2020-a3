@@ -80,26 +80,29 @@ public class Chess implements Cloneable {
         //hashCode();
         //Position p=new Position(7,1);
         //Position p2=new Position(3,0)/*
-       /* board[1][7]=null;
+        //board[7][5]=null;
+        //board[1][7]=null;
         //board[6][3]=board[7][3];
         //board[6][2]=null;
-        board[0][6]=null;
+        /*board[0][6]=null;
         board[0][3]=null;
-        board[1][3]=null;
-        Position p1=new Position(6,3);
-        Position p2=new Position(1,3);
+        board[1][3]=null;*/
+        /*Position p1=new Position(6,4);
+        Position p2=new Position(5,4);
         applyMovement(p1,p2,null);
-        Position p3=new Position(6,1);
-        Position p4=new Position(4,1);
+        Position p3=new Position(0,1);
+        Position p4=new Position(2,2);
         applyMovement(p3,p4,null);
-        Position p5=new Position(3,0);
-        Position p6=new Position(4,1);
-        List<Position> lp = new ArrayList<Position>();
-        lp.add(p6);
+        Position p7=new Position(7,4);
+        Position p8=new Position(6,4);
+        applyMovement(p7,p8,null);        
+        /*Position p5=new Position(2,2);
+        Position p6=new Position(4,3);
+        applyMovement(p5,p6,null);/*
         //applyMovement(p5,p6,lp);
         System.out.println(showBoard());
         System.out.println(isEscac(PieceColor.Black));*/
-        System.out.println(this.castlings.get(0).toJSON());
+        //System.out.println(this.castlings.get(0).toJSON());
         //System.out.println(showBoard());
         //applyMovement(p,p2,null);
         /*Position p4=new Position(7,3);
@@ -524,83 +527,117 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if the piece can promote
      */
-    private boolean canPromote(Piece pOrig, Position destiny){
+    private boolean canPromote(Position origin){
+        Piece pOrig = board[origin.row()][origin.col()];
         boolean promote = false;
-        if((pOrig.color()==PieceColor.White && destiny.row()==rows()) || (pOrig.color()==PieceColor.Black && destiny.row()==0)){
+        if((pOrig.color()==PieceColor.White && origin.row()==rows()) || (pOrig.color()==PieceColor.Black && origin.row()==0)){
             promote = pOrig.type().ptPromotable();
         }
         return promote;
     }
-/*
+
     private boolean kingCanMove(List<Pair<Position,Piece>> lc){
         boolean found = false;
-        Position posKing;
-        Pair<List<MoveAction>,List<Position>> check = new Pair<List<MoveAction>,List<Position>>();
+        boolean canMove = false;
+        Position posKing = new Position(0,0);
+        int i = 0;
+        Pair<List<MoveAction>,List<Position>> check = new Pair<>(new ArrayList<MoveAction>(), new ArrayList<Position>());
         while(i<lc.size() && !found){
             if(lc.get(i).second.type().ptName().charAt(0)=='R'){
                 posKing = lc.get(i).first;
                 found = true;
             }
+            i++;
+            //System.out.println("550. El rei esta a "+posKing.toString());
         }
-        List<movement> mov = pKing.pieceMovements();
-        for(int j=0; j<mov.size(); j++){
-            //if(destinyInLimits(posKing))
-            Position destiny = new Position(posKing+mov.movX(), posK)
-            check = checkMovement(posKing, )
+        List<Movement> moves = board[posKing.row()][posKing.col()].pieceMovements();
+        for(int j=0; j<moves.size(); j++){
+            Movement mov = moves.get(j);
+            if(destinyInLimits(posKing.row()+mov.movX(), posKing.col()+mov.movY())){
+                Position destiny = new Position(posKing.row()+mov.movX(), posKing.col()+mov.movY());
+                check = checkMovement(posKing, destiny);
+                System.out.println("559.El rei vol anar a "+destiny.toString());
+                //for(int x = 0; x<check.first.size(); x++){
+                if(check.first.get(0)==MoveAction.Correct) canMove = true;
+            }
         }
+        return canMove;
     }
-*/
-    public boolean isEscacIMat(PieceColor pc){
+
+    private boolean canKillDangerousPiece(List<Pair<Position,Piece>> lc, Position dangerousPiecePos){
+        //System.out.println("canKill");
+        boolean canBeKilled = false;
+        boolean found = false;
+        Pair<List<MoveAction>,List<Position>> check = new Pair<>(new ArrayList<MoveAction>(), new ArrayList<Position>());
+        int i=0;
+        while(i<lc.size() && !found){
+            List<Movement> moves = lc.get(i).second.pieceMovements();
+            Position pos = lc.get(i).first;
+            //System.out.println(pos.toString());
+            for(int j=0; j<moves.size(); j++){
+                Movement mov = moves.get(j);
+                if(destinyInLimits(pos.row()+mov.movX(), pos.col()+mov.movY())){
+                    Position destiny = new Position(pos.row()+mov.movX(), pos.col()+mov.movY());
+                    check = checkMovement(pos, destiny);
+                    //for(int x = 0; x<check.first.size(); x++){
+                    if(check.first.get(0)==MoveAction.Correct){
+                        //System.out.println(destiny.toString()+" vs "+dangerousPiecePos.toString());
+                        if(destiny.row() == dangerousPiecePos.row() && destiny.col() == dangerousPiecePos.col()){
+                            canBeKilled = true;
+                            //System.out.println("582. Puc salvar al rei");
+                        }
+                    }
+                }
+            }
+            i++;
+        }
+        return canBeKilled;
+        //Si desti de mov i can kill o a la list de check hi ha la pos de la dangerousPiece, GG
+    }
+    public boolean isEscacIMat(List<Pair<Position,Piece>> listToCheck, Position dangerousPiece){
         /*
         - moure rei
-        - moure peça al mig (nomes possible si hi ha 1 escac)
-        - matar peça que amenaça (nomes possible si hi ha 1 escac)
-         */
-        /*boolean escacIMatKing = false;
-        boolean pKingCanMove = true;
+        - moure peça al mig 
+        - matar peça que amenaça 
+        */
+        boolean escacIMatKing = false;
+        boolean pKingCanMove = false;
+        boolean pCanBeKilled = false;
+        boolean pCanBlockWay = false;
         int nEscacs = 0;
         boolean found = false;
         int i = 0;
         
-        List<Pair<Position,Piece>> listToCheck;
-        if(pc == PieceColor.White)
-            listToCheck = pListWhite;
-        else 
-            listToCheck = pListBlack;
-
-        pKingCanMove = kingCanMove();
-        if(kingCanMove){
-
-        }else{
-            
-        }*/
-        return true;
-        
+        pKingCanMove = kingCanMove(listToCheck);
+        if(!pKingCanMove){
+            //System.out.println("588. Puc mourem");
+            pCanBeKilled = canKillDangerousPiece(listToCheck, dangerousPiece);
+        }
+        return (pKingCanMove || pCanBeKilled);
     }
     /*
      * @brief Checks if escac
      * @pre --
      * @post Return if escac
      */
-    public boolean isEscac(PieceColor pc){
+    public boolean isEscac(List<Pair<Position,Piece>> listToCheck){
+        System.out.println("597. Miro si es escac");
         boolean escacKing = false;
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
-        List<Pair<Position,Piece>> listToCheck = new ArrayList<Pair<Position,Piece>>();
-        if(pc == PieceColor.White)
-            listToCheck = pListWhite;
-        else 
-            listToCheck = pListBlack;
         
         listToCheck.forEach((p)->allMovesWithValues.add(destinyWithValues(p.first)));
         
         int i = 0;
         while(i<allMovesWithValues.size() && !found){
+            //System.out.println("............");
             //System.out.println(i);
             List<Pair<Position, Integer>> listValues = new ArrayList<Pair<Position, Integer>>();
             listValues = allMovesWithValues.get(i);
             int j = 0;
+            //System.out.println(board[listValues.get(j).first.row()][listValues.get(j).first.col()]);
             while(j<listValues.size()){
+                //System.out.println("617. "+board[listValues.get(j).first.row()][listValues.get(j).first.col()]+" "+listValues.get(j).first.toString()+" "+listValues.get(j).second);
                // System.out.println(j);
                 if(listValues.get(j).second == 100){
                     escacKing = true;
@@ -610,6 +647,7 @@ public class Chess implements Cloneable {
             }
             i++;
         }
+        //System.out.println(escacKing);
         return escacKing;
     }
     /*
@@ -685,7 +723,7 @@ public class Chess implements Cloneable {
             while(i < movesToRead.size() && !found){
                 List<Position> piecesToKill = new ArrayList<Position>();
                 Movement actMovement = movesToRead.get(i);         
-                System.out.println(actMovement.movX()+" "+actMovement.movY());            
+                //System.out.println(actMovement.movX()+" "+actMovement.movY());            
                 if((yMove == actMovement.movY() || Math.abs(actMovement.movY()) == unlimitateMove) && (xMove == actMovement.movX() || Math.abs(actMovement.movX()) == unlimitateMove)){                        
                     if(Math.abs(actMovement.movY())==unlimitateMove && Math.abs(actMovement.movX())==unlimitateMove){
                         diagonalCorrect = Math.abs(yMove) == Math.abs(xMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
@@ -709,7 +747,7 @@ public class Chess implements Cloneable {
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && actMovement.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                 if(board[destiny.row()][destiny.col()]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
-                                    System.out.println("La peça que vols matar es teva");
+                                    System.out.println("730. La peça que vols matar es teva");
                                 
                                 }else{
                                     r.first.add(MoveAction.Correct);
@@ -719,10 +757,10 @@ public class Chess implements Cloneable {
                                 }
                             }              
                         }else{
-                            System.out.println("La teva peça no en pot saltar d'altres");
+                            //System.out.println("740. La teva peça no en pot saltar d'altres");
                         }  
                     }else{
-                        System.out.println("La diagonal es incorrecte");
+                        System.out.println("743. La diagonal es incorrecte");
                     }
                 }
             i++; 
@@ -731,12 +769,7 @@ public class Chess implements Cloneable {
         }
         if(r.first.size()==0){
             r.first.add(MoveAction.Incorrect);
-        }else{
-            if(canPromote(board[origin.row()][origin.col()], destiny))
-                r.first.add(MoveAction.Promote);
-            if(isEscac(board[origin.row()][origin.col()].color()))
-                r.first.add(MoveAction.Escac);
-        }   
+        }
         //if(r.first) applyMovement(origin, destiny, r.second);
         /*for(int i=0;i<r.first.size();i++)
             System.out.println(r.first.get(i).toString()); */   
@@ -751,7 +784,6 @@ public class Chess implements Cloneable {
     SET/ADD
     NULL AL TAULER
     LLISTES COPY
-    
     
     */
     public void copyChessTurn(){
@@ -801,7 +833,7 @@ public class Chess implements Cloneable {
 
     public void pintarLlistes(){
 
-        System.out.println("*******************************");
+        System.out.println("************************************************");
         System.out.println("-------------------White------------------------");
         for(int x=0;x<pListWhite.size();x++){
             System.out.println("Piece: "+pListWhite.get(x).second.type().ptName()+"   Pos "+pListWhite.get(x).first.toString());
@@ -810,7 +842,7 @@ public class Chess implements Cloneable {
         for(int x=0;x<pListBlack.size();x++){
             System.out.println("Piece: "+pListBlack.get(x).second.type().ptName()+"   Pos "+pListBlack.get(x).first.toString());
         }
-        System.out.println("*******************************");
+        System.out.println("*************************************************");
     }
     /** @brief Aplica un moviment i fa canvis a les llistes de peces i les seves posicions
 	@pre \p origen i \p desti són posicions vàlides del tauler;
@@ -821,9 +853,10 @@ public class Chess implements Cloneable {
 	d'aquesta posició.
     S'ha modificat la llista de peces corresponent i creat una copia del tauler i peces d'aquest turn
     */
-    public void applyMovement(Position origin, Position destiny, List<Position> deathPositions) {
+    public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> deathPositions) {
         //Chess ch = new Chess(this);
         //System.out.println("actualTurn "+actualTurn);
+        List<MoveAction> r = new ArrayList<MoveAction>();
         List<Piece> deadPieces = new ArrayList<Piece>();
         if (deathPositions != null){
             //deletePiece(board[death.row()][death.col()]);  
@@ -839,13 +872,28 @@ public class Chess implements Cloneable {
         changePiecesList(origin,destiny,deadPieces);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
-        //pintarLlistes();
-        //System.out.println("***************************");
-        //this.isEqual(ch);
-        //copyChessTurn();
-        /*if(actualTurn==2)
-        undoMovement();*/
-            
+
+        //llistes actualitzades
+        List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
+        List<Pair<Position,Piece>> listCounterMove = new ArrayList<Pair<Position,Piece>>();
+        if(board[destiny.row()][destiny.col()].color() == PieceColor.White){
+            listDoingMove = pListWhite;
+            listCounterMove = pListBlack;
+        }
+        else{ 
+            listDoingMove = pListBlack;
+            listCounterMove = pListWhite;
+        }
+        if(canPromote(destiny))
+            r.add(MoveAction.Promote);
+        if(isEscac(listDoingMove)){
+            System.out.println("Hi ha escac");
+            if(isEscacIMat(listCounterMove, destiny))
+                r.add(MoveAction.Escacimat);
+            else
+                r.add(MoveAction.Escac);
+        }   
+        return r;
     }
 
     public void remakeBoard(){
