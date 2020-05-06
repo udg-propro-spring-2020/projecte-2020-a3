@@ -11,17 +11,17 @@ public enum MoveAction {
     public String toString() {
         switch(this) {
             case Correct:
-                return new String("Correcte");
+                return new String("CORRECT");
             case Escac:
-                return new String("Escac");
+                return new String("ESCAC");
             case Escacimat:
-                return new String("Escac i mat");
+                return new String("ESCACIMAT");
             case Promote:
-                return new String("Promoció");
+                return new String("PROMOTION");
             case Castling:
-                return new String("Castling");
+                return new String("CASTLING");
             default:
-                return new String("Incorrecte");
+                return new String("INCORRECT");
         }
     }
 }

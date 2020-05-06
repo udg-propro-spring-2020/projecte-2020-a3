@@ -99,7 +99,7 @@ public class Chess implements Cloneable {
         //applyMovement(p5,p6,lp);
         System.out.println(showBoard());
         System.out.println(isEscac(PieceColor.Black));*/
-        
+        System.out.println(this.castlings.get(0).toJSON());
         //System.out.println(showBoard());
         //applyMovement(p,p2,null);
         /*Position p4=new Position(7,3);
@@ -316,7 +316,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Chess castilngs
+     * @brief Chess castlings
      * @pre --
      * @post Return the chess castlings
      */
@@ -530,6 +530,52 @@ public class Chess implements Cloneable {
             promote = pOrig.type().ptPromotable();
         }
         return promote;
+    }
+/*
+    private boolean kingCanMove(List<Pair<Position,Piece>> lc){
+        boolean found = false;
+        Position posKing;
+        Pair<List<MoveAction>,List<Position>> check = new Pair<List<MoveAction>,List<Position>>();
+        while(i<lc.size() && !found){
+            if(lc.get(i).second.type().ptName().charAt(0)=='R'){
+                posKing = lc.get(i).first;
+                found = true;
+            }
+        }
+        List<movement> mov = pKing.pieceMovements();
+        for(int j=0; j<mov.size(); j++){
+            //if(destinyInLimits(posKing))
+            Position destiny = new Position(posKing+mov.movX(), posK)
+            check = checkMovement(posKing, )
+        }
+    }
+*/
+    public boolean isEscacIMat(PieceColor pc){
+        /*
+        - moure rei
+        - moure peça al mig (nomes possible si hi ha 1 escac)
+        - matar peça que amenaça (nomes possible si hi ha 1 escac)
+         */
+        /*boolean escacIMatKing = false;
+        boolean pKingCanMove = true;
+        int nEscacs = 0;
+        boolean found = false;
+        int i = 0;
+        
+        List<Pair<Position,Piece>> listToCheck;
+        if(pc == PieceColor.White)
+            listToCheck = pListWhite;
+        else 
+            listToCheck = pListBlack;
+
+        pKingCanMove = kingCanMove();
+        if(kingCanMove){
+
+        }else{
+            
+        }*/
+        return true;
+        
     }
     /*
      * @brief Checks if escac
@@ -755,6 +801,7 @@ public class Chess implements Cloneable {
 
     public void pintarLlistes(){
 
+        System.out.println("*******************************");
         System.out.println("-------------------White------------------------");
         for(int x=0;x<pListWhite.size();x++){
             System.out.println("Piece: "+pListWhite.get(x).second.type().ptName()+"   Pos "+pListWhite.get(x).first.toString());
@@ -763,7 +810,7 @@ public class Chess implements Cloneable {
         for(int x=0;x<pListBlack.size();x++){
             System.out.println("Piece: "+pListBlack.get(x).second.type().ptName()+"   Pos "+pListBlack.get(x).first.toString());
         }
-        System.out.println("*******************************+");
+        System.out.println("*******************************");
     }
     /** @brief Aplica un moviment i fa canvis a les llistes de peces i les seves posicions
 	@pre \p origen i \p desti són posicions vàlides del tauler;
@@ -784,6 +831,7 @@ public class Chess implements Cloneable {
                 Piece deadPiece = board[deathPositions.get(i).row()][deathPositions.get(i).col()]; 
                 deadPieces.add(deadPiece);     
                 board[deathPositions.get(i).row()][deathPositions.get(i).col()] = null;
+                //for(int j=0; j<100; j++)System.out.println("He entrat a matar");
             }
         }
         
@@ -792,6 +840,7 @@ public class Chess implements Cloneable {
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
         //pintarLlistes();
+        //System.out.println("***************************");
         //this.isEqual(ch);
         //copyChessTurn();
         /*if(actualTurn==2)
@@ -900,6 +949,8 @@ public class Chess implements Cloneable {
                     i++;
                 }
             }
+            /*System.out.println("He matat i el jugador negre te un total de peces: "+pListBlack.size());
+            pintarLlistes();*/
         }/*
         for(int j=0;j<listToChange.size();j++){
             System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
