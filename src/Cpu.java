@@ -40,6 +40,7 @@ public class Cpu{
         @c _profundity. (In the actual version just returning minmax)
      */
     public Pair<Position,Position> doMovement(Pair<Position,Position> anteriorMovement){
+        System.out.println("Hola sóc la cpu estic pensant guapo");
         if(_knowledge!=null){
             Pair<Position,Position> movement = _knowledge.buscarConeixament(_chess,_color);
             if(movement!=null){
