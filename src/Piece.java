@@ -9,6 +9,10 @@ import java.util.List;
  */
 
 public class Piece implements JSON, Cloneable {
+    /// ID Generator
+    private static int idGenerator = 0;
+
+    private int id;                 ///> Piece's id
     private PieceType type;         ///> Type of the piece
     private String symbol;          ///> Piece's symbol
     private boolean moved;          ///> Whether the piece has been moved or not
@@ -16,6 +20,7 @@ public class Piece implements JSON, Cloneable {
     private boolean direction;      ///> Piece's direction, true (black), false (white)
 
     Piece(PieceType type, boolean moved, PieceColor color) {
+        this.id = idGenerator;
         this.type = type;
         this.moved = moved;
         this.color = color;
@@ -30,10 +35,13 @@ public class Piece implements JSON, Cloneable {
         this.direction = this.color.toString().equals("NEGRES")
             ? true
             : false;
+        
+        idGenerator++;
     }
 
     /// @brief Default constructor with symbol
     Piece(PieceType type, String symbol, boolean moved, PieceColor color) {
+        this.id = idGenerator;
         this.type = type;
         this.moved = moved;
         this.color = color;
@@ -43,6 +51,8 @@ public class Piece implements JSON, Cloneable {
         this.symbol = color.toString().equals("NEGRES") 
             ? type.ptSymbol().toLowerCase()
             : type.ptSymbol();
+        
+        idGenerator++;
     }
 
     /// @brief Copy constructor
@@ -53,6 +63,7 @@ public class Piece implements JSON, Cloneable {
         if (copy == null) {
             throw new NullPointerException("Copy Piece cannot pass a null element");
         } else {
+            this.id = copy.id;
             this.type = copy.type;
             this.moved = copy.moved;
             this.color = copy.color;
@@ -127,6 +138,17 @@ public class Piece implements JSON, Cloneable {
     /// @post Changes the PieceType value to the given one
     public void promoteType(PieceType p) {
         this.type = p;
+    }
+
+    /// @brief Piece comparator
+    /// @pre ---
+    /// @post Returns if the given piece equals the current
+    /// @throws NullPointerException if the given piece is null
+    public boolean equals(Piece p) throws NullPointerException {
+        if (p == null) {
+            throw new NullPointerException("Piece can not be equal to null");
+        } 
+        return p.id == this.id;
     }
 
     @Override

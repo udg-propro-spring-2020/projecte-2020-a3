@@ -454,7 +454,7 @@ public class ConsoleGame {
 				System.out.println("Vols sortir sense guardar la partida? [S/N]: ");
 				String s = readInputLine(false);
 
-				if (s.toUpperCase().equals("S")) {
+				if (s.toUpperCase().equals("N")) {
 					/// Save game
 					saveGame(chess, "");
 					System.out.println("Partida guardada!");
@@ -629,9 +629,10 @@ public class ConsoleGame {
 					}
 				}
 
-				/* if (!complexList.isEmpty()) {
+				if (!complexList.isEmpty()) {
+					System.out.println("Knowledge Loaded");
 					knowledge = new Knowledge(complexList, chess);
-				} */
+				}
 
 			} else if (!s.toUpperCase().equals("N")) {
 				valid = false;

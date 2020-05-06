@@ -2,6 +2,11 @@
 	-fx-background-color: #f4f4f4;
 }
 
+.pane {
+	-fx-background-image: url("./img/background.jpg");
+	-fx-background-position: center center;
+}
+
 .btn { 
 	-fx-padding: 0.4em 0.6em;
 	-fx-margin: 50 75;
@@ -9,13 +14,24 @@
 	-fx-background-radius: 25;
 	-jfx-button-type: RAISED;
 	-fx-pref-width: 200;
-	-fx-text-fill: WHITE;
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
 
 .btn-exit {
 	-fx-background-color: rgb(253, 59, 59);
+	-fx-text-fill: WHITE;
 }
 
 .btn-primary {
-	-fx-background-color: rgb(77,102,204);
+	-fx-background-color: rgb(255, 255, 255);
+	-fx-text-fill: BLACK;
+}
+
+.title {
+	-fx-font-size: 48px;
+	-fx-font-weight: bold;
+	-fx-fill: WHITE;
+	-fx-stroke: black;
+	-fx-stroke-width: 0.5;
+	-fx-text-alignment: center;
 }
