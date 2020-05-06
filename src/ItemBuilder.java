@@ -6,7 +6,10 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -20,10 +23,22 @@ public class ItemBuilder {
     private static final String BTN_SECONDARY = "btn-secondary";
     private static final String BTN_EXIT = "btn-exit";
     private static final String BTN_ROUNDED = "btn-rounded";
+    private static final String TEXT_TITLE = "title"; 
+    private static final String PANE = "pane";
 
     /// @brief Defines the possible button types
     public static enum BtnType {
         PRIMARY, SECONDARY, EXIT, ROUNDED
+    }
+
+    /// @brief Builds a title
+    /// @pre @p text cannot be null
+    /// @post Returns a text item with the title CSS styling of title
+    public static Text buildTitle(String text) {
+        Text l = new Text(text);
+        l.getStyleClass().add(TEXT_TITLE);
+
+        return l;
     }
 
     /// @brief Builds a default button item
@@ -56,14 +71,49 @@ public class ItemBuilder {
 
     /// @brief Builds a default VBox
     /// @pre @p layout has been initialized
-    /// @post Sets the VBox with the desired properties
-    public static void buildVBox(VBox layout, Double spacing, Collection<? extends Node> children) {
-        layout.setSpacing((spacing == null) ? 12.0 : spacing);
-        layout.getStylesheets().add(CSS_LOCATION);
+    /// @post Sets the VBox with the desired properties. If @p hasBackground is true
+    ///       adds the pane class
+    public static VBox buildVBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
+        VBox layout = new VBox();
+        
+        if (hasBackground) {
+            layout.getStyleClass().add(PANE);
+        }
+        layout.setSpacing((spacing == null) ? 24.0 : spacing);
         layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
         layout.setAlignment(Pos.CENTER);
-
         layout.getChildren().addAll(children);
+
+        return layout;
+    }
+
+    /// @brief Builds a default HBox
+    /// @pre ---
+    /// @post Returns a HBox with the desired properties. If @p hasBackground is true
+    ///       adds the pane class
+    public static HBox buildHBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
+        HBox layout = new HBox();
+
+        if (hasBackground) {
+            layout.getStyleClass().add(PANE);
+        }
+        layout.setSpacing((spacing == null) ? 24.0 : spacing);
+        layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
+        layout.setAlignment(Pos.CENTER);
+        layout.getChildren().addAll(children);
+
+        return layout;
+    }
+
+    /// @brief Builds a default Scene
+    /// @pre @p layout has been initialized
+    /// @post Returns a scene of the current layout and with the default
+    ///       CSS styles
+    public static Scene buildScene(Pane layout) {
+        Scene scene = new Scene(layout);
+        scene.getStylesheets().add(CSS_LOCATION);
+        
+        return scene;
     }
 
     /// @brief Builds a pop up window and shows it 
