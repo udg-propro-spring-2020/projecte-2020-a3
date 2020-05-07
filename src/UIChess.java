@@ -10,9 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -26,14 +24,24 @@ public class UIChess extends Application {
     private static final String DEF_IMG_LOCATION = "./data/img/";
     private static final int IMG_PIXELS = 60;
 
+    private static final String SELECTED_CSS = "selected";
+    private static final String UNSELECTED_CSS = "unselected";
+
     /// Game Control Options
     private static Stage window;
     private static String choosenConfigFile = null;
+    private static int cpuDifficulty = 0;
     private static List<String> knowledgeFiles = null;
+    private static GameState lastGameState = GameState.GAME_INIT;
 
     /// @brief Defines the type of the match currently playing
     private static enum GameType {
-        PlayerPlayer, CpuPlayer, CpuCpu
+        PLAYER_PLAYER, CPU_PLAYER, CPU_CPU
+    }
+
+    /// @brief Defines the current applicaton state
+    private static enum GameState {
+        GAME_INIT, GAME_MODE, GAME_TYPE
     }
 
     /// @brief Launches the application
@@ -80,7 +88,18 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         goBackButton.setOnAction(e -> {
-            buildMainScene();
+            System.out.println(lastGameState.toString());
+            switch (lastGameState) {
+                case GAME_INIT: 
+                    buildMainScene();
+                    break;
+                case GAME_MODE:
+                    gameOptions();
+                    break;
+                case GAME_TYPE:
+                    break;
+            }
+            
         });
         list.add(goBackButton);
     }
@@ -94,7 +113,7 @@ public class UIChess extends Application {
         Button defaultGameButton = new Button();
         ItemBuilder.buildButton(
             defaultGameButton,
-            "Iniciar partida",
+            "INICIAR PARTIDA",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.PRIMARY
         );
@@ -107,7 +126,7 @@ public class UIChess extends Application {
         Button configuredGameButton = new Button();
         ItemBuilder.buildButton(
             configuredGameButton,
-            "Preconfigura una partida",
+            "PRECONFIGURA UNA PARTIDA",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.PRIMARY
         );
@@ -120,7 +139,7 @@ public class UIChess extends Application {
         Button loadGameButton = new Button();
         ItemBuilder.buildButton(
             loadGameButton,
-            "Carrega una partida",
+            "CARREGA UNA PARTIDA",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.PRIMARY
         );
@@ -132,7 +151,7 @@ public class UIChess extends Application {
         Button exitGameButton = new Button();
         ItemBuilder.buildButton(
             exitGameButton,
-            "Surt",
+            "SURT",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.EXIT
         );
@@ -153,24 +172,24 @@ public class UIChess extends Application {
         Button playerVsPlayer = new Button();
         ItemBuilder.buildButton(
             playerVsPlayer, 
-            "Jugador vs Jugador", 
+            "JUGADOR VS JUGADOR", 
             MAX_BTN_WIDTH, 
             ItemBuilder.BtnType.PRIMARY
         );
         playerVsPlayer.setOnAction(e -> {
-            setGameUp(GameType.PlayerPlayer);
+            setGameUp(GameType.PLAYER_PLAYER);
         });
         list.add(playerVsPlayer);
 
         Button cpuVsPlayer = new Button();
         ItemBuilder.buildButton(
             cpuVsPlayer, 
-            "CPU vs Jugador", 
+            "CPU VS JUGADOR", 
             MAX_BTN_WIDTH, 
             ItemBuilder.BtnType.PRIMARY
         );
         cpuVsPlayer.setOnAction(e -> {
-            setGameUp(GameType.CpuPlayer);
+            cpuConfiguration(GameType.CPU_PLAYER);
         });
         list.add(cpuVsPlayer);
 
@@ -182,7 +201,7 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.PRIMARY
         );
         cpuVsCpu.setOnAction(e -> {
-            setGameUp(GameType.CpuCpu);
+            cpuConfiguration(GameType.CPU_CPU);
         });
         list.add(cpuVsCpu);
 
@@ -196,22 +215,27 @@ public class UIChess extends Application {
     /// @post Returns a collection with the buttons for the preconfigurated
     ///       game menu
     private static Collection<Node> buildPreconfiguredGameButtons() {
-        FileChooser fc = new FileChooser();
         Collection<Node> list = new ArrayList<>();
-
+        
         Button enterFileBtn = new Button();
         ItemBuilder.buildButton(
             enterFileBtn, 
             "AFEGIR FITXER", 
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.PRIMARY
-        );   
+            );   
         enterFileBtn.setOnAction(
             new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
-                    String file = fc.showOpenDialog(window).getPath();
-                    if (file != null) {
+                    FileChooser fc = new FileChooser();
+                    fc.setInitialDirectory(
+                        new File(System.getProperty("user.dir"))
+                    );
+                    File selected = fc.showOpenDialog(window);
+
+                    if (selected != null) {
+                        String file = selected.getPath();
                         System.out.println(file);
                         choosenConfigFile = file;
                         gameOptions();
@@ -233,6 +257,144 @@ public class UIChess extends Application {
         return list;
     }
 
+    /// @brief Builds the buttons to let the user configure the cpu difficulty and
+    ///        (if wanted) knowledge
+    /// @pre ---
+    /// @post Builds the buttons to allow the user to configure the cpu. If they 
+    ///       want, knowledge can be adde (1 to n files). Before adding, all saved 
+    ///       files from @p knowledgeFiles will be cleared.
+    private static Collection<Node> buildCPUButtons(GameType gameType) {
+        Collection<Node> list = new ArrayList<>();
+
+        Button beginnerBtn = new Button();
+        ItemBuilder.buildButton(
+            beginnerBtn, 
+            "PRINCIPIANT", 
+            MAX_BTN_WIDTH, 
+            ItemBuilder.BtnType.PRIMARY
+        );
+        beginnerBtn.getStyleClass().add(SELECTED_CSS);
+        list.add(beginnerBtn);
+        
+        Button intermediateBtn = new Button();
+        ItemBuilder.buildButton(
+            intermediateBtn, 
+            "NORMAL", 
+            MAX_BTN_WIDTH, 
+            ItemBuilder.BtnType.PRIMARY
+        );
+        intermediateBtn.getStyleClass().add(UNSELECTED_CSS);
+        list.add(intermediateBtn);
+                
+        Button advancedBtn = new Button();
+        ItemBuilder.buildButton(
+            advancedBtn, 
+            "DIFICIL", 
+            MAX_BTN_WIDTH, 
+            ItemBuilder.BtnType.PRIMARY
+        );
+        advancedBtn.getStyleClass().add(UNSELECTED_CSS);
+        list.add(advancedBtn);
+
+        Button addKnowledgeBtn = new Button();
+        ItemBuilder.buildButton(
+            addKnowledgeBtn,
+            "CONEIXEMENT",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.SECONDARY
+        );
+        addKnowledgeBtn.setOnAction(
+            new EventHandler<ActionEvent>(){
+                @Override
+                public void handle(ActionEvent event) {
+                    FileChooser fc = new FileChooser();
+                    fc.setInitialDirectory(
+                        new File(System.getProperty("user.dir"))
+                    );
+                    List<File> selected = fc.showOpenMultipleDialog(window);
+
+                    if (selected != null) {
+                        List<String> files = new ArrayList<>();
+                        System.out.println("Knowledge Added Files:");
+                        for (File f : selected) {
+                            files.add(f.getPath());
+                            System.out.println(f.getPath());
+                        }
+                        if (knowledgeFiles != null) {
+                            knowledgeFiles.clear();
+                        }
+                        knowledgeFiles = files;
+                        gameOptions();
+                    }
+                }
+            }
+        );
+        list.add(addKnowledgeBtn);
+
+        Button continueBtn = new Button();
+        ItemBuilder.buildButton(
+            continueBtn,
+            "CONTINUA",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.PRIMARY
+        );
+        continueBtn.setOnAction(e -> {
+            setGameUp(gameType);
+        });
+        list.add(continueBtn);
+        
+        /// Handle choosen difficulty
+        beginnerBtn.setOnAction(e -> {
+            if (advancedBtn.getStyleClass().contains(SELECTED_CSS)) {
+                advancedBtn.getStyleClass().remove(SELECTED_CSS);
+                advancedBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (intermediateBtn.getStyleClass().contains(SELECTED_CSS)) {
+                intermediateBtn.getStyleClass().remove(SELECTED_CSS);
+                intermediateBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (!beginnerBtn.getStyleClass().contains(SELECTED_CSS)) {
+                beginnerBtn.getStyleClass().remove(SELECTED_CSS);
+                beginnerBtn.getStyleClass().add(SELECTED_CSS);
+                cpuDifficulty = 2;
+            }
+        });
+        intermediateBtn.setOnAction(e -> {
+            if (advancedBtn.getStyleClass().contains(SELECTED_CSS)) {
+                advancedBtn.getStyleClass().remove(SELECTED_CSS);
+                advancedBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (beginnerBtn.getStyleClass().contains(SELECTED_CSS)) {
+                beginnerBtn.getStyleClass().remove(SELECTED_CSS);
+                beginnerBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (!intermediateBtn.getStyleClass().contains(SELECTED_CSS)) {
+                intermediateBtn.getStyleClass().remove(SELECTED_CSS);
+                intermediateBtn.getStyleClass().add(SELECTED_CSS);
+                cpuDifficulty = 4;
+            }
+        });
+        advancedBtn.setOnAction(e -> {
+            if (intermediateBtn.getStyleClass().contains(SELECTED_CSS)) {
+                intermediateBtn.getStyleClass().remove(SELECTED_CSS);
+                intermediateBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (beginnerBtn.getStyleClass().contains(SELECTED_CSS)) {
+                beginnerBtn.getStyleClass().remove(SELECTED_CSS);
+                beginnerBtn.getStyleClass().add(UNSELECTED_CSS);
+            }
+            if (!advancedBtn.getStyleClass().contains(SELECTED_CSS)) {
+                advancedBtn.getStyleClass().remove(SELECTED_CSS);
+                advancedBtn.getStyleClass().add(SELECTED_CSS);
+                cpuDifficulty = 6;
+            }
+        });
+
+        addGoBackButton(list);
+
+        return list;
+    }
+
     /// @brief Function that displays the game options scene
     /// @pre ---
     /// @post Displays the game options and loads the desired game mode
@@ -247,10 +409,20 @@ public class UIChess extends Application {
     /// @brief Function that displays the preconfigured game options scene
     /// @pre ---
     /// @post Once the file it is entered, goes to the game options
-    private static void preconfiguredGame() {
+    private static void preconfiguredGame() {        
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("PARTIDA \nPRE-CONFIGURADA"));
         list.addAll(buildPreconfiguredGameButtons());
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        window.setScene(s);
+    }
+
+    private static void cpuConfiguration(GameType gameType) {
+        lastGameState = GameState.GAME_MODE;
+        
+        Collection<Node> list = new ArrayList<>();
+        list.add(ItemBuilder.buildTitle("DEFINEIX LA CPU"));
+        list.addAll(buildCPUButtons(gameType));
         Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
         window.setScene(s);
     }
@@ -261,7 +433,7 @@ public class UIChess extends Application {
     ///       configures the game to be played (cpu, knowledge and what's needed)
     private static void setGameUp(GameType gameType) {
         switch (gameType) {
-            case PlayerPlayer:
+            case PLAYER_PLAYER:
                 try {
                     String res = null;
                     if (choosenConfigFile == null) {
@@ -274,10 +446,10 @@ public class UIChess extends Application {
                     System.out.println("Error");
                 }
                 break;
-            case CpuPlayer:
+            case CPU_PLAYER:
                 
                 break;
-            case CpuCpu:
+            case CPU_CPU:
                 break;
         }
     }

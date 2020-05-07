@@ -122,7 +122,7 @@ public class ConsoleGame {
 		System.out.println("+---- ESCULL LA DIFICULTAT ----+");
 		System.out.println("|                              |");
 		System.out.println("|    1. Principiant            |");
-		System.out.println("|    2. Intermedi              |");
+		System.out.println("|    2. Normal                 |");
 		System.out.println("|    3. Difícil                |");
 		System.out.println("|    0. Sortir                 |");
 		System.out.println("|                              |");
@@ -505,14 +505,10 @@ public class ConsoleGame {
 					/// Create positions with the read strings
 					Position origin = new Position(oValue);
 					Position dest = new Position(dValue);
-					Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(origin, dest);
+					Pair<List<MoveAction>, List<Position>> checkResult = chess.checkMovement(origin, dest);
 
-					if (chess.isEscac(oppositeColor(currTurnColor)) && lastTurnCheck) {
-						/// Player's king still in danger
-						/// Cancel movement
-						System.out.println("Has de moure el rei!");
-					} else if (moveResult.first.contains(MoveAction.Correct)) {
-						chess.applyMovement(origin, dest, moveResult.second);
+					if (checkResult.first.contains(MoveAction.Correct)) {
+						List<MoveAction> moveResult = chess.applyMovement(origin, dest, checkResult.second);
 
 						/// If the user has undone x movements, and not redone all of them
 						/// then the match mus continue from that and all the movements after the
@@ -524,21 +520,21 @@ public class ConsoleGame {
 							}
 						}
 
-						if (moveResult.first.contains(MoveAction.Promote)) {
+						if (moveResult.contains(MoveAction.Promote)) {
 							/// Handle promotion
 							handlePromotion(chess, dest);
 						}
 
 						/// Save turn
 						saveTurn(
-							moveResult.first,
+							moveResult,
 							new Pair<String, String>(
 								origin.toString(),
 								dest.toString()
 							)
 						);
 
-						if (moveResult.first.contains(MoveAction.Escacimat)) {
+						if (moveResult.contains(MoveAction.Escacimat)) {
 							/// End of game
 							System.out.println("Escac i mat de " + currTurnColor.toString());
 							result = "E";
@@ -554,17 +550,6 @@ public class ConsoleGame {
 		}
 		
 		return result;
-	}
-
-	/// @brief Returns the opposite color from the given PieceColor
-	/// @pre ---
-	/// @post Returns white if color == black and viceversa
-	private static PieceColor oppositeColor(PieceColor color) {
-		if (color == PieceColor.White) {
-			return PieceColor.Black;
-		} else {
-			return PieceColor.White;
-		}
 	}
 
 	/// @brief Asks for the cpu difficulty and returns the equivalent
