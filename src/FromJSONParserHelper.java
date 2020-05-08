@@ -28,59 +28,81 @@ public class FromJSONParserHelper {
         return configFileName;
     }
 
-    /// @brief Builds a chess with the given configuration
+    /// @brief Builds a chess with the given configuration file
     /// @pre ---
-    /// @post Creates a chess game with the given configuration form the JSON file
-    public static Chess buildChess(String fileLocation) throws FileNotFoundException {
+    /// @post Builds a chess with the given configuration file
+    /// @throws Exception If some of the file content is not in the correct format
+    ///         or there is an incoherence 
+    public static Chess buildChess(String fileLocation) throws FileNotFoundException, Exception {
+        Scanner in = new Scanner(new File(fileLocation));
+        /// Skip first {
+        in.nextLine();
+        int nRows = getInt(in.nextLine());
+        if (nRows < 4 || nRows > 16) {
+            throw new Exception("El fitxer conté un nombre no vàlid de files");
+        }
+        int nCols = getInt(in.nextLine());
+        if (nCols < 4 || nCols > 16) {
+            throw new Exception("El fitxer conté un nombre no vàlid de columnes");
+        }
+
+        /// Skip two lines
+        in.nextLine();
+        in.nextLine();
+        List<PieceType> typeList = getListPieceTypes(in);
+
+        /// Next two lines
+        in.nextLine();
+        in.nextLine();
+        List<String> initialPos = getListStrings(in); // ? Needed
+        if (illegalPieceName(initialPos, typeList)) {
+            throw new Exception("Les posicions inicials contenen una peça que no es troba al llistat de tipus de peces.");
+        }
+
+        int chessLimits = getInt(in.nextLine());
+        int inactiveLimits = getInt(in.nextLine());
+
+        /// Castlings
+        List<Castling> castlings = new ArrayList<>();
+        if (!getString(in.nextLine()).equals("[]")) {
+            /// If castlings list is not empty
+            castlings = getListCastlings(in, typeList);
+        }
+        
+        /// Close scanner
+        in.close();
+
+        return new Chess(nRows, nCols, typeList, initialPos, chessLimits, inactiveLimits, castlings);
+    }
+
+    /// @brief Builds a chess with the given configuration and game developement
+    /// @pre ---
+    /// @post Creates a chess game with the given configuration and game
+    ///       developement form the JSON file
+    /// @throws Exception If some of the file content is not in the correct format
+    ///         or there is an incoherence
+    public static Chess buildSavedChessGame(String fileLocation) throws FileNotFoundException, Exception {
         Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
         mainSc.nextLine();
         /// Get the file location
         String configFileName = getString(mainSc.nextLine());
 
-        /// LOADING FILE CONFIGURATION FROM FILE
-        Scanner configSc = new Scanner(new File(configFileName));
-        /// Skip first {
-        configSc.nextLine();
-        int nRows = getInt(configSc.nextLine());
-        int nCols = getInt(configSc.nextLine());
-
-        /// Skip two lines
-        configSc.nextLine();
-        configSc.nextLine();
-        List<PieceType> typeList = getListPieceTypes(configSc);
-
-        /// Next two lines
-        configSc.nextLine();
-        configSc.nextLine();
-        List<String> initialPos = getListStrings(configSc); // ? Needed
-
-        int chessLimits = getInt(configSc.nextLine());
-        int inactiveLimits = getInt(configSc.nextLine());
-
-        /// Castlings
-        List<Castling> castlings = new ArrayList<>();
-        if (!getString(configSc.nextLine()).equals("[]")) {
-            /// If castlings list is not empty
-            castlings = getListCastlings(configSc);
-        }
-        
-        /// Close scanner
-        configSc.close();
-        /// END OF FILE CONFIGURATION
+        /// LOADING CHESS CONFIGURATION FROM FILE
+        Chess chess = buildChess(configFileName);
 
         /// INITIAL POSITIONS
         /// Read initial white positions
         List<Pair<Position, Piece>> whiteInitPos = !getString(mainSc.nextLine()).equals("[]")
-            ? getInitialPositionList(mainSc, typeList, PieceColor.White)    /// If not empty, read the list
-            : new ArrayList<>();                                            /// If empty, create an empty list
+            ? getInitialPositionList(mainSc, chess.typeList(), PieceColor.White)    /// If not empty, read the list
+            : new ArrayList<>();                                                    /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
         /// Read initial white positions
         List<Pair<Position, Piece>> blackInitPos = !getString(mainSc.nextLine()).equals("[]")
-            ? getInitialPositionList(mainSc, typeList, PieceColor.Black)    /// If not empty, read the list
-            : new ArrayList<>();                                            /// If empty, create an empty list
+            ? getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black)    /// If not empty, read the list
+            : new ArrayList<>();                                                    /// If empty, create an empty list
         /// Skip ],
         mainSc.nextLine();
 
@@ -99,8 +121,7 @@ public class FromJSONParserHelper {
         mainSc.close();
 
         /// Create Chess
-        return new Chess(nRows, nCols, chessLimits, inactiveLimits, typeList, initialPos, castlings, whiteInitPos,
-                blackInitPos, nextTurnColor, turnList);
+        return new Chess(chess, whiteInitPos, blackInitPos, nextTurnColor, turnList);
     }
 
     /// @biref Gets the game developement
@@ -179,7 +200,14 @@ public class FromJSONParserHelper {
             /// Can jump
             int jump = Integer.parseInt(fr.nextLine().trim().replace(",", ""));
 
-            mList.add(new Movement(x, y, capture, jump));
+            /// Check if movement already exists
+            Movement temp = new Movement(x, y, capture, jump);
+            if (illegalMovement(temp, mList)) {
+                System.err.println("Dos moviments tenen el mateix vector de desplaçament.");
+                System.out.println("El segon moviment queda exclòs.");
+            } else {
+                mList.add(temp);
+            }
             s = fr.nextLine().trim();
         }
         return mList;
@@ -262,7 +290,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the castling list from the file
     /// @pre ---
     /// @post Returns the JSON castling list which can be empty
-    private static List<Castling> getListCastlings(Scanner fr) {
+    private static List<Castling> getListCastlings(Scanner fr, List<PieceType> types) {
         /// Skip {
         fr.nextLine();
         List<Castling> cList = new ArrayList<>();
@@ -278,7 +306,12 @@ public class FromJSONParserHelper {
             boolean stand = getString(fr.nextLine()).equals("true") ? true : false;
             boolean emptyMiddle = getString(fr.nextLine()).equals("true") ? true : false;
 
-            cList.add(new Castling(aPiece, bPiece, stand, emptyMiddle));
+            if (illegalType(aPiece, types) || illegalType(bPiece, types)) {
+                System.err.println("Un enroc conté una peça que no es troba a la llista de tipus peça - Exclòs.");
+            } else {
+                cList.add(new Castling(aPiece, bPiece, stand, emptyMiddle));
+            }
+
             s = fr.nextLine().trim();
         }
         return cList;
@@ -348,5 +381,63 @@ public class FromJSONParserHelper {
         }
 
         return turnList;
+    }
+
+    /// @brief Checks if the name corresponds to a piece type
+    /// @pre ---
+    /// @post Returns true if the name does not exist in the @p types list
+    private static boolean illegalType(String name, List<PieceType> types) {
+        for (PieceType type : types) {
+            if (type.ptName() == name) { 
+                return false;
+            }
+        }
+
+        /// If it reaches here, means the name is not valid
+        return true;
+    }
+
+    /// @brief Checks if there's a piece name that is not a pieceType
+    /// @pre ---
+    /// @post Returns true if there's a piece name that is not a pieceType
+    private static boolean illegalPieceName(List<String> initPositions, List<PieceType> types) {
+        if (initPositions != null && types == null||
+                (!initPositions.isEmpty() && types.isEmpty())) {
+            return true;
+        } else if ((initPositions == null && types == null) ||
+                        (initPositions.isEmpty() && types.isEmpty())) {
+            return true;
+        } else {
+            List<Boolean> exists = new ArrayList<>(initPositions.size());
+            for (int i = 0; i < initPositions.size(); i++) {
+                String name = initPositions.get(i);
+                if (!illegalType(name, types)) {
+                    exists.set(i, true);
+                }
+            }
+
+            /// If does not contain false, all piece names exist and are correct
+            return exists.contains(false);
+        }
+    }
+
+    /// @brief Checks if there's a movement which contains a moving vector
+    ///        equal as one already existent
+    /// @pre ---
+    /// @post Returns true if there's a movement with the same moving vector as 
+    ///       the @p temp movement
+    private static boolean illegalMovement(Movement temp, List<Movement> list) {
+        boolean existent = false;
+        int i = 0;
+        while (!existent && i < list.size()) {
+            Movement m = list.get(i);
+            if (m.movX() == temp.movX() && m.movY() == temp.movY()) {
+                existent = true;
+            }
+            i++;
+        }
+
+
+        return existent;
     }
 }

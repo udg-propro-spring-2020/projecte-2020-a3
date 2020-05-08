@@ -28,7 +28,7 @@ public class ConsoleGame {
 	private static boolean lastTurnCheck = false;
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "./data/default_game.json";
+	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";
 	private static String SAVED_GAMES_LOCATION = "./saved_games/";
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
@@ -43,7 +43,7 @@ public class ConsoleGame {
 			switch (readOption()) {
 				case 1:
 					System.out.println("Creant una partida normal...");
-					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(DEFAULT_CONFIGURATION);
+					defaultConfigFileName = DEFAULT_CONFIGURATION;
 					initiateGame(FromJSONParserHelper.buildChess(DEFAULT_CONFIGURATION));
 					break;
 				case 2:
@@ -60,7 +60,9 @@ public class ConsoleGame {
 			}
 		} catch (FileNotFoundException f) {
 			System.out.println(f.getMessage());
-		} 
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	/// @brief Shows the menu options
@@ -186,16 +188,16 @@ public class ConsoleGame {
 					validFileLocation = true;
 				} else {
 					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
-					Chess chess = FromJSONParserHelper.buildChess(fileLocation);
+					Chess chess = null;
+					chess = FromJSONParserHelper.buildChess(fileLocation);
 
+					/// Check if the match has started
 					if (hasStarted) {
 						/// Get the match information
-						/// Check if the match has started
-						Pair<List<Turn>, PieceColor> complexPair = FromJSONParserHelper.matchInformation(fileLocation);
-						List<Turn> auxList = complexPair.first;
+						List<Turn> auxList = FromJSONParserHelper.matchInformation(fileLocation).first;
 
 						if (!auxList.isEmpty()) {
-							auxList.forEach((t) -> {
+							for (Turn t : auxList) {
 								Pair<Position, Position> temp = t.moveAsPair();
 
 								/// Apply movements to the game
@@ -206,7 +208,7 @@ public class ConsoleGame {
 
 								/// Add the turn
 								turns.add(t);
-							});
+							}
 						}
 					}
 
@@ -217,9 +219,10 @@ public class ConsoleGame {
 					initiateGame(chess);
 				}
 			} catch (FileNotFoundException e) {
-				/// Keep asking for files
-				System.out.println("Nom del fitxer no vàlid. \n");
-			} 
+				System.err.println(e);
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+			}
 		}
 	}
 
