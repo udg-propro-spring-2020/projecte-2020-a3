@@ -22,13 +22,12 @@ public class ItemBuilder {
     private static final String BTN_PRIMARY = "btn-primary";
     private static final String BTN_SECONDARY = "btn-secondary";
     private static final String BTN_EXIT = "btn-exit";
-    private static final String BTN_ROUNDED = "btn-rounded";
     private static final String TEXT_TITLE = "title"; 
     private static final String PANE = "pane";
 
     /// @brief Defines the possible button types
     public static enum BtnType {
-        PRIMARY, SECONDARY, EXIT, ROUNDED
+        PRIMARY, SECONDARY, EXIT
     }
 
     /// @brief Builds a title
@@ -63,8 +62,6 @@ public class ItemBuilder {
             case EXIT:
                 btn.getStyleClass().add(BTN_EXIT);
                 break;
-            case ROUNDED:
-                btn.getStyleClass().add(BTN_ROUNDED);
         }
 
     }
