@@ -22,6 +22,7 @@ public class FromJSONParserHelper {
         mainSc.nextLine();
         /// Get the file location
         String configFileName = getString(mainSc.nextLine());
+        System.out.println("25 -> " + configFileName);
         /// Closing file scanner
         mainSc.close();
 
@@ -35,6 +36,7 @@ public class FromJSONParserHelper {
     ///         or there is an incoherence 
     public static Chess buildChess(String fileLocation) throws FileNotFoundException, Exception {
         Scanner in = new Scanner(new File(fileLocation));
+        System.err.println("I break here! 54");
         /// Skip first {
         in.nextLine();
         int nRows = getInt(in.nextLine());
@@ -106,7 +108,7 @@ public class FromJSONParserHelper {
         /// Skip ],
         mainSc.nextLine();
 
-        /// Next turn
+        /* /// Next turn
         PieceColor nextTurnColor = getString(mainSc.nextLine()).toLowerCase().equals("blanques") 
             ? PieceColor.White
             : PieceColor.Black;
@@ -114,14 +116,14 @@ public class FromJSONParserHelper {
         /// Read turns
         List<Turn> turnList = !getString(mainSc.nextLine()).equals("[]") 
             ? getTurnList(mainSc)                                           /// If not empty, read the list
-            : new ArrayList<>();                                            /// If empty, create an empty list
+            : new ArrayList<>();                                            /// If empty, create an empty list */
 
         /// Next lines are not necessaruy
         /// Close scanner
         mainSc.close();
 
         /// Create Chess
-        return new Chess(chess, whiteInitPos, blackInitPos, nextTurnColor, turnList);
+        return new Chess(chess, whiteInitPos, blackInitPos);
     }
 
     /// @biref Gets the game developement
@@ -130,7 +132,8 @@ public class FromJSONParserHelper {
     ///       list of turns and the winning piece color.
     public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation) throws FileNotFoundException {
         Scanner in = new Scanner(new File(fileLocation));
-
+        System.out.println(fileLocation);
+        System.out.println(new File(fileLocation).exists());
         /// Skip 167 lines
         for (int i = 0; i < 167; i++) {
             in.nextLine();
@@ -320,9 +323,10 @@ public class FromJSONParserHelper {
     /// @pre Gets the initial positios list fro the file 
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
-    ///       the piece type.
+    ///       the piece type
+    /// @throws Exception If there's a piece in the list that does not exist as a piece type
     private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes,
-            PieceColor color) {
+            PieceColor color) throws Exception {
         /// Skip {
         fr.nextLine();
         List<Pair<Position, Piece>> pList = new ArrayList<>();
@@ -343,6 +347,10 @@ public class FromJSONParserHelper {
                     type = pt;
                     break;
                 }
+            }
+
+            if (type == null) {
+                throw new Exception("Una peça del llistat de posicions inicials no existeix als tipus de peça.");
             }
 
             boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
@@ -388,12 +396,13 @@ public class FromJSONParserHelper {
     /// @post Returns true if the name does not exist in the @p types list
     private static boolean illegalType(String name, List<PieceType> types) {
         for (PieceType type : types) {
-            if (type.ptName() == name) { 
+            if (type.ptName().equals(name)) { 
                 return false;
             }
         }
 
         /// If it reaches here, means the name is not valid
+        System.err.println(name);
         return true;
     }
 
@@ -401,17 +410,22 @@ public class FromJSONParserHelper {
     /// @pre ---
     /// @post Returns true if there's a piece name that is not a pieceType
     private static boolean illegalPieceName(List<String> initPositions, List<PieceType> types) {
-        if (initPositions != null && types == null||
-                (!initPositions.isEmpty() && types.isEmpty())) {
+        if (initPositions != null && types == null|| (!initPositions.isEmpty() && types.isEmpty())) {
             return true;
-        } else if ((initPositions == null && types == null) ||
-                        (initPositions.isEmpty() && types.isEmpty())) {
+        } else if ((initPositions == null && types == null) || (initPositions.isEmpty() && types.isEmpty())) {
             return true;
         } else {
-            List<Boolean> exists = new ArrayList<>(initPositions.size());
+            /// List of false
+            List<Boolean> exists = new ArrayList<>();
+            for (int i = 0; i < initPositions.size(); i++) {
+                exists.add(false);
+            }
+
+            System.err.println(initPositions.size());
             for (int i = 0; i < initPositions.size(); i++) {
                 String name = initPositions.get(i);
                 if (!illegalType(name, types)) {
+                    System.err.println(i);
                     exists.set(i, true);
                 }
             }
@@ -436,7 +450,6 @@ public class FromJSONParserHelper {
             }
             i++;
         }
-
 
         return existent;
     }
