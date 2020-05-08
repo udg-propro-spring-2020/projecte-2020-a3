@@ -22,15 +22,14 @@ public class Chess implements Cloneable {
     private List<Pair<Position, Piece>> whiteInitPos;
     private List<Pair<Position, Piece>> blackInitPos;
     private List<Castling> castlings;
+    private List<Turn> turnList;
+    private PieceColor nextTurnColor;
     private Piece[][] board;
     private List<Piece[][]> boardArray;
     private int actualTurn;
     private List<List<Pair<Position, Piece>>> whitePiecesTurn;
     private List<List<Pair<Position, Piece>>> blackPiecesTurn;
     private final static int unlimitateMove = 50; //es pot moure les caselles que vulgui
-    
-
-    
     
     //Per ajudar amb coneixement / CPU
     private List<Pair<Position, Piece>> pListWhite;
@@ -45,13 +44,8 @@ public class Chess implements Cloneable {
      * @param pList List of pieces
      * @param castlings Special move
      * @param initPositions Piece's initial default positions
-     * @param whiteInitPos White piece's initial positions
-     * @param blackInitPos Black piece's initial positions
-     * @param nextTurnColor Turn's color
-     * @param turnList Turn's list
      */
-    Chess(int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
-    List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
+    Chess(int rows, int cols, List<PieceType> pList, List<String> initPositions, int chessLimits, int inactiveLimits, List<Castling> castlings) {
         this.rows = rows;
         this.cols = cols;
         this.chessLimits = chessLimits;
@@ -59,20 +53,18 @@ public class Chess implements Cloneable {
         this.pList = pList;
         this.initPositions = initPositions;
         this.castlings = castlings;
-        this.whiteInitPos = whiteInitPos;
-        this.blackInitPos = blackInitPos;
         this.boardArray = new ArrayList<Piece[][]>();
         this.actualTurn = 0;
         this.whitePiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
         this.blackPiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
-
+        this.whiteInitPos = new ArrayList<Pair<Position,Piece>>();
+        this.blackInitPos = new ArrayList<Pair<Position,Piece>>();
+        this.board = new Piece[rows()][cols()];
         this.pListWhite = new ArrayList<Pair<Position, Piece>>();
         this.pListBlack = new ArrayList<Pair<Position, Piece>>();
-        if (this.rows < 4 || this.cols < 4 || this.cols > 16 || this.rows > 16)
-                throw new RuntimeException("El nombre de files i columnes ha de ser entre 4 i 16");
-        board = new Piece[this.rows][this.cols];
         
         //createInitialPositions(whiteInitPos,blackInitPos);
+        createInitPos();
         createBoard();
         //System.out.println(kingPosition(PieceColor.White));
         //Chess ch = this.copy(this);
@@ -125,6 +117,92 @@ public class Chess implements Cloneable {
         Position p2=new Position(3,7);
         applyMovement(p1,p2,null);*/
         System.out.println(showBoard());
+    }
+    Chess(Chess chess, List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, PieceColor nextTurnColor, List<Turn> turnList) {
+        this.rows = chess.rows;
+        this.cols = chess.cols;
+        this.chessLimits = chess.chessLimits;
+        this.inactiveLimits = chess.inactiveLimits;
+        this.pList = chess.pList;
+        this.initPositions = chess.initPositions;
+        this.castlings = chess.castlings;
+        this.boardArray = chess.boardArray;
+        this.actualTurn = chess.actualTurn;
+        this.whitePiecesTurn = chess.whitePiecesTurn;
+        this.blackPiecesTurn = chess.blackPiecesTurn;
+        this.pListWhite = chess.pListWhite;
+        this.pListBlack = chess.pListBlack;
+        this.whiteInitPos = whiteInitPos;
+        this.blackInitPos = blackInitPos;
+        this.nextTurnColor = nextTurnColor;
+        this.turnList = turnList;
+
+        createBoard();
+        //organizeInitialPositions();
+    }
+    
+    private List<PieceType> initPieceType(){
+        boolean found=false;
+        List<PieceType> lpt = new ArrayList<PieceType>();
+        for(int i=0; i<initPositions.size(); i++){
+            int j=0;
+            found=false;
+            while(j<pList.size() && !found){
+                //System.out.println(pList.get(j).ptName()+" "+initPositions.get(i));
+                if(pList.get(j).ptName().equals(initPositions.get(i))){
+                    lpt.add(pList.get(j));
+                    found = true;
+                }
+                j++;
+            }
+        }/*
+        for(int i=0; i<lpt.size(); i++){
+            System.out.println(lpt.get(i));
+        }*/
+        return lpt;
+    }
+
+    private void createInitPos(){
+        List<PieceType> lpt = new ArrayList<PieceType>();
+        lpt = initPieceType();
+        /*for(int i=0; i<lpt.size(); i++){
+            System.out.println(lpt.get(i).ptName());
+        }*/
+        int row=0;
+        int col=0;
+        int aux=0;
+        while(row<2){
+            System.out.println("Row "+row);
+            col=0;
+            while(col<cols()){
+                System.out.println("col "+col);
+                Position wPos = new Position (row,col);
+                Piece wPiece = new Piece(lpt.get(aux), false, PieceColor.White);
+                Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
+                whiteInitPos.add(wPosPiece);
+                pListWhite.add(wPosPiece);
+                col++;
+                aux++;
+            }
+            row++;
+        }
+        row=rows()-1;
+        aux=0;
+        while(row>rows()-3){
+            System.out.println("Row "+row);
+            col=0;
+            while(col<cols()){
+                System.out.println("col "+col);
+                Position bPos = new Position (row,col);
+                Piece bPiece = new Piece(lpt.get(aux), false, PieceColor.Black);
+                Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
+                blackInitPos.add(bPosPiece);
+                pListBlack.add(bPosPiece);
+                col++;
+                aux++;
+            }
+            row--;
+        }
     }
 
     Chess copy(Chess c){
@@ -237,12 +315,15 @@ public class Chess implements Cloneable {
      * @post Every piece is on her board's position
      */
     private void createBoard(){
-        for ( int i=0; i<blackInitPos.size(); i++) {
+        for(int i=0; i<whiteInitPos.size(); i++){
+            System.out.println(whiteInitPos.get(i).first.toString());
+        }
+        for (int i=0; i<blackInitPos.size(); i++) {
             board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
             board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
         }
-        pListWhite = whiteInitPos;
-        pListBlack = blackInitPos;
+        //pListWhite = whiteInitPos;
+        //pListBlack = blackInitPos;
 
         copyChessTurn();
     }
