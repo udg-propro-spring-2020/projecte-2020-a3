@@ -536,6 +536,21 @@ public class Chess implements Cloneable {
         return promote;
     }
 
+
+    /*public boolean saveFromCheck(Position origin, Position destiny){
+        check = checkMovement(origin, destiny);
+        if(check){
+            list = applyMovement();
+            if(list = moveAction.Escac){
+                
+            }
+        }
+        undoMovement();
+        //ha de mirar si la coordenada desti mata a la peça / si el rei no es posa en check de ninguna altre peça enemiga
+        //Seria millor cambiar momentaniament en una var la pos de la peça i comprobar isEscac? Despres deixar de nou com estaba
+        //problema si mata saltant
+        //provem undo / redo
+    }*/
     private boolean kingCanMove(List<Pair<Position,Piece>> lc){
         boolean found = false;
         boolean canMove = false;
@@ -873,6 +888,8 @@ public class Chess implements Cloneable {
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
 
+        copyChessTurn();
+
         //llistes actualitzades
         List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
         List<Pair<Position,Piece>> listCounterMove = new ArrayList<Pair<Position,Piece>>();
@@ -887,7 +904,7 @@ public class Chess implements Cloneable {
         if(canPromote(destiny))
             r.add(MoveAction.Promote);
         if(isEscac(listDoingMove)){
-            System.out.println("Hi ha escac");
+            System.out.println("890. Hi ha escac");
             if(isEscacIMat(listCounterMove, destiny))
                 r.add(MoveAction.Escacimat);
             else
