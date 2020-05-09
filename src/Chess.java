@@ -334,13 +334,13 @@ public class Chess implements Cloneable {
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
-            Position wPos = new Position (whiteInitPos.first.row(),whiteInitPos.first.col());
-            Piece wPiece = new Piece(whiteInitPos.second);
+            Position wPos = new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col());
+            Piece wPiece = new Piece(whiteInitPos.get(i).second);
             Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
             pListWhite.add(wPosPiece);
 
-            Position bPos = new Position (blackInitPos.first.row(),blackInitPos.first.col());
-            Piece bPiece = new Piece(blackInitPos.second);
+            Position bPos = new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col());
+            Piece bPiece = new Piece(blackInitPos.get(i).second);
             Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
             pListBlack.add(bPosPiece);
 
