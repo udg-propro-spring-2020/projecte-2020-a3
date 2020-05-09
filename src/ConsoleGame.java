@@ -187,17 +187,17 @@ public class ConsoleGame {
 					System.out.println("Sortint de l'aplicació...");
 					validFileLocation = true;
 				} else {
-					defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
 					Chess chess = null;
-					chess = FromJSONParserHelper.buildChess(fileLocation);
-
-					/// Check if the match has started
 					if (hasStarted) {
 						/// Get the match information
-						List<Turn> auxList = FromJSONParserHelper.matchInformation(fileLocation).first;
+						chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
+						Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation);
+						List<Turn> turns = info.first;
+						currTurnColor = info.second;
+						
 
-						if (!auxList.isEmpty()) {
-							for (Turn t : auxList) {
+						if (!turns.isEmpty()) {
+							for (Turn t : turns) {
 								Pair<Position, Position> temp = t.moveAsPair();
 
 								/// Apply movements to the game
@@ -210,6 +210,10 @@ public class ConsoleGame {
 								turns.add(t);
 							}
 						}
+					} else {
+						defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
+						chess = FromJSONParserHelper.buildChess(defaultConfigFileName);
+						System.out.println(defaultConfigFileName);
 					}
 
 					/// If it gets here, there will be no exception of file not found
@@ -219,7 +223,7 @@ public class ConsoleGame {
 					initiateGame(chess);
 				}
 			} catch (FileNotFoundException e) {
-				System.err.println(e);
+				System.err.println(e.getMessage());
 			} catch (Exception e) {
 				System.err.println(e.getMessage());
 			}
