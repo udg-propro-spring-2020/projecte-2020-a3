@@ -306,7 +306,6 @@ public class Chess implements Cloneable {
                 Piece wPiece = new Piece(lpt.get(aux), false, PieceColor.White);
                 Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
                 whiteInitPos.add(wPosPiece);
-                pListWhite.add(wPosPiece);
                 col++;
                 aux++;
             }
@@ -321,7 +320,6 @@ public class Chess implements Cloneable {
                 Piece bPiece = new Piece(lpt.get(aux), false, PieceColor.Black);
                 Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
                 blackInitPos.add(bPosPiece);
-                pListBlack.add(bPosPiece);
                 col++;
                 aux++;
             }
@@ -329,20 +327,26 @@ public class Chess implements Cloneable {
         }
     }
 
-    
-
     /*
-     * @brief Creates the board
+     * @brief Creates the board and alive pieces list
      * @pre Piece's initial positions are not empty
-     * @post Every piece is on her board's position
+     * @post Every piece is on her board's position and lists has been created
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
+            Position wPos = new Position (whiteInitPos.first.row(),whiteInitPos.first.col());
+            Piece wPiece = new Piece(whiteInitPos.second);
+            Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
+            pListWhite.add(wPosPiece);
+
+            Position bPos = new Position (blackInitPos.first.row(),blackInitPos.first.col());
+            Piece bPiece = new Piece(blackInitPos.second);
+            Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
+            pListBlack.add(bPosPiece);
+
             board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
             board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
         }
-        //pListWhite = whiteInitPos;
-        //pListBlack = blackInitPos;
 
         copyChessTurn();
     }
