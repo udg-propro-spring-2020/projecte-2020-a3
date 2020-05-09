@@ -143,7 +143,7 @@ public class Chess implements Cloneable {
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
 
-        createBoard();
+        //createBoard();
     }
 
     /*

@@ -22,7 +22,6 @@ public class FromJSONParserHelper {
         mainSc.nextLine();
         /// Get the file location
         String configFileName = getString(mainSc.nextLine());
-        System.out.println("25 -> " + configFileName);
         /// Closing file scanner
         mainSc.close();
 
@@ -36,7 +35,7 @@ public class FromJSONParserHelper {
     ///         or there is an incoherence 
     public static Chess buildChess(String fileLocation) throws FileNotFoundException, Exception {
         Scanner in = new Scanner(new File(fileLocation));
-        System.err.println("I break here! 54");
+        
         /// Skip first {
         in.nextLine();
         int nRows = getInt(in.nextLine());
@@ -108,17 +107,7 @@ public class FromJSONParserHelper {
         /// Skip ],
         mainSc.nextLine();
 
-        /* /// Next turn
-        PieceColor nextTurnColor = getString(mainSc.nextLine()).toLowerCase().equals("blanques") 
-            ? PieceColor.White
-            : PieceColor.Black;
-
-        /// Read turns
-        List<Turn> turnList = !getString(mainSc.nextLine()).equals("[]") 
-            ? getTurnList(mainSc)                                           /// If not empty, read the list
-            : new ArrayList<>();                                            /// If empty, create an empty list */
-
-        /// Next lines are not necessaruy
+        /// Next lines are not necessary
         /// Close scanner
         mainSc.close();
 
@@ -132,8 +121,7 @@ public class FromJSONParserHelper {
     ///       list of turns and the winning piece color.
     public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation) throws FileNotFoundException {
         Scanner in = new Scanner(new File(fileLocation));
-        System.out.println(fileLocation);
-        System.out.println(new File(fileLocation).exists());
+
         /// Skip 167 lines
         for (int i = 0; i < 167; i++) {
             in.nextLine();
@@ -402,7 +390,6 @@ public class FromJSONParserHelper {
         }
 
         /// If it reaches here, means the name is not valid
-        System.err.println(name);
         return true;
     }
 
@@ -421,11 +408,9 @@ public class FromJSONParserHelper {
                 exists.add(false);
             }
 
-            System.err.println(initPositions.size());
             for (int i = 0; i < initPositions.size(); i++) {
                 String name = initPositions.get(i);
                 if (!illegalType(name, types)) {
-                    System.err.println(i);
                     exists.set(i, true);
                 }
             }

@@ -160,14 +160,18 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Returns a read integer which is in the VALID_OPTIONS list
 	private static int readOption() {		
-		int val = 0;
+		int val = -1;
+		boolean success = false;
 		do {
 			try {
 				val = Integer.parseInt(readInputLine(true));
+				if (!(success = VALID_OPTIONS.contains(val))) {
+					System.out.println("Has d'entrar un dels valors de la llista.");
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("Has d'entrar un nombre");
 			} 
-		} while (!VALID_OPTIONS.contains(val));
+		} while (!success);
 
 		return val;
 	}
@@ -177,55 +181,64 @@ public class ConsoleGame {
 	/// @post If the file name from the user is correct, starts the game with that configuration.
 	private static void configuredChessGame(String text, boolean hasStarted) {
 		boolean validFileLocation = false;
-
+		Chess chess = null;
 		while (!validFileLocation) {
 			System.out.println("[Escriu EXIT per sortir]");
 			System.out.println(text);
-			try {
-				String fileLocation = readInputLine(false);
-				if (fileLocation.toUpperCase().equals("EXIT")) {
-					System.out.println("Sortint de l'aplicació...");
-					validFileLocation = true;
-				} else {
-					Chess chess = null;
+
+			String fileLocation = readInputLine(false);
+			if (fileLocation.toUpperCase().equals("EXIT")) {
+				System.out.println("Sortint de l'aplicació...");
+				validFileLocation = true;
+			} else {
+				try {
 					if (hasStarted) {
 						/// Get the match information
 						chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
 						Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation);
-						List<Turn> turns = info.first;
+						List<Turn> loadedTurns = info.first;
 						currTurnColor = info.second;
-						
 
-						if (!turns.isEmpty()) {
-							for (Turn t : turns) {
+						initiateData();
+						if (!loadedTurns.isEmpty()) {
+							for (Turn t : loadedTurns) {
 								Pair<Position, Position> temp = t.moveAsPair();
 
 								/// Apply movements to the game
-								Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(temp.first, temp.second);
+								Pair<List<MoveAction>, List<Position>> checkResult = chess.checkMovement(temp.first, temp.second);
 
 								/// All movements must be right!
-								chess.applyMovement(temp.first, temp.second, moveResult.second);
+								List<MoveAction> moveResult = chess.applyMovement(temp.first, temp.second, checkResult.second);
+								
+								saveTurn(
+									moveResult,
+									new Pair<String, String>(
+										temp.first.toString(),
+										temp.second.toString()
+									)
+								);
 
-								/// Add the turn
-								turns.add(t);
+								toggleTurn();
 							}
 						}
 					} else {
-						defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
+						defaultConfigFileName = fileLocation;
 						chess = FromJSONParserHelper.buildChess(defaultConfigFileName);
 						System.out.println(defaultConfigFileName);
 					}
 
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
-
+					
 					/// Start game
 					initiateGame(chess);
+				} catch (FileNotFoundException e) {
+					System.err.println(e.getMessage());
+				} catch (Exception e) {
+					for (StackTraceElement s : e.getStackTrace()) {
+						System.err.println("\t" + s);
+					}
 				}
-			} catch (FileNotFoundException e) {
-				System.err.println(e.getMessage());
-			} catch (Exception e) {
-				System.err.println(e.getMessage());
 			}
 		}
 	}
@@ -421,11 +434,14 @@ public class ConsoleGame {
 	private static void twoCPUsGame(Chess chess) {
 		System.out.println("NIVELL CPU 1");
 		int diff = cpuDifficulty();
-		Cpu cpu1 = new Cpu(null, chess, diff, PieceColor.White);
-
+		
 		System.out.println("NIVELL CPU 2");
 		diff = cpuDifficulty();
-		Cpu cpu2 = new Cpu(null, chess, diff, PieceColor.Black);
+
+		Knowledge knowledge = cpuKnowledge(chess, "CPU");
+
+		Cpu cpu1 = new Cpu(knowledge, chess, diff, PieceColor.White);
+		Cpu cpu2 = new Cpu(knowledge, chess, diff, PieceColor.Black);
 
 		MoveAction result = null;
 		do {
@@ -841,6 +857,7 @@ public class ConsoleGame {
 		} else {
 			/// Get current turn values
 			chess.undoMovement();
+			toggleTurn();
 			return true;
 		}
 	}
@@ -857,6 +874,7 @@ public class ConsoleGame {
 		} else {
 			/// Get the current turn values
 			chess.redoMovement();
+			toggleTurn();
 			return true;
 		}
 	}
