@@ -324,24 +324,12 @@ public class UIChess extends Application {
                             knowledgeFiles.clear();
                         }
                         knowledgeFiles = files;
-                        gameOptions();
+                        setGameUp(gameType);
                     }
                 }
             }
         );
         list.add(addKnowledgeBtn);
-
-        Button continueBtn = new Button();
-        ItemBuilder.buildButton(
-            continueBtn,
-            "CONTINUA",
-            MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
-        );
-        continueBtn.setOnAction(e -> {
-            setGameUp(gameType);
-        });
-        list.add(continueBtn);
         
         /// Handle choosen difficulty
         beginnerBtn.setOnAction(e -> {

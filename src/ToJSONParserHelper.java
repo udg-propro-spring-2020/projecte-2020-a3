@@ -260,7 +260,7 @@ public class ToJSONParserHelper {
     /// @post Parses the pair list as a JSON object writing the first the position and then the piece
     /// @throw NullPointerException If the @p list is null or contains a null element
     /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
-    private static String initPosListToJSON(List<Pair<Position, Piece>> list, String listName, String identation, Boolean lastItem) throws NullPointerException {
+    public static String initPosListToJSON(List<Pair<Position, Piece>> list, String listName, String identation, Boolean lastItem) throws NullPointerException {
         if (list == null) {
             throw new NullPointerException("initPosListToJSON null value given");
         } else if (!identation.trim().isEmpty()) {
