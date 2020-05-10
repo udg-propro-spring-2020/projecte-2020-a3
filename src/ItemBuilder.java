@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javafx.geometry.Insets;
@@ -8,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
@@ -24,6 +26,7 @@ public class ItemBuilder {
     private static final String BTN_EXIT = "btn-exit";
     private static final String TEXT_TITLE = "title"; 
     private static final String PANE = "pane";
+    private static final String SPACER = "spacer";
 
     /// @brief Defines the possible button types
     public static enum BtnType {
@@ -102,6 +105,18 @@ public class ItemBuilder {
         return layout;
     }
 
+    /// @brief Builds a spacer with the given/default height
+    /// @pre @p spacing > 0
+    /// @post Returns a Region as an empty spacer
+    public static Region buildSpacer(Double spacing) {
+        Region spacer = new Region();
+        
+        spacer.setMinHeight((spacing == null) ? 150 : spacing);
+        spacer.getStyleClass().add(SPACER);
+
+        return spacer;
+    }
+
     /// @brief Builds a default Scene
     /// @pre @p layout has been initialized
     /// @post Returns a scene of the current layout and with the default
@@ -119,27 +134,26 @@ public class ItemBuilder {
     ///       a button, this button will close the pop up
     public static Stage buildPopUp(String title, String text, boolean hasButton) {
         Stage popUp = new Stage();
+        Collection<Node> list = new ArrayList<>();
 
         popUp.initModality(Modality.APPLICATION_MODAL);
-        popUp.setTitle("Error");
-        Label errText = new Label("File location error");
-
-        VBox layout = new VBox(24);
-        layout.getChildren().add(errText);
-        layout.setAlignment(Pos.CENTER);
-        layout.getStylesheets().add(CSS_LOCATION);
+        popUp.setTitle(title);
+        Label errText = new Label(text);
+        list.add(errText);
 
         if (hasButton) {
             Button closeBtn = new Button();
-            buildButton(closeBtn, "EXIT", 75.0, BtnType.EXIT);
+            buildButton(closeBtn, "TORNAR", 125.0, BtnType.EXIT);
             closeBtn.setOnAction(e -> {
                 popUp.close();
             });
 
-            layout.getChildren().add(closeBtn);
+            list.add(closeBtn);
         }
         
-        popUp.setScene(new Scene(layout, 200, 100));
+        VBox layout = buildVBox(12.0, list, false);
+        layout.getStylesheets().add(CSS_LOCATION);
+        popUp.setScene(new Scene(layout));
 
         return popUp;
     }

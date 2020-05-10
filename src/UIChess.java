@@ -10,6 +10,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,6 +24,7 @@ public class UIChess extends Application {
     private static final String DEF_GAME_LOCATION = "./data/default_game.json";
     private static final String DEF_IMG_LOCATION = "./data/img/";
     private static final int IMG_PIXELS = 60;
+    private static final double SPACER_PIXELS = 50.0;
 
     private static final String SELECTED_CSS = "selected";
     private static final String UNSELECTED_CSS = "unselected";
@@ -78,8 +80,11 @@ public class UIChess extends Application {
     
     /// @brief Adds a go back button to a collection
     /// @pre ---
-    /// @post Adds a go back button to the last position of the collection
+    /// @post Adds a go back button to the last position of the collection and a spacer
+    ///       of @p SPACER_PIXELS as height above it
     private static void addGoBackButton(Collection<Node> list) {
+        list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
+
         Button goBackButton = new Button();
         ItemBuilder.buildButton(
             goBackButton,
@@ -94,6 +99,7 @@ public class UIChess extends Application {
                     buildMainScene();
                     break;
                 case GAME_MODE:
+                    lastGameState = GameState.GAME_INIT;
                     gameOptions();
                     break;
                 case GAME_TYPE:
@@ -147,6 +153,8 @@ public class UIChess extends Application {
             setSceneTitle("PARTIDA CARREGADA");
         });
         list.add(loadGameButton);
+
+        list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
 
         Button exitGameButton = new Button();
         ItemBuilder.buildButton(
@@ -228,24 +236,32 @@ public class UIChess extends Application {
             new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
-                    FileChooser fc = new FileChooser();
-                    fc.setInitialDirectory(
-                        new File(System.getProperty("user.dir"))
-                    );
-                    File selected = fc.showOpenDialog(window);
+                    File selected = fileSelector();
 
                     if (selected != null) {
                         String file = selected.getPath();
                         System.out.println(file);
                         choosenConfigFile = file;
-                        gameOptions();
                         String res;
                         try {
+                            System.out.println("HENLO");
                             res = FromJSONParserHelper.buildChess(choosenConfigFile).toString();
-                        } catch(Exception e) {
+                            gameOptions();
+                        } catch(FileNotFoundException e) {
                             res = "Error on openening the file";
-                        }
-                        System.out.println(res);             
+                            ItemBuilder.buildPopUp(
+                                "ERROR",
+                                "Hi ha hagut un error en l'obertura del fitxer. Torna-ho a intentar",
+                                true
+                            ).show();;
+                        } catch (JSONParseFormatException e) {
+                            System.out.println(e.getMessage());
+                            ItemBuilder.buildPopUp(
+                                e.getType(),
+                                "El format del fitxer d'entrada no és el correcte.\nRevisa'l i torna-ho a intentar",
+                                true
+                            ).show();;
+                        } 
                     }
                 }
             }
@@ -295,6 +311,8 @@ public class UIChess extends Application {
         );
         advancedBtn.getStyleClass().add(UNSELECTED_CSS);
         list.add(advancedBtn);
+
+        list.add(ItemBuilder.buildSpacer(SPACER_PIXELS / 3));
 
         Button addKnowledgeBtn = new Button();
         ItemBuilder.buildButton(
@@ -435,7 +453,7 @@ public class UIChess extends Application {
                 }
                 break;
             case CPU_PLAYER:
-                
+                System.out.println("INSIDE CPU_PLAYER");
                 break;
             case CPU_CPU:
                 break;
@@ -450,5 +468,19 @@ public class UIChess extends Application {
         window.setHeight(650.0);
 
         buildMainScene();
+    }
+
+    /// @brief Allows the user to select a file and returns it
+    /// @pre ---
+    /// @post Returns the file selected for the user. If has not selected any, 
+    ///       returns null
+    private static File fileSelector() {
+        FileChooser fc = new FileChooser();
+            fc.setInitialDirectory(
+                new File(System.getProperty("user.dir"))
+            );
+        File selected = fc.showOpenDialog(window);
+
+        return selected;
     }
 }

@@ -59,10 +59,10 @@ public class ConsoleGame {
 					break;
 			}
 		} catch (FileNotFoundException f) {
-			System.out.println(f.getMessage());
+			System.err.println(f.getMessage());
 		} catch (JSONParseFormatException e) {
-			System.out.println(e.getType());
-			System.out.println(e.getMessage());
+			System.err.println(e.getType());
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -150,7 +150,7 @@ public class ConsoleGame {
 				res = br.readLine().trim();
 				success = true;
 			} catch (IOException e) {
-				System.out.println("Error en l'entrada per teclat. Torna-ho a intentar:");
+				System.err.println("Error en l'entrada per teclat. Torna-ho a intentar:");
 			}
 		} while (!success);
 
@@ -170,7 +170,7 @@ public class ConsoleGame {
 					System.out.println("Has d'entrar un dels valors de la llista.");
 				}
 			} catch (NumberFormatException e) {
-				System.out.println("Has d'entrar un nombre");
+				System.err.println("Has d'entrar un nombre");
 			} 
 		} while (!success);
 
@@ -239,8 +239,8 @@ public class ConsoleGame {
 				} catch (FileNotFoundException e) {
 					System.err.println(e.getMessage());
 				} catch (JSONParseFormatException e) {
-					System.out.println(e.getType());
-					System.out.println(e.getMessage());
+					System.err.println(e.getType());
+					System.err.println(e.getMessage());
 				}
 			}
 		}
@@ -639,15 +639,14 @@ public class ConsoleGame {
 							FromJSONParserHelper.matchInformation(location)
 						);
 					} catch (FileNotFoundException e) {
-						System.out.println("Fitxer [" + location + "] no trobat.");
+						System.err.println("Fitxer [" + location + "] no trobat.");
 					} catch (JSONParseFormatException e) {
-						System.out.println(e.getType());
-						System.out.println(e.getMessage());
+						System.err.println(e.getType());
+						System.err.println(e.getMessage());
 					}
 				}
 
 				if (!complexList.isEmpty()) {
-					System.out.println("Knowledge Loaded");
 					knowledge = new Knowledge(complexList, chess);
 				}
 
@@ -968,7 +967,7 @@ public class ConsoleGame {
 		} catch (IOException e) {
 			return null;
 		} catch (NullPointerException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 			return null;
 		}
 	}

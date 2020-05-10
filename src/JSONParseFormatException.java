@@ -12,23 +12,26 @@ public class JSONParseFormatException extends Exception {
         ILLEGAL_NAME,
         ILLEGAL_MOVE,
         ILLEGAL_TYPE,
+        ILLEGAL_COLOR,
         END_OF_GAME;
 
         @Override
         public String toString() {
             switch (this) {
                 case EMPTY_LIST:
-                    return "ERROR 01: Llista buida.";
+                    return "ERROR E1: Llista buida";
                 case ILLEGAL_NUMBER:
-                    return "ERROR 02: Nombre no vàlid.";
+                    return "ERROR I1: Nombre no vàlid";
                 case ILLEGAL_NAME:
-                    return "ERROR 03: Nom de peça no vàlid.";
+                    return "ERROR I2: Nom de peça no vàlid";
                 case ILLEGAL_MOVE:
-                    return "ERROR 04: Moviment no vàlid.";
+                    return "ERROR I3: Moviment no vàlid";
                 case ILLEGAL_TYPE:
-                    return "ERROR 05: Tipus de peça no vàlid.";
+                    return "ERROR I4: Tipus de peça no vàlid";
+                case ILLEGAL_COLOR:
+                    return "ERROR I5: Color no vàlid";
                 default:
-                    return "ERROR 06: Final de partida no vàlid.";
+                    return "ERROR E2: Final de partida no vàlid";
             }
         }
     }
