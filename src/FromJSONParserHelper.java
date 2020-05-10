@@ -60,14 +60,19 @@ public class FromJSONParserHelper {
 
         /// Next two lines
         in.nextLine();
-        in.nextLine();
-        List<String> initialPos = getListStrings(in);
-        if (initialPos.isEmpty()) {
+        String temp = getString(in.nextLine());
+        List<String> initialPos = new ArrayList<>();
+
+        if (!temp.equals("[]")) {
+            initialPos = getListStrings(in);
+        } else {
             throw new JSONParseFormatException(
                 "El llista de posicions incials no pot estar buit.", 
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
             );
-        } else if (illegalPieceName(initialPos, typeList)) {
+        }
+        
+        if (illegalPieceName(initialPos, typeList)) {
             throw new JSONParseFormatException(
                 "Les posicions inicials contenen una peça que no es troba al llistat de tipus de peces.",
                 JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
@@ -202,9 +207,17 @@ public class FromJSONParserHelper {
         }
 
         String s = getString(in.nextLine());
-        PieceColor tempColor = s.contains("BLANQUES") 
+        PieceColor tempColor = s.equals("BLANQUES") 
             ? PieceColor.White
-            : PieceColor.Black;
+            : (s.equals("NEGRES"))
+                ? PieceColor.Black
+                : null;
+        if (tempColor == null) {
+            throw new JSONParseFormatException(
+                "El color del següent torn no és vàlid. Ha de ser \"BLANQUES\" o \"NEGRES\".",
+                JSONParseFormatException.ExceptionType.ILLEGAL_COLOR
+            );
+        }
         
         return new Pair<List<Turn>, PieceColor>(
             turnList,
