@@ -18,6 +18,7 @@
 	-jfx-button-type: RAISED;
 	-fx-pref-width: 200;
 	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+	-fx-cursor: hand;
 }
 
 .btn-exit {
@@ -49,6 +50,10 @@
 .unselected {
 	-fx-background-color: rgba(255, 255, 255, 0.45);
 	-fx-text-fill: BLACK;
+}
+
+.unselected:hover {
+	-fx-background-color: WHITE;
 }
 
 .selected {
