@@ -40,11 +40,10 @@ public class Cpu{
         @c _profundity. (In the actual version just returning minmax)
      */
     public Pair<Position,Position> doMovement(Pair<Position,Position> anteriorMovement){
-        System.out.println("Hola sóc la cpu estic pensant guapo");
         if(_knowledge!=null){
             Pair<Position,Position> movement = _knowledge.buscarConeixament(_chess,_color);
             if(movement!=null){
-                System.out.println("Moviment escollit del coneixament: orig:"+movement.first.toString()+" dest:"+movement.second.toString());
+                System.out.println("(cpu.java:47)Moviment escollit del coneixament: orig:"+movement.first.toString()+" dest:"+movement.second.toString());
                 return movement;
             }
             else return minMax();
@@ -67,7 +66,7 @@ public class Cpu{
         //System.out.println(copia.showBoard());
         Chess taulerCopia = (Chess)_chess.clone();
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
-        System.out.println("Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
+        System.out.println("(cpu.java:70)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
         return movement;
     }
     /** @brief Immersion function for minMaxAlgorsim
@@ -137,14 +136,14 @@ public class Cpu{
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.Black)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
-            tauler.pintarLlistes();
+            //tauler.pintarLlistes();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
         
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 
-                System.out.println("(cpu.java 132)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
-                System.out.println("(cpu.java 133)"+tauler.showBoard());
+                //System.out.println("(cpu.java 132)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
+                //System.out.println("(cpu.java 133)"+tauler.showBoard());
                 
                 List<Pair<Position,Integer>> destinyWithScores=tauler.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();

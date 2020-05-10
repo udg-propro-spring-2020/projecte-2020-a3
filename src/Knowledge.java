@@ -34,7 +34,8 @@ public class Knowledge{
         }
     }*/
 
-    private HashMap<String,Pair<Position,Position>> _knowledge;
+    private HashMap<String,Pair<Position,Position>> _knowledgeWhite;
+    private HashMap<String,Pair<Position,Position>> _knowledgeBlack;
 
     /** @brief Crea el coneixement
     @pre --
@@ -42,10 +43,10 @@ public class Knowledge{
      */
     public Knowledge(List<Pair<List<Turn>, PieceColor>> games,Chess chess){
         
-        _knowledge = new HashMap<String,Pair<Position,Position>>();
+        _knowledgeWhite = new HashMap<String,Pair<Position,Position>>();
+        _knowledgeBlack = new HashMap<String,Pair<Position,Position>>();
         
             games.forEach((game)->{
-            int movementCounter = 0;
             PieceColor winner = game.second;
             Chess chessCopy = (Chess)chess.clone();
             
@@ -53,37 +54,36 @@ public class Knowledge{
             Pair<Position,Position> actualTurn = null;
 
             if(winner==PieceColor.Black){
+                //System.out.println("guanyen negres");
                 actualTurn = itTurns.next().moveAsPair();
-                actualTurn = reversePosition(actualTurn,chessCopy);
+                //actualTurn = reversePosition(actualTurn,chessCopy);
                 chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
-                movementCounter++;
             }
             while(itTurns.hasNext()){
                 actualTurn = itTurns.next().moveAsPair();
                 if(winner==PieceColor.White){
-                    if(!_knowledge.containsKey(chessCopy)){
-                        _knowledge.put(chessCopy.chessStringView(winner),actualTurn);
+                    if(!_knowledgeWhite.containsKey(chessCopy.chessStringView(winner))){
+                        _knowledgeWhite.put(chessCopy.chessStringView(winner),actualTurn);
                     }
                     chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
-                    movementCounter++;
                     if(itTurns.hasNext()){
                         actualTurn = itTurns.next().moveAsPair();
                         chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
-                        movementCounter++;
                     }
                 }
                 else{
-                    actualTurn = reversePosition(actualTurn,chessCopy);
-                    if(!_knowledge.containsKey(chessCopy)){
-                        _knowledge.put(chessCopy.chessStringView(winner),actualTurn);
+                    //System.out.println("situacio:"+chessCopy.chessStringView(winner));
+                    //System.out.println("Posicio guardada: o:"+actualTurn.first.toString()+" d:"+actualTurn.second.toString());
+                    //actualTurn = reversePosition(actualTurn,chessCopy);
+                    //System.out.println("Posicio guardada: o:"+actualTurn.first.toString()+" d:"+actualTurn.second.toString());
+                    if(!_knowledgeBlack.containsKey(chessCopy.chessStringView(winner))){
+                        _knowledgeBlack.put(chessCopy.chessStringView(winner),actualTurn);
                     }
                     chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
-                    movementCounter++;
                     if(itTurns.hasNext()){
                         actualTurn = itTurns.next().moveAsPair();
-                        actualTurn = reversePosition(actualTurn,chessCopy);
+                        //actualTurn = reversePosition(actualTurn,chessCopy);
                         chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
-                        movementCounter++;
                     }
                 }
             }
@@ -96,11 +96,19 @@ public class Knowledge{
     si la troba i actualitza _actual amb el valor del primer node. Altrament retorna null.
     */
     public Pair<Position,Position> buscarConeixament(Chess chess,PieceColor color){
-        if(_knowledge.containsKey(chess.chessStringView(color))){
+        System.out.println("buscant:"+chess.chessStringView(color));
+        /*if(_knowledge.containsKey(chess.chessStringView(color))){
             if(color==PieceColor.White)return _knowledge.get(chess.chessStringView(color));
             else return reversePosition(_knowledge.get(chess.chessStringView(color)),chess);
+        }*/
+        if(color==PieceColor.White){
+            if(_knowledgeWhite.containsKey(chess.chessStringView(color)))return _knowledgeWhite.get(chess.chessStringView(color));
+            else return null;
         }
-        else return null;
+        else{
+            if(_knowledgeBlack.containsKey(chess.chessStringView(color)))return _knowledgeBlack.get(chess.chessStringView(color));
+            else return null;
+        }
     }
 
     /** @brief Comprova la tirada anteriror i retorna la jugada seguent a fer
