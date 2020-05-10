@@ -59,9 +59,10 @@ public class ConsoleGame {
 					break;
 			}
 		} catch (FileNotFoundException f) {
-			System.out.println(f.getMessage());
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			System.err.println(f.getMessage());
+		} catch (JSONParseFormatException e) {
+			System.err.println(e.getType());
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -149,7 +150,7 @@ public class ConsoleGame {
 				res = br.readLine().trim();
 				success = true;
 			} catch (IOException e) {
-				System.out.println("Error en l'entrada per teclat. Torna-ho a intentar:");
+				System.err.println("Error en l'entrada per teclat. Torna-ho a intentar:");
 			}
 		} while (!success);
 
@@ -169,7 +170,7 @@ public class ConsoleGame {
 					System.out.println("Has d'entrar un dels valors de la llista.");
 				}
 			} catch (NumberFormatException e) {
-				System.out.println("Has d'entrar un nombre");
+				System.err.println("Has d'entrar un nombre");
 			} 
 		} while (!success);
 
@@ -193,6 +194,9 @@ public class ConsoleGame {
 			} else {
 				try {
 					if (hasStarted) {
+						/// Save configuration file name
+						defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
+
 						/// Get the match information
 						chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
 						Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation);
@@ -234,10 +238,9 @@ public class ConsoleGame {
 					initiateGame(chess);
 				} catch (FileNotFoundException e) {
 					System.err.println(e.getMessage());
-				} catch (Exception e) {
-					for (StackTraceElement s : e.getStackTrace()) {
-						System.err.println("\t" + s);
-					}
+				} catch (JSONParseFormatException e) {
+					System.err.println(e.getType());
+					System.err.println(e.getMessage());
 				}
 			}
 		}
@@ -490,8 +493,8 @@ public class ConsoleGame {
 
 				break;
 			case "G":
-				saveGame(chess, "");
-				System.out.println("Partida guardada!");
+				String fileName = saveGame(chess, "");
+				System.out.println("Partida guardada amb nom: " + fileName);
 				result = "G";
 				break;
 			case "D":
@@ -533,6 +536,9 @@ public class ConsoleGame {
 					if (checkResult.first.contains(MoveAction.Correct)) {
 						List<MoveAction> moveResult = chess.applyMovement(origin, dest, checkResult.second);
 
+						for (MoveAction m : moveResult) {
+							System.out.println(m.toString());
+						}
 						/// If the user has undone x movements, and not redone all of them
 						/// then the match mus continue from that and all the movements after the
 						/// current turn must be delelted.
@@ -633,12 +639,14 @@ public class ConsoleGame {
 							FromJSONParserHelper.matchInformation(location)
 						);
 					} catch (FileNotFoundException e) {
-						System.out.println("Fitxer [" + location + "] no trobat.");
+						System.err.println("Fitxer [" + location + "] no trobat.");
+					} catch (JSONParseFormatException e) {
+						System.err.println(e.getType());
+						System.err.println(e.getMessage());
 					}
 				}
 
 				if (!complexList.isEmpty()) {
-					System.out.println("Knowledge Loaded");
 					knowledge = new Knowledge(complexList, chess);
 				}
 
@@ -893,21 +901,28 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Prints the game result and saves the game developement
 	private static void endOfGame(Chess chess, boolean draw) {
-		String fileName = null;
+		String res = null;
 		System.out.println("Partida acabada");
 
 		if (draw) {
 			System.out.println("S'han acceptat taules.");
-			fileName = saveGame(chess, "TAULES");
+			res = "TAULES";
 		} else {
 			System.out.println("Guanyador: " + currTurnColor.toString());
-			fileName = saveGame(chess, currTurnColor.toString() + " GUANYEN");
+			res = currTurnColor.toString() + " GUANYEN";
 		}
 
-		if (fileName == null) {
-			System.out.println("Error en guardar la partida!");
-		} else {
-			System.out.println("Partida guardada amb nom: " + fileName);
+		System.out.println("Vols guardar la partida? [S/N]");
+		String s = readInputLine(false);
+		
+		if (s.toUpperCase().equals("S")) {
+			String fileName = saveGame(chess, res);
+			
+			if (fileName == null) {
+				System.out.println("Error en guardar la partida!");
+			} else {
+				System.out.println("Partida guardada amb nom: " + fileName);
+			}
 		}
 	}
 
@@ -952,7 +967,7 @@ public class ConsoleGame {
 		} catch (IOException e) {
 			return null;
 		} catch (NullPointerException e) {
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 			return null;
 		}
 	}
