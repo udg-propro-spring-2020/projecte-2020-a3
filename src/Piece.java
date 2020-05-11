@@ -67,6 +67,7 @@ public class Piece implements JSON, Cloneable {
             this.moved = copy.moved;
             this.color = copy.color;
             this.symbol = copy.symbol;
+            this.direction = copy.direction;
         }
     }
 
