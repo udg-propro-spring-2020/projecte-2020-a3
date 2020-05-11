@@ -34,7 +34,7 @@ public class UIPiece extends StackPane{
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
 
-        /// Handle events
+        /// TODO: Handle events
     }
 
     /// @brief Moves the piece to the center of the tile

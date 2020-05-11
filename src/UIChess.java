@@ -32,7 +32,7 @@ public class UIChess extends Application {
     private static final String MENU = "MENU";
     private static final double MAX_BTN_WIDTH = 300.0;
 
-    private static final String DEF_GAME_LOCATION = "./data/default_game.json";
+    private static final String DEF_GAME_LOCATION = "./data/configuration.json";
     private static final String DEF_IMG_LOCATION = "./data/img/";
     private static final String DEF_WHITE_TILE_LOCATION = "w.png";
     private static final String DEF_BLACK_TILE_LOCATION = "b.png";
@@ -409,6 +409,64 @@ public class UIChess extends Application {
         return list;
     }
 
+    /// @brief Builds the buttons for the in-game options
+    /// @pre ---
+    /// @post Builds the buttons to allow the user to undo, redo, save game and
+    ///       other options the user has while playing the game
+    private Collection<Node> buildInGameButtons() {
+        Collection<Node> list = new ArrayList<>();
+
+        Button undoBtn = new Button();
+        ItemBuilder.buildButton(
+            undoBtn,
+            "DESFER",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.PRIMARY
+        );
+        undoBtn.setOnAction(e -> {
+            System.out.println("Desfent...");
+        });
+        list.add(undoBtn);
+
+        Button redoBtn = new Button();
+        ItemBuilder.buildButton(
+            redoBtn,
+            "REFER",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.PRIMARY
+        );
+        redoBtn.setOnAction(e -> {
+            System.out.println("Refent...");
+        });
+        list.add(redoBtn);
+
+        Button drawBtn = new Button();
+        ItemBuilder.buildButton(
+            drawBtn,
+            "TAULES",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.PRIMARY
+        );
+        drawBtn.setOnAction(e -> {
+            System.out.println("Demanant taules...");
+        });
+        list.add(drawBtn);
+
+        Button saveMatch = new Button();
+        ItemBuilder.buildButton(
+            saveMatch,
+            "GUARDAR PARTIDA",
+            MAX_BTN_WIDTH,
+            ItemBuilder.BtnType.PRIMARY
+        );
+        saveMatch.setOnAction(e -> {
+            System.out.println("Demanant taules...");
+        });
+        list.add(saveMatch);
+
+        return list;
+    }
+
     /// @brief Function that displays the game options scene
     /// @pre ---
     /// @post Displays the game options and loads the desired game mode
@@ -474,8 +532,13 @@ public class UIChess extends Application {
             System.exit(-1);
         }
 
+        /// Set scene
+        Parent p = buildBoard(chess);
+        Scene scene = new Scene(p);
         switch (gameType) {
             case PLAYER_PLAYER:
+                window.setScene(scene);
+                window.sizeToScene();
                 break;
             case CPU_PLAYER:
                 System.out.println("INSIDE CPU_PLAYER");
@@ -522,9 +585,11 @@ public class UIChess extends Application {
         /// Minimum values = 4 * IMG_PIXELS
         /// Maximum values = 16 * IMG_PIXELS
         background.setPrefSize(chess.cols() * IMG_PIXELS, chess.rows() * IMG_PIXELS);
-        /// Initialise variables
+        /// Initialise variables and set to parent
         tiles = new Group();
         pieces = new Group();
+        background.getChildren().addAll(tiles, pieces);
+        
         /// Start creating the board
         for (int i = 0; i < chess.rows(); i++) {
             for (int j = 0; j < chess.cols(); j++) {
@@ -549,11 +614,13 @@ public class UIChess extends Application {
                 /// Check if there's a piece
                 Piece pieceIn = chess.pieceAt(i, j);
                 if (pieceIn != null) {
-                    UIPiece piece = buildPiece(pieceIn, i, j);
+                    UIPiece piece = buildPiece(pieceIn, j, i);
                     pieces.getChildren().add(piece);
                 }
             }
         }
+
+        return background;
     }
 
     /// @brief Constructs a UIPiece object
@@ -562,7 +629,7 @@ public class UIChess extends Application {
     ///       handling configuration
     private UIPiece buildPiece(Piece in, int x, int y) {
         UIPiece piece = new UIPiece(in, IMG_PIXELS, x, y);
-        /// Handle events
+        /// TODO: Handle events
         return piece;
     }
 

@@ -2,7 +2,7 @@
  * @author Miquel de Domingo i Giralt
  * @file Turn.java
  * @class Turn 
- * @brief Helds the information of a turn
+ * @brief Holds the information of a turn
  */
 public class Turn implements JSON, Cloneable {
     private PieceColor color;
