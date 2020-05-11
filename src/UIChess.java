@@ -15,7 +15,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -641,7 +640,7 @@ public class UIChess extends Application {
             title,
             text,
             true
-        ).show();
+        ).showAndWait();
     }
 
     /// @brief Allows the user to select a file and returns it
