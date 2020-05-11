@@ -80,7 +80,7 @@ public class ToJSONParserHelper {
     /// @post Returns a object property String in JSON style ["propName": value],
     ///       ending with a , and next line. If it is a String adds double quotes around
     ///       it
-    /// @throws IllegalArgumentException If @p identation does no contain spaces or tabs
+    /// @throws IllegalArgumentException If @param identation does no contain spaces or tabs
     public static String propertyToJSON(String propName, Object value, Boolean isString, Boolean trailingComa,
             String identation) {
         if (value == null) {
@@ -112,8 +112,8 @@ public class ToJSONParserHelper {
     /// @brief Parses the given value to JSON (adding a trailing coma) identated
     /// @pre ---
     /// @post Returns the given value as a JSON value identated
-    /// @throw NullPointerException If @p value is null
-    /// @throw IllegalArgumentException If @p identation does not contain only spaces or tabs
+    /// @throw NullPointerException If @param value is null
+    /// @throw IllegalArgumentException If @param identation does not contain only spaces or tabs
     public static String valueToJSON(Object value, String identation, Boolean trailingComa) {
         if (value == null) {
             throw new NullPointerException("valueToJSON null value given");
@@ -136,7 +136,7 @@ public class ToJSONParserHelper {
     /// @brief Parses the given value to a JSON string
     /// @pre ---
     /// @post Returns the given value between double quotes
-    /// @throws NullPointerException If @p value is null
+    /// @throws NullPointerException If @param value is null
     public static String valueToJSONString(Object value) {
         if (value == null) {
             throw new NullPointerException("ValueToJSONString null value given.");
@@ -152,8 +152,8 @@ public class ToJSONParserHelper {
     /// @brief Parses the given list to a JSON list
     /// @pre Objects must be indented
     /// @post Parses the given list to a String of a JSON style list
-    /// @throw NullPointerException If the @p list is null or contains a null item
-    /// @thwo IllegalArgumentException If the @p identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @param list is null or contains a null item
+    /// @thwo IllegalArgumentException If the @param identation does not contain only spaces or tabs
     public static String objectListToJSON(String listName, List<? extends JSON> list, Boolean lastItem,
             String identation) {
         if (listName.isEmpty() || listName == null) {
@@ -204,8 +204,8 @@ public class ToJSONParserHelper {
     /// @post Parses the give list containing java primitive types to a String
     ///       of a JSON style list. Objectes indented automatically, inner list elements
     ///       tabbed one more.
-    /// @throw NullPointerException If the @p list is null or contains a null item
-    /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @param list is null or contains a null item
+    /// @throw IllegalArgumentException If the @param identation does not contain only spaces or tabs
     public static String primitiveListToJSON(String listName, List<? extends Object> list, String identation,
             Boolean inQuotes, Boolean lastItem) {
         if (listName.isEmpty() || listName == null) {
@@ -258,8 +258,8 @@ public class ToJSONParserHelper {
     /// @brief Parses a list of pair containing Position & Piece
     /// @pre ---
     /// @post Parses the pair list as a JSON object writing the first the position and then the piece
-    /// @throw NullPointerException If the @p list is null or contains a null element
-    /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @param list is null or contains a null element
+    /// @throw IllegalArgumentException If the @param identation does not contain only spaces or tabs
     private static String initPosListToJSON(List<Pair<Position, Piece>> list, String listName, String identation, Boolean lastItem) throws NullPointerException {
         if (list == null) {
             throw new NullPointerException("initPosListToJSON null value given");

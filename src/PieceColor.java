@@ -1,4 +1,4 @@
-/*
+/**
  * @author Miquel de Domingo i Giralt
  * @file PieceColor.java
  * @class PieceColor

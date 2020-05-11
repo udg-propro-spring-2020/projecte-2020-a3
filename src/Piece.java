@@ -1,13 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * @author Miquel de Domingo i Giralt
  * @file Piece.java
  * @class Piece
  * @brief Holds the information of the piece
  */
-
 public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;
@@ -56,9 +55,9 @@ public class Piece implements JSON, Cloneable {
     }
 
     /// @brief Copy constructor
-    /// @pre @p copy cannot be null
-    /// @post Creates a Piece copy of @p copy
-    /// @throw NullPointerException if @p copy is null
+    /// @pre @param copy cannot be null
+    /// @post Creates a Piece copy of @param copy
+    /// @throw NullPointerException if @param copy is null
     Piece(Piece copy) {
         if (copy == null) {
             throw new NullPointerException("Copy Piece cannot pass a null element");
@@ -68,6 +67,7 @@ public class Piece implements JSON, Cloneable {
             this.moved = copy.moved;
             this.color = copy.color;
             this.symbol = copy.symbol;
+            this.direction = copy.direction;
         }
     }
 
@@ -103,7 +103,14 @@ public class Piece implements JSON, Cloneable {
     /// @pre ---
     /// @post Inverts the value of the moved property
     public void toggleMoved() {
-        this.moved = false;
+        this.moved = !this.moved;
+    }
+
+    /// @brief Toggles the piece direction
+    /// @pre ---
+    /// @post Inverts the value of the direction property
+    public void toggleDirection() {
+        this.direction = !this.direction;
     }
 
     /// @brief Returns the possible movements list from the piece type
@@ -117,7 +124,7 @@ public class Piece implements JSON, Cloneable {
         );
 
         if (!this.moved) {
-            /// Clone it again
+            /// Add initial movements if not has moved
             type.ptInitMovements().forEach(
                 (m) -> temp.add((Movement) m.clone())
             );

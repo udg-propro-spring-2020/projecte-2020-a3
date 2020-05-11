@@ -1,13 +1,12 @@
-/*
+import java.util.ArrayList;
+import java.util.List;
+
+/**
  * @author Miquel de Domingo i Giralt
  * @file PieceType.java
  * @class PieceType
  * @brief Holds the common information of all pieces from the same type
  */
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class PieceType implements JSON, Cloneable {
     private String name;                        /// < Piece name
     private String symbol;                      /// < Piece symbol

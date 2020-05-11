@@ -180,7 +180,7 @@ public class FromJSONParserHelper {
     /// @biref Gets the game developement
     /// @pre ---
     /// @post Reads the game developement from the file. Returns a pair containing a 
-    ///       list of turns and the winning piece color. If @p forKnowledge is true,
+    ///       list of turns and the winning piece color. If @param forKnowledge is true,
     ///       returns the winning color. Otherwise, returns null.
     /// @throws JSONParseFormatException If the file contains an empty turn list
     public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, boolean forKnowledge) 
@@ -472,7 +472,7 @@ public class FromJSONParserHelper {
 
     /// @brief Checks if the name corresponds to a piece type
     /// @pre ---
-    /// @post Returns true if the name does not exist in the @p types list
+    /// @post Returns true if the name does not exist in the @param types list
     private static boolean illegalType(String name, List<PieceType> types) {
         for (PieceType type : types) {
             if (type.ptName().equals(name)) { 
@@ -515,7 +515,7 @@ public class FromJSONParserHelper {
     ///        equal as one already existent
     /// @pre ---
     /// @post Returns true if there's a movement with the same moving vector as 
-    ///       the @p temp movement
+    ///       the @param temp movement
     private static boolean illegalMovement(Movement temp, List<Movement> list) {
         boolean existent = false;
         int i = 0;

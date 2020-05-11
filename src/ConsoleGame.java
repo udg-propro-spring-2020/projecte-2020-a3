@@ -1,7 +1,3 @@
-/*
- * @author Miquel de Domingo i Giralt
- */
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,24 +9,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/* 
+/**
+ * @author Miquel de Domingo i Giralt
+ * @file ConsoleGame.java
  * @class ConsoleGame
- * @brief Class that controls the game played in a console display.
+ * @brief Class that controls the game played in a console display
  */
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
-	private static String defaultConfigFileName = null;
-	private static PieceColor currTurnColor = null;
-	private static Integer turnNumber = null;
-	private static Integer undoCount = null;
-	private static List<Turn> turns = null;
-	private static boolean dataSet = false;
+	private static String defaultConfigFileName = null;				///< Keeps the configuration file name
+	private static PieceColor currTurnColor = null;					///< Current turn color
+	private static Integer turnNumber = null;						///< Current turn number
+	private static Integer undoCount = null;						///< Amount of consequent undo movements
+	private static List<Turn> turns = null;							///< List of turns
+	private static boolean dataSet = false;							///< To know if the data has been initialized
 	private static boolean lastTurnCheck = false;
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";
-	private static String SAVED_GAMES_LOCATION = "./saved_games/";
-	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
+	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
+	private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
+	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
@@ -597,7 +595,7 @@ public class ConsoleGame {
 				break;
 			case 0:
 				System.out.println("Sortint de l'aplicació...");
-				System.exit(0);
+				System.exit(-1);
 			default:
 				difficulty = 2;
 		}
@@ -662,7 +660,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief Changes turn value
-	/// @pre @p currTurnColor != null
+	/// @pre @param currTurnColor != null
 	/// @post Changes currTurnValue to the oposite
 	private static void toggleTurn() {
 		if (currTurnColor == null) {
@@ -675,8 +673,8 @@ public class ConsoleGame {
 	}
 
 	/// @brief Saves turn information
-	/// @pre @p p cannot be null
-	/// @post Creates a new turn with the given movement and increments @p turnNumber.
+	/// @pre @param p cannot be null
+	/// @post Creates a new turn with the given movement and increments @param turnNumber.
 	private static void saveTurn(List<MoveAction> results, Pair<String, String> p) {
 		MoveAction res = null;
 		if (results.contains(MoveAction.Escacimat)) {
@@ -695,7 +693,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief Controls a cpu turn
-	/// @pre @p c & @p cpu cannot be null
+	/// @pre @param c & @param cpu cannot be null
 	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
 	///       returns null.
 	private static MoveAction cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
@@ -888,7 +886,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief To get the last movement of the game
-	/// @pre @p turnNumber > 0
+	/// @pre @param turnNumber > 0
 	/// @post Returns the last movement of the game
 	private static Pair<Position, Position> lastMovement() {
 		return new Pair<Position, Position>(

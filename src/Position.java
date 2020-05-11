@@ -1,4 +1,4 @@
-/*
+/**
  * @author Miquel de Domingo i Giralt
  * @file Position.java
  * @class Position
@@ -22,9 +22,9 @@ public class Position implements JSON, Cloneable {
     }
 
     /// @brief Copy constructor
-    /// @pre @p copy cannot be null
-    /// @post Creates a Position copy of @p copy
-    /// @throw NullPointerException if @p copy is null
+    /// @pre @param copy cannot be null
+    /// @post Creates a Position copy of @param copy
+    /// @throw NullPointerException if @param copy is null
     Position(Position copy) throws NullPointerException{
         if (copy == null) {
             throw new NullPointerException("Copy Position cannot pass a null element");

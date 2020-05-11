@@ -15,22 +15,28 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/// @brief Modular class to keep a constant style along the application
+/**
+ * @author Miquel de Domingo 
+ * @file ItemBuilder.java
+ * @class ItemBuilder
+ * @brief Modular class to keep a constant style along the application
+ */
 public class ItemBuilder {
     /// CONSTANTS
     private static final String CSS_LOCATION = "./data/style.css";
 
     /// CSS CLASSNAME CONSTANTS
-    private static final String BTN_PRIMARY = "btn-primary";
-    private static final String BTN_SECONDARY = "btn-secondary";
-    private static final String BTN_EXIT = "btn-exit";
-    private static final String TEXT_TITLE = "title"; 
-    private static final String PANE = "pane";
-    private static final String SPACER = "spacer";
+    private static final String BTN_PRIMARY = "btn-primary";            ///< Primary button class name
+    private static final String BTN_SECONDARY = "btn-secondary";        ///< Secondary button class name
+    private static final String BTN_ACCENT = "btn-accent";              ///< Secondary button class name
+    private static final String BTN_EXIT = "btn-exit";                  ///< Exit button class name
+    private static final String TEXT_TITLE = "title";                   ///< Title class name
+    private static final String PANE = "pane";                          ///< Pane class name
+    private static final String SPACER = "spacer";                      ///< Spacer class name
 
     /// @brief Defines the possible button types
     public static enum BtnType {
-        PRIMARY, SECONDARY, EXIT
+        PRIMARY, SECONDARY, EXIT, ACCENT
     }
 
     /// @brief Builds a title
@@ -61,6 +67,9 @@ public class ItemBuilder {
                 break;
             case SECONDARY:
                 btn.getStyleClass().add(BTN_SECONDARY);
+                break;
+            case ACCENT:
+                btn.getStyleClass().add(BTN_ACCENT);
                 break;
             case EXIT:
                 btn.getStyleClass().add(BTN_EXIT);
