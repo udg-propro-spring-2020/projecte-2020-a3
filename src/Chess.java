@@ -477,6 +477,15 @@ public class Chess implements Cloneable {
     private boolean diferentOwnerPiece(Piece originPiece, Piece destinyPiece){
         return originPiece.color() != destinyPiece.color();
     }
+
+    /*
+     * @brief Check if there is any piece at specified position
+     * @pre x and y inside the chess limits
+     * @post Return the piece at the specified position or a null if it doesn't exist
+     */
+    public Piece pieceAt(int x, int y){
+        return board[x][y];
+    }
     
 
     /*
