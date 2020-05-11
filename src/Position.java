@@ -2,22 +2,22 @@
  * @author Miquel de Domingo i Giralt
  * @file Position.java
  * @class Position
- * @brief Holds the position information
+ * @brief Holds the position information 
  */
 public class Position implements JSON, Cloneable {
     /// TRANSFORMATION CONSTANTS
     private static String alph = "abcdefghijklmnopqrstuvwxyz";
 
-    private char colLetter; /// < Col character value
-    public int row; /// < Integer row value
-    public int col; /// < Integer column value
-
+    private char colLetter;         ///< Col character value
+    public int row;                 ///< Integer row value
+    public int col;                 ///< Integer column value
+    
     /// @brief Create a positon from the chess coordinates
     /// @pre ---
     /// @post Creates a position from the given coordinates
     Position(int row, int col) {
-        this.row = row;
-        this.col = col;
+	    this.row = row; 
+        this.col = col; 
         colLetter = alph.charAt(col);
     }
 
@@ -25,7 +25,7 @@ public class Position implements JSON, Cloneable {
     /// @pre @param copy cannot be null
     /// @post Creates a Position copy of @param copy
     /// @throw NullPointerException if @param copy is null
-    Position(Position copy) throws NullPointerException {
+    Position(Position copy) throws NullPointerException{
         if (copy == null) {
             throw new NullPointerException("Copy Position cannot pass a null element");
         }
@@ -42,23 +42,23 @@ public class Position implements JSON, Cloneable {
         this.col = alph.indexOf(s.charAt(0));
         this.colLetter = alph.charAt(col);
     }
-
+    
     /// @brief Return the row's value
     /// @pre --
     /// @post Returns the position's row
-    public int row() {
+    public int row(){
         return this.row;
     }
-
+    
     /// @brief Return the col's value
     /// @pre --
     /// @post Returns the position's column
-    public int col() {
+    public int col(){
         return this.col;
     }
 
     @Override
-    public String toJSON() {
+    public String toJSON() {        
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.propertyToJSON("pos", this.toString(), true, true, ToJSONParserHelper.THREE_TABS));
         return s.toString();
@@ -67,7 +67,7 @@ public class Position implements JSON, Cloneable {
     @Override
     public Object clone() {
         Position cloned = null;
-
+        
         try {
             cloned = (Position) super.clone();
         } catch (CloneNotSupportedException c) {
@@ -79,7 +79,9 @@ public class Position implements JSON, Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder value = new StringBuilder().append(colLetter).append(row + 1);
+	    StringBuilder value = new StringBuilder()
+            .append(colLetter)
+            .append(row + 1);
         return value.toString();
     }
 }

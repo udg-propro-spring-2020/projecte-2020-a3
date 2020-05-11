@@ -38,6 +38,12 @@
 	-fx-border-color: rgb(40, 165, 237);
 }
 
+.btn-accent {
+	-fx-background-color: rgb(255, 193, 7);
+	-fx-text-fill: WHITE;
+	-fx-border-color: rgb(255, 193, 7);
+}
+
 .title {
 	-fx-font-size: 48px;
 	-fx-font-weight: bold;
