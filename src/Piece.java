@@ -102,7 +102,14 @@ public class Piece implements JSON, Cloneable {
     /// @pre ---
     /// @post Inverts the value of the moved property
     public void toggleMoved() {
-        this.moved = false;
+        this.moved = !this.moved;
+    }
+
+    /// @brief Toggles the piece direction
+    /// @pre ---
+    /// @post Inverts the value of the direction property
+    public void toggleDirection() {
+        this.direction = !this.direction;
     }
 
     /// @brief Returns the possible movements list from the piece type
@@ -116,7 +123,7 @@ public class Piece implements JSON, Cloneable {
         );
 
         if (!this.moved) {
-            /// Clone it again
+            /// Add initial movements if not has moved
             type.ptInitMovements().forEach(
                 (m) -> temp.add((Movement) m.clone())
             );
