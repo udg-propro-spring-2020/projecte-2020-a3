@@ -11,12 +11,12 @@ public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;
 
-    private int id;                 ///> Piece's id
-    private PieceType type;         ///> Type of the piece
-    private String symbol;          ///> Piece's symbol
-    private boolean moved;          ///> Whether the piece has been moved or not
-    private PieceColor color;       ///> Piece's color
-    private boolean direction;      ///> Piece's direction, true (black), false (white)
+    private int id; /// > Piece's id
+    private PieceType type; /// > Type of the piece
+    private String symbol; /// > Piece's symbol
+    private boolean moved; /// > Whether the piece has been moved or not
+    private PieceColor color; /// > Piece's color
+    private boolean direction; /// > Piece's direction, true (black), false (white)
 
     Piece(PieceType type, boolean moved, PieceColor color) {
         this.id = idGenerator;
@@ -26,15 +26,11 @@ public class Piece implements JSON, Cloneable {
 
         /// Since type symbol will ALWAYS be uppercase, we only nee to change it
         /// if the piece color is black.
-        this.symbol = color.toString().equals("NEGRES") 
-            ? type.ptSymbol().toLowerCase()
-            : type.ptSymbol();
-        
+        this.symbol = color.toString().equals("NEGRES") ? type.ptSymbol().toLowerCase() : type.ptSymbol();
+
         /// Set the direction
-        this.direction = this.color.toString().equals("NEGRES")
-            ? true
-            : false;
-        
+        this.direction = this.color.toString().equals("NEGRES") ? true : false;
+
         idGenerator++;
     }
 
@@ -47,17 +43,15 @@ public class Piece implements JSON, Cloneable {
 
         /// Since type symbol will ALWAYS be uppercase, we only nee to change it
         /// if the piece color is black.
-        this.symbol = color.toString().equals("NEGRES") 
-            ? type.ptSymbol().toLowerCase()
-            : type.ptSymbol();
-        
+        this.symbol = color.toString().equals("NEGRES") ? type.ptSymbol().toLowerCase() : type.ptSymbol();
+
         idGenerator++;
     }
 
     /// @brief Copy constructor
-    /// @pre @p copy cannot be null
-    /// @post Creates a Piece copy of @p copy
-    /// @throw NullPointerException if @p copy is null
+    /// @pre @param copy cannot be null
+    /// @post Creates a Piece copy of @param copy
+    /// @throw NullPointerException if @param copy is null
     Piece(Piece copy) {
         if (copy == null) {
             throw new NullPointerException("Copy Piece cannot pass a null element");
@@ -76,7 +70,7 @@ public class Piece implements JSON, Cloneable {
     public PieceType type() {
         return this.type;
     }
-    
+
     /// @brief To know the piece's symbol value
     /// @pre ---
     /// @post Returns the symbol value
@@ -111,22 +105,16 @@ public class Piece implements JSON, Cloneable {
     public List<Movement> pieceMovements() {
         List<Movement> temp = new ArrayList<>();
         /// Since the object will change, we have to clone it
-        type.ptMovements().forEach(
-            (m) -> temp.add((Movement) m.clone())
-        );
+        type.ptMovements().forEach((m) -> temp.add((Movement) m.clone()));
 
         if (!this.moved) {
             /// Clone it again
-            type.ptInitMovements().forEach(
-                (m) -> temp.add((Movement) m.clone())
-            );
+            type.ptInitMovements().forEach((m) -> temp.add((Movement) m.clone()));
         }
-        
+
         /// Filter data if needed
         if (this.direction) {
-            temp.forEach(
-                (m) -> m.toggleDirection()
-            );
+            temp.forEach((m) -> m.toggleDirection());
         }
 
         return temp;
@@ -146,15 +134,17 @@ public class Piece implements JSON, Cloneable {
     public boolean equals(Piece p) throws NullPointerException {
         if (p == null) {
             throw new NullPointerException("Piece can not be equal to null");
-        } 
+        }
         return p.id == this.id;
     }
 
     @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true, ToJSONParserHelper.THREE_TABS))
-            .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false, ToJSONParserHelper.THREE_TABS));
+        s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true,
+                ToJSONParserHelper.THREE_TABS))
+                .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false,
+                        ToJSONParserHelper.THREE_TABS));
         return s.toString();
     }
 

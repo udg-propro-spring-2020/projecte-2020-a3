@@ -1,3 +1,4 @@
+
 /*
  * @author Miquel de Domingo i Giralt
  */
@@ -31,26 +32,23 @@ public class FromJSONParserHelper {
     /// @brief Builds a chess with the given configuration file
     /// @pre ---
     /// @post Builds a chess with the given configuration file
-    /// @throws JSONParseFormatException If some of the file content is not in the correct format
-    ///         or there is an incoherence 
+    /// @throws JSONParseFormatException If some of the file content is not in the
+    /// correct format
+    /// or there is an incoherence
     public static Chess buildChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         Scanner in = new Scanner(new File(fileLocation));
-        
+
         /// Skip first {
         in.nextLine();
         int nRows = getInt(in.nextLine());
         if (nRows < 4 || nRows > 16) {
-            throw new JSONParseFormatException(
-                "El fitxer conté un nombre no vàlid de files",
-                JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
-            );
+            throw new JSONParseFormatException("El fitxer conté un nombre no vàlid de files",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER);
         }
         int nCols = getInt(in.nextLine());
         if (nCols < 4 || nCols > 16) {
-            throw new JSONParseFormatException(
-                "El fitxer conté un nombre no vàlid de columnes",
-                JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
-            );
+            throw new JSONParseFormatException("El fitxer conté un nombre no vàlid de columnes",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER);
         }
 
         /// Skip two lines
@@ -66,17 +64,14 @@ public class FromJSONParserHelper {
         if (!temp.equals("[]")) {
             initialPos = getListStrings(in);
         } else {
-            throw new JSONParseFormatException(
-                "El llista de posicions incials no pot estar buit.", 
-                JSONParseFormatException.ExceptionType.EMPTY_LIST
-            );
+            throw new JSONParseFormatException("El llista de posicions incials no pot estar buit.",
+                    JSONParseFormatException.ExceptionType.EMPTY_LIST);
         }
-        
+
         if (illegalPieceName(initialPos, typeList)) {
             throw new JSONParseFormatException(
-                "Les posicions inicials contenen una peça que no es troba al llistat de tipus de peces.",
-                JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
-            );
+                    "Les posicions inicials contenen una peça que no es troba al llistat de tipus de peces.",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_TYPE);
         }
 
         int chessLimits = getInt(in.nextLine());
@@ -87,7 +82,7 @@ public class FromJSONParserHelper {
         int inactiveLimits = getInt(in.nextLine());
         if (inactiveLimits < 0) {
             System.err.println("En nombre límit de torns inactius ha de ser superior a 0.");
-            System.err.println("S'ha agafat el valor per defecte [3].");    
+            System.err.println("S'ha agafat el valor per defecte [3].");
         }
 
         /// Castlings
@@ -96,7 +91,7 @@ public class FromJSONParserHelper {
             /// If castlings list is not empty
             castlings = getListCastlings(in, typeList);
         }
-        
+
         /// Close scanner
         in.close();
 
@@ -106,20 +101,20 @@ public class FromJSONParserHelper {
     /// @brief Builds a chess with the given configuration and game developement
     /// @pre ---
     /// @post Creates a chess game with the given configuration and game
-    ///       developement form the JSON file
-    /// @throws JSONParseFormatException If some of the file content is not in the correct format
-    ///         or there is an incoherence
-    public static Chess buildSavedChessGame(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
+    /// developement form the JSON file
+    /// @throws JSONParseFormatException If some of the file content is not in the
+    /// correct format
+    /// or there is an incoherence
+    public static Chess buildSavedChessGame(String fileLocation)
+            throws FileNotFoundException, JSONParseFormatException {
         Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
         mainSc.nextLine();
         /// Get the file location
         String configFileName = getString(mainSc.nextLine());
         if (configFileName.isEmpty()) {
-            throw new JSONParseFormatException(
-                "El fitxer de configuració no pot ser buit",
-                JSONParseFormatException.ExceptionType.ILLEGAL_NAME
-            );
+            throw new JSONParseFormatException("El fitxer de configuració no pot ser buit",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_NAME);
         }
 
         /// LOADING CHESS CONFIGURATION FROM FILE
@@ -131,22 +126,18 @@ public class FromJSONParserHelper {
         if (!getString(mainSc.nextLine()).equals("[]")) {
             whiteInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.White);
         } else {
-            throw new JSONParseFormatException(
-                "El llistat de peces blanques not pot ser buit.",
-                JSONParseFormatException.ExceptionType.EMPTY_LIST
-            );
+            throw new JSONParseFormatException("El llistat de peces blanques not pot ser buit.",
+                    JSONParseFormatException.ExceptionType.EMPTY_LIST);
         }
         /// Skip ],
         mainSc.nextLine();
-        
+
         List<Pair<Position, Piece>> blackInitPos = new ArrayList<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
             whiteInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
         } else {
-            throw new JSONParseFormatException(
-                "El llistat de peces negres not pot ser buit.",
-                JSONParseFormatException.ExceptionType.EMPTY_LIST
-            );
+            throw new JSONParseFormatException("El llistat de peces negres not pot ser buit.",
+                    JSONParseFormatException.ExceptionType.EMPTY_LIST);
         }
         /// Skip ],
         mainSc.nextLine();
@@ -158,16 +149,14 @@ public class FromJSONParserHelper {
         /// Turn list - if there's, skip it
         if (!getString(mainSc.nextLine()).equals("[]")) {
             getTurnList(mainSc);
-        } 
+        }
 
         /// Skip ],
         String finalResult = getString(mainSc.nextLine());
         if (finalResult.contains("GUANYEN")) {
             /// Game has ended
-            throw new JSONParseFormatException(
-                "La partida carregada ja ha finalitzat.",
-                JSONParseFormatException.ExceptionType.END_OF_GAME
-            );
+            throw new JSONParseFormatException("La partida carregada ja ha finalitzat.",
+                    JSONParseFormatException.ExceptionType.END_OF_GAME);
         }
 
         /// Close scanner
@@ -179,12 +168,12 @@ public class FromJSONParserHelper {
 
     /// @biref Gets the game developement
     /// @pre ---
-    /// @post Reads the game developement from the file. Returns a pair containing a 
-    ///       list of turns and the winning piece color. If @p forKnowledge is true,
-    ///       returns the winning color. Otherwise, returns null.
+    /// @post Reads the game developement from the file. Returns a pair containing a
+    /// list of turns and the winning piece color. If @param forKnowledge is true,
+    /// returns the winning color. Otherwise, returns null.
     /// @throws JSONParseFormatException If the file contains an empty turn list
-    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, boolean forKnowledge) 
-        throws FileNotFoundException, JSONParseFormatException {
+    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, boolean forKnowledge)
+            throws FileNotFoundException, JSONParseFormatException {
         Scanner in = new Scanner(new File(fileLocation));
 
         /// Skip 167 lines
@@ -202,34 +191,25 @@ public class FromJSONParserHelper {
             in.nextLine();
         } else {
             throw new JSONParseFormatException(
-                "La partida de la qual s'està intentant llegir informació no conté torns.",
-                JSONParseFormatException.ExceptionType.EMPTY_LIST
-            );
+                    "La partida de la qual s'està intentant llegir informació no conté torns.",
+                    JSONParseFormatException.ExceptionType.EMPTY_LIST);
         }
 
         PieceColor tempColor = null;
         if (forKnowledge) {
             String s = getString(in.nextLine());
-            tempColor = s.contains("BLANQUES") 
-                ? PieceColor.White
-                : (s.contains("NEGRES"))
-                    ? PieceColor.Black
-                    : null;
+            tempColor = s.contains("BLANQUES") ? PieceColor.White : (s.contains("NEGRES")) ? PieceColor.Black : null;
             if (tempColor == null) {
                 throw new JSONParseFormatException(
-                    "El color del guanyador no és vàlid. Ha de ser \"BLANQUES\" o \"NEGRES\".",
-                    JSONParseFormatException.ExceptionType.ILLEGAL_COLOR
-                );
+                        "El color del guanyador no és vàlid. Ha de ser \"BLANQUES\" o \"NEGRES\".",
+                        JSONParseFormatException.ExceptionType.ILLEGAL_COLOR);
             }
         }
 
         /// Close scanner
         in.close();
-        
-        return new Pair<List<Turn>, PieceColor>(
-            turnList,
-            tempColor
-        );
+
+        return new Pair<List<Turn>, PieceColor>(turnList, tempColor);
     }
 
     /// @brief Returns the int from a JSON property
@@ -244,7 +224,7 @@ public class FromJSONParserHelper {
     /// @brief Returns the string from a JSON property
     /// @pre s == "x": "y"
     /// @post Returns the y value as a String without the double quotes, commas and
-    ///       trimmed
+    /// trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
         return values.length < 2 ? "" : values[1].trim();
@@ -253,7 +233,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the movement list from the file
     /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
-    ///       the line where the list ends.
+    /// the line where the list ends.
     private static List<Movement> getListMovements(Scanner fr) {
         String s = fr.nextLine().trim();
         List<Movement> mList = new ArrayList<>();
@@ -290,7 +270,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the string (positions) list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
-    ///       the line where the list ends.
+    /// the line where the list ends.
     private static List<String> getListStrings(Scanner fr) {
         List<String> posList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -305,7 +285,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the piece type list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
-    ///       the line where the list ends.
+    /// the line where the list ends.
     private static List<PieceType> getListPieceTypes(Scanner fr) {
         List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -391,11 +371,12 @@ public class FromJSONParserHelper {
         return cList;
     }
 
-    /// @pre Gets the initial positios list fro the file 
+    /// @pre Gets the initial positios list fro the file
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
-    ///       the piece type
-    /// @throws JSONParseFormatException If there's a piece in the list that does not exist as a piece type
+    /// the piece type
+    /// @throws JSONParseFormatException If there's a piece in the list that does
+    /// not exist as a piece type
     private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes,
             PieceColor color) throws JSONParseFormatException {
         /// Skip {
@@ -422,9 +403,8 @@ public class FromJSONParserHelper {
 
             if (type == null) {
                 throw new JSONParseFormatException(
-                    "Una peça del llistat de posicions inicials no existeix als tipus de peça.",
-                    JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
-                );
+                        "Una peça del llistat de posicions inicials no existeix als tipus de peça.",
+                        JSONParseFormatException.ExceptionType.ILLEGAL_TYPE);
             }
 
             boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
@@ -472,10 +452,10 @@ public class FromJSONParserHelper {
 
     /// @brief Checks if the name corresponds to a piece type
     /// @pre ---
-    /// @post Returns true if the name does not exist in the @p types list
+    /// @post Returns true if the name does not exist in the @param types list
     private static boolean illegalType(String name, List<PieceType> types) {
         for (PieceType type : types) {
-            if (type.ptName().equals(name)) { 
+            if (type.ptName().equals(name)) {
                 return false;
             }
         }
@@ -488,7 +468,7 @@ public class FromJSONParserHelper {
     /// @pre ---
     /// @post Returns true if there's a piece name that is not a pieceType
     private static boolean illegalPieceName(List<String> initPositions, List<PieceType> types) {
-        if (initPositions != null && types == null|| (!initPositions.isEmpty() && types.isEmpty())) {
+        if (initPositions != null && types == null || (!initPositions.isEmpty() && types.isEmpty())) {
             return true;
         } else if ((initPositions == null && types == null) || (initPositions.isEmpty() && types.isEmpty())) {
             return true;
@@ -512,10 +492,10 @@ public class FromJSONParserHelper {
     }
 
     /// @brief Checks if there's a movement which contains a moving vector
-    ///        equal as one already existent
+    /// equal as one already existent
     /// @pre ---
-    /// @post Returns true if there's a movement with the same moving vector as 
-    ///       the @p temp movement
+    /// @post Returns true if there's a movement with the same moving vector as
+    /// the @param temp movement
     private static boolean illegalMovement(Movement temp, List<Movement> list) {
         boolean existent = false;
         int i = 0;
