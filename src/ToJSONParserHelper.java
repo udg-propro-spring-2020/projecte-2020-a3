@@ -40,13 +40,13 @@ public class ToJSONParserHelper {
         StringBuilder s = new StringBuilder();
 
         s.append(OBJ_START)
-            .append(propertyToJSON("nFiles", chess.rows(), false, true, "\t"))
-            .append(propertyToJSON("nCols", chess.cols(), false, true, "\t"))
-            .append(objectListToJSON("peces", chess.typeList(), false, "\t"))
-            .append(primitiveListToJSON("posInicial", chess.initialPositions(), "\t", true, false))
-            .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, "\t"))
-            .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,"\t"))
-            .append(objectListToJSON("enrocs", chess.castlings(), true, "\t"))
+            .append(propertyToJSON("nFiles", chess.rows(), false, true, ONE_TAB))
+            .append(propertyToJSON("nCols", chess.cols(), false, true, ONE_TAB))
+            .append(objectListToJSON("peces", chess.typeList(), false, ONE_TAB))
+            .append(primitiveListToJSON("posInicial", chess.initialPositions(), ONE_TAB, true, false))
+            .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, ONE_TAB))
+            .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,ONE_TAB))
+            .append(objectListToJSON("enrocs", chess.castlings(), true, ONE_TAB))
             .append(OBJ_END);
 
         return s.toString();
@@ -67,7 +67,7 @@ public class ToJSONParserHelper {
             .append(propertyToJSON("fitxerRegles", configurationFile, true, true, ONE_TAB))
             .append(initPosListToJSON(chess.whiteInitPos(), "posIniBlanques", ONE_TAB, false))
             .append(initPosListToJSON(chess.blackInitPos(), "posIniNegres", ONE_TAB, false))
-            .append(propertyToJSON("proper_nom", nextTurn.toString(), true, true, ONE_TAB))
+            .append(propertyToJSON("proper_torn", nextTurn.toString(), true, true, ONE_TAB))
             .append(objectListToJSON("tirades", turns, false, ONE_TAB))
             .append(propertyToJSON("resultat_final", finalResult, true, false, ONE_TAB))
             .append(OBJ_END);
@@ -287,7 +287,6 @@ public class ToJSONParserHelper {
                     .append(OBJ_START)
                     .append(item.first.toJSON())
                     .append(item.second.toJSON())
-                    .append(NEXT_LINE)
                     .append(identation + ONE_TAB)
                     .append(OBJ_END)
                     .append(EOL);
@@ -302,9 +301,9 @@ public class ToJSONParserHelper {
                 .append(OBJ_START)
                 .append(item.first.toJSON())
                 .append(item.second.toJSON())
-                .append(NEXT_LINE)
                 .append(identation + ONE_TAB)
                 .append(OBJ_END)
+                .append(NEXT_LINE)
                 .append(identation)
                 .append(LIST_END);                
         }

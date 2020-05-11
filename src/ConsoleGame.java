@@ -93,6 +93,7 @@ public class ConsoleGame {
 		System.out.println("|      - G: Guardar partida               |");
 		System.out.println("|      - H: Mostrar ajuda                 |");
 		System.out.println("|      - T: Demanar Taules                |");
+		System.out.println("|      - S: Rendir-se                     |");
 		System.out.println("|                                         |");
 		System.out.println("|   [Quan es demana posicion destí]       |");
 		System.out.println("|      - O: Tornar a escollir origen      |");
@@ -355,25 +356,47 @@ public class ConsoleGame {
 			playerOption = playerTurn(chess, rows, cols);
 
 			if (playerOption.equals("T")) {
-				/// Player asks for tables
+				/// PLAYER ASKS FOR TABLES
+				/// Save asking for tables
+				saveEmptyTurn("TAULES SOL·LICITADES", currTurnColor);
+
+				/// Get user response
 				System.out.print("El contrincant demana taules, acceptes? [S/N]: ");
 				String s = readInputLine(false);
 				if (s.toUpperCase().equals("S")) {
+					saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(currTurnColor));
 					playerOption = "E";
 					draw = true;
 				} else {
 					System.out.println("La partida continua.");
 					playerOption = playerTurn(chess, rows, cols);			
 				}
+			} else if (playerOption.equals("S")) {
+				if (currTurnColor == PieceColor.White) {
+					System.out.println(pOne + " es rendeix.");
+				} else {
+					System.out.println(pTwo + " es rendeix.");
+				}
+				playerOption = "G";
+				saveEmptyTurn("RENDICIÓ", currTurnColor);
 			}
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
-			!playerOption.equals("E")
+			!playerOption.equals("E") 
 		);
 
-		if (playerOption.equals("E")) {
-			endOfGame(chess, draw);
+		switch (playerOption) {
+			case "G": {
+				/// Save game
+				String fileName = saveGame(chess, "PARTIDA AJORNADA");
+				System.out.println("Partida guardada amb nom: " + fileName);
+				break;
+			}
+			case "E": {
+				endOfGame(chess, draw);
+				break;
+			}
 		}
 	}
 
@@ -424,6 +447,7 @@ public class ConsoleGame {
 		if (playerOption.equals("E")) {
 			endOfGame(chess, false);
 		} else if (playerOption.equals("T")) {
+			/// If user asks for tables, CPU accepts
 			endOfGame(chess, true);
 		}
 	}
@@ -471,7 +495,6 @@ public class ConsoleGame {
 		boolean originMove = true;
 
 		oValue = readMovement("Coordenada origen (ex. a6)", rows, cols, currTurnColor, chess, originMove);
-
 		switch (oValue) {
 			case "X":
 				/// Ask for saving
@@ -479,9 +502,6 @@ public class ConsoleGame {
 				String s = readInputLine(false);
 
 				if (s.toUpperCase().equals("N")) {
-					/// Save game
-					saveGame(chess, "");
-					System.out.println("Partida guardada!");
 					result = "G";
 				} else {
 					/// Do not save the game
@@ -490,10 +510,11 @@ public class ConsoleGame {
 				}
 
 				break;
-			case "G":
-				String fileName = saveGame(chess, "");
-				System.out.println("Partida guardada amb nom: " + fileName);
-				result = "G";
+			case "G":			/// Save game
+			case "T":			/// Tables
+			case "S":			/// Surrender
+				result = oValue;
+				System.out.println("Here");
 				break;
 			case "D":
 				if (undoMovement(chess, turnNumber)) {
@@ -692,6 +713,16 @@ public class ConsoleGame {
 		turnNumber++;
 	}
 
+	/// @brief Saves empty turn
+	/// @pre ---
+	/// @post Adds a turn to the list containing only a result value
+	private static void saveEmptyTurn(String result, PieceColor color) {
+		turns.add(
+			new Turn(color, new Pair<String, String>("", ""), result)
+		);
+		turnNumber++;
+	}
+
 	/// @brief Controls a cpu turn
 	/// @pre @param c & @param cpu cannot be null
 	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
@@ -771,6 +802,12 @@ public class ConsoleGame {
 						break;
 					case "H":
 						System.out.println("Mostrant menu...");
+						stop = true;
+						break;
+					case "T":
+						stop = true;
+						break;
+					case "S":
 						stop = true;
 						break;
 					default: {
@@ -895,6 +932,15 @@ public class ConsoleGame {
 		);
 	}
 
+	/// @brief Returns the opposite color of @param color
+	/// @pre ---
+	/// @post Returns the opposite color of @param color
+	private static PieceColor oppositeColor(PieceColor color) {
+		return color == PieceColor.White 
+			? PieceColor.Black
+			: PieceColor.White;
+	}
+
 	/// @brief Handles the end of game
 	/// @pre ---
 	/// @post Prints the game result and saves the game developement
@@ -904,9 +950,11 @@ public class ConsoleGame {
 
 		if (draw) {
 			System.out.println("S'han acceptat taules.");
+			System.out.println("Fi de la partida.");
 			res = "TAULES";
 		} else {
 			System.out.println("Guanyador: " + currTurnColor.toString());
+			System.out.println("Fi de la partida.");
 			res = currTurnColor.toString() + " GUANYEN";
 		}
 

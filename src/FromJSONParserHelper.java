@@ -457,10 +457,32 @@ public class FromJSONParserHelper {
 
             s = fr.nextLine();
             String result = s.trim().endsWith("\"\"") ? "" : getString(s);
+
             /// Validate turn result value
-            if (!result.equals("ESCAC I MAT") && !result.equals("ESCAC") && !result.isEmpty()) {
-                System.err.println("El resultat d'un moviment no és vàlid. No es tindrà en compte.");
-                result = "";
+            switch (result) {
+                case "ESCAC":
+                case "ESCAC I MAT":
+                case "TAULES PER REI OFEGAT":
+                case "TAULES PER ESCAC CONTINU":
+                case "TAULES PER INACCIÓ":
+                case "TAULES SOL·LICITADES":
+                case "TAULES ACCEPTADES":
+                case "RENDICIÓ":
+                case "AJORNAMENT":
+                    /// End of game
+                    break;
+                default: {
+                    if (result.contains("PROMOCIÓ")) {
+                        /// TODO: Handle promotion
+
+                    } else if (result.contains("ENROC")) {
+                        /// TODO: Handle castling
+                    } else {
+                        System.err.println("El resultat d'un moviment no és vàlid. No es tindrà en compte.");
+                        System.err.println("Resultat: " + result);
+                        result = "";
+                    }
+                }
             }
 
             turnList.add(new Turn(color, move, result));
