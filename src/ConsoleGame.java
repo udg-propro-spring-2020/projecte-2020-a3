@@ -17,27 +17,23 @@ import java.io.InputStreamReader;
  */
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
-	private static String defaultConfigFileName = null; /// < Keeps the configuration file name
-	private static PieceColor currTurnColor = null; /// < Current turn color
-	private static Integer turnNumber = null; /// < Current turn number
-	private static Integer undoCount = null; /// < Amount of consequent undo movements
-	private static List<Turn> turns = null; /// < List of turns
-	private static boolean dataSet = false; /// < To know if the data has been initialized
+	private static String defaultConfigFileName = null;				///< Keeps the configuration file name
+	private static PieceColor currTurnColor = null;					///< Current turn color
+	private static Integer turnNumber = null;						///< Current turn number
+	private static Integer undoCount = null;						///< Amount of consequent undo movements
+	private static List<Turn> turns = null;							///< List of turns
+	private static boolean dataSet = false;							///< To know if the data has been initialized
 	private static boolean lastTurnCheck = false;
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "./data/configuration.json"; /// < Location of the default
-																				/// configuration
-	private static String SAVED_GAMES_LOCATION = "./saved_games/"; /// < Saved games directory
-	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3)); /// < List of
-																											/// valid
-																											/// options
-																											/// of menu
+	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
+	private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
+	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
 	/// @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
-	/// with modified rules (enter filename) 3. Enter a saved game
+	///       with modified rules (enter filename) 3. Enter a saved game
 	public static void start() {
 		showMenu();
 
@@ -138,7 +134,9 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Returs the read line (trimmed)
 	private static String readInputLine(boolean showText) {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		BufferedReader br = new BufferedReader(
+			new InputStreamReader(System.in)
+		);
 		boolean success = false;
 		String res = "";
 		do {
@@ -160,7 +158,7 @@ public class ConsoleGame {
 	/// @brief Function to read a integer value
 	/// @pre ---
 	/// @post Returns a read integer which is in the VALID_OPTIONS list
-	private static int readOption() {
+	private static int readOption() {		
 		int val = -1;
 		boolean success = false;
 		do {
@@ -171,7 +169,7 @@ public class ConsoleGame {
 				}
 			} catch (NumberFormatException e) {
 				System.err.println("Has d'entrar un nombre");
-			}
+			} 
 		} while (!success);
 
 		return val;
@@ -179,8 +177,7 @@ public class ConsoleGame {
 
 	/// @brief Asks for the filename of the configuration and starts the game
 	/// @pre ---
-	/// @post If the file name from the user is correct, starts the game with that
-	/// configuration.
+	/// @post If the file name from the user is correct, starts the game with that configuration.
 	private static void configuredChessGame(String text, boolean hasStarted) {
 		boolean validFileLocation = false;
 		Chess chess = null;
@@ -210,15 +207,18 @@ public class ConsoleGame {
 								Pair<Position, Position> temp = t.moveAsPair();
 
 								/// Apply movements to the game
-								Pair<List<MoveAction>, List<Position>> checkResult = chess.checkMovement(temp.first,
-										temp.second);
+								Pair<List<MoveAction>, List<Position>> checkResult = chess.checkMovement(temp.first, temp.second);
 
 								/// All movements must be right!
-								List<MoveAction> moveResult = chess.applyMovement(temp.first, temp.second,
-										checkResult.second);
-
-								saveTurn(moveResult,
-										new Pair<String, String>(temp.first.toString(), temp.second.toString()));
+								List<MoveAction> moveResult = chess.applyMovement(temp.first, temp.second, checkResult.second);
+								
+								saveTurn(
+									moveResult,
+									new Pair<String, String>(
+										temp.first.toString(),
+										temp.second.toString()
+									)
+								);
 
 								toggleTurn();
 							}
@@ -231,7 +231,7 @@ public class ConsoleGame {
 
 					/// If it gets here, there will be no exception of file not found
 					validFileLocation = true;
-
+					
 					/// Start game
 					initiateGame(chess);
 				} catch (FileNotFoundException e) {
@@ -246,10 +246,10 @@ public class ConsoleGame {
 
 	/// @brief Functions that initiates the class data
 	/// @pre ---
-	/// @post Initiates data if not has been set
+	/// @post Initiates data if not has been set 
 	private static void initiateData() {
 		if (!dataSet) {
-			currTurnColor = PieceColor.White; /// White always start
+			currTurnColor = PieceColor.White;			/// White always start
 			turnNumber = 0;
 			undoCount = 0;
 			turns = new ArrayList<>();
@@ -269,7 +269,7 @@ public class ConsoleGame {
 				System.out.print("Vols posar nom als jugadors? [S/N]: ");
 				String pOne = "Jugador 1";
 				String pTwo = "Jugador 2";
-
+				
 				/// Optional - more fun :D
 				if (readInputLine(false).toUpperCase().equals("S")) {
 					System.out.print("Nom del jugador 1: ");
@@ -316,7 +316,7 @@ public class ConsoleGame {
 						valid = false;
 					}
 				} while (!valid);
-
+				
 				playerCPUGame(chess, playerIsWhite);
 
 				break;
@@ -333,11 +333,10 @@ public class ConsoleGame {
 		}
 	}
 
-	/// @brief Function that controls the game flow while it has not finished for
-	/// two players
+	/// @brief Function that controls the game flow while it has not finished for two players
 	/// @pre ---
 	/// @post While the game has not finished nor been saved, will keep asking for
-	/// turns. If it finishes, prints the winner.
+	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(Chess chess, String pOne, String pTwo) {
 		String playerOption = "";
 		boolean draw = false;
@@ -364,22 +363,25 @@ public class ConsoleGame {
 					draw = true;
 				} else {
 					System.out.println("La partida continua.");
-					playerOption = playerTurn(chess, rows, cols);
+					playerOption = playerTurn(chess, rows, cols);			
 				}
 			}
-		} while (!playerOption.equals("X") && !playerOption.equals("G") && !playerOption.equals("E"));
+		} while (
+			!playerOption.equals("X") && 
+			!playerOption.equals("G") &&
+			!playerOption.equals("E")
+		);
 
 		if (playerOption.equals("E")) {
 			endOfGame(chess, draw);
 		}
 	}
 
-	/// @brief Function that controls the flow of the game between a cpu and a
-	/// player
+	/// @brief Function that controls the flow of the game between a cpu and a player
 	/// @pre ---
 	/// @post The player is the only one who can stop the game or save it. While the
-	/// game has not finished, will keep askig for turns to the user. The cpu
-	/// works automatically. If it finishes, prints the winner
+	///       game has not finished, will keep askig for turns to the user. The cpu
+	///       works automatically. If it finishes, prints the winner
 	private static void playerCPUGame(Chess chess, boolean playerIsWhite) {
 		int rows = chess.rows();
 		int cols = chess.cols();
@@ -390,10 +392,10 @@ public class ConsoleGame {
 		Knowledge knowledge = cpuKnowledge(chess, "CPU");
 
 		Cpu cpu = new Cpu(knowledge, chess, diff, playerIsWhite ? PieceColor.Black : PieceColor.White);
-
+		
 		do {
-			if (currTurnColor == PieceColor.White && !playerIsWhite
-					|| currTurnColor == PieceColor.Black && playerIsWhite) {
+			if (currTurnColor == PieceColor.White && !playerIsWhite ||
+				currTurnColor == PieceColor.Black && playerIsWhite) {
 				/// CPU
 				if (turnNumber == 0) {
 					cpuTurn(chess, cpu, null);
@@ -412,8 +414,12 @@ public class ConsoleGame {
 				System.out.println("Torn del jugador");
 				playerOption = playerTurn(chess, rows, cols);
 			}
-		} while (!playerOption.equals("X") && !playerOption.equals("G") && !playerOption.equals("E")
-				&& !playerOption.equals("T"));
+		} while (
+			!playerOption.equals("X") && 
+			!playerOption.equals("G") &&
+			!playerOption.equals("E") &&
+			!playerOption.equals("T")
+		);
 
 		if (playerOption.equals("E")) {
 			endOfGame(chess, false);
@@ -422,16 +428,14 @@ public class ConsoleGame {
 		}
 	}
 
-	/// @brief Function that controls the game flow while it has not finished for
-	/// two cpus
+	/// @brief Function that controls the game flow while it has not finished for two cpus
 	/// @pre ---
-	/// @post The game can only end. It cannot be stopped since the cpu can only do
-	/// new moves.
-	/// Finishes the game with the winning cpu.
+	/// @post The game can only end. It cannot be stopped since the cpu can only do new moves.
+	///       Finishes the game with the winning cpu.
 	private static void twoCPUsGame(Chess chess) {
 		System.out.println("NIVELL CPU 1");
 		int diff = cpuDifficulty();
-
+		
 		System.out.println("NIVELL CPU 2");
 		diff = cpuDifficulty();
 
@@ -448,16 +452,16 @@ public class ConsoleGame {
 				result = cpuTurn(chess, cpu2, lastMovement());
 			}
 		} while (result == null);
-
+		
 		/// Game finished - can't never be draw
 		endOfGame(chess, false);
 	}
 
-	/// @brief Controls a player turn
+	/// @brief Controls a player turn 
 	/// @brief ---
 	/// @post Executes a player movement. If the player chooses to exit or save
-	/// the game, it will be returned (X or G respectively). If there's a checkmate
-	/// returns E. Elsewise returns empty string
+	///       the game, it will be returned (X or G respectively). If there's a checkmate
+	///       returns E. Elsewise returns empty string
 	private static String playerTurn(Chess chess, int rows, int cols) {
 		String oValue = null;
 		String dValue = null;
@@ -549,7 +553,13 @@ public class ConsoleGame {
 						}
 
 						/// Save turn
-						saveTurn(moveResult, new Pair<String, String>(origin.toString(), dest.toString()));
+						saveTurn(
+							moveResult,
+							new Pair<String, String>(
+								origin.toString(),
+								dest.toString()
+							)
+						);
 
 						if (moveResult.contains(MoveAction.Escacimat)) {
 							/// End of game
@@ -565,7 +575,7 @@ public class ConsoleGame {
 				}
 			}
 		}
-
+		
 		return result;
 	}
 
@@ -617,13 +627,15 @@ public class ConsoleGame {
 					if (!temp.toUpperCase().equals("EXIT")) {
 						list.add(temp);
 					}
-
+					
 				} while (!temp.toUpperCase().equals("EXIT"));
 
 				List<Pair<List<Turn>, PieceColor>> complexList = new ArrayList<>();
 				for (String location : list) {
 					try {
-						complexList.add(FromJSONParserHelper.matchInformation(location, true));
+						complexList.add(
+							FromJSONParserHelper.matchInformation(location, true)
+						);
 					} catch (FileNotFoundException e) {
 						System.err.println("Fitxer [" + location + "] no trobat.");
 					} catch (JSONParseFormatException e) {
@@ -655,13 +667,14 @@ public class ConsoleGame {
 			throw new NullPointerException("ToggleTurn cannot toggle a null value");
 		}
 
-		currTurnColor = (currTurnColor == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+		currTurnColor = (currTurnColor == PieceColor.White) 
+			? PieceColor.Black
+			: PieceColor.White;
 	}
 
 	/// @brief Saves turn information
 	/// @pre @param p cannot be null
-	/// @post Creates a new turn with the given movement and increments @param
-	/// turnNumber.
+	/// @post Creates a new turn with the given movement and increments @param turnNumber.
 	private static void saveTurn(List<MoveAction> results, Pair<String, String> p) {
 		MoveAction res = null;
 		if (results.contains(MoveAction.Escacimat)) {
@@ -671,33 +684,42 @@ public class ConsoleGame {
 		}
 
 		if (res == null) {
-			turns.add(new Turn(currTurnColor, p, ""));
+			turns.add(new Turn(currTurnColor, p, ""));	
 		} else {
 			turns.add(new Turn(currTurnColor, p, res.toString()));
 		}
-
+		
 		turnNumber++;
 	}
 
 	/// @brief Controls a cpu turn
 	/// @pre @param c & @param cpu cannot be null
-	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction.
-	/// Otherwise
-	/// returns null.
+	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
+	///       returns null.
 	private static MoveAction cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
 		if (chess == null || cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
-
+		
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 
 		Pair<List<MoveAction>, List<Position>> moveResult = chess.checkMovement(cpuMove.first, cpuMove.second);
-
+		
 		/// CPU movement is always correct
-		chess.applyMovement(cpuMove.first, cpuMove.second, chess.checkMovement(cpuMove.first, cpuMove.second).second);
+		chess.applyMovement(
+			cpuMove.first,
+			cpuMove.second,
+			chess.checkMovement(cpuMove.first, cpuMove.second).second
+		);
 
 		/// Save turn
-		saveTurn(moveResult.first, new Pair<String, String>(cpuMove.first.toString(), cpuMove.second.toString()));
+		saveTurn(
+			moveResult.first,
+			new Pair<String, String>(
+				cpuMove.first.toString(),
+				cpuMove.second.toString()
+			)
+		);
 
 		if (moveResult.first.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
@@ -709,12 +731,11 @@ public class ConsoleGame {
 	/// @brief Reads a chess position
 	/// @pre ---
 	/// @post Prints the text held in t and reads positions like CN in which C is a
-	/// char (column of the chess table) and N a number (row of the chess
-	/// table). While this positions is not valid it will keep asking for
-	/// positions. If the coordinate is valid returns the position and if it is
-	/// an X, returns a null position
-	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess chess,
-			boolean originMove) {
+	///       char (column of the chess table) and N a number (row of the chess
+	///       table). While this positions is not valid it will keep asking for
+	///       positions. If the coordinate is valid returns the position and if it is
+	///       an X, returns a null position
+	private static String readMovement(String t, int rows, int cols, PieceColor colorTurn, Chess chess, boolean originMove) {
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		String s;
 		Position p = new Position(0, 0);
@@ -801,13 +822,13 @@ public class ConsoleGame {
 					tempList.add(t);
 				}
 			}
-
+			
 			/// Display the possibilities
 			System.out.println("Tipus disponibles: ");
 			for (int i = 1; i <= tempList.size(); i++) {
 				System.out.println(String.valueOf(i) + ": " + tempList.get(i).ptName());
 			}
-
+			
 			boolean valid = false;
 			do {
 				System.out.println("Entra una opció: ");
@@ -825,13 +846,14 @@ public class ConsoleGame {
 				}
 			} while (!valid);
 
-		}
+			
+		} 
 	}
 
 	/// @brief Undoes one movement
 	/// @pre ---
 	/// @post If possible, undoes one movement. It is only possible to undo
-	/// if there has been one movement
+	///       if there has been one movement
 	private static boolean undoMovement(Chess chess, int turnNumber) {
 		if (turnNumber == 0) {
 			/// Can't undo any movement
@@ -849,7 +871,7 @@ public class ConsoleGame {
 	/// @brief Redoes one movement
 	/// @pre turnNumber pointing after the last position of list
 	/// @post If possible, redoes one movement. It is only possible to redo if
-	/// there has been at least one undone movement
+	///       there has been at least one undone movement
 	private static boolean redoMovement(Chess chess, int undoCount) {
 		if (undoCount == 0) {
 			System.out.println("No és possible refer el moviment!");
@@ -867,8 +889,10 @@ public class ConsoleGame {
 	/// @pre @param turnNumber > 0
 	/// @post Returns the last movement of the game
 	private static Pair<Position, Position> lastMovement() {
-		return new Pair<Position, Position>(new Position(turns.get(turnNumber - 1).origin()),
-				new Position(turns.get(turnNumber - 1).destination()));
+		return new Pair<Position, Position>(
+			new Position(turns.get(turnNumber - 1).origin()),
+			new Position(turns.get(turnNumber - 1).destination())
+		);
 	}
 
 	/// @brief Handles the end of game
@@ -888,10 +912,10 @@ public class ConsoleGame {
 
 		System.out.println("Vols guardar la partida? [S/N]");
 		String s = readInputLine(false);
-
+		
 		if (s.toUpperCase().equals("S")) {
 			String fileName = saveGame(chess, res);
-
+			
 			if (fileName == null) {
 				System.out.println("Error en guardar la partida!");
 			} else {
@@ -903,7 +927,7 @@ public class ConsoleGame {
 	/// @brief Saves the game in a file
 	/// @pre ---
 	/// @post Saves the game in two JSON files, pulling away the configuration and
-	/// the game developement. Returns the fileName or null if there's an error
+	///       the game developement. Returns the fileName or null if there's an error
 	private static String saveGame(Chess chess, String finalResult) {
 		try {
 			/// Configuration
@@ -917,7 +941,7 @@ public class ConsoleGame {
 					configurationFile.createNewFile();
 					FileWriter configWriter = new FileWriter(configurationFile);
 					configWriter.write(ToJSONParserHelper.saveChessConfigToJSON(chess));
-					configWriter.close();
+					configWriter.close();		
 
 					System.out.println("Fitxer sobreescrit.");
 				}
@@ -934,10 +958,9 @@ public class ConsoleGame {
 			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
 			gameFile.createNewFile();
 			FileWriter gameWriter = new FileWriter(gameFile);
-			gameWriter.write(
-					ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, finalResult));
-			gameWriter.close();
-
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(chess, defaultConfigFileName, currTurnColor, turns, finalResult));
+			gameWriter.close();	
+			
 			return fileName.toString() + ".json";
 		} catch (IOException e) {
 			return null;
