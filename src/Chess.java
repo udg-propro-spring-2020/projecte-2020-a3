@@ -761,12 +761,56 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if the king can realize any movecan't escape from a check
      */
-    public boolean isEscacIMat(List<Pair<Position,Piece>> listToCheck, Position dangerousPiece){
+    public boolean isEscacIMat(List<Pair<Position,Piece>> listToMovePiece, List<Pair<Position,Piece>> listToCheckCheck){
         /*
         - moure rei
         - moure peça al mig 
         - matar peça que amenaça 
         */
+        //Agafar destinywithvalues(?) per tots els moviments possibles
+        //fer cadascun d'ells i mirar al costat contrari si check. Si no es check, boolean = false
+        //undo sempre al final
+        boolean checkmate = true;
+        //boolean foundCounterEscac = false;
+        //List<List<Pair<Position, Integer>>> listTMPallMoves = new ArrayList<List<Pair<Position, Integer>>>();
+        Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
+        List<MoveAction> applyResult = new ArrayList<MoveAction>();
+        
+        //listToMovePiece.forEach((p)->listTMPallMoves.add(destinyWithValues(p.first)));
+        int i = 0;
+        System.out.println("Peces que mourem (negres al exemple)");
+        for(int x=0;x<listToMovePiece.size();x++) System.out.println(listToMovePiece.get(x).second.type().ptName());
+        while(i<listToMovePiece.size() && checkmate){
+            //pintarLlistes();
+            Piece p = listToMovePiece.get(i).second;
+            Position origin = listToMovePiece.get(i).first;
+            System.out.println("Peça "+i+" amb nom "+p.type().ptName()+" a la pos "+origin.toString());
+            List<Movement> pListMoves = p.pieceMovements();
+            int j = 0;
+            while(j<pListMoves.size() && checkmate){
+                if(destinyInLimits(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY())){
+                    Position destiny = new Position(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY());
+                    checkMovementResult = checkMovement(origin, destiny);
+                    if(checkMovementResult.first.get(0) == MoveAction.Correct){
+                        System.out.println("La movem a "+destiny.toString());
+                        applyResult = applyMovement(origin, destiny, checkMovementResult.second);
+                        if(!isEscac(listToCheckCheck)){
+                            checkmate = false;
+                            //foundCounterEscac = true;
+                        }
+                        //actualTurn--;
+                        undoMovement();
+                        //actualTurn++;
+                    //undoMovement();
+                    }
+                }
+                j++;
+            }
+            i++;
+        }
+        System.out.println("Hi ha escac i mat? "+checkmate);
+        return checkmate;
+        /*
         boolean escacIMatKing = false;
         boolean pKingCanMove = false;
         boolean pCanBeKilled = false;
@@ -779,8 +823,10 @@ public class Chess implements Cloneable {
         if(!pKingCanMove){
             //System.out.println("588. Puc mourem");
             pCanBeKilled = canKillDangerousPiece(listToCheck, dangerousPiece);
+            
         }
-        return (pKingCanMove || pCanBeKilled);
+        return (pKingCanMove || pCanBeKilled);*/
+        //PER CADA MOV (COM IS ESCAC) FEM APPLY, MIREM SI EN ALGUN NO HI HA ESCAC isEscac=false, if true->UNDO I PASSEM AL SEGUENT FINS QUE EN ALGUN NO HI HAGI EL 100
     }
 
     /*
@@ -793,7 +839,7 @@ public class Chess implements Cloneable {
         boolean escacKing = false;
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
-        
+        for(int i=0;i<listToCheck.size();i++)System.out.println("839. Peces que mirem si fan check "+listToCheck.get(i).first.toString()+" "+listToCheck.get(i).second.type().ptName());
         listToCheck.forEach((p)->allMovesWithValues.add(destinyWithValues(p.first)));
         
         int i = 0;
@@ -806,7 +852,7 @@ public class Chess implements Cloneable {
             //System.out.println(board[listValues.get(j).first.row()][listValues.get(j).first.col()]);
             while(j<listValues.size()){
                 //System.out.println("617. "+board[listValues.get(j).first.row()][listValues.get(j).first.col()]+" "+listValues.get(j).first.toString()+" "+listValues.get(j).second);
-               // System.out.println(j);
+                //System.out.println(j);
                 if(listValues.get(j).second == 100){
                     escacKing = true;
                     found = true;
@@ -882,8 +928,7 @@ public class Chess implements Cloneable {
         if(destinyInLimits(destiny.row(),destiny.col())){
             int xMove=destiny.row()-origin.row();
             int yMove=destiny.col()-origin.col();
-            if(!p.hasMoved())   
-                p.toggleMoved();
+            
             int i = 0;
             boolean found = false;
             boolean pieceOnTheWay = false;
@@ -915,9 +960,11 @@ public class Chess implements Cloneable {
                                 //System.out.println("Mov matar");
                             }else if(!enemiePieceOnDestiny && actMovement.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                 if(board[destiny.row()][destiny.col()]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
-                                    System.out.println("730. La peça que vols matar es teva");
+                                    //System.out.println("730. La peça que vols matar es teva");
                                 
                                 }else{
+                                    if(!p.hasMoved())   
+                                        p.toggleMoved();
                                     r.first.add(MoveAction.Correct);
                                     //r.second = null; 
                                     found = true;
@@ -1055,12 +1102,30 @@ public class Chess implements Cloneable {
         if(canPromote(destiny))
             r.add(MoveAction.Promote);
         if(isEscac(listDoingMove)){
-            System.out.println("890. Hi ha escac");
-            if(isEscacIMat(listCounterMove, destiny))
+            System.out.println("1106. Hi ha escac");
+            if(isEscacIMat(listCounterMove, listDoingMove))
                 r.add(MoveAction.Escacimat);
             else
                 r.add(MoveAction.Escac);
         }   
+
+        System.out.println("---------------------------------------");
+            System.out.println("Tamany: "+blackPiecesTurn.size());
+            for(int v=0;v<blackPiecesTurn.size(); v++){
+                System.out.println("*************************** "+v);
+                //if(i==val){
+                    for(int k=0;k<whitePiecesTurn.get(v).size(); k++){
+                        System.out.println(whitePiecesTurn.get(v).get(k).first.toString()+" "+whitePiecesTurn.get(v).get(k).second.type().ptName());
+                    }
+                    System.out.println("-----////////-----");
+                    for(int k=0;k<blackPiecesTurn.get(v).size(); k++){
+                        System.out.println(blackPiecesTurn.get(v).get(k).first.toString()+" "+blackPiecesTurn.get(v).get(k).second.type().ptName());
+                    }
+                // }
+            }
+        System.out.println("---------------------------------------");
+
+        
         return r;
     }
 
@@ -1076,14 +1141,15 @@ public class Chess implements Cloneable {
         this.pListWhite=whitePiecesTurn.get(val);
         this.pListBlack=blackPiecesTurn.get(val);
 
-        /*for(int i=0;i<whitePiecesTurn.size(); i++){
-            System.out.println("--------------"+i+" valor: "+val+"-----------------------");
-            if(i==val){
-                for(int j=0;j<whitePiecesTurn.get(i).size(); j++){
-                    System.out.println(whitePiecesTurn.get(i).get(j).first.toString());
+        /*for(int i=0;i<blackPiecesTurn.size(); i++){
+            //System.out.println("--------------"+i+" valor: "+val+"-----------------------");
+            //if(i==val){
+                for(int j=0;j<blackPiecesTurn.get(i).size(); j++){
+                    System.out.println(blackPiecesTurn.get(i).get(j).first.toString());
                 }
-            }
-        }
+           // }
+        }*/
+        /*System.out.println(showBoard());
         System.out.println("Peces actuals B");
         for(int j=0;j<pListWhite.size(); j++){
             System.out.println(pListWhite.get(j).first.toString());
@@ -1104,7 +1170,10 @@ public class Chess implements Cloneable {
         
         actualTurn--;
         remakeBoard();
+
         //redoMovement();
+        //System.out.println("Normal undo"+showBoard());
+        //pintarLlistes();
     }
 
     /*
@@ -1214,11 +1283,11 @@ public class Chess implements Cloneable {
         /*for(int i=0;i<pListWhite.size();i++){
             System.out.println(pListWhite.get(i).first.row()+" "+pListWhite.get(i).first.col()+" "+pListWhite.get(i).second.type().ptName());
         }*/
-        /*System.out.println("Li toca a "+origin.row()+" "+origin.col());
-        System.out.println("Li toca a "+p.type().ptName());*/
+        System.out.println("Li toca a "+origin.row()+" "+origin.col()+" -> "+p.type().ptName());
         movesToRead=p.pieceMovements();
-        if(!p.hasMoved())
-            p.toggleMoved();   
+        //System.out.println(p.type().ptName()+" es el que estem mirant i ha passat be");
+        /*if(!p.hasMoved())
+            p.toggleMoved();*/   
 
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
@@ -1313,7 +1382,8 @@ public class Chess implements Cloneable {
                     //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
-        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        System.out.println("Retorn de destiny with values de la peça "+p.type().ptName()+": ");
+        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
