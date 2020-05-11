@@ -180,9 +180,10 @@ public class FromJSONParserHelper {
     /// @biref Gets the game developement
     /// @pre ---
     /// @post Reads the game developement from the file. Returns a pair containing a 
-    ///       list of turns and the winning piece color.
+    ///       list of turns and the winning piece color. If @p forKnowledge is true,
+    ///       returns the winning color. Otherwise, returns null.
     /// @throws JSONParseFormatException If the file contains an empty turn list
-    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation) 
+    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, boolean forKnowledge) 
         throws FileNotFoundException, JSONParseFormatException {
         Scanner in = new Scanner(new File(fileLocation));
 
@@ -201,23 +202,29 @@ public class FromJSONParserHelper {
             in.nextLine();
         } else {
             throw new JSONParseFormatException(
-                "La partida de la qual s'està intentant llegir informació no conté turns.",
+                "La partida de la qual s'està intentant llegir informació no conté torns.",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
             );
         }
 
-        String s = getString(in.nextLine());
-        PieceColor tempColor = s.equals("BLANQUES") 
-            ? PieceColor.White
-            : (s.equals("NEGRES"))
-                ? PieceColor.Black
-                : null;
-        if (tempColor == null) {
-            throw new JSONParseFormatException(
-                "El color del següent torn no és vàlid. Ha de ser \"BLANQUES\" o \"NEGRES\".",
-                JSONParseFormatException.ExceptionType.ILLEGAL_COLOR
-            );
+        PieceColor tempColor = null;
+        if (forKnowledge) {
+            String s = getString(in.nextLine());
+            tempColor = s.contains("BLANQUES") 
+                ? PieceColor.White
+                : (s.contains("NEGRES"))
+                    ? PieceColor.Black
+                    : null;
+            if (tempColor == null) {
+                throw new JSONParseFormatException(
+                    "El color del guanyador no és vàlid. Ha de ser \"BLANQUES\" o \"NEGRES\".",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_COLOR
+                );
+            }
         }
+
+        /// Close scanner
+        in.close();
         
         return new Pair<List<Turn>, PieceColor>(
             turnList,
@@ -240,7 +247,7 @@ public class FromJSONParserHelper {
     ///       trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
-        return values[1].isEmpty() ? "" : values[1].trim();
+        return values.length < 2 ? "" : values[1].trim();
     }
 
     /// @brief Gets the movement list from the file
@@ -271,7 +278,7 @@ public class FromJSONParserHelper {
             Movement temp = new Movement(x, y, capture, jump);
             if (illegalMovement(temp, mList)) {
                 System.err.println("Dos moviments tenen el mateix vector de desplaçament.");
-                System.out.println("El segon moviment queda exclòs.");
+                System.err.println("El segon moviment queda exclòs.");
             } else {
                 mList.add(temp);
             }
@@ -450,7 +457,8 @@ public class FromJSONParserHelper {
 
             s = fr.nextLine();
             String result = s.trim().endsWith("\"\"") ? "" : getString(s);
-            if (!result.equals("ESCAC I MAT") || !result.equals("ESCAC")) {
+            /// Validate turn result value
+            if (!result.equals("ESCAC I MAT") && !result.equals("ESCAC") && !result.isEmpty()) {
                 System.err.println("El resultat d'un moviment no és vàlid. No es tindrà en compte.");
                 result = "";
             }

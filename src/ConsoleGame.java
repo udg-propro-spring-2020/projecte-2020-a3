@@ -199,7 +199,7 @@ public class ConsoleGame {
 
 						/// Get the match information
 						chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
-						Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation);
+						Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation, false);
 						List<Turn> loadedTurns = info.first;
 						currTurnColor = info.second;
 
@@ -636,7 +636,7 @@ public class ConsoleGame {
 				for (String location : list) {
 					try {
 						complexList.add(
-							FromJSONParserHelper.matchInformation(location)
+							FromJSONParserHelper.matchInformation(location, true)
 						);
 					} catch (FileNotFoundException e) {
 						System.err.println("Fitxer [" + location + "] no trobat.");
