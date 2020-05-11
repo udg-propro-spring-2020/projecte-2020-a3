@@ -38,7 +38,7 @@ public class JSONParseFormatException extends Exception {
 
     ExceptionType type;         ///< Defines the exception type
 
-    public JSONParseFormatException(String message, ExceptionType type) {
+    JSONParseFormatException(String message, ExceptionType type) {
         super(message);
         this.type = type;
     }    

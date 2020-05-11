@@ -1,20 +1,16 @@
-/*
- * @author Miquel de Domingo i Giralt
- */
-
 import javafx.application.Application;
 
-/* 
+/**
+ * @author Miquel de Domingo i Giralt
  * @file ChessGame.java
  * @class ChessGame
  * @brief Main class of the application. Handles whereas the app will be
  *        displayed in a UI or in the console depending on the given arguments
  */
 public abstract class ChessGame {
-	/*
-	 * @pre args is [-g] or [-c] 
-	 * @post Runs UI if -g or console if -c
-	 */
+	/// @brief Runs the application
+	/// @pre args is [-g] or [-c] 
+	/// @post Runs UI if -g or console if -c
 	public static void main(String[] args) {
 		try {
 			if (args.length > 0) {
@@ -37,11 +33,9 @@ public abstract class ChessGame {
 		} 
 	}
 
-	/*
-	 * @brief Mostra un missatge d'ajuda
-	 * @pre Nombre d'arguments entrar incorrecte
-	 * @post Mostra per pantalla el missatge d'ajuda sobre com executar l'aplicació.
-	 */
+	/// @brief Mostra un missatge d'ajuda
+	/// @pre Nombre d'arguments entrar incorrecte
+	/// @post Mostra per pantalla el missatge d'ajuda sobre com executar l'aplicació.
 	private static void _displayHelp() {
 		System.out.println("Nombre incorrecte d'arguments");
 		System.out.println("El joc es pot executar amb interfície gràfica [-g] o en consola [-c].");

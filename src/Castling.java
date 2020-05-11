@@ -5,10 +5,10 @@
  * @brief Holds the castling information
  */
 public class Castling implements JSON, Cloneable {
-    private String aPiece;
-    private String bPiece;
-    private boolean stand;
-    private boolean emptyMid;
+    private String aPiece;              ///< Piece name A of the castling
+    private String bPiece;              ///< Piece name B of the castling
+    private boolean stand;              ///< If the pieces ara standing or in movement
+    private boolean emptyMid;           ///< If the space between the pieces is empty
 
     Castling(String aPiece, String bPiece, boolean stand, boolean emptyMid) {
         this.aPiece = aPiece;

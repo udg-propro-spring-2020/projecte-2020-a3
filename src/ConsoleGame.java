@@ -1,7 +1,3 @@
-/*
- * @author Miquel de Domingo i Giralt
- */
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,24 +9,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/* 
+/**
+ * @author Miquel de Domingo i Giralt
+ * @file ConsoleGame.java
  * @class ConsoleGame
- * @brief Class that controls the game played in a console display.
+ * @brief Class that controls the game played in a console display
  */
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
-	private static String defaultConfigFileName = null;
-	private static PieceColor currTurnColor = null;
-	private static Integer turnNumber = null;
-	private static Integer undoCount = null;
-	private static List<Turn> turns = null;
-	private static boolean dataSet = false;
+	private static String defaultConfigFileName = null;				///< Keeps the configuration file name
+	private static PieceColor currTurnColor = null;					///< Current turn color
+	private static Integer turnNumber = null;						///< Current turn number
+	private static Integer undoCount = null;						///< Amount of consequent undo movements
+	private static List<Turn> turns = null;							///< List of turns
+	private static boolean dataSet = false;							///< To know if the data has been initialized
 	private static boolean lastTurnCheck = false;
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";
-	private static String SAVED_GAMES_LOCATION = "./saved_games/";
-	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
+	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
+	private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
+	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---

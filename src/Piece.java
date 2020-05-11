@@ -1,13 +1,12 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/*
+/**
  * @author Miquel de Domingo i Giralt
  * @file Piece.java
  * @class Piece
  * @brief Holds the information of the piece
  */
-
 public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;

@@ -15,6 +15,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * @author Miquel de Domingo i Giralt
+ * @file UIChess.java
+ * @class UIChess
+ * @brief Class that controls the game played in a graphic interface
+ */
 public class UIChess extends Application {
     /// CONSTANTS
     private static final String TITLE = "ESCACS";
