@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,9 +8,13 @@ import java.util.List;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -29,6 +34,8 @@ public class UIChess extends Application {
 
     private static final String DEF_GAME_LOCATION = "./data/default_game.json";
     private static final String DEF_IMG_LOCATION = "./data/img/";
+    private static final String DEF_WHITE_TILE_LOCATION = "w.png";
+    private static final String DEF_BLACK_TILE_LOCATION = "b.png";
     private static final int IMG_PIXELS = 60;
     private static final double SPACER_PIXELS = 40.0;
 
@@ -36,11 +43,13 @@ public class UIChess extends Application {
     private static final String UNSELECTED_CSS = "unselected";
 
     /// Game Control Options
-    private static Stage window;
-    private static String choosenConfigFile = null;
-    private static int cpuDifficulty = 2;
-    private static List<String> knowledgeFiles = null;
-    private static GameState lastGameState = GameState.GAME_INIT;
+    private Stage window;
+    private String choosenConfigFile = null;
+    private int cpuDifficulty = 2;
+    private List<String> knowledgeFiles = null;
+    private GameState lastGameState = GameState.GAME_INIT;
+    private Group tiles = null;
+    private Group pieces = null;
 
     /// @brief Defines the type of the match currently playing
     private static enum GameType {
@@ -55,7 +64,7 @@ public class UIChess extends Application {
     /// @brief Launches the application
     /// @pre ---
     /// @post Starts the GUI application
-    public static void main(String[] args) {
+    public void main(String[] args) {
         launch(args);
     }
 
@@ -63,7 +72,7 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Changes the scene title to the given one only if it is not null and
     ///       not empty
-    private static void setSceneTitle(String title) {
+    private void setSceneTitle(String title) {
         if (!(title == null || title.isEmpty())) {
             window.setTitle(title); 
         }
@@ -72,7 +81,7 @@ public class UIChess extends Application {
     /// @brief Buils the main scene displaying a menu
     /// @pre ---
     /// @post Displays the 4 buttons of the menu
-    private static void buildMainScene() {
+    private void buildMainScene() {
         window.setTitle(MENU + " - " + TITLE);
 
         Collection<Node> list = new ArrayList<>();
@@ -88,7 +97,7 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Adds a go back button to the last position of the collection and a spacer
     ///       of @param SPACER_PIXELS as height above it
-    private static void addGoBackButton(Collection<Node> list) {
+    private void addGoBackButton(Collection<Node> list) {
         list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
 
         Button goBackButton = new Button();
@@ -120,7 +129,7 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Returns a list containing the buttons with the options
     ///       of the main menu
-    private static Collection<Node> buildMenuButtons() {
+    private Collection<Node> buildMenuButtons() {
         Collection<Node> list = new ArrayList<>();
         Button defaultGameButton = new Button();
         ItemBuilder.buildButton(
@@ -180,7 +189,7 @@ public class UIChess extends Application {
     /// @brief Function to build the option game menus
     /// @pre ---
     /// @post Builds the game option buttons 
-    private static Collection<Node> buildOptionButtons() {
+    private Collection<Node> buildOptionButtons() {
         Collection<Node> list = new ArrayList<>();
 
         Button playerVsPlayer = new Button();
@@ -228,7 +237,7 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Returns a collection with the buttons for the preconfigurated
     ///       game menu
-    private static Collection<Node> buildPreconfiguredGameButtons() {
+    private Collection<Node> buildPreconfiguredGameButtons() {
         Collection<Node> list = new ArrayList<>();
         
         Button enterFileBtn = new Button();
@@ -249,20 +258,7 @@ public class UIChess extends Application {
                         System.out.println(file);
                         choosenConfigFile = file;
 
-                        try {
-                            FromJSONParserHelper.buildChess(choosenConfigFile).toString();
-                            gameOptions();
-                        } catch(FileNotFoundException e) {
-                            displayErrorPopUp(
-                                "Error",
-                                "Hi ha hagut un error en l'obertura del fitxer. Torna-ho a intentar"
-                            );
-                        } catch (JSONParseFormatException e) {
-                            displayErrorPopUp(
-                                e.getType(),
-                                "El format del fitxer d'entrada no és el correcte.\nRevisa'l i torna-ho a intentar"
-                            );
-                        } 
+                        gameOptions();
                     }
                 }
             }
@@ -280,7 +276,7 @@ public class UIChess extends Application {
     /// @post Builds the buttons to allow the user to configure the cpu. If they 
     ///       want, knowledge can be adde (1 to n files). Before adding, all saved 
     ///       files from @param knowledgeFiles will be cleared.
-    private static Collection<Node> buildCPUButtons(GameType gameType) {
+    private Collection<Node> buildCPUButtons(GameType gameType) {
         Collection<Node> list = new ArrayList<>();
 
         Button beginnerBtn = new Button();
@@ -416,7 +412,7 @@ public class UIChess extends Application {
     /// @brief Function that displays the game options scene
     /// @pre ---
     /// @post Displays the game options and loads the desired game mode
-    private static void gameOptions() {
+    private void gameOptions() {
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("ESCULL UN MODE"));
         list.addAll(buildOptionButtons());
@@ -427,7 +423,7 @@ public class UIChess extends Application {
     /// @brief Function that displays the preconfigured game options scene
     /// @pre ---
     /// @post Once the file it is entered, goes to the game options
-    private static void preconfiguredGame() {        
+    private void preconfiguredGame() {        
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("PARTIDA \nPRE-CONFIGURADA"));
         list.addAll(buildPreconfiguredGameButtons());
@@ -435,7 +431,9 @@ public class UIChess extends Application {
         window.setScene(s);
     }
 
-    private static void cpuConfiguration(GameType gameType) {
+    /// @brief Handles the configuration of the CPU by the user
+    /// @pre @param gameType is @p CPUvsPlayer or @p CPUvsCPU
+    private void cpuConfiguration(GameType gameType) {
         lastGameState = GameState.GAME_MODE;
         
         Collection<Node> list = new ArrayList<>();
@@ -449,20 +447,35 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Loads the chess from the file entered (if null, the default) and
     ///       configures the game to be played (cpu, knowledge and what's needed)
-    private static void setGameUp(GameType gameType) {
+    private void setGameUp(GameType gameType) {
+        /// Build the chess
+        Chess chess = null;
+        /// On any fatal loading error, the application will exit
+        try {
+            if (choosenConfigFile == null) {
+                chess = FromJSONParserHelper.buildChess(DEF_GAME_LOCATION);
+            } else {
+                chess = FromJSONParserHelper.buildChess(choosenConfigFile);
+            }
+            System.out.println(chess.toString());
+        } catch (FileNotFoundException e) {
+            displayErrorPopUp(
+                "ERROR FITXER",
+                "Hi ha hagut un error en l'obertura del fitxer. Es tancarà l'aplicació"
+            );
+
+            System.exit(-1);
+        } catch (JSONParseFormatException e) {
+            displayErrorPopUp(
+                e.getType(),
+                "El format del fitxer d'entrada no és el correcte.\nRevisa'l i torna-ho a intentar"
+            );
+
+            System.exit(-1);
+        }
+
         switch (gameType) {
             case PLAYER_PLAYER:
-                try {
-                    String res = null;
-                    if (choosenConfigFile == null) {
-                        res = FromJSONParserHelper.buildChess(DEF_GAME_LOCATION).toString();
-                    } else {
-                        res = FromJSONParserHelper.buildChess(choosenConfigFile).toString();
-                    }
-                    System.out.println(res);
-                } catch (Exception e) {
-                    System.out.println("Error");
-                }
                 break;
             case CPU_PLAYER:
                 System.out.println("INSIDE CPU_PLAYER");
@@ -476,10 +489,87 @@ public class UIChess extends Application {
         }
     }
 
+    /// @brief Builds the board
+    /// @pre ---
+    /// @post Builds the board with the given information
+    private Parent buildBoard(Chess chess) {
+        Image whiteTile = null;                 /// White tile image
+        Image blackTile = null;                 /// Black tile image
+
+        try {
+            whiteTile = new Image(
+                new FileInputStream(
+                    DEF_IMG_LOCATION + DEF_WHITE_TILE_LOCATION
+                )
+            );
+            blackTile = new Image(
+                new FileInputStream(
+                    DEF_IMG_LOCATION + DEF_BLACK_TILE_LOCATION
+                )
+            );
+        } catch (FileNotFoundException e) {
+            displayErrorPopUp(
+                "FATAL ERROR",
+                "No s'han trobat les imatges per a construir el tauler."    
+            );
+            System.out.println("FATAL ERROR");
+            System.out.println("IMATGES NO TROBADES");
+            System.out.println("Per a solucionar aquest error torna a descarregar el joc.");
+            System.exit(-1);
+        }
+        
+        Pane background = new Pane();
+        /// Minimum values = 4 * IMG_PIXELS
+        /// Maximum values = 16 * IMG_PIXELS
+        background.setPrefSize(chess.cols() * IMG_PIXELS, chess.rows() * IMG_PIXELS);
+        /// Initialise variables
+        tiles = new Group();
+        pieces = new Group();
+        /// Start creating the board
+        for (int i = 0; i < chess.rows(); i++) {
+            for (int j = 0; j < chess.cols(); j++) {
+                ImageTile img = null;
+                if (i % 2 == 0) {
+                    if (j % 2 == 0) {
+                        img = new ImageTile(whiteTile, IMG_PIXELS);
+                    } else {
+                        img = new ImageTile(blackTile, IMG_PIXELS);
+                    }
+                } else {
+                    if (j % 2 == 0) {
+                        img = new ImageTile(blackTile, IMG_PIXELS);
+                    } else {
+                        img = new ImageTile(whiteTile, IMG_PIXELS);
+                    }
+                }
+                img.setX(j * IMG_PIXELS);
+                img.setY(i * IMG_PIXELS);
+                tiles.getChildren().add(img);
+
+                /// Check if there's a piece
+                Piece pieceIn = chess.pieceAt(i, j);
+                if (pieceIn != null) {
+                    UIPiece piece = buildPiece(pieceIn, i, j);
+                    pieces.getChildren().add(piece);
+                }
+            }
+        }
+    }
+
+    /// @brief Constructs a UIPiece object
+    /// @pre ---
+    /// @post Returns a UIPiece with the given values and with the event
+    ///       handling configuration
+    private UIPiece buildPiece(Piece in, int x, int y) {
+        UIPiece piece = new UIPiece(in, IMG_PIXELS, x, y);
+        /// Handle events
+        return piece;
+    }
+
     /// @brief Displays an error pop up 
     /// @pre @param text is not empty
     /// @post Displays an error pop up with text until the users closes it
-    private static void displayErrorPopUp(String title, String text) {
+    private void displayErrorPopUp(String title, String text) {
         ItemBuilder.buildPopUp(
             title,
             text,
@@ -491,7 +581,7 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Returns the file selected for the user. If has not selected any, 
     ///       returns null
-    private static File fileSelector() {
+    private File fileSelector() {
         FileChooser fc = new FileChooser();
             fc.setInitialDirectory(
                 new File(System.getProperty("user.dir"))
