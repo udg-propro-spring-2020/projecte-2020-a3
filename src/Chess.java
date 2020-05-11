@@ -137,13 +137,13 @@ public class Chess implements Cloneable {
         this.actualTurn = chess.actualTurn;
         this.whitePiecesTurn = chess.whitePiecesTurn;
         this.blackPiecesTurn = chess.blackPiecesTurn;
-        this.pListWhite = chess.pListWhite;
-        this.pListBlack = chess.pListBlack;
+        this.pListWhite = new ArrayList<Pair<Position, Piece>>();
+        this.pListBlack = new ArrayList<Pair<Position, Piece>>();
         this.board = chess.board;
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
 
-        //createBoard();
+        createBoard();
     }
 
     /*
@@ -162,7 +162,7 @@ public class Chess implements Cloneable {
 
     /*
      * @brief Constructor to make a copy of a chess, used when cloning
-     * @pre Chess is not null
+     * @pre --
      * @post Chess has been copied
      */
     Chess (int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
@@ -1029,7 +1029,7 @@ public class Chess implements Cloneable {
         changePiecesList(origin,destiny,deadPieces);
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
-
+        
         copyChessTurn();
 
         //llistes actualitzades
@@ -1094,7 +1094,7 @@ public class Chess implements Cloneable {
         //System.out.println("Normal undo"+showBoard());
         
         actualTurn--;
-        remakeBoard(/*boardArray.get(actualTurn)*/);
+        remakeBoard();
         //redoMovement();
     }
 
@@ -1103,11 +1103,12 @@ public class Chess implements Cloneable {
      * @pre undoMovement has been used before
      * @post Board has been updated
      */
-    public void redoMovement(){
+    public 
+    void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         actualTurn++;
         //System.out.println("redo "+actualTurn);
-        remakeBoard(/*boardArray.get(actualTurn)*/);
+        remakeBoard();
         
         //System.out.println("Guardat redo"+showBoard());
     }
@@ -1166,9 +1167,9 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Checks all possible piece's movements and their values
-     * @pre -- 
-     * @post 
+     * @brief Controll all the possible destinies in a movement of a piece and add it into a list if it's correct
+     * @pre Destiny is inside the board limits
+     * @post Return if the piece can continue checking destinies with the actual movement. Correct destinies has been added to the list
     */
     private boolean controller(Position origin, Position destiny, Movement mov, List<Pair<Position, Integer>> destinyWithValues){
         Pair<Position, Integer> act = new Pair<>(destiny, 0);
@@ -1188,9 +1189,14 @@ public class Chess implements Cloneable {
     
         return continueFunc;
     }
-
-    /*Sempre mirem ambod costats: msg forum sobre a -a */
+    
+    /*
+     * @brief Checks all possible piece's movements and their values
+     * @pre -- 
+     * @post Return all possible piece's destinies and its kill value
+    */
     public List<Pair<Position, Integer>> destinyWithValues(Position origin){
+        /*Sempre mirem ambod costats: msg forum sobre a -a */
         List<Pair<Position, Integer>> destinyWithValues = new ArrayList<Pair<Position, Integer>>();
         Position destiny;
         int value = 0;        
@@ -1204,12 +1210,7 @@ public class Chess implements Cloneable {
         movesToRead=p.pieceMovements();
         if(!p.hasMoved())
             p.toggleMoved();   
-        /*
-        for(int i=0; i<movesToRead.size(); i++){
-            Movement mov = movesToRead.get(i);
-            System.out.println(p.type().ptName()+" "+mov.movX()+" "+mov.movY());
-        }*/
-       // movesToRead.addAll(p.type().ptMovements());
+
         for(int i=0; i<movesToRead.size(); i++){
             boolean continueFunc = true; //False si es troba amb una peça pel cami
             Movement mov = movesToRead.get(i);
@@ -1307,7 +1308,11 @@ public class Chess implements Cloneable {
         return destinyWithValues;
     }
 
-    
+    /*
+     * @brief Create an string containing all chess pieces. The point of view depends on the piece color
+     * @pre Board is created 
+     * @post Return all possible piece's destinies and its kill value
+    */
     public String chessStringView(PieceColor pc){
         String s = "";
         Piece[] p = new Piece[rows()*cols()];
