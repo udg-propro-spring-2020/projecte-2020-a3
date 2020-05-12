@@ -9,25 +9,23 @@ import java.util.List;
 public class ToJSONParserHelper {
     /// CONSTANTS
     /// @brief JSON Style control constants
-    private static final String NEXT_LINE  = "\n";
-    private static final String EOL        = ",\n";
-    private static final String EMPTY_LIST = "[]";
-    private static final String QUOTE      = "\"";
-    private static final String SEPARATOR  = ": ";
+    private static final String NEXT_LINE  = "\n";              ///< Next line 
+    private static final String EOL        = ",\n";             ///< Coma & next line 
+    private static final String EMPTY_LIST = "[]";              ///< JSON Empty list 
+    private static final String QUOTE      = "\"";              ///< Scaped quote
+    private static final String SEPARATOR  = ": ";              ///< JSON Separator
 
     /// PUBLIC UTIL CONSTANTS
     /// @brief Util constants to avoid code repetition and meaningless strings
-    public static final String ONE_TAB    = "\t";
-    public static final String TWO_TABS   = "\t\t";
-    public static final String THREE_TABS = "\t\t\t";
-    public static final String FOUR_TABS  = "\t\t\t\t";
-    public static final String FIVE_TABS  = "\t\t\t\t\t";
-    public static final String LIST_START = "[\n";
-    public static final String LIST_END   = "]";
-    public static final String OBJ_START  = "{\n";
-    public static final String OBJ_END    = "}";
-
-    /// @brief Saves the game in a file
+    public static final String ONE_TAB    = "\t";               ///< Simulates one tab
+    public static final String TWO_TABS   = "\t\t";             ///< Simulates two tabs
+    public static final String THREE_TABS = "\t\t\t";           ///< Simulates three tabs
+    public static final String FOUR_TABS  = "\t\t\t\t";         ///< Simulates four tabs
+    public static final String FIVE_TABS  = "\t\t\t\t\t";       ///< Simulates five tabs
+    public static final String LIST_START = "[\n";              ///< JSON List start
+    public static final String LIST_END   = "]";                ///< JSON List end
+    public static final String OBJ_START  = "{\n";              ///< JSON Object start
+    public static final String OBJ_END    = "}";                ///< JSON Object end
 
     /// @brief Creates a string containing the chess configuration
     /// @pre ---
@@ -40,13 +38,13 @@ public class ToJSONParserHelper {
         StringBuilder s = new StringBuilder();
 
         s.append(OBJ_START)
-            .append(propertyToJSON("nFiles", chess.rows(), false, true, "\t"))
-            .append(propertyToJSON("nCols", chess.cols(), false, true, "\t"))
-            .append(objectListToJSON("peces", chess.typeList(), false, "\t"))
-            .append(primitiveListToJSON("posInicial", chess.initialPositions(), "\t", true, false))
-            .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, "\t"))
-            .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,"\t"))
-            .append(objectListToJSON("enrocs", chess.castlings(), true, "\t"))
+            .append(propertyToJSON("nFiles", chess.rows(), false, true, ONE_TAB))
+            .append(propertyToJSON("nCols", chess.cols(), false, true, ONE_TAB))
+            .append(objectListToJSON("peces", chess.typeList(), false, ONE_TAB))
+            .append(primitiveListToJSON("posInicial", chess.initialPositions(), ONE_TAB, true, false))
+            .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, ONE_TAB))
+            .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,ONE_TAB))
+            .append(objectListToJSON("enrocs", chess.castlings(), true, ONE_TAB))
             .append(OBJ_END);
 
         return s.toString();
@@ -67,7 +65,7 @@ public class ToJSONParserHelper {
             .append(propertyToJSON("fitxerRegles", configurationFile, true, true, ONE_TAB))
             .append(initPosListToJSON(chess.whiteInitPos(), "posIniBlanques", ONE_TAB, false))
             .append(initPosListToJSON(chess.blackInitPos(), "posIniNegres", ONE_TAB, false))
-            .append(propertyToJSON("proper_nom", nextTurn.toString(), true, true, ONE_TAB))
+            .append(propertyToJSON("proper_torn", nextTurn.toString(), true, true, ONE_TAB))
             .append(objectListToJSON("tirades", turns, false, ONE_TAB))
             .append(propertyToJSON("resultat_final", finalResult, true, false, ONE_TAB))
             .append(OBJ_END);
@@ -80,7 +78,7 @@ public class ToJSONParserHelper {
     /// @post Returns a object property String in JSON style ["propName": value],
     ///       ending with a , and next line. If it is a String adds double quotes around
     ///       it
-    /// @throws IllegalArgumentException If @param identation does no contain spaces or tabs
+    /// @throws IllegalArgumentException If @p identation does no contain spaces or tabs
     public static String propertyToJSON(String propName, Object value, Boolean isString, Boolean trailingComa,
             String identation) {
         if (value == null) {
@@ -112,8 +110,8 @@ public class ToJSONParserHelper {
     /// @brief Parses the given value to JSON (adding a trailing coma) identated
     /// @pre ---
     /// @post Returns the given value as a JSON value identated
-    /// @throw NullPointerException If @param value is null
-    /// @throw IllegalArgumentException If @param identation does not contain only spaces or tabs
+    /// @throw NullPointerException If @p value is null
+    /// @throw IllegalArgumentException If @p identation does not contain only spaces or tabs
     public static String valueToJSON(Object value, String identation, Boolean trailingComa) {
         if (value == null) {
             throw new NullPointerException("valueToJSON null value given");
@@ -136,7 +134,7 @@ public class ToJSONParserHelper {
     /// @brief Parses the given value to a JSON string
     /// @pre ---
     /// @post Returns the given value between double quotes
-    /// @throws NullPointerException If @param value is null
+    /// @throws NullPointerException If @p value is null
     public static String valueToJSONString(Object value) {
         if (value == null) {
             throw new NullPointerException("ValueToJSONString null value given.");
@@ -152,8 +150,8 @@ public class ToJSONParserHelper {
     /// @brief Parses the given list to a JSON list
     /// @pre Objects must be indented
     /// @post Parses the given list to a String of a JSON style list
-    /// @throw NullPointerException If the @param list is null or contains a null item
-    /// @thwo IllegalArgumentException If the @param identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @p list is null or contains a null item
+    /// @thwo IllegalArgumentException If the @p identation does not contain only spaces or tabs
     public static String objectListToJSON(String listName, List<? extends JSON> list, Boolean lastItem,
             String identation) {
         if (listName.isEmpty() || listName == null) {
@@ -199,13 +197,13 @@ public class ToJSONParserHelper {
         return s.toString();
     }
 
-    /// @brieg Parses the given list to a JSON list
+    /// @brief Parses the given list to a JSON list
     /// @pre ---
     /// @post Parses the give list containing java primitive types to a String
     ///       of a JSON style list. Objectes indented automatically, inner list elements
     ///       tabbed one more.
-    /// @throw NullPointerException If the @param list is null or contains a null item
-    /// @throw IllegalArgumentException If the @param identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @p list is null or contains a null item
+    /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
     public static String primitiveListToJSON(String listName, List<? extends Object> list, String identation,
             Boolean inQuotes, Boolean lastItem) {
         if (listName.isEmpty() || listName == null) {
@@ -258,8 +256,8 @@ public class ToJSONParserHelper {
     /// @brief Parses a list of pair containing Position & Piece
     /// @pre ---
     /// @post Parses the pair list as a JSON object writing the first the position and then the piece
-    /// @throw NullPointerException If the @param list is null or contains a null element
-    /// @throw IllegalArgumentException If the @param identation does not contain only spaces or tabs
+    /// @throw NullPointerException If the @p list is null or contains a null element
+    /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
     private static String initPosListToJSON(List<Pair<Position, Piece>> list, String listName, String identation, Boolean lastItem) throws NullPointerException {
         if (list == null) {
             throw new NullPointerException("initPosListToJSON null value given");
@@ -287,7 +285,6 @@ public class ToJSONParserHelper {
                     .append(OBJ_START)
                     .append(item.first.toJSON())
                     .append(item.second.toJSON())
-                    .append(NEXT_LINE)
                     .append(identation + ONE_TAB)
                     .append(OBJ_END)
                     .append(EOL);
@@ -302,9 +299,9 @@ public class ToJSONParserHelper {
                 .append(OBJ_START)
                 .append(item.first.toJSON())
                 .append(item.second.toJSON())
-                .append(NEXT_LINE)
                 .append(identation + ONE_TAB)
                 .append(OBJ_END)
+                .append(NEXT_LINE)
                 .append(identation)
                 .append(LIST_END);                
         }

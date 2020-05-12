@@ -5,52 +5,55 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file UIPiece.java
- * @class UIPiece
- * @brief Holds the information of a Piece in the UI mode
- * @details The piece will control all the events which allow it to move
- *          via mouse events
- */
-public class UIPiece extends StackPane{
-    private Piece piece;            ///< Color of the piece
-    private int width;              ///< Tile width
-    private double mouseX;          ///< X Coordinates of the mouse (pixels)
-    private double oldX;            ///< X Old coordinate (pixels)
-    private double mouseY;          ///< Y Coordinates of the mouse (pixels)
-    private double oldY;            ///< Y Old coordinate (pixels)
+/// @author Miquel de Domingo i Giralt
+/// @file UIPiece.java
+/// @class UIPiece
+/// @brief Holds the information of a Piece in the UI mode
+/// @details The piece will control all the events which allow it to move
+///          via mouse events
+public class UIPiece extends StackPane {
+    private Piece _piece;               ///< Color of the piece
+    private int _width;                 ///< Tile width
+    private double _mouseX;             ///< X Coordinates of the mouse (pixels)
+    private double _oldX;               ///< X Old coordinate (pixels)
+    private double _mouseY;             ///< Y Coordinates of the mouse (pixels)
+    private double _oldY;               ///< Y Old coordinate (pixels)
 
     private static final String DEF_IMG_LOCATION = "./data/img/";       ///< Default image location
 
+    /// @brief Default piece constructor
+    /// @param piece Piece it will display
+    /// @param width Width of the piece
+    /// @param x X position  
+    /// @param y Y position 
     UIPiece(Piece piece, int width, int x, int y) {
-        this.piece = piece;
-        this.width = width;
+        this._piece = piece;
+        this._width = width;
         
-        /// Move the piece
+        // Move the piece
         move(x, y);
 
-        /// Add the piece image
+        // Add the piece image
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
 
-        /// TODO: Handle events
+        // TODO: Handle events
     }
 
     /// @brief Moves the piece to the center of the tile
-    /// @pre 0 <= @param x && 0 <= @param y
+    /// @pre 0 <= @p x && 0 <= @p y
     /// @post Moves the piece to the center of the tile
     public void move(int x, int y) {
-        this.oldX = width * x;
-        this.oldY = width * y;
-        relocate(oldX, oldY);
+        this._oldX = _width * x;
+        this._oldY = _width * y;
+        relocate(_oldX, _oldY);
     }
 
     /// @brief Returns the piece to its old position
     /// @pre ---
     /// @post Returns the piece to its old position
     public void cancelMove() {
-        relocate(oldX, oldY);
+        relocate(_oldX, _oldY);
     }
 
     /// @brief Returns the image of the piece
@@ -62,8 +65,8 @@ public class UIPiece extends StackPane{
         try {
             img = new Image(
                 new FileInputStream(
-                    DEF_IMG_LOCATION + this.piece.type().colorImageLocation(
-                        this.piece.color()
+                    DEF_IMG_LOCATION + this._piece.type().colorImageLocation(
+                        this._piece.color()
                     )
                 )
             );

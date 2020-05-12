@@ -1,12 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file Piece.java
- * @class Piece
- * @brief Holds the information of the piece
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Piece.java
+/// @class Piece
+/// @brief Holds the information of the piece
 public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;
@@ -18,19 +16,23 @@ public class Piece implements JSON, Cloneable {
     private PieceColor color;       ///> Piece's color
     private boolean direction;      ///> Piece's direction, true (black), false (white)
 
+    /// @brief Default piece constructor
+    /// @param type Type of the piece
+    /// @param moved If the piece has been moved or not
+    /// @param color Color of the piece (B/W)
     Piece(PieceType type, boolean moved, PieceColor color) {
         this.id = idGenerator;
         this.type = type;
         this.moved = moved;
         this.color = color;
 
-        /// Since type symbol will ALWAYS be uppercase, we only nee to change it
-        /// if the piece color is black.
+        // Since type symbol will ALWAYS be uppercase, we only nee to change it
+        // if the piece color is black.
         this.symbol = color.toString().equals("NEGRES") 
             ? type.ptSymbol().toLowerCase()
             : type.ptSymbol();
         
-        /// Set the direction
+        // Set the direction
         this.direction = this.color.toString().equals("NEGRES")
             ? true
             : false;
@@ -39,14 +41,18 @@ public class Piece implements JSON, Cloneable {
     }
 
     /// @brief Default constructor with symbol
+    /// @param type Type of the piece
+    /// @param symbol First char of the piece type 
+    /// @param moved If the piece has been moved or not
+    /// @param color Color of the piece (B/W)
     Piece(PieceType type, String symbol, boolean moved, PieceColor color) {
         this.id = idGenerator;
         this.type = type;
         this.moved = moved;
         this.color = color;
 
-        /// Since type symbol will ALWAYS be uppercase, we only nee to change it
-        /// if the piece color is black.
+        // Since type symbol will ALWAYS be uppercase, we only nee to change it
+        // if the piece color is black.
         this.symbol = color.toString().equals("NEGRES") 
             ? type.ptSymbol().toLowerCase()
             : type.ptSymbol();
@@ -55,9 +61,9 @@ public class Piece implements JSON, Cloneable {
     }
 
     /// @brief Copy constructor
-    /// @pre @param copy cannot be null
-    /// @post Creates a Piece copy of @param copy
-    /// @throw NullPointerException if @param copy is null
+    /// @pre @p copy cannot be null
+    /// @post Creates a Piece copy of @p copy
+    /// @throw NullPointerException if @p copy is null
     Piece(Piece copy) {
         if (copy == null) {
             throw new NullPointerException("Copy Piece cannot pass a null element");
@@ -118,19 +124,19 @@ public class Piece implements JSON, Cloneable {
     /// @post Returns the possible movements list from the piece type
     public List<Movement> pieceMovements() {
         List<Movement> temp = new ArrayList<>();
-        /// Since the object will change, we have to clone it
+        // Since the object will change, we have to clone it
         type.ptMovements().forEach(
             (m) -> temp.add((Movement) m.clone())
         );
 
         if (!this.moved) {
-            /// Add initial movements if not has moved
+            // Add initial movements if not has moved
             type.ptInitMovements().forEach(
                 (m) -> temp.add((Movement) m.clone())
             );
         }
         
-        /// Filter data if needed
+        // Filter data if needed
         if (this.direction) {
             temp.forEach(
                 (m) -> m.toggleDirection()
@@ -176,7 +182,7 @@ public class Piece implements JSON, Cloneable {
             System.err.println("Piece clone exception");
         }
 
-        /// Cloning piece type value
+        // Cloning piece type value
         cloned.type = (PieceType) this.type.clone();
 
         return cloned;

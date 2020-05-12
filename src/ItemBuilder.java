@@ -12,18 +12,17 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/**
- * @author Miquel de Domingo 
- * @file ItemBuilder.java
- * @class ItemBuilder
- * @brief Modular class to keep a constant style along the application
- */
+/// @author Miquel de Domingo 
+/// @file ItemBuilder.java
+/// @class ItemBuilder
+/// @brief Modular class to keep a constant style along the application
 public class ItemBuilder {
     /// CONSTANTS
-    private static final String CSS_LOCATION = "./data/style.css";
+    private static final String CSS_LOCATION = "./data/style.css";      ///< Default CSS file location
 
     /// CSS CLASSNAME CONSTANTS
     private static final String BTN_PRIMARY = "btn-primary";            ///< Primary button class name
@@ -148,11 +147,12 @@ public class ItemBuilder {
         popUp.initModality(Modality.APPLICATION_MODAL);
         popUp.setTitle(title);
         Label errText = new Label(text);
+        errText.setTextAlignment(TextAlignment.CENTER);
         list.add(errText);
 
         if (hasButton) {
             Button closeBtn = new Button();
-            buildButton(closeBtn, "TORNAR", 125.0, BtnType.EXIT);
+            buildButton(closeBtn, "CLOSE", 125.0, BtnType.EXIT);
             closeBtn.setOnAction(e -> {
                 popUp.close();
             });

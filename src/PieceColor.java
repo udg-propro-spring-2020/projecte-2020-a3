@@ -13,8 +13,20 @@ public enum PieceColor {
             case Black:
                 return new String("NEGRES");
             default:
-                /// What's not black, is white
+                // What's not black, is white
                 return new String("BLANQUES");
+        }
+    }
+
+    /// @brief Returns a string with the name in English
+    /// @pre ---
+    /// @post Returns a string with the name in English
+    public String value() {
+        switch(this) {
+            case Black:
+                return new String("Blacks");
+            default:
+                return new String("Whites");
         }
     }
 }

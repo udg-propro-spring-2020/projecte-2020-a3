@@ -1,12 +1,11 @@
 import javafx.application.Application;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file ChessGame.java
- * @class ChessGame
- * @brief Main class of the application. Handles whereas the app will be
- *        displayed in a UI or in the console depending on the given arguments
- */
+
+/// @author Miquel de Domingo i Giralt
+/// @file ChessGame.java
+/// @class ChessGame
+/// @brief Main class of the application
+/// @details Handles whereas the app will be displayed in a UI or in the console depending on the given arguments
 public abstract class ChessGame {
 	/// @brief Runs the application
 	/// @pre args is [-g] or [-c] 

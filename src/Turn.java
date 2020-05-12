@@ -1,32 +1,30 @@
-/**
- * @author Miquel de Domingo i Giralt
- * @file Turn.java
- * @class Turn 
- * @brief Holds the information of a turn
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Turn.java
+/// @class Turn 
+/// @brief Holds the information of a turn 
 public class Turn implements JSON, Cloneable {
-    private PieceColor color;
-    private Pair<String, String> move;
-    private String result;
+    private PieceColor _color;
+    private Pair<String, String> _move;
+    private String _result;
 
     Turn(PieceColor color, Pair<String, String> move, String result) {
-        this.color = color;
-        this.move = move;
-        this.result = result;
+        this._color = color;
+        this._move = move;
+        this._result = result;
     }
 
     /// @brief To know the movement origin cell
     /// @pre ---
     /// @post Returns the movement origin cell
     public String origin() {
-        return move.first;
+        return _move.first;
     }
 
     /// @brief To know the movement destination cell
     /// @pre ---
     /// @post Returns the movement destination cell
     public String destination() {
-        return move.second;
+        return _move.second;
     }
 
     /// @brief Returns the move as a pair of positions
@@ -43,7 +41,7 @@ public class Turn implements JSON, Cloneable {
     /// @pre ---
     /// @post Returns the result of the movement
     public String turnResult() {
-        return this.result;
+        return this._result;
     }
 
     /// @pre ---
@@ -53,10 +51,10 @@ public class Turn implements JSON, Cloneable {
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.TWO_TABS)
             .append(ToJSONParserHelper.OBJ_START)
-            .append(ToJSONParserHelper.propertyToJSON("torn", color.toString(), true, true, ToJSONParserHelper.THREE_TABS))
-            .append(ToJSONParserHelper.propertyToJSON("origen", move.first, true, true, ToJSONParserHelper.THREE_TABS))
-            .append(ToJSONParserHelper.propertyToJSON("desti", move.second, true, true, ToJSONParserHelper.THREE_TABS))
-            .append(ToJSONParserHelper.propertyToJSON("resultat", result, true, false, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("torn", _color.toString(), true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("origen", _move.first, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("desti", _move.second, true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("resultat", _result, true, false, ToJSONParserHelper.THREE_TABS))
             .append(ToJSONParserHelper.TWO_TABS)
             .append(ToJSONParserHelper.OBJ_END);
         return s.toString();
@@ -66,7 +64,7 @@ public class Turn implements JSON, Cloneable {
     public String toString() {
         StringBuilder s = new StringBuilder();
 
-        s.append("[" + color.toString() + ", " + move.first + "-" + move.second + ", " + result + "]");
+        s.append("[" + _color.toString() + ", " + _move.first + "-" + _move.second + ", " + _result + "]");
 
         return s.toString();
     }
