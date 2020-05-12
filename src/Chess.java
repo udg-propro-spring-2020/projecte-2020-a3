@@ -662,11 +662,12 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if the piece can promote
      */
-    private boolean canPromote(Position origin){
-        Piece pOrig = board[origin.row()][origin.col()];
+    private boolean canPromote(Position origin, Position destiny){ //destiny perque ja ha realitzat el moviment
+        Piece p = board[destiny.row()][destiny.col()];
         boolean promote = false;
-        if((pOrig.color()==PieceColor.White && origin.row()==rows()) || (pOrig.color()==PieceColor.Black && origin.row()==0)){
-            promote = pOrig.type().ptPromotable();
+        if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
+            if(origin.row() != destiny.row())
+                promote = p.type().ptPromotable();
         }
         return promote;
     }
@@ -793,15 +794,22 @@ public class Chess implements Cloneable {
                     checkMovementResult = checkMovement(origin, destiny);
                     if(checkMovementResult.first.get(0) == MoveAction.Correct){
                         System.out.println("La movem a "+destiny.toString());
+                        System.out.println("ActualTurn.........abans........................."+actualTurn);
+                        System.out.println(showBoard());
+                        pintarLlistes();
+                        System.out.println("ActualTurn.........abans........................");
                         applyResult = applyMovement(origin, destiny, checkMovementResult.second);
+                        System.out.println("ActualTurn.........despres........................."+actualTurn);
+                        System.out.println(showBoard());
+                        pintarLlistes();
+                        System.out.println("ActualTurn.........despres........................");
                         if(!isEscac(listToCheckCheck)){
                             checkmate = false;
                             //foundCounterEscac = true;
                         }
-                        //actualTurn--;
+                        //Canvia be tot el primer cop. El segon cop la llista no actualitza pero el tauler si
                         undoMovement();
-                        //actualTurn++;
-                    //undoMovement();
+                        
                     }
                 }
                 j++;
@@ -1099,7 +1107,7 @@ public class Chess implements Cloneable {
             listDoingMove = pListBlack;
             listCounterMove = pListWhite;
         }
-        if(canPromote(destiny))
+        if(canPromote(origin, destiny))
             r.add(MoveAction.Promote);
         if(isEscac(listDoingMove)){
             System.out.println("1106. Hi ha escac");
@@ -1109,7 +1117,7 @@ public class Chess implements Cloneable {
                 r.add(MoveAction.Escac);
         }   
 
-        System.out.println("---------------------------------------");
+        /*System.out.println("---------------------------------------");
             System.out.println("Tamany: "+blackPiecesTurn.size());
             for(int v=0;v<blackPiecesTurn.size(); v++){
                 System.out.println("*************************** "+v);
@@ -1123,7 +1131,7 @@ public class Chess implements Cloneable {
                     }
                 // }
             }
-        System.out.println("---------------------------------------");
+        System.out.println("---------------------------------------");*/
 
         
         return r;
