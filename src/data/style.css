@@ -4,7 +4,8 @@
 
 .pane {
 	-fx-background-image: url("./img/background.jpg");
-	-fx-background-position: center center;
+	-fx-background-position: bottom center;
+	-fx-background-size: cover;
 }
 
 .btn { 

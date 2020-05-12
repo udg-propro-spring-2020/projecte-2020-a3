@@ -171,7 +171,7 @@ public class UIChess extends Application {
         Button exitGameButton = new Button();
         ItemBuilder.buildButton(
             exitGameButton,
-            "SURT",
+            "EXIT",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.EXIT
         );
@@ -523,7 +523,7 @@ public class UIChess extends Application {
         } catch (JSONParseFormatException e) {
             displayErrorPopUp(
                 e.getType(),
-                "The file contains an illegal format. \nCheck it and try again."
+                "The configuration file contains an illegal format. \nCheck it and try again."
             );
 
             System.exit(-1);
