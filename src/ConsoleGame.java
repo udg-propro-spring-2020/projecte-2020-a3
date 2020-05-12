@@ -9,12 +9,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file ConsoleGame.java
- * @class ConsoleGame
- * @brief Class that controls the game played in a console display
- */
+/// @author Miquel de Domingo i Giralt
+/// @file ConsoleGame.java
+/// @class ConsoleGame
+/// @brief Class that controls the game played in a console display
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
 	private static String defaultConfigFileName = null;				///< Keeps the configuration file name
@@ -811,11 +809,11 @@ public class ConsoleGame {
 						stop = true;
 						break;
 					default: {
-						p.col = c.indexOf(s.charAt(0));
-						if (p.col != -1 && p.col < cols) {
+						p._col = c.indexOf(s.charAt(0));
+						if (p._col != -1 && p._col < cols) {
 							try {
-								p.row = Integer.parseInt(s.substring(1)) - 1;
-								if (p.row >= 0 && p.row < rows) {
+								p._row = Integer.parseInt(s.substring(1)) - 1;
+								if (p._row >= 0 && p._row < rows) {
 									if (originMove && !chess.emptyCell(p)) {
 										if (chess.cellColor(p) == colorTurn) {
 											stop = true;

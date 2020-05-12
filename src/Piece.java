@@ -1,12 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file Piece.java
- * @class Piece
- * @brief Holds the information of the piece
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Piece.java
+/// @class Piece
+/// @brief Holds the information of the piece
 public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;
@@ -18,6 +16,10 @@ public class Piece implements JSON, Cloneable {
     private PieceColor color;       ///> Piece's color
     private boolean direction;      ///> Piece's direction, true (black), false (white)
 
+    /// @brief Default piece constructor
+    /// @param type Type of the piece
+    /// @param moved If the piece has been moved or not
+    /// @param color Color of the piece (B/W)
     Piece(PieceType type, boolean moved, PieceColor color) {
         this.id = idGenerator;
         this.type = type;
@@ -39,6 +41,10 @@ public class Piece implements JSON, Cloneable {
     }
 
     /// @brief Default constructor with symbol
+    /// @param type Type of the piece
+    /// @param symbol First char of the piece type 
+    /// @param moved If the piece has been moved or not
+    /// @param color Color of the piece (B/W)
     Piece(PieceType type, String symbol, boolean moved, PieceColor color) {
         this.id = idGenerator;
         this.type = type;

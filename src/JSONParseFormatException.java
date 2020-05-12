@@ -1,9 +1,7 @@
-/**
- * @author Miquel de Domingo i Giralt
- * @file JSONParseFormatException.java
- * @class JSONParseFormatException
- * @brief Exception thrown when there is a file format incongruence
- */
+/// @author Miquel de Domingo i Giralt
+/// @file JSONParseFormatException.java
+/// @class JSONParseFormatException
+/// @brief Exception thrown when there is a file format incongruence
 public class JSONParseFormatException extends Exception {
     /// @brief Enum to define the exception type
     public static enum ExceptionType {
@@ -36,17 +34,20 @@ public class JSONParseFormatException extends Exception {
         }
     }
 
-    ExceptionType type;         ///< Defines the exception type
+    private ExceptionType _type;         ///< Defines the exception type
 
+    /// @brief Exception constructor
+    /// @param message Message to be held
+    /// @param type Type of the exception
     JSONParseFormatException(String message, ExceptionType type) {
         super(message);
-        this.type = type;
+        this._type = type;
     }    
 
     /// @brief To know the exceptions type
     /// @pre ---
     /// @post Returns the type of the exception
     public String getType() {
-        return this.type.toString();
+        return this._type.toString();
     }
 }

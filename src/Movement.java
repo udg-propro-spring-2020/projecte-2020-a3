@@ -1,61 +1,59 @@
-/**
- * @author Miquel de Domingo i Giralt
- * @file Movement.java
- * @class Movement
- * @brief Holds the information of the movement
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Movement.java
+/// @class Movement
+/// @brief Holds the information of the movement
 public class Movement implements JSON, Cloneable {
-    /// @param X Fixed int or a 50 (-50) - meaning anything but 0 -
-    private int x;
-    /// @param Y Fixed int or a 50 (-50) - meaning anything but 0 -
-    private int y;
-    /// @param capture 0 (can't capture), 1 (can capture), 2 (movement valid only when capturing)
-    private int capture;
-    /// @param jump 0 (can't jump), 1 (can jump not capture), 2 (jump and capture)
-    private int jump;
+    private int _x;         ///< Fixed int or a 50 (-50) - anything but 0 -
+    private int _y;         ///< Fixed int or a 50 (-50) - anything but 0 -
+    private int _capture;   ///< 0 (can't capture), 1 (can capture), 2 (movement valid only when capturing)
+    private int _jump;      ///< 0 (can't jump), 1 (can jump not capture), 2 (jump and capture)
 
     /// @brief Default movement constructor
+    /// @param x X value of the movement
+    /// @param y Y value of the movement
+    /// @param capture Type of capture it can do
+    /// @param jump Type of jump it can do
     Movement(int x, int y, int capture, int jump){
-        this.x = x;
-        this.y = y;
-        this.capture = capture;
-        this.jump = jump;
+        this._x = x;
+        this._y = y;
+        this._capture = capture;
+        this._jump = jump;
     }
 
     /// @brief To know the X property value
     /// @pre ---
     /// @post Returns the X property of the movement
     public int movX(){
-        return x;
+        return _x;
     }
 
    /// @brief To know the Y property value
     /// @pre ---
     /// @post Returns the Y property of the movement
     public int movY(){
-        return y;
+        return _y;
     }
     
     /// @brief To know the capture sign property value
     /// @pre ---
     /// @post Returns the capture sign property of the movement
     public int captureSign(){
-        return capture;
+        return _capture;
     }
 
     /// @brief To know the jump value
     /// @pre ---
     /// @post Returns the jump value
     public int canJump(){
-        return jump;
+        return _jump;
     } 
 
     /// @brief Toggles x and y values sign
     /// @pre ---
     /// @post Changes x and y values sign to its opposite
     public void toggleDirection() {
-        this.x *= -1;
-        this.y *= -1;
+        this._x *= -1;
+        this._y *= -1;
     }
 
     @Override
@@ -63,18 +61,18 @@ public class Movement implements JSON, Cloneable {
         StringBuilder s = new StringBuilder();
         s.append(ToJSONParserHelper.FOUR_TABS)
             .append(ToJSONParserHelper.LIST_START)
-            .append(ToJSONParserHelper.valueToJSON(x == 50 
+            .append(ToJSONParserHelper.valueToJSON(_x == 50 
                 ? "\"a\"" 
-                : (x == -50 ? "\"-a\"" : Integer.toString(x)),
+                : (_x == -50 ? "\"-a\"" : Integer.toString(_x)),
                 ToJSONParserHelper.FIVE_TABS, true)
             )
-            .append(ToJSONParserHelper.valueToJSON(y == 50 
+            .append(ToJSONParserHelper.valueToJSON(_y == 50 
                 ? "\"a\"" 
-                : (y == -50 ? "\"-a\"" : Integer.toString(y)),
+                : (_y == -50 ? "\"-a\"" : Integer.toString(_y)),
                 ToJSONParserHelper.FIVE_TABS, true)
             )
-            .append(ToJSONParserHelper.valueToJSON(capture, ToJSONParserHelper.FIVE_TABS, true))
-            .append(ToJSONParserHelper.valueToJSON(jump, ToJSONParserHelper.FIVE_TABS, false))
+            .append(ToJSONParserHelper.valueToJSON(_capture, ToJSONParserHelper.FIVE_TABS, true))
+            .append(ToJSONParserHelper.valueToJSON(_jump, ToJSONParserHelper.FIVE_TABS, false))
             .append(ToJSONParserHelper.FOUR_TABS)
             .append(ToJSONParserHelper.LIST_END);
         

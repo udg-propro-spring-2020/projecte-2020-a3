@@ -6,19 +6,19 @@
  */
 public class Position implements JSON, Cloneable {
     /// TRANSFORMATION CONSTANTS
-    private static String alph = "abcdefghijklmnopqrstuvwxyz";
+    private static final String ALPH = "abcdefghijklmnopqrstuvwxyz";        ///< Alphabet letters sorted
 
-    private char colLetter;         ///< Col character value
-    public int row;                 ///< Integer row value
-    public int col;                 ///< Integer column value
+    private char _colLetter;         ///< Col character value
+    public int _row;                 ///< Integer row value
+    public int _col;                 ///< Integer column value
     
     /// @brief Create a positon from the chess coordinates
     /// @pre ---
     /// @post Creates a position from the given coordinates
     Position(int row, int col) {
-	    this.row = row; 
-        this.col = col; 
-        colLetter = alph.charAt(col);
+	    this._row = row; 
+        this._col = col; 
+        this._colLetter = ALPH.charAt(col);
     }
 
     /// @brief Copy constructor
@@ -29,32 +29,32 @@ public class Position implements JSON, Cloneable {
         if (copy == null) {
             throw new NullPointerException("Copy Position cannot pass a null element");
         }
-        this.row = copy.row;
-        this.col = copy.col;
-        this.colLetter = copy.colLetter;
+        this._row = copy._row;
+        this._col = copy._col;
+        this._colLetter = copy._colLetter;
     }
 
     /// @brief Construct a position from a string
     /// @pre s == XY where X is the column and Y the row
     /// @post Creates a position from the given string
     Position(String s) {
-        this.row = Character.getNumericValue(s.charAt(1) - 1);
-        this.col = alph.indexOf(s.charAt(0));
-        this.colLetter = alph.charAt(col);
+        this._row = Character.getNumericValue(s.charAt(1) - 1);
+        this._col = ALPH.indexOf(s.charAt(0));
+        this._colLetter = ALPH.charAt(_col);
     }
     
     /// @brief Return the row's value
     /// @pre --
     /// @post Returns the position's row
     public int row(){
-        return this.row;
+        return this._row;
     }
     
     /// @brief Return the col's value
     /// @pre --
     /// @post Returns the position's column
     public int col(){
-        return this.col;
+        return this._col;
     }
 
     @Override
@@ -80,8 +80,8 @@ public class Position implements JSON, Cloneable {
     @Override
     public String toString() {
 	    StringBuilder value = new StringBuilder()
-            .append(colLetter)
-            .append(row + 1);
+            .append(_colLetter)
+            .append(_row + 1);
         return value.toString();
     }
 }

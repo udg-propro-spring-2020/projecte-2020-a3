@@ -19,36 +19,34 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file UIChess.java
- * @class UIChess
- * @brief Class that controls the game played in a graphic interface
- */
+/// @author Miquel de Domingo i Giralt
+/// @file UIChess.java
+/// @class UIChess
+/// @brief Class that controls the game played in a graphic interface
 public class UIChess extends Application {
     /// CONSTANTS
-    private static final String TITLE = "ESCACS";
-    private static final String MENU = "MENU";
-    private static final double MAX_BTN_WIDTH = 300.0;
+    private static final String TITLE = "ESCACS";                   ///< Main title of the window
+    private static final String MENU = "MENU";                      ///< Menu title of the window
+    private static final double MAX_BTN_WIDTH = 300.0;              ///< Max width of the buttons
 
-    private static final String DEF_GAME_LOCATION = "./data/configuration.json";
-    private static final String DEF_IMG_LOCATION = "./data/img/";
-    private static final String DEF_WHITE_TILE_LOCATION = "w.png";
-    private static final String DEF_BLACK_TILE_LOCATION = "b.png";
-    private static final int IMG_PIXELS = 60;
-    private static final double SPACER_PIXELS = 40.0;
+    private static final String DEF_GAME_LOCATION = "./data/configuration.json";    ///< Game default configuration location
+    private static final String DEF_IMG_LOCATION = "./data/img/";                   ///< Default image location
+    private static final String DEF_WHITE_TILE_LOCATION = "w.png";                  ///< Default white tile image name
+    private static final String DEF_BLACK_TILE_LOCATION = "b.png";                  ///< Default black tile image name
+    private static final int IMG_PIXELS = 60;                                       ///< Default images size (60x60)
+    private static final double SPACER_PIXELS = 40.0;                               ///< Default height of a spacer
 
-    private static final String SELECTED_CSS = "selected";
-    private static final String UNSELECTED_CSS = "unselected";
+    private static final String SELECTED_CSS = "selected";          ///< Selected button CSS class
+    private static final String UNSELECTED_CSS = "unselected";      ///< Unselected button CSS class
 
     /// Game Control Options
-    private Stage window;
-    private String choosenConfigFile = null;
-    private int cpuDifficulty = 2;
-    private List<String> knowledgeFiles = null;
-    private GameState lastGameState = GameState.GAME_INIT;
-    private Group tiles = null;
-    private Group pieces = null;
+    private Stage _window;                                          ///< Main window of the applicatino
+    private String _choosenConfigFile = null;                       ///< Configuration file entered by the user
+    private int _cpuDifficulty = 2;                                 ///< CPU difficulty chosen by the user
+    private List<String> _knowledgeFiles = null;                    ///< Knowledge file names entered by the user
+    private GameState _lastGameState = GameState.GAME_INIT;         ///< Game state before the current
+    private Group _tiles = null;                                    ///< Group of tiles of the board
+    private Group _pieces = null;                                   ///< Group of pieces of the board
 
     /// @brief Defines the type of the match currently playing
     private static enum GameType {
@@ -73,7 +71,7 @@ public class UIChess extends Application {
     ///       not empty
     private void setSceneTitle(String title) {
         if (!(title == null || title.isEmpty())) {
-            window.setTitle(title); 
+            _window.setTitle(title); 
         }
     }
 
@@ -81,15 +79,15 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Displays the 4 buttons of the menu
     private void buildMainScene() {
-        window.setTitle(MENU + " - " + TITLE);
+        _window.setTitle(MENU + " - " + TITLE);
 
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("ESCACS"));
         list.addAll(buildMenuButtons());
         VBox body = ItemBuilder.buildVBox(16.0, list, true);       
         
-        window.setScene(ItemBuilder.buildScene(body));
-        window.show();
+        _window.setScene(ItemBuilder.buildScene(body));
+        _window.show();
     }
     
     /// @brief Adds a go back button to a collection
@@ -107,13 +105,13 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         goBackButton.setOnAction(e -> {
-            System.out.println(lastGameState.toString());
-            switch (lastGameState) {
+            System.out.println(_lastGameState.toString());
+            switch (_lastGameState) {
                 case GAME_INIT: 
                     buildMainScene();
                     break;
                 case GAME_MODE:
-                    lastGameState = GameState.GAME_INIT;
+                    _lastGameState = GameState.GAME_INIT;
                     gameOptions();
                     break;
                 case GAME_TYPE:
@@ -178,7 +176,7 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         exitGameButton.setOnAction(e -> {
-            window.close();
+            _window.close();
         });
         list.add(exitGameButton);
 
@@ -255,7 +253,7 @@ public class UIChess extends Application {
                     if (selected != null) {
                         String file = selected.getPath();
                         System.out.println(file);
-                        choosenConfigFile = file;
+                        _choosenConfigFile = file;
 
                         gameOptions();
                     }
@@ -325,7 +323,7 @@ public class UIChess extends Application {
                     fc.setInitialDirectory(
                         new File(System.getProperty("user.dir"))
                     );
-                    List<File> selected = fc.showOpenMultipleDialog(window);
+                    List<File> selected = fc.showOpenMultipleDialog(_window);
 
                     if (selected != null) {
                         List<String> files = new ArrayList<>();
@@ -334,10 +332,10 @@ public class UIChess extends Application {
                             files.add(f.getPath());
                             System.out.println(f.getPath());
                         }
-                        if (knowledgeFiles != null) {
-                            knowledgeFiles.clear();
+                        if (_knowledgeFiles != null) {
+                            _knowledgeFiles.clear();
                         }
-                        knowledgeFiles = files;
+                        _knowledgeFiles = files;
                     }
                 }
             }
@@ -369,7 +367,7 @@ public class UIChess extends Application {
             if (!beginnerBtn.getStyleClass().contains(SELECTED_CSS)) {
                 beginnerBtn.getStyleClass().remove(SELECTED_CSS);
                 beginnerBtn.getStyleClass().add(SELECTED_CSS);
-                cpuDifficulty = 2;
+                _cpuDifficulty = 2;
             }
         });
         intermediateBtn.setOnAction(e -> {
@@ -384,7 +382,7 @@ public class UIChess extends Application {
             if (!intermediateBtn.getStyleClass().contains(SELECTED_CSS)) {
                 intermediateBtn.getStyleClass().remove(SELECTED_CSS);
                 intermediateBtn.getStyleClass().add(SELECTED_CSS);
-                cpuDifficulty = 4;
+                _cpuDifficulty = 4;
             }
         });
         advancedBtn.setOnAction(e -> {
@@ -399,7 +397,7 @@ public class UIChess extends Application {
             if (!advancedBtn.getStyleClass().contains(SELECTED_CSS)) {
                 advancedBtn.getStyleClass().remove(SELECTED_CSS);
                 advancedBtn.getStyleClass().add(SELECTED_CSS);
-                cpuDifficulty = 6;
+                _cpuDifficulty = 6;
             }
         });
 
@@ -474,7 +472,7 @@ public class UIChess extends Application {
         list.add(ItemBuilder.buildTitle("ESCULL UN MODE"));
         list.addAll(buildOptionButtons());
         Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
-        window.setScene(s);
+        _window.setScene(s);
     }
 
     /// @brief Function that displays the preconfigured game options scene
@@ -485,19 +483,19 @@ public class UIChess extends Application {
         list.add(ItemBuilder.buildTitle("PARTIDA \nPRE-CONFIGURADA"));
         list.addAll(buildPreconfiguredGameButtons());
         Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
-        window.setScene(s);
+        _window.setScene(s);
     }
 
     /// @brief Handles the configuration of the CPU by the user
     /// @pre @param gameType is @p CPUvsPlayer or @p CPUvsCPU
     private void cpuConfiguration(GameType gameType) {
-        lastGameState = GameState.GAME_MODE;
+        _lastGameState = GameState.GAME_MODE;
         
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("DEFINEIX LA CPU"));
         list.addAll(buildCPUButtons(gameType));
         Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
-        window.setScene(s);
+        _window.setScene(s);
     }
 
     /// @brief Starts the type of game the user has choosen
@@ -509,10 +507,10 @@ public class UIChess extends Application {
         Chess chess = null;
         /// On any fatal loading error, the application will exit
         try {
-            if (choosenConfigFile == null) {
+            if (_choosenConfigFile == null) {
                 chess = FromJSONParserHelper.buildChess(DEF_GAME_LOCATION);
             } else {
-                chess = FromJSONParserHelper.buildChess(choosenConfigFile);
+                chess = FromJSONParserHelper.buildChess(_choosenConfigFile);
             }
             System.out.println(chess.toString());
         } catch (FileNotFoundException e) {
@@ -536,15 +534,15 @@ public class UIChess extends Application {
         Scene scene = new Scene(p);
         switch (gameType) {
             case PLAYER_PLAYER:
-                window.setScene(scene);
-                window.sizeToScene();
+                _window.setScene(scene);
+                _window.sizeToScene();
                 break;
             case CPU_PLAYER:
                 System.out.println("INSIDE CPU_PLAYER");
-                for (String s : knowledgeFiles) {
+                for (String s : _knowledgeFiles) {
                     System.out.println(s);
                 }
-                System.out.println("Cpu level: " + cpuDifficulty);
+                System.out.println("Cpu level: " + _cpuDifficulty);
                 break;
             case CPU_CPU:
                 break;
@@ -585,9 +583,9 @@ public class UIChess extends Application {
         /// Maximum values = 16 * IMG_PIXELS
         background.setPrefSize(chess.cols() * IMG_PIXELS, chess.rows() * IMG_PIXELS);
         /// Initialise variables and set to parent
-        tiles = new Group();
-        pieces = new Group();
-        background.getChildren().addAll(tiles, pieces);
+        _tiles = new Group();
+        _pieces = new Group();
+        background.getChildren().addAll(_tiles, _pieces);
         
         /// Start creating the board
         for (int i = 0; i < chess.rows(); i++) {
@@ -608,13 +606,13 @@ public class UIChess extends Application {
                 }
                 img.setX(j * IMG_PIXELS);
                 img.setY(i * IMG_PIXELS);
-                tiles.getChildren().add(img);
+                _tiles.getChildren().add(img);
 
                 /// Check if there's a piece
                 Piece pieceIn = chess.pieceAt(i, j);
                 if (pieceIn != null) {
                     UIPiece piece = buildPiece(pieceIn, j, i);
-                    pieces.getChildren().add(piece);
+                    _pieces.getChildren().add(piece);
                 }
             }
         }
@@ -652,17 +650,17 @@ public class UIChess extends Application {
             fc.setInitialDirectory(
                 new File(System.getProperty("user.dir"))
             );
-        File selected = fc.showOpenDialog(window);
+        File selected = fc.showOpenDialog(_window);
 
         return selected;
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        window = primaryStage;
+        _window = primaryStage;
 
-        window.setWidth(900.0);
-        window.setHeight(650.0);
+        _window.setWidth(900.0);
+        _window.setHeight(650.0);
 
         buildMainScene();
     }

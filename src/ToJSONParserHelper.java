@@ -9,25 +9,23 @@ import java.util.List;
 public class ToJSONParserHelper {
     /// CONSTANTS
     /// @brief JSON Style control constants
-    private static final String NEXT_LINE  = "\n";
-    private static final String EOL        = ",\n";
-    private static final String EMPTY_LIST = "[]";
-    private static final String QUOTE      = "\"";
-    private static final String SEPARATOR  = ": ";
+    private static final String NEXT_LINE  = "\n";              ///< Next line 
+    private static final String EOL        = ",\n";             ///< Coma & next line 
+    private static final String EMPTY_LIST = "[]";              ///< JSON Empty list 
+    private static final String QUOTE      = "\"";              ///< Scaped quote
+    private static final String SEPARATOR  = ": ";              ///< JSON Separator
 
     /// PUBLIC UTIL CONSTANTS
     /// @brief Util constants to avoid code repetition and meaningless strings
-    public static final String ONE_TAB    = "\t";
-    public static final String TWO_TABS   = "\t\t";
-    public static final String THREE_TABS = "\t\t\t";
-    public static final String FOUR_TABS  = "\t\t\t\t";
-    public static final String FIVE_TABS  = "\t\t\t\t\t";
-    public static final String LIST_START = "[\n";
-    public static final String LIST_END   = "]";
-    public static final String OBJ_START  = "{\n";
-    public static final String OBJ_END    = "}";
-
-    /// @brief Saves the game in a file
+    public static final String ONE_TAB    = "\t";               ///< Simulates one tab
+    public static final String TWO_TABS   = "\t\t";             ///< Simulates two tabs
+    public static final String THREE_TABS = "\t\t\t";           ///< Simulates three tabs
+    public static final String FOUR_TABS  = "\t\t\t\t";         ///< Simulates four tabs
+    public static final String FIVE_TABS  = "\t\t\t\t\t";       ///< Simulates five tabs
+    public static final String LIST_START = "[\n";              ///< JSON List start
+    public static final String LIST_END   = "]";                ///< JSON List end
+    public static final String OBJ_START  = "{\n";              ///< JSON Object start
+    public static final String OBJ_END    = "}";                ///< JSON Object end
 
     /// @brief Creates a string containing the chess configuration
     /// @pre ---

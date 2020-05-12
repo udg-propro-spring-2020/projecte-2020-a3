@@ -15,12 +15,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-/**
- * @author Miquel de Domingo 
- * @file ItemBuilder.java
- * @class ItemBuilder
- * @brief Modular class to keep a constant style along the application
- */
+/// @author Miquel de Domingo 
+/// @file ItemBuilder.java
+/// @class ItemBuilder
+/// @brief Modular class to keep a constant style along the application
 public class ItemBuilder {
     /// CONSTANTS
     private static final String CSS_LOCATION = "./data/style.css";
