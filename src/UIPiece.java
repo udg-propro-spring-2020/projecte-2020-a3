@@ -12,32 +12,32 @@ import javafx.scene.layout.StackPane;
 /// @details The piece will control all the events which allow it to move
 ///          via mouse events
 public class UIPiece extends StackPane {
-    private Piece _piece; /// < Color of the piece
-    private int _width; /// < Tile width
-    private double _mouseX; /// < X Coordinates of the mouse (pixels)
-    private double _oldX; /// < X Old coordinate (pixels)
-    private double _mouseY; /// < Y Coordinates of the mouse (pixels)
-    private double _oldY; /// < Y Old coordinate (pixels)
+    private Piece _piece;               ///< Color of the piece
+    private int _width;                 ///< Tile width
+    private double _mouseX;             ///< X Coordinates of the mouse (pixels)
+    private double _oldX;               ///< X Old coordinate (pixels)
+    private double _mouseY;             ///< Y Coordinates of the mouse (pixels)
+    private double _oldY;               ///< Y Old coordinate (pixels)
 
-    private static final String DEF_IMG_LOCATION = "./data/img/"; /// < Default image location
+    private static final String DEF_IMG_LOCATION = "./data/img/";       ///< Default image location
 
     /// @brief Default piece constructor
     /// @param piece Piece it will display
     /// @param width Width of the piece
-    /// @param x X position
-    /// @param y Y position
+    /// @param x X position  
+    /// @param y Y position 
     UIPiece(Piece piece, int width, int x, int y) {
         this._piece = piece;
         this._width = width;
-
-        /// Move the piece
+        
+        // Move the piece
         move(x, y);
 
-        /// Add the piece image
+        // Add the piece image
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
 
-        /// TODO: Handle events
+        // TODO: Handle events
     }
 
     /// @brief Moves the piece to the center of the tile
@@ -64,7 +64,12 @@ public class UIPiece extends StackPane {
 
         try {
             img = new Image(
-                    new FileInputStream(DEF_IMG_LOCATION + this._piece.type().colorImageLocation(this._piece.color())));
+                new FileInputStream(
+                    DEF_IMG_LOCATION + this._piece.type().colorImageLocation(
+                        this._piece.color()
+                    )
+                )
+            );
         } catch (FileNotFoundException e) {
             throw new NullPointerException("Error on finding the image");
         }

@@ -1,9 +1,7 @@
-/**
- * @author Miquel de Domingo i Giralt
- * @file Castling.java
- * @class Castling
- * @brief Holds the castling information
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Castling.java
+/// @class Castling
+/// @brief Holds the castling information
 public class Castling implements JSON, Cloneable {
     private String _aPiece;             ///< Piece name A of the castling
     private String _bPiece;             ///< Piece name B of the castling

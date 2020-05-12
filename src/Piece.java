@@ -9,12 +9,12 @@ public class Piece implements JSON, Cloneable {
     /// ID Generator
     private static int idGenerator = 0;
 
-    private int id; /// > Piece's id
-    private PieceType type; /// > Type of the piece
-    private String symbol; /// > Piece's symbol
-    private boolean moved; /// > Whether the piece has been moved or not
-    private PieceColor color; /// > Piece's color
-    private boolean direction; /// > Piece's direction, true (black), false (white)
+    private int id;                 ///> Piece's id
+    private PieceType type;         ///> Type of the piece
+    private String symbol;          ///> Piece's symbol
+    private boolean moved;          ///> Whether the piece has been moved or not
+    private PieceColor color;       ///> Piece's color
+    private boolean direction;      ///> Piece's direction, true (black), false (white)
 
     /// @brief Default piece constructor
     /// @param type Type of the piece
@@ -26,19 +26,23 @@ public class Piece implements JSON, Cloneable {
         this.moved = moved;
         this.color = color;
 
-        /// Since type symbol will ALWAYS be uppercase, we only nee to change it
-        /// if the piece color is black.
-        this.symbol = color.toString().equals("NEGRES") ? type.ptSymbol().toLowerCase() : type.ptSymbol();
-
-        /// Set the direction
-        this.direction = this.color.toString().equals("NEGRES") ? true : false;
-
+        // Since type symbol will ALWAYS be uppercase, we only nee to change it
+        // if the piece color is black.
+        this.symbol = color.toString().equals("NEGRES") 
+            ? type.ptSymbol().toLowerCase()
+            : type.ptSymbol();
+        
+        // Set the direction
+        this.direction = this.color.toString().equals("NEGRES")
+            ? true
+            : false;
+        
         idGenerator++;
     }
 
     /// @brief Default constructor with symbol
     /// @param type Type of the piece
-    /// @param symbol First char of the piece type
+    /// @param symbol First char of the piece type 
     /// @param moved If the piece has been moved or not
     /// @param color Color of the piece (B/W)
     Piece(PieceType type, String symbol, boolean moved, PieceColor color) {
@@ -47,10 +51,12 @@ public class Piece implements JSON, Cloneable {
         this.moved = moved;
         this.color = color;
 
-        /// Since type symbol will ALWAYS be uppercase, we only nee to change it
-        /// if the piece color is black.
-        this.symbol = color.toString().equals("NEGRES") ? type.ptSymbol().toLowerCase() : type.ptSymbol();
-
+        // Since type symbol will ALWAYS be uppercase, we only nee to change it
+        // if the piece color is black.
+        this.symbol = color.toString().equals("NEGRES") 
+            ? type.ptSymbol().toLowerCase()
+            : type.ptSymbol();
+        
         idGenerator++;
     }
 
@@ -77,7 +83,7 @@ public class Piece implements JSON, Cloneable {
     public PieceType type() {
         return this.type;
     }
-
+    
     /// @brief To know the piece's symbol value
     /// @pre ---
     /// @post Returns the symbol value
@@ -118,17 +124,23 @@ public class Piece implements JSON, Cloneable {
     /// @post Returns the possible movements list from the piece type
     public List<Movement> pieceMovements() {
         List<Movement> temp = new ArrayList<>();
-        /// Since the object will change, we have to clone it
-        type.ptMovements().forEach((m) -> temp.add((Movement) m.clone()));
+        // Since the object will change, we have to clone it
+        type.ptMovements().forEach(
+            (m) -> temp.add((Movement) m.clone())
+        );
 
         if (!this.moved) {
-            /// Add initial movements if not has moved
-            type.ptInitMovements().forEach((m) -> temp.add((Movement) m.clone()));
+            // Add initial movements if not has moved
+            type.ptInitMovements().forEach(
+                (m) -> temp.add((Movement) m.clone())
+            );
         }
-
-        /// Filter data if needed
+        
+        // Filter data if needed
         if (this.direction) {
-            temp.forEach((m) -> m.toggleDirection());
+            temp.forEach(
+                (m) -> m.toggleDirection()
+            );
         }
 
         return temp;
@@ -148,17 +160,15 @@ public class Piece implements JSON, Cloneable {
     public boolean equals(Piece p) throws NullPointerException {
         if (p == null) {
             throw new NullPointerException("Piece can not be equal to null");
-        }
+        } 
         return p.id == this.id;
     }
 
     @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();
-        s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true,
-                ToJSONParserHelper.THREE_TABS))
-                .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false,
-                        ToJSONParserHelper.THREE_TABS));
+        s.append(ToJSONParserHelper.propertyToJSON("tipus", type.ptName().toUpperCase(), true, true, ToJSONParserHelper.THREE_TABS))
+            .append(ToJSONParserHelper.propertyToJSON("moguda", moved ? true : false, false, false, ToJSONParserHelper.THREE_TABS));
         return s.toString();
     }
 
@@ -172,7 +182,7 @@ public class Piece implements JSON, Cloneable {
             System.err.println("Piece clone exception");
         }
 
-        /// Cloning piece type value
+        // Cloning piece type value
         cloned.type = (PieceType) this.type.clone();
 
         return cloned;
