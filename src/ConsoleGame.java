@@ -679,7 +679,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief Changes turn value
-	/// @pre @param currTurnColor != null
+	/// @pre @p currTurnColor != null
 	/// @post Changes currTurnValue to the oposite
 	private static void toggleTurn() {
 		if (currTurnColor == null) {
@@ -692,8 +692,8 @@ public class ConsoleGame {
 	}
 
 	/// @brief Saves turn information
-	/// @pre @param p cannot be null
-	/// @post Creates a new turn with the given movement and increments @param turnNumber.
+	/// @pre @p p cannot be null
+	/// @post Creates a new turn with the given movement and increments @p turnNumber.
 	private static void saveTurn(List<MoveAction> results, Pair<String, String> p) {
 		MoveAction res = null;
 		if (results.contains(MoveAction.Escacimat)) {
@@ -722,7 +722,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief Controls a cpu turn
-	/// @pre @param c & @param cpu cannot be null
+	/// @pre @p c & @p cpu cannot be null
 	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
 	///       returns null.
 	private static MoveAction cpuTurn(Chess chess, Cpu cpu, Pair<Position, Position> lastMovement) {
@@ -921,7 +921,7 @@ public class ConsoleGame {
 	}
 
 	/// @brief To get the last movement of the game
-	/// @pre @param turnNumber > 0
+	/// @pre @p turnNumber > 0
 	/// @post Returns the last movement of the game
 	private static Pair<Position, Position> lastMovement() {
 		return new Pair<Position, Position>(
@@ -930,9 +930,9 @@ public class ConsoleGame {
 		);
 	}
 
-	/// @brief Returns the opposite color of @param color
+	/// @brief Returns the opposite color of @p color
 	/// @pre ---
-	/// @post Returns the opposite color of @param color
+	/// @post Returns the opposite color of @p color
 	private static PieceColor oppositeColor(PieceColor color) {
 		return color == PieceColor.White 
 			? PieceColor.Black
