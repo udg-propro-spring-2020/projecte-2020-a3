@@ -22,7 +22,7 @@ import javafx.stage.Stage;
 /// @brief Modular class to keep a constant style along the application
 public class ItemBuilder {
     /// CONSTANTS
-    private static final String CSS_LOCATION = "./data/style.css";      ///< Default CSS file location
+    private static final String CSS_LOCATION = "./data/styles/style.css";      ///< Default CSS file location
 
     /// CSS CLASSNAME CONSTANTS
     private static final String BTN_PRIMARY = "btn-primary";            ///< Primary button class name
