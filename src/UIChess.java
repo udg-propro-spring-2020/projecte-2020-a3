@@ -41,7 +41,9 @@ public class UIChess extends Application {
 
     /// Game Control Options
     private Stage _window;                                          ///< Main window of the applicatino
-    private String _choosenConfigFile = null;                       ///< Configuration file entered by the user
+    private String _defaultConfigFile = null;                       ///< Default configuration file location
+    private String _choosenConfigFile = null;                       ///< Configuration file location entered by the user
+    private String _choosenGameFile = null;                         ///< Game file location if the user wants to load a game
     private int _cpuDifficulty = 2;                                 ///< CPU difficulty chosen by the user
     private List<String> _knowledgeFiles = null;                    ///< Knowledge file names entered by the user
     private GameState _lastGameState = GameState.GAME_INIT;         ///< Game state before the current
@@ -80,6 +82,7 @@ public class UIChess extends Application {
     /// @post Displays the 4 buttons of the menu
     private void buildMainScene() {
         _window.setTitle(MENU + " - " + TITLE);
+        _lastGameState = GameState.GAME_INIT;
 
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("CHESS"));
@@ -163,6 +166,7 @@ public class UIChess extends Application {
         );
         loadGameButton.setOnAction(e -> {
             setSceneTitle("LOADING GAME");
+            loadSavedGame();
         });
         list.add(loadGameButton);
 
@@ -230,11 +234,12 @@ public class UIChess extends Application {
         return list;
     }
 
-    /// @brief Builds the buttons for the preconfigurated game menu
+    /// @brief Builds the buttons and events to load a file
     /// @pre ---
-    /// @post Returns a collection with the buttons for the preconfigurated
-    ///       game menu
-    private Collection<Node> buildPreconfiguredGameButtons() {
+    /// @post Returns a collection with the buttons and buttons events to load a file
+    ///       If @p savedGame is true, it will save a started game location. If false,
+    ///       it will save a game configuration.
+    private Collection<Node> buildLoadFileButton(boolean savedGame) {
         Collection<Node> list = new ArrayList<>();
         
         Button enterFileBtn = new Button();
@@ -252,8 +257,12 @@ public class UIChess extends Application {
 
                     if (selected != null) {
                         String file = selected.getPath();
-                        System.out.println(file);
-                        _choosenConfigFile = file;
+                        
+                        if (savedGame) {
+                            _choosenGameFile = file;
+                        } else {
+                            _choosenConfigFile = file;
+                        }
 
                         gameOptions();
                     }
@@ -417,7 +426,7 @@ public class UIChess extends Application {
         ItemBuilder.buildButton(
             undoBtn,
             "UNDO",
-            MAX_BTN_WIDTH,
+            MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
         undoBtn.setOnAction(e -> {
@@ -429,7 +438,7 @@ public class UIChess extends Application {
         ItemBuilder.buildButton(
             redoBtn,
             "REDO",
-            MAX_BTN_WIDTH,
+            MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
         redoBtn.setOnAction(e -> {
@@ -441,7 +450,7 @@ public class UIChess extends Application {
         ItemBuilder.buildButton(
             drawBtn,
             "DRAW",
-            MAX_BTN_WIDTH,
+            MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
         drawBtn.setOnAction(e -> {
@@ -449,17 +458,32 @@ public class UIChess extends Application {
         });
         list.add(drawBtn);
 
+        list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
+
         Button saveMatch = new Button();
         ItemBuilder.buildButton(
             saveMatch,
             "SAVE GAME",
-            MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
+            MAX_BTN_WIDTH / 2,
+            ItemBuilder.BtnType.SECONDARY
         );
         saveMatch.setOnAction(e -> {
             System.out.println("Guardant partida...");
         });
         list.add(saveMatch);
+
+        Button exitGameBtn = new Button();
+        ItemBuilder.buildButton(
+            exitGameBtn,
+            "EXIT",
+            MAX_BTN_WIDTH / 2,
+            ItemBuilder.BtnType.EXIT
+        );
+        exitGameBtn.setOnAction(e -> {
+            defaultWindowSize();
+            buildMainScene();
+        });
+        list.add(exitGameBtn);
 
         return list;
     }
@@ -481,7 +505,18 @@ public class UIChess extends Application {
     private void preconfiguredGame() {        
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("CONFIGURED GAME"));
-        list.addAll(buildPreconfiguredGameButtons());
+        list.addAll(buildLoadFileButton(false));
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        _window.setScene(s);
+    }
+
+    /// @brief Function that displays the load a saved game scene
+    /// @pre --
+    /// @post Once the file is entered, loads the game options
+    private void loadSavedGame() {
+        Collection<Node> list = new ArrayList<>(); 
+        list.add(ItemBuilder.buildTitle("LOAD A GAME"));
+        list.addAll(buildLoadFileButton(true));
         Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
         _window.setScene(s);
     }
@@ -509,6 +544,8 @@ public class UIChess extends Application {
         try {
             if (_choosenConfigFile == null) {
                 chess = FromJSONParserHelper.buildChess(DEF_GAME_LOCATION);
+            } else if (_choosenGameFile != null) {
+                // Load saved game
             } else {
                 chess = FromJSONParserHelper.buildChess(_choosenConfigFile);
             }
@@ -530,8 +567,15 @@ public class UIChess extends Application {
         }
 
         // Set scene
-        Parent p = buildBoard(chess);
-        Scene scene = new Scene(p);
+        Scene scene = new Scene(
+            ItemBuilder.buildBorderPane(
+                buildBoard(chess), 
+                null,
+                ItemBuilder.buildVBox(12.0, buildInGameButtons(), false), 
+                null, 
+                null
+            )
+        );
         switch (gameType) {
             case PLAYER_PLAYER:
                 _window.setScene(scene);
@@ -548,6 +592,17 @@ public class UIChess extends Application {
                 break;
         }
     }
+
+    /// @bief Loads a started game and returns it
+    /// @pre ---
+    /// @post Returns a started game from the file entered by the user
+    private Chess loadStartedGame() {
+        /// Save the configuration file
+        //_defaultConfigFile = FromJSONParserHelper.getConfigurationFileName(_choosenGameFile);
+
+        /// Get the match information
+        return null;  
+    } 
 
     /// @brief Builds the board
     /// @pre ---
@@ -642,6 +697,14 @@ public class UIChess extends Application {
         ).showAndWait();
     }
 
+    /// @brief Sets the window to the default size
+    /// @pre ---
+    /// @post Sets the window with 800px to and the height to 650px
+    private void defaultWindowSize() {
+        _window.setWidth(800.0);
+        _window.setHeight(650.0);
+    }
+
     /// @brief Allows the user to select a file and returns it
     /// @pre ---
     /// @post Returns the file selected for the user. If has not selected any, 
@@ -660,8 +723,7 @@ public class UIChess extends Application {
     public void start(Stage primaryStage) throws Exception {
         _window = primaryStage;
 
-        _window.setWidth(900.0);
-        _window.setHeight(650.0);
+        defaultWindowSize();
 
         buildMainScene();
     }
