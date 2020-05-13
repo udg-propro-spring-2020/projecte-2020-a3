@@ -313,6 +313,12 @@ public class ConsoleGame {
 					draw = true;
 				} else {
 					System.out.println("Game continues");
+					
+					if (_controller.currentTurnColor() == PieceColor.White) {
+						System.out.println(pOne + " turn - WHITES");
+					} else {
+						System.out.println(pTwo + " turn - BLACKS");
+					}
 					playerOption = playerTurn();			
 				}
 			} else if (playerOption.equals("S")) {

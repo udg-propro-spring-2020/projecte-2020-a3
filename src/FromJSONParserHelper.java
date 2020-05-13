@@ -139,10 +139,10 @@ public class FromJSONParserHelper {
 
         List<Pair<Position, Piece>> blackInitPos = new ArrayList<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            whiteInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
+            blackInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
         } else {
             throw new JSONParseFormatException(
-                "White piece list cannot be null",
+                "Black piece list cannot be null",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
             );
         }
@@ -471,7 +471,7 @@ public class FromJSONParserHelper {
 
                     } else if (result.contains("ENROC")) {
                         // TODO: Handle castling
-                    } else {
+                    } else if (!result.isEmpty()) {
                         System.err.println("Movement result is not valid. It ill not be taken into account.");
                         System.err.println("Error result: " + result);
                         result = "";
