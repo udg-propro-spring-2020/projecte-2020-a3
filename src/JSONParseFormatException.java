@@ -17,19 +17,19 @@ public class JSONParseFormatException extends Exception {
         public String toString() {
             switch (this) {
                 case EMPTY_LIST:
-                    return "ERROR E1: Llista buida";
+                    return "ERROR E1: Empty list";
                 case ILLEGAL_NUMBER:
-                    return "ERROR I1: Nombre no vàlid";
+                    return "ERROR I1: Invalid number";
                 case ILLEGAL_NAME:
-                    return "ERROR I2: Nom de peça no vàlid";
+                    return "ERROR I2: Piece name not valid";
                 case ILLEGAL_MOVE:
-                    return "ERROR I3: Moviment no vàlid";
+                    return "ERROR I3: Movement not valid";
                 case ILLEGAL_TYPE:
-                    return "ERROR I4: Tipus de peça no vàlid";
+                    return "ERROR I4: Piece type not valid";
                 case ILLEGAL_COLOR:
-                    return "ERROR I5: Color no vàlid";
+                    return "ERROR I5: Color not valid";
                 default:
-                    return "ERROR E2: Final de partida no vàlid";
+                    return "ERROR E2: End of game not valid";
             }
         }
     }
