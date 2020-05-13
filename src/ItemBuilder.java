@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -25,12 +26,14 @@ public class ItemBuilder {
     private static final String CSS_LOCATION = "./data/styles/style.css";      ///< Default CSS file location
 
     /// CSS CLASSNAME CONSTANTS
+    private static final String BTN = "btn";                            ///< Default button class name
     private static final String BTN_PRIMARY = "btn-primary";            ///< Primary button class name
     private static final String BTN_SECONDARY = "btn-secondary";        ///< Secondary button class name
     private static final String BTN_ACCENT = "btn-accent";              ///< Secondary button class name
     private static final String BTN_EXIT = "btn-exit";                  ///< Exit button class name
     private static final String TEXT_TITLE = "title";                   ///< Title class name
     private static final String PANE = "pane";                          ///< Pane class name
+    private static final String PANE_BG = "pane_with_bg";               ///< Pane class name
     private static final String SPACER = "spacer";                      ///< Spacer class name
 
     /// @brief Defines the possible button types
@@ -53,7 +56,7 @@ public class ItemBuilder {
     /// @post Sets the button with the desired properties
     public static void buildButton(Button btn, String text, Double width, BtnType type) {
         btn.setText(text);
-        btn.getStyleClass().add("btn");
+        btn.getStyleClass().add(BTN);
 
         if (width != null) {
             btn.setMaxWidth(width);
@@ -84,8 +87,9 @@ public class ItemBuilder {
     public static VBox buildVBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
         VBox layout = new VBox();
         
+        layout.getStyleClass().add(PANE);
         if (hasBackground) {
-            layout.getStyleClass().add(PANE);
+            layout.getStyleClass().add(PANE_BG);
         }
         layout.setSpacing((spacing == null) ? 24.0 : spacing);
         layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
@@ -102,8 +106,9 @@ public class ItemBuilder {
     public static HBox buildHBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
         HBox layout = new HBox();
 
+        layout.getStyleClass().add(PANE);
         if (hasBackground) {
-            layout.getStyleClass().add(PANE);
+            layout.getStyleClass().add(PANE_BG);
         }
         layout.setSpacing((spacing == null) ? 24.0 : spacing);
         layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
@@ -123,6 +128,17 @@ public class ItemBuilder {
         spacer.getStyleClass().add(SPACER);
 
         return spacer;
+    }
+    
+    /// @brief Builds a BorderPane with the given nodes to its correspondent position
+    /// @pre ---
+    /// @post Returns a BorderPane with the nodes to its correspondent positions. Adds the
+    ///       default CSS class to the pane
+    public static BorderPane buildBorderPane(Node center, Node top, Node left, Node right, Node bottom) {
+        BorderPane bp = new BorderPane(center, top, right, bottom, left);
+        bp.getStylesheets().add(CSS_LOCATION);
+
+        return bp;
     }
 
     /// @brief Builds a default Scene
