@@ -26,7 +26,7 @@ public class Chess implements Cloneable {
     private PieceColor nextTurnColor;
     private Piece[][] board;
     private List<Piece[][]> boardArray;
-    private int actualTurn;
+    private int currentTurn;
     private List<List<Pair<Position, Piece>>> whitePiecesTurn;
     private List<List<Pair<Position, Piece>>> blackPiecesTurn;
     private final static int unlimitateMove = 50; //es pot moure les caselles que vulgui
@@ -54,7 +54,7 @@ public class Chess implements Cloneable {
         this.initPositions = initPositions;
         this.castlings = castlings;
         this.boardArray = new ArrayList<Piece[][]>();
-        this.actualTurn = 0;
+        this.currentTurn = 0;
         this.whitePiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
         this.blackPiecesTurn = new ArrayList<List<Pair<Position, Piece>>>();
         this.whiteInitPos = new ArrayList<Pair<Position,Piece>>();
@@ -134,7 +134,7 @@ public class Chess implements Cloneable {
         this.initPositions = chess.initPositions;
         this.castlings = chess.castlings;
         this.boardArray = chess.boardArray;
-        this.actualTurn = chess.actualTurn;
+        this.currentTurn = chess.currentTurn;
         this.whitePiecesTurn = chess.whitePiecesTurn;
         this.blackPiecesTurn = chess.blackPiecesTurn;
         this.pListWhite = new ArrayList<Pair<Position, Piece>>();
@@ -154,7 +154,7 @@ public class Chess implements Cloneable {
     Chess copy(Chess c){
         Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
         c.inactiveLimits,c.pList,c.initPositions,c.castlings,
-        c.whiteInitPos,c.blackInitPos,c.boardArray,c.actualTurn,
+        c.whiteInitPos,c.blackInitPos,c.boardArray,c.currentTurn,
         c.whitePiecesTurn, c.blackPiecesTurn,c.pListWhite,
         c.pListBlack, c.board);
         return ch;
@@ -166,7 +166,7 @@ public class Chess implements Cloneable {
      * @post Chess has been copied
      */
     Chess (int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
-    List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, List<Piece[][]> boardArray,int actualTurn,
+    List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, List<Piece[][]> boardArray,int currentTurn,
     List<List<Pair<Position, Piece>>> whitePiecesTurn, List<List<Pair<Position, Piece>>> blackPiecesTurn, List<Pair<Position, Piece>> pListWhite, 
     List<Pair<Position, Piece>> pListBlack, Piece[][] board){
         this.rows = rows;
@@ -179,7 +179,7 @@ public class Chess implements Cloneable {
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
         this.boardArray = boardArray;
-        this.actualTurn = actualTurn;
+        this.currentTurn = currentTurn;
         this.whitePiecesTurn = whitePiecesTurn;
         this.blackPiecesTurn = blackPiecesTurn;
         this.pListWhite = pListWhite;
@@ -348,7 +348,7 @@ public class Chess implements Cloneable {
             board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
         }
 
-        copyChessTurn();
+        //copyChessTurn();
     }
 
     /*
@@ -356,6 +356,7 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return the piece's color
      */
+
     public PieceColor cellColor(Position p){
         return board[p.row()][p.col()].color();
     }
@@ -794,15 +795,15 @@ public class Chess implements Cloneable {
                     checkMovementResult = checkMovement(origin, destiny);
                     if(checkMovementResult.first.get(0) == MoveAction.Correct){
                         System.out.println("La movem a "+destiny.toString());
-                        System.out.println("ActualTurn.........abans........................."+actualTurn);
+                        System.out.println("currentTurn.........abans........................."+currentTurn);
                         System.out.println(showBoard());
                         pintarLlistes();
-                        System.out.println("ActualTurn.........abans........................");
+                        System.out.println("currentTurn.........abans........................");
                         applyResult = applyMovement(origin, destiny, checkMovementResult.second);
-                        System.out.println("ActualTurn.........despres........................."+actualTurn);
+                        System.out.println("currentTurn.........despres........................."+currentTurn);
                         System.out.println(showBoard());
                         pintarLlistes();
-                        System.out.println("ActualTurn.........despres........................");
+                        System.out.println("currentTurn.........despres........................");
                         if(!isEscac(listToCheckCheck)){
                             checkmate = false;
                             //foundCounterEscac = true;
@@ -847,7 +848,7 @@ public class Chess implements Cloneable {
         boolean escacKing = false;
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
-        for(int i=0;i<listToCheck.size();i++)System.out.println("839. Peces que mirem si fan check "+listToCheck.get(i).first.toString()+" "+listToCheck.get(i).second.type().ptName());
+        //for(int i=0;i<listToCheck.size();i++)System.out.println("839. Peces que mirem si fan check "+listToCheck.get(i).first.toString()+" "+listToCheck.get(i).second.type().ptName());
         listToCheck.forEach((p)->allMovesWithValues.add(destinyWithValues(p.first)));
         
         int i = 0;
@@ -1022,10 +1023,10 @@ public class Chess implements Cloneable {
                     boardCopy[i][j] = null;
             }
         }
-        if(boardArray.size()>actualTurn)
-            boardArray.set(actualTurn,boardCopy);
+        if(boardArray.size()>currentTurn)
+            boardArray.set(currentTurn,boardCopy);
         else
-            boardArray.add(actualTurn,boardCopy);
+            boardArray.add(currentTurn,boardCopy);
 
         List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
         for(int i=0;i<pListWhite.size();i++){
@@ -1034,10 +1035,10 @@ public class Chess implements Cloneable {
             Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
             whiteListCopy.add(wPair);
         }
-        if(whitePiecesTurn.size()>actualTurn)
-            whitePiecesTurn.set(actualTurn,whiteListCopy);
+        if(whitePiecesTurn.size()>currentTurn)
+            whitePiecesTurn.set(currentTurn,whiteListCopy);
         else
-            whitePiecesTurn.add(actualTurn,whiteListCopy);
+            whitePiecesTurn.add(currentTurn,whiteListCopy);
 
         List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
         for(int i=0;i<pListBlack.size();i++){
@@ -1046,12 +1047,12 @@ public class Chess implements Cloneable {
             Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
             blackListCopy.add(bPair);
         }
-        if(blackPiecesTurn.size()>actualTurn)
-            blackPiecesTurn.set(actualTurn,blackListCopy);
+        if(blackPiecesTurn.size()>currentTurn)
+            blackPiecesTurn.set(currentTurn,blackListCopy);
         else  
-            blackPiecesTurn.add(actualTurn,blackListCopy);
+            blackPiecesTurn.add(currentTurn,blackListCopy);
 
-        actualTurn++;
+        currentTurn++;
     }
 
     public void pintarLlistes(){
@@ -1076,7 +1077,10 @@ public class Chess implements Cloneable {
      */
     public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> deathPositions) {
         //Chess ch = new Chess(this);
-        //System.out.println("actualTurn "+actualTurn);
+        //System.out.println("currentTurn "+currentTurn);
+        
+        copyChessTurn();
+        
         List<MoveAction> r = new ArrayList<MoveAction>();
         List<Piece> deadPieces = new ArrayList<Piece>();
         if (deathPositions != null){
@@ -1094,7 +1098,6 @@ public class Chess implements Cloneable {
 		board[destiny.row()][destiny.col()] = board[origin.row()][origin.col()];
         board[origin.row()][origin.col()] = null;
         
-        copyChessTurn();
 
         //llistes actualitzades
         List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
@@ -1139,7 +1142,7 @@ public class Chess implements Cloneable {
 
     public void remakeBoard(){
         //System.out.println("taulers "+boardArray.size());
-        int val = actualTurn-1;
+        int val = currentTurn/*-1*/;
         Piece[][] boardCopy = this.boardArray.get(val);
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
@@ -1176,7 +1179,7 @@ public class Chess implements Cloneable {
     public void undoMovement(){
         //System.out.println("Normal undo"+showBoard());
         
-        actualTurn--;
+        currentTurn--;
         remakeBoard();
 
         //redoMovement();
@@ -1192,8 +1195,8 @@ public class Chess implements Cloneable {
     public 
     void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
-        actualTurn++;
-        //System.out.println("redo "+actualTurn);
+        currentTurn++;
+        //System.out.println("redo "+currentTurn);
         remakeBoard();
         
         //System.out.println("Guardat redo"+showBoard());
@@ -1291,7 +1294,7 @@ public class Chess implements Cloneable {
         /*for(int i=0;i<pListWhite.size();i++){
             System.out.println(pListWhite.get(i).first.row()+" "+pListWhite.get(i).first.col()+" "+pListWhite.get(i).second.type().ptName());
         }*/
-        System.out.println("Li toca a "+origin.row()+" "+origin.col()+" -> "+p.type().ptName());
+        //System.out.println("Li toca a "+origin.row()+" "+origin.col()+" -> "+p.type().ptName());
         movesToRead=p.pieceMovements();
         //System.out.println(p.type().ptName()+" es el que estem mirant i ha passat be");
         /*if(!p.hasMoved())
@@ -1390,8 +1393,8 @@ public class Chess implements Cloneable {
                     //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
-        System.out.println("Retorn de destiny with values de la peça "+p.type().ptName()+": ");
-        for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
+        //System.out.println("Retorn de destiny with values de la peça "+p.type().ptName()+": ");
+        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
         return destinyWithValues;
     }
 
