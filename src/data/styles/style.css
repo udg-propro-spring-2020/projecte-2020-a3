@@ -1,23 +1,25 @@
-* {
-	-fx-background-color: #f4f4f4;
+.pane {
+	-fx-background-position: bottom center;
+	-fx-background-size: cover;
+	-fx-background-color: #263238;
+	-fx-background-image: url("../img/background.jpg");
 }
 
-.pane {
-	-fx-background-image: url("./img/background.jpg");
-	-fx-background-position: center center;
+.pane_with_bg {
+	-fx-background-image: url("../img/background.jpg");
 }
 
 .btn { 
 	-fx-padding: 0.4em 0.6em;
 	-fx-margin: 50 75;
 	-fx-font-size: 14px;
-	-fx-border-radius: 25;
-	-fx-background-radius: 25;
+	-fx-border-radius: 10;
+	-fx-background-radius: 10;
 	-fx-border-color: WHITE;
 	-fx-border-width: 2;
 	-jfx-button-type: RAISED;
 	-fx-pref-width: 200;
-	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 0);
 	-fx-cursor: hand;
 }
 
