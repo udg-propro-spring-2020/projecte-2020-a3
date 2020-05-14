@@ -421,19 +421,15 @@ public class ConsoleGame {
 		Cpu cpu2 = new Cpu(knowledge, _controller.chess(), diff, PieceColor.Black);
 
 		MoveAction result = null;
-		int i = 0; 
 		do {
-
+			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				result = cpuTurn(cpu1, _controller.lastMovement());
-				System.err.println("BLANQUES");
 			} else {
 				result = cpuTurn(cpu2, _controller.lastMovement());
-				System.err.println("NEGRES");
 			}
-			System.err.println(_controller.showBoard());
-			i++;
-		} while (result == null && i < 11);
+			_controller.toggleTurn();
+		} while (result == null);
 		
 		// Game finished - can't never be draw
 		endOfGame(false);
@@ -756,7 +752,7 @@ public class ConsoleGame {
 			// Display the possibilities
 			System.out.println("Available types: ");
 			for (int i = 1; i <= tempList.size(); i++) {
-				System.out.println(String.valueOf(i) + ": " + tempList.get(i).ptName());
+				System.out.println(i + ": " + tempList.get(i - 1).ptName());
 			}
 			
 			boolean valid = false;
