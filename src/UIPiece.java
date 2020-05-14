@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
 /// @author Miquel de Domingo i Giralt
@@ -37,7 +38,31 @@ public class UIPiece extends StackPane {
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
 
-        // TODO: Handle events
+        // On tap
+       /*  setOnMousePressed((MouseEvent m) -> {
+            _mouseX = m.getSceneX();
+            System.out.println(_mouseX);
+            System.out.println(_mouseX - 300);
+            System.out.println((int) ((_mouseX - 300)) / 60);
+            System.out.println();
+            _mouseY = m.getSceneY();
+            System.out.println(_mouseY);
+            System.out.println((int) ((_mouseY)) / 60);
+        }); */
+    }
+
+    /// @brief Returns the old X value of the piece
+    /// @pre ---
+    /// @post Returns the old X value of the piece
+    public double oldX() {
+        return this._oldX;
+    }
+
+    /// @brief Returns the old Y value of the piece
+    /// @pre ---
+    /// @post Returns the old Y value of the piece
+    public double oldY() {
+        return this._oldY;
     }
 
     /// @brief Moves the piece to the center of the tile

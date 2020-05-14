@@ -104,8 +104,7 @@ public class FromJSONParserHelper {
     /// @post Creates a chess game with the given configuration and game
     /// developement form the JSON file
     /// @throws JSONParseFormatException If some of the file content is not in the
-    /// correct format
-    /// or there is an incoherence
+    ///         correct format or if there is an incoherence
     public static Chess buildSavedChessGame(String fileLocation)
             throws FileNotFoundException, JSONParseFormatException {
         Scanner mainSc = new Scanner(new File(fileLocation));
@@ -139,10 +138,10 @@ public class FromJSONParserHelper {
 
         List<Pair<Position, Piece>> blackInitPos = new ArrayList<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            whiteInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
+            blackInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
         } else {
             throw new JSONParseFormatException(
-                "White piece list cannot be null",
+                "Black piece list cannot be null",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
             );
         }
@@ -471,7 +470,7 @@ public class FromJSONParserHelper {
 
                     } else if (result.contains("ENROC")) {
                         // TODO: Handle castling
-                    } else {
+                    } else if (!result.isEmpty()) {
                         System.err.println("Movement result is not valid. It ill not be taken into account.");
                         System.err.println("Error result: " + result);
                         result = "";
