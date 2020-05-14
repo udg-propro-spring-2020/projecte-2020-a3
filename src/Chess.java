@@ -7,6 +7,7 @@ import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.lang.NullPointerException;
 
 /* 
  * @class Chess
@@ -667,8 +668,11 @@ public class Chess implements Cloneable {
         Piece p = board[destiny.row()][destiny.col()];
         boolean promote = false;
         if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
-            if(origin.row() != destiny.row())
+            if(origin.row() != destiny.row()){
+                System.out.println("Promocio");
                 promote = p.type().ptPromotable();
+                p.toggleDirection(); //canviem direcció dels moviments
+            }
         }
         return promote;
     }
@@ -923,11 +927,6 @@ public class Chess implements Cloneable {
         */
         //Piece pOrig = board[origin.row()][origin.col()];
         Pair<List<MoveAction>,List<Position>> r = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
-        /*boolean blackDirection = false; //Saber si juga el negre
-		int x0 = origin.row();
-		int y0 = origin.col();
-		int x1 = destiny.row();
-		int y1 = destiny.col();*/
         Piece p = board[origin.row()][origin.col()];
         List<Movement> movesToRead = p.pieceMovements();
         boolean enemiePieceOnDestiny = false;
@@ -972,8 +971,6 @@ public class Chess implements Cloneable {
                                     //System.out.println("730. La peça que vols matar es teva");
                                 
                                 }else{
-                                    if(!p.hasMoved())   
-                                        p.toggleMoved();
                                     r.first.add(MoveAction.Correct);
                                     //r.second = null; 
                                     found = true;
@@ -1028,25 +1025,29 @@ public class Chess implements Cloneable {
         else
             boardArray.add(currentTurn,boardCopy);
 
-        List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
-        for(int i=0;i<pListWhite.size();i++){
+       
+        /*for(int i=0;i<pListWhite.size();i++){
             Position wPos = new Position(pListWhite.get(i).first);
             Piece wPiece = new Piece(pListWhite.get(i).second);
             Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
             whiteListCopy.add(wPair);
-        }
+        }*/
+        List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
+        this.pListWhite.forEach((p)->whiteListCopy.add( (Pair<Position, Piece>)p.clone() ));
+
         if(whitePiecesTurn.size()>currentTurn)
             whitePiecesTurn.set(currentTurn,whiteListCopy);
         else
             whitePiecesTurn.add(currentTurn,whiteListCopy);
 
         List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
-        for(int i=0;i<pListBlack.size();i++){
+        this.pListBlack.forEach((p)->blackListCopy.add( (Pair<Position, Piece>)p.clone() ));
+        /*for(int i=0;i<pListBlack.size();i++){
             Position bPos = new Position(pListBlack.get(i).first);
             Piece bPiece = new Piece(pListBlack.get(i).second);
             Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
             blackListCopy.add(bPair);
-        }
+        }*/
         if(blackPiecesTurn.size()>currentTurn)
             blackPiecesTurn.set(currentTurn,blackListCopy);
         else  
@@ -1078,8 +1079,13 @@ public class Chess implements Cloneable {
     public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> deathPositions) {
         //Chess ch = new Chess(this);
         //System.out.println("currentTurn "+currentTurn);
-        
+        //System.out.println("Movem "+origin+" cap a "+destiny);
+        //System.out.println(showBoard());
         copyChessTurn();
+
+        Piece p = pieceAt(origin.row(), origin.col());
+        if(!p.hasMoved())   
+            p.toggleMoved();
         
         List<MoveAction> r = new ArrayList<MoveAction>();
         List<Piece> deadPieces = new ArrayList<Piece>();

@@ -14,18 +14,20 @@ import java.util.List;
 ///          turn control, turn management, game loading, game saving and others
 public class GameController {
     /// GAME CONTROL VARIABLES
-    private String defaultConfigFileName = null;				///< Keeps the configuration file name
-	private PieceColor currTurnColor = null;					///< Current turn color
-	private Integer turnNumber = null;						    ///< Current turn number
-	private Integer undoCount = null;						    ///< Amount of consequent undo movements
-	private List<Turn> turns = null;							///< List of turns
-	private boolean dataSet = false;							///< To know if the data has been initialized
-    //private boolean lastTurnCheck = false;                      ///< To know if there was a check in last turn
+    private String _defaultConfigFileName = null;				///< Keeps the configuration file name
+	private PieceColor _currTurnColor = null;					///< Current turn color
+	private Integer _turnNumber = null;						    ///< Current turn number
+	private Integer _undoCount = null;						    ///< Amount of consequent undo movements
+	private List<Turn> _turns = null;							///< List of turns
+	private boolean _dataSet = false;							///< To know if the data has been initialized
     private Chess _chess = null;                                ///< Game chess
 
     // CONSTANTS
 	private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
 
+    /// @brief Builds a game controller for a chess with the given file location
+    /// @details If saved game is true, it will apply all the turns that are saved
+    ///          in the game flow file
     public GameController(String fileLocation, boolean savedGame) throws FileNotFoundException, JSONParseFormatException {
         if (savedGame) {
             loadSavedGameToChess(fileLocation);
@@ -35,25 +37,28 @@ public class GameController {
     }
 
     // CONSTRUCTORS HELPERS
+    /// @brief Loads the game from a configuration file
+    /// @pre @p fileLocation != null
+    /// @post Loads the game from a configuration file
     private void loadChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         initiateData();
-        defaultConfigFileName = fileLocation;
+        _defaultConfigFileName = fileLocation;
         _chess = FromJSONParserHelper.buildChess(fileLocation);
-        System.out.println(defaultConfigFileName);
+        System.out.println(_defaultConfigFileName);
     }
 
     /// @brief Loads the game data from a saved game
     /// @pre @p fileLocation != @c null
-    /// @post Loads the fame data from a saved game
+    /// @post Loads the game data from a saved game
     private void loadSavedGameToChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         // Save configuration file name
-        defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
+        _defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
 
         // Retrieve match information
         _chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
         Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation, false);
         List<Turn> loadedTurns = info.first;
-        currTurnColor = info.second;
+        _currTurnColor = info.second;
 
         initiateData();
         if (!loadedTurns.isEmpty()) {
@@ -85,12 +90,12 @@ public class GameController {
 	/// @pre ---
 	/// @post Initiates data if not has been set 
     private void initiateData() {
-        if (!dataSet) {
-			currTurnColor = PieceColor.White;			// White always start
-			turnNumber = 0;
-			undoCount = 0;
-			turns = new ArrayList<>();
-			dataSet = true;
+        if (!_dataSet) {
+			_currTurnColor = PieceColor.White;			// White always start
+			_turnNumber = 0;
+			_undoCount = 0;
+			_turns = new ArrayList<>();
+			_dataSet = true;
 		}
     }
 
@@ -104,8 +109,21 @@ public class GameController {
         return checkResult;
     }
 
+    /// @brief Applies a player movement if possible and returns the result
+    /// @pre @p origin && @p destination != null
+    /// @post Applies a player movement if possible and returns the result. The result
+    ///       will be null if the player has to defend the king
     public List<MoveAction> applyPlayerMovement(Position origin, Position destination, List<Position> list) {
         List<MoveAction> result = _chess.applyMovement(origin, destination, list);
+
+        // Evaluate for check
+        List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
+            ? _chess.pListWhite()
+            : _chess.pListBlack();
+        if (_chess.isEscac(colorList)) {
+            _chess.undoMovement();
+            return null;
+        }
 
         return result;
     }
@@ -139,11 +157,11 @@ public class GameController {
 	/// @pre @p currTurnColor != null
 	/// @post Changes currTurnValue to the oposite
 	public void toggleTurn() {
-		if (currTurnColor == null) {
+		if (_currTurnColor == null) {
 			throw new NullPointerException("ToggleTurn cannot toggle a null value");
 		}
 
-		currTurnColor = (currTurnColor == PieceColor.White) 
+		_currTurnColor = (_currTurnColor == PieceColor.White) 
 			? PieceColor.Black
 			: PieceColor.White;
     }
@@ -160,22 +178,22 @@ public class GameController {
 		}
 
 		if (res == null) {
-			turns.add(new Turn(currTurnColor, p, ""));	
+			_turns.add(new Turn(_currTurnColor, p, ""));	
 		} else {
-			turns.add(new Turn(currTurnColor, p, res.toString()));
+			_turns.add(new Turn(_currTurnColor, p, res.toString()));
 		}
 		
-		turnNumber++;
+		_turnNumber++;
 	}
 
 	/// @brief Saves empty turn
 	/// @pre ---
 	/// @post Adds a turn to the list containing only a result value
 	public void saveEmptyTurn(String result, PieceColor color) {
-		turns.add(
+		_turns.add(
 			new Turn(color, new Pair<String, String>("", ""), result)
 		);
-		turnNumber++;
+		_turnNumber++;
     }
 
 	/// @brief Undoes one movement
@@ -183,7 +201,7 @@ public class GameController {
 	/// @post If possible, undoes one movement. It is only possible to undo
 	///       if there has been one movement
 	public boolean undoMovement() {
-		if (turnNumber == 0) {
+		if (_turnNumber == 0) {
             /// Can't undo any movement
 			return false;
 		} else {
@@ -192,9 +210,9 @@ public class GameController {
             toggleTurn();
             
             // Previous turn
-            turnNumber--;
+            _turnNumber--;
             ///Increase undone movements
-            undoCount++;
+            _undoCount++;
 			return true;
 		}
     }
@@ -204,7 +222,7 @@ public class GameController {
 	/// @post If possible, redoes one movement. It is only possible to redo if
 	///       there has been at least one undone movement
 	public boolean redoMovement() {
-		if (undoCount == 0) {
+		if (_undoCount == 0) {
 			return false;
 		} else {
 			// Get the current turn values
@@ -212,9 +230,9 @@ public class GameController {
             toggleTurn();
 
             // Next turn
-            turnNumber++;
+            _turnNumber++;
             // Decrement the undone movements
-            undoCount--;
+            _undoCount--;
 			return true;
 		}
     }
@@ -226,12 +244,12 @@ public class GameController {
         // If the user has undone x movements, and not redone all of them
         // then the match mus continue from that and all the movements after the
         // current turn must be delelted.
-        if (undoCount > 0) {
+        if (_undoCount > 0) {
             // turnNumber == turns.size() - undoCount
-            for (int i = turns.size() - 1; i >= turnNumber; i--) {
-                turns.remove(i);
+            for (int i = _turns.size() - 1; i >= _turnNumber; i--) {
+                _turns.remove(i);
             }
-            undoCount = 0;
+            _undoCount = 0;
         }
 
     }
@@ -243,7 +261,7 @@ public class GameController {
     public String saveGame(String finalResult, boolean newConfigFile) {
 		try {
 			/// Configuration
-			File configurationFile = new File(defaultConfigFileName);
+			File configurationFile = new File(_defaultConfigFileName);
 
 			if (newConfigFile) {
                 configurationFile.createNewFile();
@@ -259,7 +277,7 @@ public class GameController {
             gameFile.createNewFile();
 
 			FileWriter gameWriter = new FileWriter(gameFile);
-			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, defaultConfigFileName, currTurnColor, turns, finalResult));
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, _turns, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";
@@ -296,21 +314,21 @@ public class GameController {
     /// @pre ---
     /// @post Returns the current turn color
     public PieceColor currentTurnColor() {
-        return currTurnColor;
+        return _currTurnColor;
     }
 
     /// @brief Returns if the turn number ends with 0 or 1
     /// @pre ---
     /// @post Returns true if the turn number ends with 0 or 1
     public boolean zeroOrOneTurn() {
-        return turnNumber % 10 == 0 || turnNumber % 10 == 1;
+        return _turnNumber % 10 == 0 || _turnNumber % 10 == 1;
     }
 
     /// @brief Returns the configuration file of the game
     /// @pre ---
     /// @post Returns the configuration file of the game
     public String configurationFile() {
-        return defaultConfigFileName;
+        return _defaultConfigFileName;
     }
 
     /// @brief To get the last movement of the game
@@ -318,13 +336,13 @@ public class GameController {
     /// @post Returns the last movement of the game. If there are no turns
     ///       returns null value
 	public Pair<Position, Position> lastMovement() {
-		if (turnNumber == 0) {
+		if (_turnNumber == 0) {
             return null;
         } 
 
         return new Pair<Position, Position>(
-			new Position(turns.get(turnNumber - 1).origin()),
-			new Position(turns.get(turnNumber - 1).destination())
+			new Position(_turns.get(_turnNumber - 1).origin()),
+			new Position(_turns.get(_turnNumber - 1).destination())
 		);
 	}
 
