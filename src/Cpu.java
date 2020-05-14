@@ -15,40 +15,41 @@ public class Cpu{
 
     private Knowledge _knowledge;   ///< Knwoledge of winner sequencies
     private Chess _chess;           ///< Reference to global chess object
-    private int _profundity;       ///< Profunidty level for search the possibilities movements tree.
+    private int _profundity;        ///< Profunidty level for search the possibilities movements tree.
     private PieceColor _color;      ///< Color of the CPU player
 
 
-    /** @brief CPU constructor
-    @pre --
-    @post La cpu has the Knowledge @p knowledge,reference to global chess @p chess,
-    profundity for searching possibles movements @p profundity and his color is @p color.
+    /** @brief Default CPU constructor
+    @pre chess is not null, profundity > 0 and color is not null
+    @param knowledge Reference to the knowledge
+    @param chess Reference to the Chess
      */
     public Cpu(Knowledge knowledge,Chess chess,int profundity,PieceColor color){
-        _knowledge=knowledge;
-        _chess=chess;
-        _profundity=profundity;
-        _color=color;
+        if(chess==null)throw new NullPointerException("chess given argument cannot be null");
+        else if(color==null)throw new NullPointerException("color given argument cannot be null");
+        else if(profundity<=0)throw new IllegalArgumentException("profunidty argument cannot be less or equal to zero");
+        else{
+            _knowledge=knowledge;
+            _chess=chess;
+            _profundity=profundity;
+            _color=color;
+        }
     }
 
     /** @brief Makes a movement
     @pre --
-        @return Returns a pair which indicates the origin position and final position of the pice movmement choose.
-        If the knowledge its following a sequence and the @p anteriorMovement matches with the expected movement returns
-        the next sequence movement. Otherwise if the state of @c _chess matches with one saved at knowledge returns the
-        movement to do. On the other hand returns the best movement possible of all possible movements inside the profunidty
-        @c _profundity. (In the actual version just returning minmax)
+    @return Returns a pair which indicates the origin position and final position of the pice movmement choose.
      */
-    public Pair<Position,Position> doMovement(Pair<Position,Position> anteriorMovement){
-        if(_knowledge!=null){
+    public Pair<Position,Position> doMovement(){
+        if(_knowledge!=null){ //If we have knowledge
             Pair<Position,Position> movement = _knowledge.buscarConeixament(_chess,_color);
-            if(movement!=null){
+            if(movement!=null){ //If we find knowledge saved we choose the movement to do from the knowledge
                 System.out.println("(cpu.java:47)Moviment escollit del coneixament: orig:"+movement.first.toString()+" dest:"+movement.second.toString());
                 return movement;
             }
-            else return minMax();
+            else return minMax();//If we dont find any stored movement we choose from the minmax algorithm
         }
-        else return minMax();
+        else return minMax();//If we dont have knowledge we choose from the minmax
     }
 
     /** @biref Returns the optimal movement to do.
@@ -57,123 +58,85 @@ public class Cpu{
      */
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
-        //System.out.println("profunditat:"+_profundity);
-        //if(_color==PieceColor.White)System.out.println("cpu es blanca");
-        //else System.out.println("cpu es negra");
-        //Chess copia = _chess.copy(_chess);
-        //copia.applyMovement(new Position(1,0),new Position(2,0),null);
-        //System.out.println(_chess.showBoard());
-        //System.out.println(copia.showBoard());
-        Chess taulerCopia = (Chess)_chess.clone();
+        Chess taulerCopia = (Chess)_chess.clone();//not necessary (take it out)
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
-        System.out.println("(cpu.java:70)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
+        System.out.println("(cpu.java:63)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
         return movement;
     }
+
     /** @brief Immersion function for minMaxAlgorsim
     @pre --
     @return Returns the puntuation choosen for the @p playerType of the actual profunity.
      */
     private int i_minMax(int score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
         if(profundity==_profundity)return score;
-        else if(playerType==0){
+        else if(playerType==0){ //Turn of the cpu player (we will maximize score here)
             Integer max = Integer.MIN_VALUE;
             List<Pair<Position,Piece>> pieces;
-            
-            if(_color==PieceColor.White)pieces=tauler.pListWhite();
+            if(_color==PieceColor.White)pieces=tauler.pListWhite();//take the cpu pieces
             else pieces=tauler.pListBlack();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
 
-            int i=0;
-            while(itPieces.hasNext()){  // FOR EACH PIECE
-                
-                i++;
-                
+            while(itPieces.hasNext()){//for each peice
                 Pair<Position,Piece> piece = itPieces.next();
-                
-                //System.out.println("(cpu.java 84)profunitat:"+profundity+"peçes provades    :"+i+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
-                //System.out.println(_chess.showBoard());
-                List<Pair<Position,Integer>> destinyWithScores= tauler.destinyWithValues(piece.first);;
+                List<Pair<Position,Integer>> destinyWithScores= tauler.destinyWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
 
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
-                while(itMoviments.hasNext()){// FOR EACH MOVEMENT
+                while(itMoviments.hasNext()){//for each movement
                     
-                    Chess taulerCopia = (Chess)tauler.clone();
+                    Chess taulerCopia = (Chess)tauler.clone();//copy the actual chess because after applying this movememnt and al the minmax alogirthm we need the chess as now
+                    
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
-                    Integer result=pieceMovement.second + score;
+                    Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
+
+                    Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
+                    taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);//we apply this movement with the returnend parameters on the checkMovement
                     
-                    //System.out.println("(cpu.java 112)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
-                    Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
-                    check.second.forEach((p)->System.out.println("pos:"+p.toString()) );
-                    taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);
-                    /*if(!check.second.isEmpty() && check.second.get(0).toString().equals("b5")){
-                        System.out.println("taulerCopia despres aplicar:\n");
-                        taulerCopia.pintarLlistes();
-                        break;
-                    }*/
-                    //System.out.println("(cpu.java 126) tauler despres d'aplicar moviment:"+taulerCopia.showBoard());
-                    
-                    result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia);
-                    
-                    //_chess = originalChess.copy(originalChess);
-                    //tauler = taulerCopia;
-                    
-                    //System.out.println("(cpu.java 108) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
+                    result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
 
                     if(result>max){
                         biggestAnterior=result;
                         max=result;
                         movement.first=piece.first;
                         movement.second=pieceMovement.first;
-                        //System.out.println("(cpu.java 91)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
+                    /*If the new biggest is bigger than smallest on
+                    the anterior node (because anterior will choose the samllest)
+                    we dont have to continue inspecinting this branch so we cut it.
+                    */
                     if(smallerAnterior<=biggestAnterior){break;}
                 }
             }
             return max;
         }
-        else{
+        else{ /*Here we will choose the lowest because we want to minamize our negative score
+                the socre here will be negative because the positive for the other player is negative for the cpu*/
+            
             Integer min = Integer.MAX_VALUE;
             List<Pair<Position,Piece>> pieces;
             if(_color==PieceColor.Black)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
-            //tauler.pintarLlistes();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
         
             while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                
-                //System.out.println("(cpu.java 132)profunitat:"+profundity+" color peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" TAULER ACTUAL:\n");
-                //System.out.println("(cpu.java 133)"+tauler.showBoard());
-                
                 List<Pair<Position,Integer>> destinyWithScores=tauler.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
-                    
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    
-                    //System.out.println("(cpu.java 177)"+tauler.showBoard());
-                    //System.out.println("(cpu.java 179)Moviment possible peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol() + "  Posició de la peça actual provant:"+piece.first.toString()+" DESTI:"+pieceMovement.first.toString());
-                    
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);
-                    
-                    //System.out.println("(cpu.java 193) tauler despres d'aplicar moviment:"+tauler.showBoard());
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
-                    
-                    //_chess = originalChess.copy(originalChess);
-                    //tauler = taulerCopia;
-                    
-                    //System.out.println("(cpu.java 155) tauler despres de desfer moviment  peça:"+piece.second.color() + "  color simbol:"+piece.second.symbol()+tauler.showBoard());
-
                     if(result<min){
                         smallerAnterior=result;
                         min=result;
-                        //movement.first=piece.first;
-                        //movement.second=pieceMovement.first;
-                        //System.out.println("(cpu.java 128)new best movement: i:"+movement.first.toString() + " d:" + movement.second.toString() );
                     }
+                    /*If the new smallest is smaller than biggest on
+                    the anterior node (because anterior will choose the bigger)
+                    we dont have to continue inspecinting this branch so we cut it.
+                    */
                     if(biggestAnterior>=smallerAnterior){break;}
                 }
             }
