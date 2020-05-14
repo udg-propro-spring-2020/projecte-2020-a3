@@ -286,7 +286,6 @@ public class ConsoleGame {
 	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(String pOne, String pTwo) {
 		String playerOption = "";
-		boolean draw = false;
 
 		showInstructions();
 
@@ -310,7 +309,6 @@ public class ConsoleGame {
 				if (s.toUpperCase().equals("Y")) {
 					_controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
 					playerOption = "E";
-					draw = true;
 				} else {
 					System.out.println("Game continues");
 					
@@ -344,7 +342,7 @@ public class ConsoleGame {
 				break;
 			}
 			case "E": {
-				endOfGame(draw);
+				endOfGame(true);
 				break;
 			}
 		}
@@ -382,6 +380,8 @@ public class ConsoleGame {
 
 				System.out.println("Player turn");
 				playerOption = playerTurn();
+
+				
 			}
 		} while (
 			!playerOption.equals("X") && 
@@ -390,11 +390,17 @@ public class ConsoleGame {
 			!playerOption.equals("T")
 		);
 
-		if (playerOption.equals("E")) {
-			endOfGame(false);
-		} else if (playerOption.equals("T")) {
-			// If user asks for tables, CPU accepts
-			endOfGame(true);
+		switch (playerOption) {
+			case "G": {
+				String fileName = saveGame("PARTIDA AJORNADA");
+				System.out.println("Saved game with name: " + fileName);
+				break;
+			}
+			case "E":
+			case "T": {
+				endOfGame(true);
+				break;
+			}
 		}
 	}
 
