@@ -368,10 +368,12 @@ public class ConsoleGame {
 			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite ||
 				_controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
 				// CPU
-				cpuTurn(cpu, _controller.lastMovement());
+				MoveAction cpuResult = cpuTurn(cpu, _controller.lastMovement());
 
 				// Change turn
-				_controller.toggleTurn();
+				if (!(cpuResult == MoveAction.Escacimat)) {
+					_controller.toggleTurn();
+				}
 			} else {
 				if (_controller.zeroOrOneTurn()) {
 					// Avoid showing instructions every now and then
@@ -538,16 +540,16 @@ public class ConsoleGame {
 		int difficulty;
 		switch (readOption()) {
 			case 2:
-				difficulty = 4;
+				difficulty = 2;
 				break;
 			case 3:
-				difficulty = 6;
+				difficulty = 3;
 				break;
 			case 0:
 				System.out.println("Exiting application");
 				System.exit(-1);
 			default:
-				difficulty = 2;
+				difficulty = 1;
 		}
 
 		return difficulty;
@@ -618,7 +620,7 @@ public class ConsoleGame {
 		if (cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
-		
+
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 		List<MoveAction> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
 		_controller.cancellUndoes();
@@ -626,7 +628,6 @@ public class ConsoleGame {
 		if (result.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
-			_controller.toggleTurn();
 			return null;
 		}
 	}
