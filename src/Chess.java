@@ -780,13 +780,13 @@ public class Chess implements Cloneable {
         
         //listToMovePiece.forEach((p)->listTMPallMoves.add(destinyWithValues(p.first)));
         int i = 0;
-        System.out.println("Peces que mourem (negres al exemple)");
-        for(int x=0;x<listToMovePiece.size();x++) System.out.println(listToMovePiece.get(x).second.type().ptName());
+        //System.out.println("Peces que mourem (negres al exemple)");
+        //for(int x=0;x<listToMovePiece.size();x++) System.out.println(listToMovePiece.get(x).second.type().ptName());
         while(i<listToMovePiece.size() && checkmate){
             //pintarLlistes();
             Piece p = listToMovePiece.get(i).second;
             Position origin = listToMovePiece.get(i).first;
-            System.out.println("Peça "+i+" amb nom "+p.type().ptName()+" a la pos "+origin.toString());
+            //System.out.println("Peça "+i+" amb nom "+p.type().ptName()+" a la pos "+origin.toString());
             List<Movement> pListMoves = p.pieceMovements();
             int j = 0;
             while(j<pListMoves.size() && checkmate){
@@ -794,16 +794,16 @@ public class Chess implements Cloneable {
                     Position destiny = new Position(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY());
                     checkMovementResult = checkMovement(origin, destiny);
                     if(checkMovementResult.first.get(0) == MoveAction.Correct){
-                        System.out.println("La movem a "+destiny.toString());
+                        /*System.out.println("La movem a "+destiny.toString());
                         System.out.println("currentTurn.........abans........................."+currentTurn);
                         System.out.println(showBoard());
                         pintarLlistes();
-                        System.out.println("currentTurn.........abans........................");
+                        System.out.println("currentTurn.........abans........................");*/
                         applyResult = applyMovement(origin, destiny, checkMovementResult.second);
-                        System.out.println("currentTurn.........despres........................."+currentTurn);
+                        /*System.out.println("currentTurn.........despres........................."+currentTurn);
                         System.out.println(showBoard());
                         pintarLlistes();
-                        System.out.println("currentTurn.........despres........................");
+                        System.out.println("currentTurn.........despres........................");*/
                         if(!isEscac(listToCheckCheck)){
                             checkmate = false;
                             //foundCounterEscac = true;
