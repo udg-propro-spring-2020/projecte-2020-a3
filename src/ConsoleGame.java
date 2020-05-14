@@ -450,89 +450,101 @@ public class ConsoleGame {
 		String result = "";
 
 		System.out.println(_controller.showBoard());
+		boolean stop = false;
 		boolean originMove = true;
 
-		oValue = readMovement("Origin coordinate (ex. a6)", originMove);
-		switch (oValue) {
-			case "X":
-				// Ask for saving
-				System.out.println("Exit without saving? [Y/N]: ");
-				String s = readInputLine(false);
-
-				if (s.toUpperCase().equals("N")) {
-					result = "G";
-				} else {
-					// Do not save the game
-					System.out.println("Game finished!");
-					result = "X";
-				}
-				break;
-			case "G":			// Save game
-			case "T":			// Tables
-			case "S":			// Surrender
-				result = oValue;
-				break;
-			case "D":
-				if (_controller.undoMovement()) {
-					System.out.println("Movement undone!");
-				} else {
-					System.out.println("Can't undo a movement!");
-				}
-				break;
-			case "H":
-				showInstructions();
-				break;
-			case "R":
-				// There's no need to remove any of the movements done
-				// since we will overlap the data
-				if (_controller.redoMovement()) {
-					System.out.println("Movement redone!");
-				} else {
-					System.out.println("Can't redo movement!");
-				}
-
-				break;
-			default: {
-				originMove = false;
-				dValue = readMovement("Destination coordinate (ex. a6): ", originMove);
-
-				if (!dValue.equals("O")) {
-					Position origin = new Position(oValue);
-					Position destination = new Position(dValue);
-					// Create positions with the read strings
-					Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin,destination);
-
-					if (moveResult.first.contains(MoveAction.Correct)) {
-						_controller.cancellUndoes();
-						List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
-
-						if (actions.contains(MoveAction.Promote)) {
-							// Handle promotion of destination piece
-							handlePromotion(destination);
-						}
-			
-						// Save turn
-						_controller.saveTurn(
-							actions,
-							new Pair<String, String>(
-								origin.toString(),
-								destination.toString()
-							)
-						);
-			
-						if (actions.contains(MoveAction.Escacimat)) {
-							result = "E";
-							System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-						} else {
-							// Change turn
-							_controller.toggleTurn();
-						}
+		do {
+			oValue = readMovement("Origin coordinate (ex. a6)", originMove);
+			switch (oValue) {
+				case "X":
+					// Ask for saving
+					System.out.println("Exit without saving? [Y/N]: ");
+					String s = readInputLine(false);
+	
+					if (s.toUpperCase().equals("N")) {
+						stop = true;
+						result = "G";
 					} else {
-						System.out.println("Incorrect movement!");
+						stop = true;
+						// Do not save the game
+						System.out.println("Game finished!");
+						result = "X";
+					}
+					break;
+				case "G":			// Save game
+				case "T":			// Tables
+				case "S":			// Surrender
+					result = oValue;
+					stop = true;
+					break;
+				case "D":
+					if (_controller.undoMovement()) {
+						System.out.println("Movement undone!");
+						stop = true;
+					} else {
+						System.out.println("Can't undo a movement!");
+					}
+					break;
+				case "H":
+					showInstructions();
+					break;
+				case "R":
+					// There's no need to remove any of the movements done
+					// since we will overlap the data
+					if (_controller.redoMovement()) {
+						System.out.println("Movement redone!");
+						stop = true;
+					} else {
+						System.out.println("Can't redo movement!");
+					}
+	
+					break;
+				default: {
+					originMove = false;
+					dValue = readMovement("Destination coordinate (ex. a6): ", originMove);
+	
+					if (!dValue.equals("O")) {
+						Position origin = new Position(oValue);
+						Position destination = new Position(dValue);
+						// Create positions with the read strings
+						Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin,destination);
+	
+						if (moveResult.first.contains(MoveAction.Correct)) {
+							_controller.cancellUndoes();
+							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
+	
+							if (actions != null) {
+								if (actions.contains(MoveAction.Promote)) {
+									// Handle promotion of destination piece
+									handlePromotion(destination);
+								}
+					
+								// Save turn
+								_controller.saveTurn(
+									actions,
+									new Pair<String, String>(
+										origin.toString(),
+										destination.toString()
+									)
+								);
+					
+								if (actions.contains(MoveAction.Escacimat)) {
+									result = "E";
+									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+								} else {
+									// Change turn
+									_controller.toggleTurn();
+								}
+
+								stop = true;
+							}
+						} else {
+							System.out.println("Incorrect movement!");
+						}
 					}
 				}
 			}
-		}
+		} while(!stop);
 		
 		return result;
 	}
