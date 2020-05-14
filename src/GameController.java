@@ -361,6 +361,13 @@ public class GameController {
         return _chess.rows();
     }
 
+    /// @brief Returns the piece of a cell
+    /// @pre ---
+    /// @post Returns (if exists) the piece at the position @p p of the board
+    public Piece pieceAtCell(Position p) {
+        return _chess.pieceAt(p.row(), p.col());
+    }
+
     /// @brief Returns the color of a cell
     /// @pre --
     /// @post Returns a PieceColor of the cell at position @p p

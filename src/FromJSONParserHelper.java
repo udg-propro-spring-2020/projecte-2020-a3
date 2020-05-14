@@ -104,8 +104,7 @@ public class FromJSONParserHelper {
     /// @post Creates a chess game with the given configuration and game
     /// developement form the JSON file
     /// @throws JSONParseFormatException If some of the file content is not in the
-    /// correct format
-    /// or there is an incoherence
+    ///         correct format or if there is an incoherence
     public static Chess buildSavedChessGame(String fileLocation)
             throws FileNotFoundException, JSONParseFormatException {
         Scanner mainSc = new Scanner(new File(fileLocation));

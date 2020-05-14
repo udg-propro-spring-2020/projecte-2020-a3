@@ -413,13 +413,19 @@ public class ConsoleGame {
 		Cpu cpu2 = new Cpu(knowledge, _controller.chess(), diff, PieceColor.Black);
 
 		MoveAction result = null;
+		int i = 0; 
 		do {
+
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				result = cpuTurn(cpu1, _controller.lastMovement());
+				System.err.println("BLANQUES");
 			} else {
 				result = cpuTurn(cpu2, _controller.lastMovement());
+				System.err.println("NEGRES");
 			}
-		} while (result == null);
+			System.err.println(_controller.showBoard());
+			i++;
+		} while (result == null && i < 11);
 		
 		// Game finished - can't never be draw
 		endOfGame(false);
@@ -616,10 +622,11 @@ public class ConsoleGame {
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 		List<MoveAction> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
 		_controller.cancellUndoes();
-
+		
 		if (result.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
+			_controller.toggleTurn();
 			return null;
 		}
 	}

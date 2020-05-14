@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -33,6 +34,7 @@ public class UIChess extends Application {
     private static final String DEF_IMG_LOCATION = "./data/img/";                   ///< Default image location
     private static final String DEF_WHITE_TILE_LOCATION = "w.png";                  ///< Default white tile image name
     private static final String DEF_BLACK_TILE_LOCATION = "b.png";                  ///< Default black tile image name
+    private static final int SIDEBAR_PIXELS = 300;                                  ///< Default side bar size
     private static final int IMG_PIXELS = 60;                                       ///< Default images size (60x60)
     private static final double SPACER_PIXELS = 40.0;                               ///< Default height of a spacer
 
@@ -41,12 +43,12 @@ public class UIChess extends Application {
 
     /// Game Control Options
     private Stage _window;                                          ///< Main window of the applicatino
-    private String _defaultConfigFile = null;                       ///< Default configuration file location
     private String _choosenConfigFile = null;                       ///< Configuration file location entered by the user
     private String _choosenGameFile = null;                         ///< Game file location if the user wants to load a game
     private int _cpuDifficulty = 2;                                 ///< CPU difficulty chosen by the user
     private List<String> _knowledgeFiles = null;                    ///< Knowledge file names entered by the user
     private GameState _lastGameState = GameState.GAME_INIT;         ///< Game state before the current
+    private GameController _controller = null;
     private Group _tiles = null;                                    ///< Group of tiles of the board
     private Group _pieces = null;                                   ///< Group of pieces of the board
 
@@ -538,18 +540,16 @@ public class UIChess extends Application {
     /// @post Loads the chess from the file entered (if null, the default) and
     ///       configures the game to be played (cpu, knowledge and what's needed)
     private void setGameUp(GameType gameType) {
-        // Build the chess
-        Chess chess = null;
         // On any fatal loading error, the application will exit
         try {
-            if (_choosenConfigFile == null) {
-                chess = FromJSONParserHelper.buildChess(DEF_GAME_LOCATION);
-            } else if (_choosenGameFile != null) {
+            if (_choosenGameFile != null) {
+                _controller = new GameController(_choosenGameFile, true);
+            } else if (_choosenConfigFile != null) {
                 // Load saved game
+                _controller = new GameController(_choosenConfigFile, false);
             } else {
-                chess = FromJSONParserHelper.buildChess(_choosenConfigFile);
+                _controller = new GameController(DEF_GAME_LOCATION, false);
             }
-            System.out.println(chess.toString());
         } catch (FileNotFoundException e) {
             displayErrorPopUp(
                 "FILE ERROR",
@@ -566,12 +566,15 @@ public class UIChess extends Application {
             System.exit(-1);
         }
 
+        // Buttons
+        VBox buttons = ItemBuilder.buildVBox(12.0, buildInGameButtons(), false);
+        buttons.setPrefWidth(300);
         // Set scene
         Scene scene = new Scene(
             ItemBuilder.buildBorderPane(
-                buildBoard(chess), 
+                buildBoard(), 
                 null,
-                ItemBuilder.buildVBox(12.0, buildInGameButtons(), false), 
+                buttons, 
                 null, 
                 null
             )
@@ -593,21 +596,10 @@ public class UIChess extends Application {
         }
     }
 
-    /// @bief Loads a started game and returns it
-    /// @pre ---
-    /// @post Returns a started game from the file entered by the user
-    private Chess loadStartedGame() {
-        /// Save the configuration file
-        //_defaultConfigFile = FromJSONParserHelper.getConfigurationFileName(_choosenGameFile);
-
-        /// Get the match information
-        return null;  
-    } 
-
     /// @brief Builds the board
     /// @pre ---
     /// @post Builds the board with the given information
-    private Parent buildBoard(Chess chess) {
+    private Parent buildBoard() {
         Image whiteTile = null;                 // White tile image
         Image blackTile = null;                 // Black tile image
 
@@ -637,15 +629,15 @@ public class UIChess extends Application {
         Pane background = new Pane();
         /// Minimum values = 4 * IMG_PIXELS
         /// Maximum values = 16 * IMG_PIXELS
-        background.setPrefSize(chess.cols() * IMG_PIXELS, chess.rows() * IMG_PIXELS);
+        background.setPrefSize(_controller.cols() * IMG_PIXELS, _controller.rows() * IMG_PIXELS);
         /// Initialise variables and set to parent
         _tiles = new Group();
         _pieces = new Group();
         background.getChildren().addAll(_tiles, _pieces);
         
         /// Start creating the board
-        for (int i = 0; i < chess.rows(); i++) {
-            for (int j = 0; j < chess.cols(); j++) {
+        for (int i = 0; i < _controller.rows(); i++) {
+            for (int j = 0; j < _controller.cols(); j++) {
                 ImageTile img = null;
                 if (i % 2 == 0) {
                     if (j % 2 == 0) {
@@ -662,10 +654,11 @@ public class UIChess extends Application {
                 }
                 img.setX(j * IMG_PIXELS);
                 img.setY(i * IMG_PIXELS);
+                Position temp = new Position(i, j);
                 _tiles.getChildren().add(img);
 
                 /// Check if there's a piece
-                Piece pieceIn = chess.pieceAt(i, j);
+                Piece pieceIn = _controller.pieceAtCell(temp);
                 if (pieceIn != null) {
                     UIPiece piece = buildPiece(pieceIn, j, i);
                     _pieces.getChildren().add(piece);
@@ -682,8 +675,27 @@ public class UIChess extends Application {
     ///       handling configuration
     private UIPiece buildPiece(Piece in, int x, int y) {
         UIPiece piece = new UIPiece(in, IMG_PIXELS, x, y);
-        /// TODO: Handle events
+        piece.setOnMouseReleased((MouseEvent m) -> {
+            // Origin
+            int oX = boardPosition(piece.oldX());
+            int oY = boardPosition(piece.oldY());
+            int dX = boardPosition(piece.getLayoutX());
+            int dY = boardPosition(piece.getLayoutY());
+            Position origin = new Position(oX, oY);
+            System.out.println(origin.toString());
+            Position dest = new Position(dX, dY);
+            
+            Piece p = _controller.pieceAtCell(origin);
+            System.out.println(p.type().ptName());
+        });
         return piece;
+    }
+
+    /// @brief Calculates the board y position of a given value
+    /// @pre @p value >= 0
+    /// @post Returns the equivalent position of a given y coordinate from the screen
+    private int boardPosition(double value) {
+        return (int) value / IMG_PIXELS;
     }
 
     /// @brief Displays an error pop up 
