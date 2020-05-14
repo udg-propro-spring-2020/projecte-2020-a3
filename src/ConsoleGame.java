@@ -286,7 +286,6 @@ public class ConsoleGame {
 	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(String pOne, String pTwo) {
 		String playerOption = "";
-		boolean draw = false;
 
 		showInstructions();
 
@@ -310,7 +309,6 @@ public class ConsoleGame {
 				if (s.toUpperCase().equals("Y")) {
 					_controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
 					playerOption = "E";
-					draw = true;
 				} else {
 					System.out.println("Game continues");
 					
@@ -344,7 +342,7 @@ public class ConsoleGame {
 				break;
 			}
 			case "E": {
-				endOfGame(draw);
+				endOfGame(true);
 				break;
 			}
 		}
@@ -368,10 +366,12 @@ public class ConsoleGame {
 			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite ||
 				_controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
 				// CPU
-				cpuTurn(cpu, _controller.lastMovement());
+				MoveAction cpuResult = cpuTurn(cpu, _controller.lastMovement());
 
 				// Change turn
-				_controller.toggleTurn();
+				if (!(cpuResult == MoveAction.Escacimat)) {
+					_controller.toggleTurn();
+				}
 			} else {
 				if (_controller.zeroOrOneTurn()) {
 					// Avoid showing instructions every now and then
@@ -380,6 +380,8 @@ public class ConsoleGame {
 
 				System.out.println("Player turn");
 				playerOption = playerTurn();
+
+				
 			}
 		} while (
 			!playerOption.equals("X") && 
@@ -388,11 +390,17 @@ public class ConsoleGame {
 			!playerOption.equals("T")
 		);
 
-		if (playerOption.equals("E")) {
-			endOfGame(false);
-		} else if (playerOption.equals("T")) {
-			// If user asks for tables, CPU accepts
-			endOfGame(true);
+		switch (playerOption) {
+			case "G": {
+				String fileName = saveGame("PARTIDA AJORNADA");
+				System.out.println("Saved game with name: " + fileName);
+				break;
+			}
+			case "E":
+			case "T": {
+				endOfGame(true);
+				break;
+			}
 		}
 	}
 
@@ -442,89 +450,101 @@ public class ConsoleGame {
 		String result = "";
 
 		System.out.println(_controller.showBoard());
+		boolean stop = false;
 		boolean originMove = true;
 
-		oValue = readMovement("Origin coordinate (ex. a6)", originMove);
-		switch (oValue) {
-			case "X":
-				// Ask for saving
-				System.out.println("Exit without saving? [Y/N]: ");
-				String s = readInputLine(false);
-
-				if (s.toUpperCase().equals("N")) {
-					result = "G";
-				} else {
-					// Do not save the game
-					System.out.println("Game finished!");
-					result = "X";
-				}
-				break;
-			case "G":			// Save game
-			case "T":			// Tables
-			case "S":			// Surrender
-				result = oValue;
-				break;
-			case "D":
-				if (_controller.undoMovement()) {
-					System.out.println("Movement undone!");
-				} else {
-					System.out.println("Can't undo a movement!");
-				}
-				break;
-			case "H":
-				showInstructions();
-				break;
-			case "R":
-				// There's no need to remove any of the movements done
-				// since we will overlap the data
-				if (_controller.redoMovement()) {
-					System.out.println("Movement redone!");
-				} else {
-					System.out.println("Can't redo movement!");
-				}
-
-				break;
-			default: {
-				originMove = false;
-				dValue = readMovement("Destination coordinate (ex. a6): ", originMove);
-
-				if (!dValue.equals("O")) {
-					Position origin = new Position(oValue);
-					Position destination = new Position(dValue);
-					// Create positions with the read strings
-					Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin,destination);
-
-					if (moveResult.first.contains(MoveAction.Correct)) {
-						_controller.cancellUndoes();
-						List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
-
-						if (actions.contains(MoveAction.Promote)) {
-							// Handle promotion of destination piece
-							handlePromotion(destination);
-						}
-			
-						// Save turn
-						_controller.saveTurn(
-							actions,
-							new Pair<String, String>(
-								origin.toString(),
-								destination.toString()
-							)
-						);
-			
-						if (actions.contains(MoveAction.Escacimat)) {
-							result = "E";
-							System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-						} else {
-							// Change turn
-							_controller.toggleTurn();
-						}
+		do {
+			oValue = readMovement("Origin coordinate (ex. a6)", originMove);
+			switch (oValue) {
+				case "X":
+					// Ask for saving
+					System.out.println("Exit without saving? [Y/N]: ");
+					String s = readInputLine(false);
+	
+					if (s.toUpperCase().equals("N")) {
+						stop = true;
+						result = "G";
 					} else {
-						System.out.println("Incorrect movement!");
+						stop = true;
+						// Do not save the game
+						System.out.println("Game finished!");
+						result = "X";
+					}
+					break;
+				case "G":			// Save game
+				case "T":			// Tables
+				case "S":			// Surrender
+					result = oValue;
+					stop = true;
+					break;
+				case "D":
+					if (_controller.undoMovement()) {
+						System.out.println("Movement undone!");
+						stop = true;
+					} else {
+						System.out.println("Can't undo a movement!");
+					}
+					break;
+				case "H":
+					showInstructions();
+					break;
+				case "R":
+					// There's no need to remove any of the movements done
+					// since we will overlap the data
+					if (_controller.redoMovement()) {
+						System.out.println("Movement redone!");
+						stop = true;
+					} else {
+						System.out.println("Can't redo movement!");
+					}
+	
+					break;
+				default: {
+					originMove = false;
+					dValue = readMovement("Destination coordinate (ex. a6): ", originMove);
+	
+					if (!dValue.equals("O")) {
+						Position origin = new Position(oValue);
+						Position destination = new Position(dValue);
+						// Create positions with the read strings
+						Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin,destination);
+	
+						if (moveResult.first.contains(MoveAction.Correct)) {
+							_controller.cancellUndoes();
+							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
+	
+							if (actions != null) {
+								if (actions.contains(MoveAction.Promote)) {
+									// Handle promotion of destination piece
+									handlePromotion(destination);
+								}
+					
+								// Save turn
+								_controller.saveTurn(
+									actions,
+									new Pair<String, String>(
+										origin.toString(),
+										destination.toString()
+									)
+								);
+					
+								if (actions.contains(MoveAction.Escacimat)) {
+									result = "E";
+									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+								} else {
+									// Change turn
+									_controller.toggleTurn();
+								}
+
+								stop = true;
+							}
+						} else {
+							System.out.println("Incorrect movement!");
+						}
 					}
 				}
 			}
-		}
+		} while(!stop);
 		
 		return result;
 	}
@@ -538,16 +558,16 @@ public class ConsoleGame {
 		int difficulty;
 		switch (readOption()) {
 			case 2:
-				difficulty = 4;
+				difficulty = 2;
 				break;
 			case 3:
-				difficulty = 6;
+				difficulty = 3;
 				break;
 			case 0:
 				System.out.println("Exiting application");
 				System.exit(-1);
 			default:
-				difficulty = 2;
+				difficulty = 1;
 		}
 
 		return difficulty;
@@ -618,7 +638,7 @@ public class ConsoleGame {
 		if (cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
-		
+
 		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
 		List<MoveAction> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
 		_controller.cancellUndoes();
@@ -626,7 +646,6 @@ public class ConsoleGame {
 		if (result.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
-			_controller.toggleTurn();
 			return null;
 		}
 	}
