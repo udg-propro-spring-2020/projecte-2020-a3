@@ -821,7 +821,7 @@ public class Chess implements Cloneable {
             }
             i++;
         }
-        System.out.println("Hi ha escac i mat? "+checkmate);
+        //System.out.println("Hi ha escac i mat? "+checkmate);
         return checkmate;
         /*
         boolean escacIMatKing = false;
@@ -1009,50 +1009,27 @@ public class Chess implements Cloneable {
     */
     public void copyChessTurn(){
         Piece[][] boardCopy = new Piece[rows()][cols()];
-        for(int i=0;i<rows();i++){
-            for(int j=0;j<cols();j++){
-                //System.out.println(rows()+" "+cols()+" "+this.board[i][j].type().ptName());
-                if(this.board[i][j]!=null){
-                    Piece p = new Piece(this.board[i][j]);
-                    boardCopy[i][j] = p;
-                }
-                else
-                    boardCopy[i][j] = null;
-            }
-        }
-        if(boardArray.size()>currentTurn)
-            boardArray.set(currentTurn,boardCopy);
-        else
-            boardArray.add(currentTurn,boardCopy);
+        for(int i=0;i<this.rows;i++)
+            for(int j=0;j<this.cols;j++)
+                if(board[i][j]!=null)
+                    boardCopy[i][j] = (Piece) board[i][j].clone();
 
-       
-        /*for(int i=0;i<pListWhite.size();i++){
-            Position wPos = new Position(pListWhite.get(i).first);
-            Piece wPiece = new Piece(pListWhite.get(i).second);
-            Pair<Position,Piece> wPair = new Pair<>(wPos,wPiece);
-            whiteListCopy.add(wPair);
-        }*/
         List<Pair<Position,Piece>> whiteListCopy = new ArrayList<Pair<Position, Piece>>();
         this.pListWhite.forEach((p)->whiteListCopy.add( (Pair<Position, Piece>)p.clone() ));
-
-        if(whitePiecesTurn.size()>currentTurn)
-            whitePiecesTurn.set(currentTurn,whiteListCopy);
-        else
-            whitePiecesTurn.add(currentTurn,whiteListCopy);
-
         List<Pair<Position,Piece>> blackListCopy = new ArrayList<Pair<Position, Piece>>();
         this.pListBlack.forEach((p)->blackListCopy.add( (Pair<Position, Piece>)p.clone() ));
-        /*for(int i=0;i<pListBlack.size();i++){
-            Position bPos = new Position(pListBlack.get(i).first);
-            Piece bPiece = new Piece(pListBlack.get(i).second);
-            Pair<Position,Piece> bPair = new Pair<>(bPos,bPiece);
-            blackListCopy.add(bPair);
-        }*/
-        if(blackPiecesTurn.size()>currentTurn)
-            blackPiecesTurn.set(currentTurn,blackListCopy);
-        else  
-            blackPiecesTurn.add(currentTurn,blackListCopy);
 
+        if(whitePiecesTurn.size()>currentTurn){
+            whitePiecesTurn.set(currentTurn,whiteListCopy);
+            blackPiecesTurn.set(currentTurn,blackListCopy);
+            boardArray.set(currentTurn,boardCopy);
+        }
+        else{
+            whitePiecesTurn.add(currentTurn,whiteListCopy);
+            blackPiecesTurn.add(currentTurn,blackListCopy);
+            boardArray.add(currentTurn,boardCopy);
+        }
+            
         currentTurn++;
     }
 
@@ -1119,7 +1096,7 @@ public class Chess implements Cloneable {
         if(canPromote(origin, destiny))
             r.add(MoveAction.Promote);
         if(isEscac(listDoingMove)){
-            System.out.println("1106. Hi ha escac");
+            //System.out.println("1106. Hi ha escac");
             if(isEscacIMat(listCounterMove, listDoingMove))
                 r.add(MoveAction.Escacimat);
             else
