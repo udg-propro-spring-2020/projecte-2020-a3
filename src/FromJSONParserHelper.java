@@ -446,7 +446,6 @@ public class FromJSONParserHelper {
             PieceColor color = getString(s).equals("BLANQUES") ? PieceColor.White : PieceColor.Black;
             String origin = getString(fr.nextLine());
             String dest = getString(fr.nextLine());
-            Pair<String, String> move = new Pair<String, String>(origin, dest);
 
             s = fr.nextLine();
             String result = s.trim().endsWith("\"\"") ? "" : getString(s);
@@ -458,12 +457,20 @@ public class FromJSONParserHelper {
                 case "TAULES PER REI OFEGAT":
                 case "TAULES PER ESCAC CONTINU":
                 case "TAULES PER INACCIÓ":
-                case "TAULES SOL·LICITADES":
                 case "TAULES ACCEPTADES":
                 case "RENDICIÓ":
                 case "AJORNAMENT":
                     // End of game
                     break;
+                case "TAULES SOL·LICITADES":
+                    // Skip turn
+                    break;
+                case "": {
+                    // Add new turn
+                    Pair<String, String> move = new Pair<String, String>(origin, dest);
+                    System.out.println("Turn added");
+                    turnList.add(new Turn(color, move, result));
+                }
                 default: {
                     if (result.contains("PROMOCIÓ")) {
                         // TODO: Handle promotion
@@ -478,7 +485,6 @@ public class FromJSONParserHelper {
                 }
             }
 
-            turnList.add(new Turn(color, move, result));
             s = fr.nextLine().trim();
         }
 
