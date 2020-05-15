@@ -462,17 +462,22 @@ public class UIChess extends Application {
 
         list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
 
-        Button saveMatch = new Button();
+        Button saveGame = new Button();
         ItemBuilder.buildButton(
-            saveMatch,
+            saveGame,
             "SAVE GAME",
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.SECONDARY
         );
-        saveMatch.setOnAction(e -> {
-            System.out.println("Guardant partida...");
+        saveGame.setOnAction(e -> {
+            String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
+            ItemBuilder.buildPopUp(
+                "SAVED GAME",
+                "Saved game with name: \n" + fileName, 
+                true
+            ).showAndWait();
         });
-        list.add(saveMatch);
+        list.add(saveGame);
 
         Button exitGameBtn = new Button();
         ItemBuilder.buildButton(
@@ -567,15 +572,15 @@ public class UIChess extends Application {
         }
 
         // Buttons
-        VBox buttons = ItemBuilder.buildVBox(12.0, buildInGameButtons(), false);
+        VBox buttons = ItemBuilder.buildVBox(12.0, buildInGameButtons(), true);
         buttons.setPrefWidth(300);
         // Set scene
         Scene scene = new Scene(
             ItemBuilder.buildBorderPane(
                 buildBoard(), 
                 null,
-                buttons, 
                 null, 
+                buttons,
                 null
             )
         );
@@ -675,19 +680,61 @@ public class UIChess extends Application {
     ///       handling configuration
     private UIPiece buildPiece(Piece in, int x, int y) {
         UIPiece piece = new UIPiece(in, IMG_PIXELS, x, y);
-        piece.setOnMouseReleased((MouseEvent m) -> {
-            // Origin
-            int oX = boardPosition(piece.oldX());
-            int oY = boardPosition(piece.oldY());
-            int dX = boardPosition(piece.getLayoutX());
-            int dY = boardPosition(piece.getLayoutY());
-            Position origin = new Position(oX, oY);
-            System.out.println(origin.toString());
-            Position dest = new Position(dX, dY);
-            
-            Piece p = _controller.pieceAtCell(origin);
-            System.out.println(p.type().ptName());
-        });
+        piece.setOnMouseReleased(
+            (MouseEvent m) -> {
+                if (_controller.currentTurnColor() == piece.color()) {
+                    // Origin
+                    int oX = boardPosition(piece.oldX());
+                    int oY = boardPosition(piece.oldY());
+                    Position origin = new Position(oY, oX);
+                    // Destination
+                    int dX = boardPosition(piece.getLayoutX());
+                    int dY = boardPosition(piece.getLayoutY());
+                    Position dest = new Position(dY, dX);
+
+                    // Check if valid movement
+                    Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin, dest);
+                    if (moveResult.first.contains(MoveAction.Correct)) {
+                        // Correct movement
+                        // Apply to chess
+                        _controller.applyPlayerMovement(origin, dest, moveResult.second);
+
+                        // Apply to user interface
+                        piece.move(dest.col(), dest.row());
+
+                        // Check if killed
+                        if (!moveResult.second.isEmpty()) {
+                            UIPiece temp = null;
+                            for (Position p : moveResult.second) {
+                                // Can kill more than one piece
+                                for (Node n : _pieces.getChildren()) {
+                                    // Saving the reference to the piece to delete
+                                    temp = (UIPiece) n;
+                                    if (pieceInPosition(temp, p) && temp.color() != _controller.currentTurnColor()) {
+                                        break;
+                                    }
+                                }
+                                _pieces.getChildren().remove(temp);
+                            }
+                        }
+
+                        _controller.saveTurn(
+                            moveResult.first, 
+                            new Pair<String, String> (
+                                origin.toString(),
+                                dest.toString()
+                            )
+                        );
+
+                        _controller.toggleTurn();
+                    } else {
+                        piece.cancelMove();
+                    }
+                } else {
+                    piece.cancelMove();
+                }
+            }
+        );
         return piece;
     }
 
@@ -696,6 +743,14 @@ public class UIChess extends Application {
     /// @post Returns the equivalent position of a given y coordinate from the screen
     private int boardPosition(double value) {
         return (int) value / IMG_PIXELS;
+    }
+
+    /// @brief Returns if a graphic piece is in a given position of the board
+    /// @pre @p piece && @p position != null
+    /// @post Returns true if a UIPiece is in the given position of the board
+    private boolean pieceInPosition(UIPiece piece, Position position) {
+        return boardPosition(piece.oldX()) == position.col() &&
+                boardPosition(piece.oldY()) == position.row();
     }
 
     /// @brief Displays an error pop up 

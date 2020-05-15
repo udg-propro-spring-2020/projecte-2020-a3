@@ -1,8 +1,11 @@
+* {
+	-fx-text-fill: WHITE;
+}
+
 .pane {
 	-fx-background-position: bottom center;
 	-fx-background-size: cover;
 	-fx-background-color: #263238;
-	-fx-background-image: url("../img/background.jpg");
 }
 
 .pane_with_bg {

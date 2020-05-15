@@ -38,17 +38,16 @@ public class UIPiece extends StackPane {
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
 
+        // On drag
+        setOnMouseDragged((MouseEvent m) -> {
+            relocate(m.getSceneX(), m.getSceneY());
+        });
+
         // On tap
-       /*  setOnMousePressed((MouseEvent m) -> {
+        setOnMousePressed((MouseEvent m) -> {
             _mouseX = m.getSceneX();
-            System.out.println(_mouseX);
-            System.out.println(_mouseX - 300);
-            System.out.println((int) ((_mouseX - 300)) / 60);
-            System.out.println();
             _mouseY = m.getSceneY();
-            System.out.println(_mouseY);
-            System.out.println((int) ((_mouseY)) / 60);
-        }); */
+        });
     }
 
     /// @brief Returns the old X value of the piece
@@ -79,6 +78,13 @@ public class UIPiece extends StackPane {
     /// @post Returns the piece to its old position
     public void cancelMove() {
         relocate(_oldX, _oldY);
+    }
+
+    /// @brief Returns the piece color
+    /// @pre ---
+    /// @post Returns the piece color
+    public PieceColor color() {
+        return this._piece.color();
     }
 
     /// @brief Returns the image of the piece
