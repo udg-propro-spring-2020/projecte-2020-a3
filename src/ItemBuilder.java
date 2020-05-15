@@ -31,6 +31,7 @@ public class ItemBuilder {
     private static final String BTN_SECONDARY = "btn-secondary";        ///< Secondary button class name
     private static final String BTN_ACCENT = "btn-accent";              ///< Secondary button class name
     private static final String BTN_EXIT = "btn-exit";                  ///< Exit button class name
+    private static final String BTN_SHADOWLESS = "btn-shadowless";                      ///< Pane class name
     private static final String TEXT_TITLE = "title";                   ///< Title class name
     private static final String PANE = "pane";                          ///< Pane class name
     private static final String PANE_BG = "pane_with_bg";               ///< Pane class name
@@ -92,7 +93,7 @@ public class ItemBuilder {
             layout.getStyleClass().add(PANE_BG);
         }
         layout.setSpacing((spacing == null) ? 24.0 : spacing);
-        layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
+        layout.setPadding(new Insets(16.0, 12.0, 16.0, 12.0));
         layout.setAlignment(Pos.CENTER);
         layout.getChildren().addAll(children);
 
@@ -152,7 +153,7 @@ public class ItemBuilder {
         return scene;
     }
 
-    /// @brief Builds a pop up window and shows it 
+    /// @brief Builds a pop up window 
     /// @pre ---
     /// @post Creates a pop up window with the given title and a centered label. If has
     ///       a button, this button will close the pop up
@@ -181,5 +182,71 @@ public class ItemBuilder {
         popUp.setScene(new Scene(layout));
 
         return popUp;
+    }
+
+    /// @brief Builds a yes/no pop up window
+    /// @pre ---
+    /// @post Creates a pop up window with the given title, a centered label and 
+    ///       the button collection
+    public static boolean buildConfirmationPopUp(String title, String text) {
+        Stage popUp = new Stage();
+        Collection<Node> buttons = new ArrayList<>();
+        Collection<Node> list = new ArrayList<>();
+
+        // Set title
+        popUp.initModality(Modality.APPLICATION_MODAL);
+        popUp.setTitle(title);
+
+        // Set text
+        Label errText = new Label(text);
+        errText.setTextAlignment(TextAlignment.CENTER);
+        list.add(errText);
+
+        Button yesBtn = new Button();
+        // Create Yes / No buttons
+        ItemBuilder.buildButton(
+            yesBtn, 
+            "YES", 
+            75.0, 
+            ItemBuilder.BtnType.SECONDARY
+        );
+        yesBtn.setOnAction(e -> {
+            yesBtn.setUserData(true);
+            popUp.close();
+        });
+        yesBtn.getStyleClass().add(BTN_SHADOWLESS);
+        buttons.add(yesBtn);
+            
+        Button noBtn = new Button();
+        ItemBuilder.buildButton(
+            noBtn, 
+            "NO", 
+            75.0, 
+            ItemBuilder.BtnType.EXIT
+        );
+        noBtn.setOnAction(e -> {
+            noBtn.setUserData(false);
+            popUp.close();
+        });
+        noBtn.getStyleClass().add(BTN_SHADOWLESS);
+        buttons.add(noBtn);
+        
+        // Button layout
+        HBox buttonsBox = buildHBox(12.0, buttons, false);
+        list.add(buttonsBox);
+        
+        // Pop up layout
+        VBox layout = buildVBox(12.0, list, false);
+        layout.getStylesheets().add(CSS_LOCATION);
+        popUp.setScene(new Scene(layout));
+        
+        // Show and wait
+        popUp.showAndWait();
+        // Return pressed value
+        if (yesBtn.getUserData() != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

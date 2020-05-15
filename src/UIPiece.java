@@ -37,17 +37,20 @@ public class UIPiece extends StackPane {
         // Add the piece image
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
+    }
 
-        // On drag
-        setOnMouseDragged((MouseEvent m) -> {
-            relocate(m.getSceneX(), m.getSceneY());
-        });
+    /// @brief Sets a double to the mouse X property
+    /// @pre ---
+    /// @post Sets a double to the mouse X property
+    public void setMouseX(double value) {
+        _mouseX = value;
+    }
 
-        // On tap
-        setOnMousePressed((MouseEvent m) -> {
-            _mouseX = m.getSceneX();
-            _mouseY = m.getSceneY();
-        });
+    /// @brief Sets a double to the mouse Y property
+    /// @pre ---
+    /// @post Sets a double to the mouse Y property
+    public void setMouseY(double value) {
+        _mouseY = value;
     }
 
     /// @brief Returns the old X value of the piece

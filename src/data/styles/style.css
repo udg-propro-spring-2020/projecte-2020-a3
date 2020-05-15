@@ -1,11 +1,6 @@
-* {
-	-fx-text-fill: WHITE;
-}
-
 .pane {
 	-fx-background-position: bottom center;
 	-fx-background-size: cover;
-	-fx-background-color: #263238;
 }
 
 .pane_with_bg {
@@ -47,6 +42,10 @@
 	-fx-background-color: rgb(255, 193, 7);
 	-fx-text-fill: WHITE;
 	-fx-border-color: rgb(255, 193, 7);
+}
+
+.btn-shadowless {
+	-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0), 0, 0, 0, 0);
 }
 
 .title {

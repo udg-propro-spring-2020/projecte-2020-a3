@@ -29,14 +29,14 @@ public class UIChess extends Application {
     private static final String TITLE = "ESCACS";                   ///< Main title of the window
     private static final String MENU = "MENU";                      ///< Menu title of the window
     private static final double MAX_BTN_WIDTH = 300.0;              ///< Max width of the buttons
+    private static final int SIDEBAR_PIXELS = 300;                  ///< Default side bar size
+    private static final int IMG_PIXELS = 60;                       ///< Default images size (60x60)
+    private static final double SPACER_PIXELS = 40.0;               ///< Default height of a spacer
 
     private static final String DEF_GAME_LOCATION = "./data/configuration.json";    ///< Game default configuration location
     private static final String DEF_IMG_LOCATION = "./data/img/";                   ///< Default image location
     private static final String DEF_WHITE_TILE_LOCATION = "w.png";                  ///< Default white tile image name
     private static final String DEF_BLACK_TILE_LOCATION = "b.png";                  ///< Default black tile image name
-    private static final int SIDEBAR_PIXELS = 300;                                  ///< Default side bar size
-    private static final int IMG_PIXELS = 60;                                       ///< Default images size (60x60)
-    private static final double SPACER_PIXELS = 40.0;                               ///< Default height of a spacer
 
     private static final String SELECTED_CSS = "selected";          ///< Selected button CSS class
     private static final String UNSELECTED_CSS = "unselected";      ///< Unselected button CSS class
@@ -48,7 +48,7 @@ public class UIChess extends Application {
     private int _cpuDifficulty = 2;                                 ///< CPU difficulty chosen by the user
     private List<String> _knowledgeFiles = null;                    ///< Knowledge file names entered by the user
     private GameState _lastGameState = GameState.GAME_INIT;         ///< Game state before the current
-    private GameController _controller = null;
+    private GameController _controller = null;                      ///< Game flow controller
     private Group _tiles = null;                                    ///< Group of tiles of the board
     private Group _pieces = null;                                   ///< Group of pieces of the board
 
@@ -456,7 +456,23 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.PRIMARY
         );
         drawBtn.setOnAction(e -> {
-            System.out.println("Demanant taules...");
+            PieceColor currColor = _controller.currentTurnColor();
+            // Save action
+            _controller.saveEmptyTurn("TAULES SOL·LICITADES", currColor);
+
+            boolean res = buildConfirmationPopUp(
+                "DRAW",
+                currColor.toString() + " asks for a draw.\nAccept?"
+            );
+
+            // Response
+            if (res) {
+                // End of game
+                _controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
+                String fileName = _controller.saveGame("TAULES", false);
+                savedGamePopUp(fileName);
+                resetToMainScene();
+            }
         });
         list.add(drawBtn);
 
@@ -471,11 +487,8 @@ public class UIChess extends Application {
         );
         saveGame.setOnAction(e -> {
             String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
-            ItemBuilder.buildPopUp(
-                "SAVED GAME",
-                "Saved game with name: \n" + fileName, 
-                true
-            ).showAndWait();
+            savedGamePopUp(fileName);
+            resetToMainScene();
         });
         list.add(saveGame);
 
@@ -487,12 +500,39 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         exitGameBtn.setOnAction(e -> {
-            defaultWindowSize();
-            buildMainScene();
+            resetToMainScene();
         });
         list.add(exitGameBtn);
 
         return list;
+    }
+
+    /// @brief Displays the main scene
+    /// @pre ---
+    /// @post Changes the current scene and builds the main scene. It also
+    ///       resets the default window size
+    private void resetToMainScene() {
+        defaultWindowSize();
+        buildMainScene();
+    }
+
+    /// @brief Displays a pop up showing the saved game file name
+    /// @pre No errors on saving the game
+    /// @post Displays a pop up showing the saved game file name
+    private void savedGamePopUp(String fileName) {
+        ItemBuilder.buildPopUp(
+            "SAVED GAME",
+            "Saved game with name: \n" + fileName, 
+            true
+        ).showAndWait();
+    }
+
+    /// @brief Builds a yes/no popup, shows it and returns the response
+    /// @pre ---
+    /// @post Builds a yes/no popup displaying the given message and returns the
+    ///       user response as a boolean (true = yes, false = no)
+    private boolean buildConfirmationPopUp(String title, String message) {
+        return ItemBuilder.buildConfirmationPopUp(title, message);
     }
 
     /// @brief Function that displays the game options scene
@@ -632,15 +672,15 @@ public class UIChess extends Application {
         }
         
         Pane background = new Pane();
-        /// Minimum values = 4 * IMG_PIXELS
-        /// Maximum values = 16 * IMG_PIXELS
+        // Minimum values = 4 * IMG_PIXELS
+        // Maximum values = 16 * IMG_PIXELS
         background.setPrefSize(_controller.cols() * IMG_PIXELS, _controller.rows() * IMG_PIXELS);
-        /// Initialise variables and set to parent
+        // Initialise variables and set to parent
         _tiles = new Group();
         _pieces = new Group();
         background.getChildren().addAll(_tiles, _pieces);
         
-        /// Start creating the board
+        // Start creating the board
         for (int i = 0; i < _controller.rows(); i++) {
             for (int j = 0; j < _controller.cols(); j++) {
                 ImageTile img = null;
@@ -662,7 +702,7 @@ public class UIChess extends Application {
                 Position temp = new Position(i, j);
                 _tiles.getChildren().add(img);
 
-                /// Check if there's a piece
+                // Check if there's a piece
                 Piece pieceIn = _controller.pieceAtCell(temp);
                 if (pieceIn != null) {
                     UIPiece piece = buildPiece(pieceIn, j, i);
@@ -680,6 +720,27 @@ public class UIChess extends Application {
     ///       handling configuration
     private UIPiece buildPiece(Piece in, int x, int y) {
         UIPiece piece = new UIPiece(in, IMG_PIXELS, x, y);
+
+        // EVENTS
+        piece.setOnMousePressed(
+            (MouseEvent m) -> {
+                if (_controller.currentTurnColor() == piece.color()) {
+                    piece.setMouseX(m.getSceneX());
+                    piece.setMouseY(m.getSceneY());
+                } else {
+                    System.out.println("Turn of: " + _controller.currentTurnColor().toString());
+                }
+            }
+        );
+
+        piece.setOnMouseDragged(
+            (MouseEvent m) -> {
+                if (_controller.currentTurnColor() == piece.color()) {
+                    piece.relocate(m.getSceneX(), m.getSceneY());
+                } 
+            }
+        );
+
         piece.setOnMouseReleased(
             (MouseEvent m) -> {
                 if (_controller.currentTurnColor() == piece.color()) {
@@ -738,6 +799,15 @@ public class UIChess extends Application {
         return piece;
     }
 
+    /// @brief Returns the opposite color of @p color
+	/// @pre ---
+	/// @post Returns the opposite color of @p color
+	private static PieceColor oppositeColor(PieceColor color) {
+		return color == PieceColor.White 
+			? PieceColor.Black
+			: PieceColor.White;
+	}
+
     /// @brief Calculates the board y position of a given value
     /// @pre @p value >= 0
     /// @post Returns the equivalent position of a given y coordinate from the screen
@@ -751,6 +821,14 @@ public class UIChess extends Application {
     private boolean pieceInPosition(UIPiece piece, Position position) {
         return boardPosition(piece.oldX()) == position.col() &&
                 boardPosition(piece.oldY()) == position.row();
+    }
+
+    /// @brief Returns if a graphic cell is in a given position of the board
+    /// @pre @p cell && @p position != null
+    /// @post Returns true if a ImageTile is in the given position of the board
+    private boolean cellInPosition(ImageTile img, Position position) {
+        return boardPosition(img.getX()) == position.col() &&
+                boardPosition(img.getY()) == position.row();
     }
 
     /// @brief Displays an error pop up 
