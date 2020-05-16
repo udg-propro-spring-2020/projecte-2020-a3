@@ -37,18 +37,20 @@ public class UIPiece extends StackPane {
         // Add the piece image
         ImageView img = new ImageView(getImage());
         getChildren().add(img);
+    }
 
-        // On tap
-       /*  setOnMousePressed((MouseEvent m) -> {
-            _mouseX = m.getSceneX();
-            System.out.println(_mouseX);
-            System.out.println(_mouseX - 300);
-            System.out.println((int) ((_mouseX - 300)) / 60);
-            System.out.println();
-            _mouseY = m.getSceneY();
-            System.out.println(_mouseY);
-            System.out.println((int) ((_mouseY)) / 60);
-        }); */
+    /// @brief Sets a double to the mouse X property
+    /// @pre ---
+    /// @post Sets a double to the mouse X property
+    public void setMouseX(double value) {
+        _mouseX = value;
+    }
+
+    /// @brief Sets a double to the mouse Y property
+    /// @pre ---
+    /// @post Sets a double to the mouse Y property
+    public void setMouseY(double value) {
+        _mouseY = value;
     }
 
     /// @brief Returns the old X value of the piece
@@ -79,6 +81,13 @@ public class UIPiece extends StackPane {
     /// @post Returns the piece to its old position
     public void cancelMove() {
         relocate(_oldX, _oldY);
+    }
+
+    /// @brief Returns the piece color
+    /// @pre ---
+    /// @post Returns the piece color
+    public PieceColor color() {
+        return this._piece.color();
     }
 
     /// @brief Returns the image of the piece

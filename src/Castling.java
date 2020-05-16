@@ -20,6 +20,34 @@ public class Castling implements JSON, Cloneable {
         this._emptyMid = emptyMid;
     }
 
+    /// @brief Returns the @p aPiece value 
+    /// @pre ---
+    /// @post Returns the @p aPiece value 
+    public String aPiece() {
+        return this._aPiece;
+    }
+
+    /// @brief Returns the @p bPiece value 
+    /// @pre ---
+    /// @post Returns the @p bPiece value 
+    public String bPiece() {
+        return this._bPiece;
+    }
+
+    /// @brief Returns the @p stand value 
+    /// @pre ---
+    /// @post Returns the @p stand value 
+    public boolean stand() {
+        return this._stand;
+    }
+
+    /// @brief Returns the @p emptyMid value 
+    /// @pre ---
+    /// @post Returns the @p emptyMid value 
+    public boolean emptyMid() {
+        return this._emptyMid;
+    }
+
     @Override
     public String toJSON() {
         StringBuilder s = new StringBuilder();

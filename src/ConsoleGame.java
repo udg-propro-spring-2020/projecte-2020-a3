@@ -635,7 +635,7 @@ public class ConsoleGame {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
 
-		Pair<Position, Position> cpuMove = cpu.doMovement(lastMovement);
+		Pair<Position, Position> cpuMove = cpu.doMovement();
 		List<MoveAction> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
 		_controller.cancellUndoes();
 		
