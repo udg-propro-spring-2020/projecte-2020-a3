@@ -450,15 +450,15 @@ public class ConsoleGame {
 	///       Finishes the game with the winning cpu.
 	private static void twoCPUsGame() {
 		System.out.println("Computer 1 level");
-		int diff = cpuDifficulty();
+		int diffOne = cpuDifficulty();
 		
 		System.out.println("Computer 2 level");
-		diff = cpuDifficulty();
+		int diffTwo = cpuDifficulty();
 
 		Knowledge knowledge = cpuKnowledge("CPU");
 
-		Cpu cpu1 = new Cpu(knowledge, _controller.chess(), diff, PieceColor.White);
-		Cpu cpu2 = new Cpu(knowledge, _controller.chess(), diff, PieceColor.Black);
+		Cpu cpu1 = new Cpu(knowledge, _controller.chess(), diffOne, PieceColor.White);
+		Cpu cpu2 = new Cpu(knowledge, _controller.chess(), diffTwo, PieceColor.Black);
 
 		MoveAction result = null;
 		boolean inactivity = false;
