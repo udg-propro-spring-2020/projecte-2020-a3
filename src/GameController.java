@@ -167,8 +167,9 @@ public class GameController {
 
     /// @brief Checks and applies a cpu movement
     /// @pre @p origin && @p dest != null
-    /// @post Checks and applies the cpu movement to the chess and returns the list of MoveActions
-    public List<MoveAction> applyCPUMovement(Position origin, Position destination) {
+    /// @post Checks and applies the cpu movement to the chess and returns the list of MoveActions.
+    ///       Returns a pair containing the list of move actions and if it has killed any piece
+    public Pair<List<MoveAction>, Boolean> applyCPUMovement(Position origin, Position destination) {
         Pair<List<MoveAction>, List<Position>> moveResult = _chess.checkMovement(origin, destination);
 		
 		// CPU movement is always correct
@@ -187,7 +188,10 @@ public class GameController {
 			)
         );
         
-        return result;
+        return new Pair<List<MoveAction>, Boolean>(
+            result,
+            moveResult.second.isEmpty()
+        );
     }
 
     /// @brief Changes turn value
@@ -375,6 +379,13 @@ public class GameController {
         return _turnNumber % 10 == 0 || _turnNumber % 10 == 1;
     }
 
+    /// @brief Returns if the current turn is even
+    /// @pre ---
+    /// @post Returns true if the current turn is even. False otherwise
+    public boolean evenTurn() {
+        return _turnNumber % 2 == 0;
+    }
+
     /// @brief Returns the configuration file of the game
     /// @pre ---
     /// @post Returns the configuration file of the game
@@ -456,5 +467,29 @@ public class GameController {
     /// @post Returns if a board cell is empty
     public boolean emptyCell(Position p) {
         return _chess.emptyCell(p);
+    }
+
+    /// @brief Returns the inactive turns limit
+    /// @pre ---
+    /// @post Returns the inactive turns limit value
+    public int inactiveLimit() {
+        return _chess.inactiveLimits();
+    }
+
+    /// @brief Returns the most valuable PieceType after the king
+    /// @pre ---
+    /// @post Returns the most valuable PieceType after the king
+    public PieceType mostValuableType() {
+        int maxValue = Integer.MIN_VALUE;
+        PieceType result = null;
+        for (PieceType type : _chess.typeList()) {
+            if (!type.isKingType()) {
+                if (type.ptValue() > maxValue) {
+                    result = type;
+                    maxValue = type.ptValue();
+                }
+            }
+        }
+        return result;
     }
 }

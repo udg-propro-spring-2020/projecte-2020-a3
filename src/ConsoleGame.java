@@ -14,10 +14,12 @@ import java.io.InputStreamReader;
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
 	private static GameController _controller = null;				///< Referece to the game controller
+	private static int _inactiveTurns = 0;							///< Current amount of inactive turns
 
 	/// CONSTANTS
 	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
+	private static int INACTIVE_THRESHOLD = 40;																///< Inactive turns threshold
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
@@ -319,6 +321,7 @@ public class ConsoleGame {
 					}
 					playerOption = playerTurn();			
 				}
+
 			} else if (playerOption.equals("S")) {
 				if (_controller.currentTurnColor() == PieceColor.White) {
 					System.out.println(pOne + " surrenders");
@@ -328,10 +331,18 @@ public class ConsoleGame {
 				playerOption = "G";
 				_controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
 			}
+
+			if (inactiveLimitReached()) {
+				playerOption = "I";
+			} else {
+				// Change turn
+				_controller.toggleTurn();
+			}
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
-			!playerOption.equals("E") 
+			!playerOption.equals("E") &&
+			!playerOption.equals("I")
 		);
 
 		switch (playerOption) {
@@ -342,7 +353,11 @@ public class ConsoleGame {
 				break;
 			}
 			case "E": {
-				endOfGame(true);
+				endOfGame(true, false);
+				break;
+			}
+			case "I": {
+				endOfGame(true, true);
 				break;
 			}
 		}
@@ -370,7 +385,14 @@ public class ConsoleGame {
 
 				// Change turn
 				if (!(cpuResult == MoveAction.Escacimat)) {
-					_controller.toggleTurn();
+					if (inactiveLimitReached()) {
+						playerOption = "I";
+					} else {
+						// Change turn
+						_controller.toggleTurn();
+					}
+				} else {
+					playerOption = "C";
 				}
 			} else {
 				if (_controller.zeroOrOneTurn()) {
@@ -381,24 +403,42 @@ public class ConsoleGame {
 				System.out.println("Player turn");
 				playerOption = playerTurn();
 
-				
+				if (playerOption.equals("T")) {
+					// If player asks for a draw, cpu will never accept
+					_controller.saveEmptyTurn(
+						"TAULES SOL·LICITADES",
+						_controller.currentTurnColor()
+					);
+					System.out.println("The CPU has not accepted the draw");
+					playerOption = "";
+				} 
+
+				if (inactiveLimitReached()) {
+					playerOption = "I";
+				} else {
+					// Change turn
+					_controller.toggleTurn();
+				}
 			}
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
-			!playerOption.equals("E") &&
-			!playerOption.equals("T")
+			!playerOption.equals("I") &&
+			!playerOption.equals("C") 
 		);
 
 		switch (playerOption) {
+			case "C": {
+				// One of them wins
+				endOfGame(false, false);
+			}
 			case "G": {
 				String fileName = saveGame("PARTIDA AJORNADA");
 				System.out.println("Saved game with name: " + fileName);
 				break;
 			}
-			case "E":
-			case "T": {
-				endOfGame(true);
+			case "I": {
+				endOfGame(true, true);
 				break;
 			}
 		}
@@ -421,6 +461,7 @@ public class ConsoleGame {
 		Cpu cpu2 = new Cpu(knowledge, _controller.chess(), diff, PieceColor.Black);
 
 		MoveAction result = null;
+		boolean inactivity = false;
 		do {
 			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
@@ -428,11 +469,24 @@ public class ConsoleGame {
 			} else {
 				result = cpuTurn(cpu2, _controller.lastMovement());
 			}
-			_controller.toggleTurn();
-		} while (result == null);
+
+			if (inactiveLimitReached()) {
+				// End of game
+				inactivity = true;
+			} else {
+				// Continue
+				_controller.toggleTurn();
+			}
+		} while (result == null && !inactivity);
 		
 		// Game finished - can't never be draw
-		endOfGame(false);
+		if (inactivity) {
+			// Draw due to inactivity
+			endOfGame(true, true);
+		} else {
+			// One computer has won
+			endOfGame(false, false);
+		}
 	}
 
 	/// @brief Controls a player turn 
@@ -508,6 +562,14 @@ public class ConsoleGame {
 						if (moveResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
 							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
+
+							if (moveResult.second.isEmpty()) {
+								// Turn with no captures
+								_inactiveTurns++;
+							} else {
+								// Otherwise
+								_inactiveTurns = 0;
+							}
 	
 							if (actions != null) {
 								if (actions.contains(MoveAction.Promote)) {
@@ -525,12 +587,9 @@ public class ConsoleGame {
 								);
 					
 								if (actions.contains(MoveAction.Escacimat)) {
-									result = "E";
+									result = "C";
 									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-								} else {
-									// Change turn
-									_controller.toggleTurn();
-								}
+								} 
 
 								stop = true;
 							}
@@ -636,10 +695,26 @@ public class ConsoleGame {
 		}
 
 		Pair<Position, Position> cpuMove = cpu.doMovement();
-		List<MoveAction> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
+		Pair<List<MoveAction>, Boolean> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
 		_controller.cancellUndoes();
+
+		// Handle promotion
+		if (result.first.contains(MoveAction.Promote)) {
+			_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
+			_controller.savePromotionTurn(
+				_controller.pieceAtCell(cpuMove.second).type(),
+				_controller.mostValuableType()
+			);
+		}
+
+		if (!result.second) {
+			// Inactive turn
+			_inactiveTurns++;
+		} else {
+			_inactiveTurns = 0;
+		}
 		
-		if (result.contains(MoveAction.Escacimat)) {
+		if (result.first.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
 			return null;
@@ -788,13 +863,34 @@ public class ConsoleGame {
 			: PieceColor.White;
 	}
 
+	/// @brief Returns if the players have reached the inactive limit
+	/// @pre ---
+	/// @post Returns true if the players have played as many turns without killing 
+	///       as there are in the configuration. If the config limit is grater than the
+	///       threshold, it will return false
+	private static boolean inactiveLimitReached() {
+		if (_controller.evenTurn() && _controller.inactiveLimit() < INACTIVE_THRESHOLD) {
+			// Check for inactivity
+			if ((_inactiveTurns / 2) >= _controller.inactiveLimit()) {
+				// Game finished due to inactivity
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/// @brief Handles the end of game
 	/// @pre ---
 	/// @post Prints the game result and saves the game developement
-	private static void endOfGame(boolean draw) {
+	private static void endOfGame(boolean draw, boolean inactivity) {
 		String res = null;
 
-		if (draw) {
+		if (inactivity) {
+			System.out.println("Draw due to inactivity");
+			System.out.println("Game finished");
+			res = "TAULES PER INNACCIÓ";
+		} else if (draw) {
 			System.out.println("Draw accepted");
 			System.out.println("Game finished");
 			res = "TAULES";

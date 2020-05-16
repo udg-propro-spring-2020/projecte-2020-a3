@@ -88,10 +88,27 @@ public class Cpu{
                     
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
-
+                    System.out.println("crido jugador amb moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
+                    if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
-                    taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);//we apply this movement with the returnend parameters on the checkMovement
-                    
+                    List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);//we apply this movement with the returnend parameters on the checkMovement
+                    actions.forEach((action)->{
+                            System.out.println("action "+action.toString());
+                            System.out.println(taulerCopia.showBoard());
+                            if(action==MoveAction.Promote){
+                                //System.out.println("hello");
+                                List<PieceType> typePieces = taulerCopia.typeList();
+                                Iterator<PieceType> itTypePieces = typePieces.iterator();
+                                PieceType piecetype = itTypePieces.next();
+                                while(itTypePieces.hasNext()){
+                                    PieceType nextPieceType = itTypePieces.next();
+                                    if(nextPieceType.ptValue()>piecetype.ptValue())piecetype=nextPieceType;
+                                }
+                                //System.out.println("--------------------------aplicar promocionar");
+                                taulerCopia.promotePiece(pieceMovement.first,piecetype);
+                                //System.out.println(taulerCopia.showBoard());       
+                            }
+                    });
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
 
                     if(result>max){
@@ -107,6 +124,7 @@ public class Cpu{
                     if(smallerAnterior<=biggestAnterior){break;}
                 }
             }
+            //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
             return max;
         }
         else{ /*Here we will choose the lowest because we want to minamize our negative score
@@ -126,8 +144,26 @@ public class Cpu{
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
+                    System.out.println("soc jugador trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
-                    taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);
+                    List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);
+                    actions.forEach((action)->{
+                            System.out.println("action "+action.toString());
+                            System.out.println(taulerCopia.showBoard());
+                            if(action==MoveAction.Promote){
+                                //System.out.println("hello");
+                                List<PieceType> typePieces = taulerCopia.typeList();
+                                Iterator<PieceType> itTypePieces = typePieces.iterator();
+                                PieceType piecetype = itTypePieces.next();
+                                while(itTypePieces.hasNext()){
+                                    PieceType nextPieceType = itTypePieces.next();
+                                    if(nextPieceType.ptValue()>piecetype.ptValue())piecetype=nextPieceType;
+                                }
+                                //System.out.println("--------------------------aplicar promocionar");
+                                taulerCopia.promotePiece(pieceMovement.first,piecetype);
+                                //System.out.println(taulerCopia.showBoard());                 
+                                }
+                    });
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
                     if(result<min){
                         smallerAnterior=result;
@@ -140,6 +176,7 @@ public class Cpu{
                     if(biggestAnterior>=smallerAnterior){break;}
                 }
             }
+            //System.out.println("JUGADOR nivell:"+profundity+" score returnant:"+min);
             return min;
         }
     }
