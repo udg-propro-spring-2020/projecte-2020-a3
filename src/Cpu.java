@@ -76,13 +76,13 @@ public class Cpu{
             if(_color==PieceColor.White)pieces=tauler.pListWhite();//take the cpu pieces
             else pieces=tauler.pListBlack();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-
-            while(itPieces.hasNext()){//for each peice
+            Boolean follow = true;
+            while(itPieces.hasNext() && follow){//for each peice
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores= tauler.destinyWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
 
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
-                while(itMoviments.hasNext()){//for each movement
+                while(itMoviments.hasNext() && follow){//for each movement
                     
                     Chess taulerCopia = (Chess)tauler.clone();//copy the actual chess because after applying this movememnt and al the minmax alogirthm we need the chess as now
                     
@@ -128,7 +128,7 @@ public class Cpu{
                     the anterior node (because anterior will choose the samllest)
                     we dont have to continue inspecinting this branch so we cut it.
                     */
-                    if(smallerAnterior<=biggestAnterior){System.out.println("tallo desde CPU");break;}
+                    if(smallerAnterior<=biggestAnterior){System.out.println("tallo desde CPU");follow=false;}
                 }
             }
             //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
@@ -142,12 +142,12 @@ public class Cpu{
             if(_color==PieceColor.Black)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-        
-            while(itPieces.hasNext()){  //FOR EACH PIECE
+            Boolean follow = true;
+            while(itPieces.hasNext() && follow){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores=tauler.destinyWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
-                while(itMoviments.hasNext()){ //FOR EACH MOVEMENT
+                while(itMoviments.hasNext() && follow){ //FOR EACH MOVEMENT
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
@@ -181,7 +181,7 @@ public class Cpu{
                     the anterior node (because anterior will choose the bigger)
                     we dont have to continue inspecinting this branch so we cut it.
                     */
-                    if(biggestAnterior>=smallerAnterior){System.out.println("tallo desde CONTRINCANT");break;}
+                    if(biggestAnterior>=smallerAnterior){System.out.println("tallo desde CONTRINCANT");follow=false;}
                 }
             }
             //System.out.println("CONTRINCANT nivell:"+profundity+" score returnant:"+min);
