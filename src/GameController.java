@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /// @author Miquel de Domingo i Giralt
 /// @file GameController.java
@@ -56,7 +57,11 @@ public class GameController {
 
         // Retrieve match information
         _chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
-        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation, false);
+        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(
+            fileLocation, 
+            mapOfPieceTypes(),
+            false
+        );
         List<Turn> loadedTurns = info.first;
         _currTurnColor = info.second;
 
@@ -83,6 +88,13 @@ public class GameController {
                 toggleTurn();
             }
         }
+    }
+
+    /// @brief Returns a map of the piece types
+    /// @pre ---
+    /// @post Creates a map of the piece types in which the key is their name
+    public Map<String, PieceType> mapOfPieceTypes() {
+        return FromJSONParserHelper.mapFromTypes(typeList());
     }
 
     // GAME MANIPULATION METHODS
@@ -194,6 +206,20 @@ public class GameController {
 			new Turn(color, new Pair<String, String>("", ""), result)
 		);
 		_turnNumber++;
+    }
+
+    /// @brief Saves a promotion turn
+    /// @pre ---
+    /// @post Creates a promotion turn, with the current color and adds it to the list
+    public void savePromotionTurn(PieceType original, PieceType promoted) {
+        _turns.add(
+            new Turn(
+                _currTurnColor,
+                original,
+                promoted
+            )
+        );
+        _turnNumber++;
     }
 
 	/// @brief Undoes one movement

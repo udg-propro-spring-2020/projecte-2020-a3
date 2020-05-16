@@ -1,7 +1,9 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /// @author Miquel de Domingo i Giralt 
@@ -53,6 +55,7 @@ public class FromJSONParserHelper {
         in.nextLine();
         in.nextLine();
         List<PieceType> typeList = getListPieceTypes(in);
+        Map<String, PieceType> typeMap = mapFromTypes(typeList);
 
         // Next two lines
         in.nextLine();
@@ -68,7 +71,7 @@ public class FromJSONParserHelper {
             );
         }
 
-        if (illegalPieceName(initialPos, typeList)) {
+        if (illegalPieceName(initialPos, typeMap)) {
             throw new JSONParseFormatException(
                 "Initial positions contains a piece that is not a piece type",
                 JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
@@ -90,7 +93,7 @@ public class FromJSONParserHelper {
         List<Castling> castlings = new ArrayList<>();
         if (!getString(in.nextLine()).equals("[]")) {
             /// If castlings list is not empty
-            castlings = getListCastlings(in, typeList);
+            castlings = getListCastlings(in, typeMap);
         }
 
         /// Close scanner
@@ -105,8 +108,7 @@ public class FromJSONParserHelper {
     /// developement form the JSON file
     /// @throws JSONParseFormatException If some of the file content is not in the
     ///         correct format or if there is an incoherence
-    public static Chess buildSavedChessGame(String fileLocation)
-            throws FileNotFoundException, JSONParseFormatException {
+    public static Chess buildSavedChessGame(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         Scanner mainSc = new Scanner(new File(fileLocation));
         /// Skip first {
         mainSc.nextLine();
@@ -154,7 +156,7 @@ public class FromJSONParserHelper {
         mainSc.nextLine();
         // Turn list - if there's, skip it
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            getTurnList(mainSc);
+            getTurnList(mainSc, mapFromTypes(chess.typeList()));
         }
 
         // Skip ],
@@ -180,7 +182,7 @@ public class FromJSONParserHelper {
     ///       list of turns and the winning piece color. If @p forKnowledge is true,
     ///       returns the winning color. Otherwise, returns null.
     /// @throws JSONParseFormatException If the file contains an empty turn list
-    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, boolean forKnowledge)
+    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, Map<String, PieceType> types, boolean forKnowledge)
             throws FileNotFoundException, JSONParseFormatException {
         Scanner in = new Scanner(new File(fileLocation));
 
@@ -193,7 +195,7 @@ public class FromJSONParserHelper {
         List<Turn> turnList = new ArrayList<>();
 
         if (!getString(in.nextLine()).equals("[]")) {
-            turnList = getTurnList(in);
+            turnList = getTurnList(in, types);
 
             // Skip ],
             in.nextLine();
@@ -356,7 +358,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the castling list from the file
     /// @pre ---
     /// @post Returns the JSON castling list which can be empty
-    private static List<Castling> getListCastlings(Scanner fr, List<PieceType> types) {
+    private static List<Castling> getListCastlings(Scanner fr, Map<String, PieceType> types) {
         // Skip {
         fr.nextLine();
         List<Castling> cList = new ArrayList<>();
@@ -432,7 +434,9 @@ public class FromJSONParserHelper {
     /// @brief Gets the turn list from the file
     /// @pre Scanner pointing at {
     /// @post Returns the list of turns which can't be empty
-    private static List<Turn> getTurnList(Scanner fr) {
+    /// @throws JSONParseFormatException if there's a promotion turn which contains
+    ///         an invalid piece type
+    private static List<Turn> getTurnList(Scanner fr, Map<String, PieceType> types) throws JSONParseFormatException {
         // Skip {
         fr.nextLine();
         List<Turn> turnList = new ArrayList<>();
@@ -473,7 +477,15 @@ public class FromJSONParserHelper {
                 }
                 default: {
                     if (result.contains("PROMOCIÓ")) {
-                        // TODO: Handle promotion
+                        Pair<String, String> promotion = extractPromotionTurn(result);
+                        if (illegalType(promotion.first, types) || illegalType(promotion.second, types)) {
+                            throw new JSONParseFormatException(
+                                "Promoted turn contains a piece that is not a piece type",
+                                JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
+                            );
+                        } else {
+
+                        }
 
                     } else if (result.contains("ENROC")) {
                         // TODO: Handle castling
@@ -491,24 +503,43 @@ public class FromJSONParserHelper {
         return turnList;
     }
 
+    /// @brief Extracts the promotion from a turn result
+    /// @pre ---
+    /// @post From a promotion result [PROMOCIO: ORIGINAL-PROMOTED] returns the original
+    ///       and the promoted as a Strings pair
+    private static Pair<String, String> extractPromotionTurn(String result) {
+        // Separate by the :
+        String[] partOne = result.split(":");
+        // Separate by the -
+        String[] partTwo = partOne[1].trim().split("-");
+
+        return new Pair<String, String>(partTwo[0], partTwo[1]);
+    }
+
+    /// @brief Crates a Map from the list of pieces
+    /// @pre ---
+    /// @brief Returns a Map of the list of pieces in which the piece name is the key
+    public static Map<String, PieceType> mapFromTypes(List<PieceType> types) {
+        Map<String, PieceType> map = new HashMap<>();
+        for (PieceType type : types) {
+            // Each type name is unique
+            map.put(type.ptName(), type);
+        }
+        return map;
+    }
+
     /// @brief Checks if the name corresponds to a piece type
     /// @pre ---
     /// @post Returns true if the name does not exist in the @p types list
-    private static boolean illegalType(String name, List<PieceType> types) {
-        for (PieceType type : types) {
-            if (type.ptName().equals(name)) {
-                return false;
-            }
-        }
-
-        // If it reaches here, means the name is not valid
-        return true;
+    private static boolean illegalType(String name, Map<String, PieceType> types) {
+        // Contains is O(1)
+        return !types.containsKey(name);
     }
 
     /// @brief Checks if there's a piece name that is not a pieceType
     /// @pre ---
     /// @post Returns true if there's a piece name that is not a pieceType
-    private static boolean illegalPieceName(List<String> initPositions, List<PieceType> types) {
+    private static boolean illegalPieceName(List<String> initPositions, Map<String, PieceType> types) {
         if (initPositions != null && types == null || (!initPositions.isEmpty() && types.isEmpty())) {
             return true;
         } else if ((initPositions == null && types == null) || (initPositions.isEmpty() && types.isEmpty())) {
