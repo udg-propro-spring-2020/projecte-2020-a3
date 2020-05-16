@@ -38,7 +38,7 @@ public class Knowledge{
 
                 if(winner==PieceColor.Black){
                     actualTurn = itTurns.next().moveAsPair();
-                    chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
+                    chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
                 }
                 while(itTurns.hasNext()){
                     actualTurn = itTurns.next().moveAsPair();
@@ -46,20 +46,20 @@ public class Knowledge{
                         if(!_knowledgeWhite.containsKey(chessCopy.chessStringView(winner))){
                             _knowledgeWhite.put(chessCopy.chessStringView(winner),actualTurn);
                         }
-                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
+                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
                         if(itTurns.hasNext()){
                             actualTurn = itTurns.next().moveAsPair();
-                            chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
+                            chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
                         }
                     }
                     else{
                         if(!_knowledgeBlack.containsKey(chessCopy.chessStringView(winner))){
                             _knowledgeBlack.put(chessCopy.chessStringView(winner),actualTurn);
                         }
-                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
+                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
                         if(itTurns.hasNext()){
                             actualTurn = itTurns.next().moveAsPair();
-                            chessCopy.applyMovement(actualTurn.first,actualTurn.second,null);
+                            chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
                         }
                     }
                 }
