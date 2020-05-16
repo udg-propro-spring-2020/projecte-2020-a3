@@ -26,7 +26,7 @@ public class Turn implements JSON, Cloneable {
     /// @brief To know the movement origin cell
     /// @pre ---
     /// @post Returns the movement origin cell
-    /// @throws UnsuportedOperationException if the method is called when it is a promotion turn
+    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
     public String origin() throws UnsupportedOperationException {
         if (_promotionTurn) {
             throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
@@ -38,10 +38,10 @@ public class Turn implements JSON, Cloneable {
     /// @brief To know the movement destination cell
     /// @pre ---
     /// @post Returns the movement destination cell
-    /// @throws UnsuportedOperationException if the method is called when it is a promotion turn
+    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
     public String destination() {
         if (_promotionTurn) {
-            throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
+            throw new UnsupportedOperationException("Destination cannot be called when it is a promotion turn");
         }
 
         return _move.second;
@@ -50,10 +50,10 @@ public class Turn implements JSON, Cloneable {
     /// @brief Returns the move as a pair of positions
     /// @pre ---
     /// @post Returns the move as a pair of positions
-    /// @throws UnsuportedOperationException if the method is called when it is a promotion turn
+    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
     public Pair<Position, Position> moveAsPair() {
         if (_promotionTurn) {
-            throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
+            throw new UnsupportedOperationException("MoveAsPair cannot be called when it is a promotion turn");
         }
 
         return new Pair<Position, Position>(
@@ -62,11 +62,35 @@ public class Turn implements JSON, Cloneable {
         );
     }
 
+    /// @brief Returns the pieces involved in a promotion
+    /// @pre This is a promotion turn
+    /// @post Returns a pair of strings as the promotion (first is original, second promoted)
+    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
+    public Pair<String, String> promotionAsPair() throws UnsupportedOperationException {
+        if (_promotionTurn) {
+            throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
+        }
+        
+        // Separate by the :
+        String[] partOne = _result.split(":");
+        // Separate by the -
+        String[] partTwo = partOne[1].trim().split("-");
+
+        return new Pair<String, String>(partTwo[0], partTwo[1]);
+    }
+
     /// @brief Returns the result of the turn
     /// @pre ---
     /// @post Returns the result of the movement
     public String turnResult() {
         return this._result;
+    }
+
+    /// @brief Returns if this is a promotion turn
+    /// @pre ---
+    /// @post Returns if this is a promotion turn
+    public boolean isPromotionTurn() {
+        return this._promotionTurn;
     }
 
     /// @brief Creates a String describing a promition

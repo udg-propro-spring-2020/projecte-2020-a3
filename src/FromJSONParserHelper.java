@@ -472,7 +472,6 @@ public class FromJSONParserHelper {
                 case "": {
                     // Add new turn
                     Pair<String, String> move = new Pair<String, String>(origin, dest);
-                    System.out.println("Turn added");
                     turnList.add(new Turn(color, move, result));
                 }
                 default: {
