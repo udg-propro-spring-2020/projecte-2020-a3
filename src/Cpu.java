@@ -88,13 +88,13 @@ public class Cpu{
                     
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
-                    System.out.println("crido jugador amb moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
-                    if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
+                    //System.out.println("crido jugador amb moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
+                    //if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
-                    List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);//we apply this movement with the returnend parameters on the checkMovement
+                    List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);//we apply this movement with the returnend parameters on the checkMovement
                     actions.forEach((action)->{
-                            System.out.println("action "+action.toString());
-                            System.out.println(taulerCopia.showBoard());
+                            //System.out.println("action "+action.toString());
+                            //System.out.println(taulerCopia.showBoard());
                             if(action==MoveAction.Promote){
                                 //System.out.println("hello");
                                 List<PieceType> typePieces = taulerCopia.typeList();
@@ -109,19 +109,26 @@ public class Cpu{
                                 //System.out.println(taulerCopia.showBoard());       
                             }
                     });
+                    System.out.println("SOC cpu nivell:"+profundity+"max:"+max+"smallestAnterior:"+smallerAnterior+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    if(profundity==0)System.out.println("Max actual:"+max);
                     result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
 
                     if(result>max){
+                        if(profundity==0){
+                            //System.out.println("actualitzant el moviment score:"+result);
+                            //System.out.println("moviment anterior: o:"+movement.first+" d:"+movement.second);
+                            //System.out.println("nou moviment: o:"+piece.first+" d:"+pieceMovement.first);
+                            movement.first=piece.first;
+                            movement.second=pieceMovement.first;
+                        }
                         biggestAnterior=result;
                         max=result;
-                        movement.first=piece.first;
-                        movement.second=pieceMovement.first;
                     }
                     /*If the new biggest is bigger than smallest on
                     the anterior node (because anterior will choose the samllest)
                     we dont have to continue inspecinting this branch so we cut it.
                     */
-                    if(smallerAnterior<=biggestAnterior){break;}
+                    if(smallerAnterior<=biggestAnterior){System.out.println("tallo desde CPU");break;}
                 }
             }
             //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
@@ -144,12 +151,12 @@ public class Cpu{
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    System.out.println("soc jugador trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
+                    System.out.println("SOC contrincant nivell:"+profundity+"min:"+min+"biggestAnterior:"+biggestAnterior+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
-                    List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second);
+                    List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
                     actions.forEach((action)->{
-                            System.out.println("action "+action.toString());
-                            System.out.println(taulerCopia.showBoard());
+                            //System.out.println("action "+action.toString());
+                            //System.out.println(taulerCopia.showBoard());
                             if(action==MoveAction.Promote){
                                 //System.out.println("hello");
                                 List<PieceType> typePieces = taulerCopia.typeList();
@@ -164,6 +171,7 @@ public class Cpu{
                                 //System.out.println(taulerCopia.showBoard());                 
                                 }
                     });
+                    //System.out.println("SOC el contrincant trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                     result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
                     if(result<min){
                         smallerAnterior=result;
@@ -173,10 +181,10 @@ public class Cpu{
                     the anterior node (because anterior will choose the bigger)
                     we dont have to continue inspecinting this branch so we cut it.
                     */
-                    if(biggestAnterior>=smallerAnterior){break;}
+                    if(biggestAnterior>=smallerAnterior){System.out.println("tallo desde CONTRINCANT");break;}
                 }
             }
-            //System.out.println("JUGADOR nivell:"+profundity+" score returnant:"+min);
+            //System.out.println("CONTRINCANT nivell:"+profundity+" score returnant:"+min);
             return min;
         }
     }
