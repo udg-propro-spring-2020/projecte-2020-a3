@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /// @author Miquel de Domingo i Giralt
 /// @file GameController.java
@@ -56,33 +57,69 @@ public class GameController {
 
         // Retrieve match information
         _chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
-        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation, false);
+        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(
+            fileLocation, 
+            mapOfPieceTypes(),
+            false
+        );
         List<Turn> loadedTurns = info.first;
         _currTurnColor = info.second;
 
         initiateData();
         if (!loadedTurns.isEmpty()) {
+            Turn lastTurn = null;
             for (Turn t : loadedTurns) {
-                // TODO: Analise promotion and others
-                Pair<Position, Position> temp = t.moveAsPair();
+                // TODO: Handle all turn possibilities
+                if (t.isPromotionTurn()) {
+                    if (lastTurn == null) {
+                        // If nothing has moved, there cannot be a promotion
+                        throw new JSONParseFormatException(
+                            "First turn cannot be a promotion",
+                            JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION
+                        );
+                    }
 
-                // Apply movements to the game
-                Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
+                    // <Original, Promoted> names
+                    Pair<String, String> promoted = t.promotionAsPair();
+                    Map<String, PieceType> typeMap = mapOfPieceTypes();
 
-                // All movements must be right!
-                List<MoveAction> moveResult = _chess.applyMovement(temp.first, temp.second, checkResult.second);
-                
-                saveTurn(
-                    moveResult,
-                    new Pair<String, String>(
-                        temp.first.toString(),
-                        temp.second.toString()
-                    )
-                );
+                    // Promote piece
+                    _chess.promotePiece(
+                        new Position(lastTurn.destination()), 
+                        typeMap.get(promoted.second)
+                    );
+
+                    // Save turn with the PieceTypes
+                    savePromotionTurn(typeMap.get(promoted.first), typeMap.get(promoted.second));
+                } else {
+                    Pair<Position, Position> temp = t.moveAsPair();
+    
+                    // Apply movements to the game
+                    Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
+    
+                    // All movements must be right!
+                    List<MoveAction> moveResult = _chess.applyMovement(temp.first, temp.second, checkResult.second);
+                    
+                    saveTurn(
+                        moveResult,
+                        new Pair<String, String>(
+                            temp.first.toString(),
+                            temp.second.toString()
+                        )
+                    );
+                }
 
                 toggleTurn();
+                lastTurn = t;
             }
         }
+    }
+
+    /// @brief Returns a map of the piece types
+    /// @pre ---
+    /// @post Creates a map of the piece types in which the key is their name
+    public Map<String, PieceType> mapOfPieceTypes() {
+        return FromJSONParserHelper.mapFromTypes(typeList());
     }
 
     // GAME MANIPULATION METHODS
@@ -194,6 +231,20 @@ public class GameController {
 			new Turn(color, new Pair<String, String>("", ""), result)
 		);
 		_turnNumber++;
+    }
+
+    /// @brief Saves a promotion turn
+    /// @pre ---
+    /// @post Creates a promotion turn, with the current color and adds it to the list
+    public void savePromotionTurn(PieceType original, PieceType promoted) {
+        _turns.add(
+            new Turn(
+                _currTurnColor,
+                original,
+                promoted
+            )
+        );
+        _turnNumber++;
     }
 
 	/// @brief Undoes one movement

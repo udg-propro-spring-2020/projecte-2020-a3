@@ -600,7 +600,7 @@ public class ConsoleGame {
 				for (String location : list) {
 					try {
 						complexList.add(
-							FromJSONParserHelper.matchInformation(location, true)
+							FromJSONParserHelper.matchInformation(location, _controller.mapOfPieceTypes(), true)
 						);
 					} catch (FileNotFoundException e) {
 						System.err.println("File [" + location + "] not found.");
@@ -765,6 +765,11 @@ public class ConsoleGame {
 						System.out.println("Number not valid.");
 					} else {
 						_controller.promotePiece(piecePosition, tempList.get(r - 1));
+						// Save promotion turn
+						_controller.savePromotionTurn(
+							_controller.pieceAtCell(piecePosition).type(),
+							tempList.get(r - 1)
+						);
 						valid = true;
 					}
 				} catch (NumberFormatException e) {

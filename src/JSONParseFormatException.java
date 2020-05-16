@@ -11,6 +11,7 @@ public class JSONParseFormatException extends Exception {
         ILLEGAL_MOVE,
         ILLEGAL_TYPE,
         ILLEGAL_COLOR,
+        ILLEGAL_PROMOTION,
         END_OF_GAME;
 
         @Override
@@ -28,6 +29,8 @@ public class JSONParseFormatException extends Exception {
                     return "ERROR I4: Piece type not valid";
                 case ILLEGAL_COLOR:
                     return "ERROR I5: Color not valid";
+                case ILLEGAL_PROMOTION:
+                    return "ERROR I6: Piece promotion not valid";
                 default:
                     return "ERROR E2: End of game not valid";
             }
