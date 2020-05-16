@@ -644,7 +644,7 @@ public class Chess implements Cloneable {
      * @pre The piece wants to promote
      * @post Piece has been promoted
      */
-    private void promotePiece(Position originalPiecePosition, PieceType promotionPieceType){
+    public void promotePiece(Position originalPiecePosition, PieceType promotionPieceType){
         Piece originalPiece = pieceAt(originalPiecePosition.row(),originalPiecePosition.col());     
         originalPiece.promoteType(promotionPieceType);
     }
@@ -670,15 +670,19 @@ public class Chess implements Cloneable {
         }
         return p;
     }
+    //retornem list moveactions(igual que applyNormal)
+    /*public List<moveAction> applyCastling(//positio de la primera, position de la segona){
+        
+    }*/
 
     private void findNewPositions(Position firstPieceCastling, Position secondPieceCastling, int middle){
-        //if(firstPieceCastling.col()<secondPieceCastling.col()){
-            firstPieceCastling.col() = firstPieceCastling.col()+middle;
-            secondPieceCastling.col() = firstPieceCastling.col()+middle-1;
-        /*}else{
-            firstPieceCastling.col() = firstPieceCastling.col()+middle;
-            secondPieceCastling.col() = firstPieceCastling.col()+middle-1;
-        }*/
+        if(firstPieceCastling.col()<secondPieceCastling.col()){
+            firstPieceCastling = new Position(firstPieceCastling.row(),firstPieceCastling.col()+middle);
+            secondPieceCastling = new Position(firstPieceCastling.row(),firstPieceCastling.col()+(middle-1));
+        }else{
+            firstPieceCastling = new Position(firstPieceCastling.row(),firstPieceCastling.col()-middle);
+            secondPieceCastling = new Position(firstPieceCastling.row(),firstPieceCastling.col()-(middle-1));
+        }
 
     }
     //mira si mig i mig+1 o mig-1 estan buides.
@@ -687,9 +691,9 @@ public class Chess implements Cloneable {
         boolean emptyDestinies = false;
         int currentRow = firstPieceCastling.row();
         if(firstPieceCastling.col()<secondPieceCastling.col())
-            emptyDestinies = board[currentRow][firstPieceCastling.col()+middle]==null && board[currentRow][firstPieceCastling.col()+(middle-1)]==null);
+            emptyDestinies = (board[currentRow][firstPieceCastling.col()+middle]==null && board[currentRow][firstPieceCastling.col()+(middle-1)]==null);
         else    
-            emptyDestinies = board[currentRow][firstPieceCastling.col()-middle]==null && board[currentRow][firstPieceCastling.col()-(middle-1)]==null);
+            emptyDestinies = (board[currentRow][firstPieceCastling.col()-middle]==null && board[currentRow][firstPieceCastling.col()-(middle-1)]==null);
         return emptyDestinies;
     }
     // mira si no ho ha peces en la horitzontal
@@ -697,14 +701,15 @@ public class Chess implements Cloneable {
         int countMiddleCells = Math.abs(firstPiecePos.col()-secondPiecePos.col())-1;//-1 per evitar la col desde la que mirem
         boolean found = false;
         boolean emptyCells = true;
+        Position pos = new Position(0,0);
         int i=1;
-        if(firstPiecePos.col() < secondPiecePos.col()){  
-            Position pos = firstPiecePos;
+        if(firstPiecePos.col() < secondPiecePos.col())
+            pos = firstPiecePos;
         else
-            Position pos = secondPiecePos;
+            pos = secondPiecePos;
         
         while(i<countMiddleCells && !found){
-            if(board[pos.row()][pos.col()+i]]!=null){
+            if(board[pos.row()][pos.col()+i]!=null){
                 found=true;
                 emptyCells=false;
             }
@@ -722,38 +727,30 @@ public class Chess implements Cloneable {
         int middle = (countMiddleCells/2)+1;
         Piece pFirst = pieceAt(firstPiecePos.row(), firstPiecePos.col());
         Piece pSecond = pieceAt(secondPiecePos.row(), secondPiecePos.col());
-        Position firstPieceCastling = pFirst; //La que es mou mig+1 / mig-1
-        Position secondPieceCastling = pSecond;
-
-        /*if(firstPiecePos.col()>secondPiecePos.col()){ //intercanviem referencies
-            Position auxPos = firstPiecePos;
-            firstPiecePos = secondPiecePos;
-            secondPiecePos = auxPos;
-        }*/
-
+        Position firstPieceCastling = firstPiecePos; //La que es mou mig+1 / mig-1
+        Position secondPieceCastling = secondPiecePos;
         //Comprobar pieceAt destiny != null
-        //emptyDestinies = possibleCastlingPositions(firstPieceNewPos, firstPiecePos, secondPieceNewPos, secondPiecePos);
-        //if(emptyDestinies){
             //Si es de dreta a esq, aPiece +mig altre mig+1
             //Si al reves aPiece +mig altre mig+1
             while(i<castlings.size() && !found){
                 Castling c = castlings.get(i);
                 if((c.aPiece()==pFirst.type().ptName() && c.bPiece()==pSecond.type().ptName()) || (c.bPiece()==pFirst.type().ptName() && c.aPiece()==pSecond.type().ptName())){
                     if(c.aPiece()==pSecond.type().ptName()){
-                        firstPieceCastling = pSecond; //Segueix essent la segona entrada, pero es la primera del castling per tant es moura mig+-1
-                        secondPieceCastling = pFirst;
+                        firstPieceCastling = secondPiecePos; //Segueix essent la segona entrada, pero es la primera del castling per tant es moura mig+-1
+                        secondPieceCastling = firstPiecePos;
                     }
                     if((c.stand() && !pFirst.hasMoved() && !pSecond.hasMoved()) || !c.stand()){
-                        emptyDestinies = emptyDestinies(firstPieceCastling, secondPieceCastling, middle)
+                        emptyDestinies = emptyDestinies(firstPieceCastling, secondPieceCastling, middle);
                         if((c.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !c.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
                             findNewPositions(firstPieceCastling,secondPieceCastling, middle);
                             checkResult.first.add(MoveAction.Castling);
+                            checkResult.second.add(firstPieceCastling);
+                            checkResult.second.add(secondPieceCastling);
                             correctCastling = true;
                         }
                     }
                 }
             }
-        }
         return correctCastling;
     }
     /*
@@ -842,7 +839,7 @@ public class Chess implements Cloneable {
         /*for(int i=0;i<r.first.size();i++)
             System.out.println(r.first.get(i).toString()); */   
     
-    return r;
+    return checkResult;
     }
 
 
@@ -911,7 +908,7 @@ public class Chess implements Cloneable {
         if(!p.hasMoved())   
             p.toggleMoved();
         
-        List<MoveAction> r = new ArrayList<MoveAction>();
+        List<MoveAction> actions = new ArrayList<MoveAction>();
         List<Piece> deadPieces = new ArrayList<Piece>();
         if (deathPositions != null){
             //deletePiece(board[death.row()][death.col()]);  
@@ -941,33 +938,16 @@ public class Chess implements Cloneable {
             listCounterMove = pListWhite;
         }
         if(canPromote(origin, destiny))
-            r.add(MoveAction.Promote);
+            actions.add(MoveAction.Promote);
         if(isEscac(listDoingMove)){
             //System.out.println("1106. Hi ha escac");
             if(isEscacIMat(listCounterMove, listDoingMove))
-                r.add(MoveAction.Escacimat);
+                actions.add(MoveAction.Escacimat);
             else
-                r.add(MoveAction.Escac);
-        }   
-
-        /*System.out.println("---------------------------------------");
-            System.out.println("Tamany: "+blackPiecesTurn.size());
-            for(int v=0;v<blackPiecesTurn.size(); v++){
-                System.out.println("*************************** "+v);
-                //if(i==val){
-                    for(int k=0;k<whitePiecesTurn.get(v).size(); k++){
-                        System.out.println(whitePiecesTurn.get(v).get(k).first.toString()+" "+whitePiecesTurn.get(v).get(k).second.type().ptName());
-                    }
-                    System.out.println("-----////////-----");
-                    for(int k=0;k<blackPiecesTurn.get(v).size(); k++){
-                        System.out.println(blackPiecesTurn.get(v).get(k).first.toString()+" "+blackPiecesTurn.get(v).get(k).second.type().ptName());
-                    }
-                // }
-            }
-        System.out.println("---------------------------------------");*/
-
+                actions.add(MoveAction.Escac);
+        }
         
-        return r;
+        return actions;
     }
 
     private void remakeBoard(){
