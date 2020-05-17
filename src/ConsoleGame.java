@@ -484,6 +484,10 @@ public class ConsoleGame {
 				// Continue
 				_controller.toggleTurn();
 			}
+
+			System.out.println("[SCAPE FOR NEXT TURN]");
+			// "Pause the program"
+			readInputLine(false);
 		} while (result == null && !inactivity);
 		
 		// Game finished - can't never be draw
