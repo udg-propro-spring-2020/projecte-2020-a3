@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -314,7 +313,6 @@ public class GameController {
 		} else {
 			/// Get current turn values
 			_chess.undoMovement();
-            toggleTurn();
             
             // Previous turn
             _turnNumber--;
@@ -334,7 +332,6 @@ public class GameController {
 		} else {
 			// Get the current turn values
 			_chess.redoMovement();
-            toggleTurn();
 
             // Next turn
             _turnNumber++;
