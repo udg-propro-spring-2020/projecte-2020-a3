@@ -19,6 +19,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /// @author Miquel de Domingo i Giralt
 /// @file UIChess.java
@@ -431,9 +432,7 @@ public class UIChess extends Application {
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
-        undoBtn.setOnAction(e -> {
-            System.out.println("Desfent...");
-        });
+        undoBtn.setOnAction(e -> handleUndo());
         list.add(undoBtn);
 
         Button redoBtn = new Button();
@@ -443,9 +442,7 @@ public class UIChess extends Application {
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
-        redoBtn.setOnAction(e -> {
-            System.out.println("Refent...");
-        });
+        redoBtn.setOnAction(e -> handleRedo());
         list.add(redoBtn);
 
         Button drawBtn = new Button();
@@ -455,25 +452,7 @@ public class UIChess extends Application {
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY
         );
-        drawBtn.setOnAction(e -> {
-            PieceColor currColor = _controller.currentTurnColor();
-            // Save action
-            _controller.saveEmptyTurn("TAULES SOL·LICITADES", currColor);
-
-            boolean res = buildConfirmationPopUp(
-                "DRAW",
-                currColor.toString() + " asks for a draw.\nAccept?"
-            );
-
-            // Response
-            if (res) {
-                // End of game
-                _controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
-                String fileName = _controller.saveGame("TAULES", false);
-                savedGamePopUp(fileName);
-                resetToMainScene();
-            }
-        });
+        drawBtn.setOnAction(e -> handleDraw());
         list.add(drawBtn);
 
         list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
@@ -485,11 +464,7 @@ public class UIChess extends Application {
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.SECONDARY
         );
-        saveGame.setOnAction(e -> {
-            String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
-            savedGamePopUp(fileName);
-            resetToMainScene();
-        });
+        saveGame.setOnAction(e -> handleSaveGame());
         list.add(saveGame);
 
         Button exitGameBtn = new Button();
@@ -505,6 +480,75 @@ public class UIChess extends Application {
         list.add(exitGameBtn);
 
         return list;
+    }
+
+    // IN-GAME HANDLING OPTIONS
+    private void handleUndo() {
+        if (!_controller.canUndo()) {
+            ItemBuilder.buildPopUp(
+                "UNDO ERROR", 
+                "There are no movements to be undone!",
+                true
+            ).showAndWait();
+        } else {
+            // Get last movement <Origin, Destination>
+            Pair<Position, Position> temp = _controller.lastMovement();
+            // Undo from chess
+            _controller.undoMovement();
+
+            // Undo in the UI
+            UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.first));
+            toChange.move(temp.first.col(), temp.first.row());
+
+            _controller.toggleTurn();
+        }
+    }
+
+    private void handleRedo() {
+        if (!_controller.canRedo()) {
+            ItemBuilder.buildPopUp(
+                "REDO ERROR", 
+                "There are no movements to be redone!",
+                true
+            ).showAndWait();
+        } else {
+            // Redo from chess
+            _controller.redoMovement();
+            // Get last movement <Origin, Destination>
+            Pair<Position, Position> temp = _controller.lastMovement();
+
+            // Redo in the UI
+            UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.second));
+            toChange.move(temp.second.col(), temp.second.row());
+
+            _controller.toggleTurn();
+        }
+    }
+
+    private void handleDraw() {
+        PieceColor currColor = _controller.currentTurnColor();
+        // Save action
+        _controller.saveEmptyTurn("TAULES SOL·LICITADES", currColor);
+
+        boolean res = buildConfirmationPopUp(
+            "DRAW",
+            currColor.toString() + " asks for a draw.\nAccept?"
+        );
+
+        // Response
+        if (res) {
+            // End of game
+            _controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
+            String fileName = _controller.saveGame("TAULES", false);
+            savedGamePopUp(fileName);
+            resetToMainScene();
+        }
+    }
+
+    private void handleSaveGame() {
+        String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
+        savedGamePopUp(fileName);
+        resetToMainScene();
     }
 
     /// @brief Displays the main scene
@@ -831,6 +875,23 @@ public class UIChess extends Application {
                 boardPosition(img.getY()) == position.row();
     }
 
+    /// @brief Returns a UIPiece that contains the piece given
+    /// @pre @p piece != null
+    /// @post Returns the UIPiece that contains an equal piece to the given on
+    private UIPiece getUIPieceFromPiece(Piece piece) {
+        UIPiece result = null;
+        
+        for (Node temp : _pieces.getChildren()) {
+            result = (UIPiece) temp;
+
+            if (result.piece().equals(piece)) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
     /// @brief Displays an error pop up 
     /// @pre @p text is not empty
     /// @post Displays an error pop up with text until the users closes it
@@ -868,7 +929,9 @@ public class UIChess extends Application {
     public void start(Stage primaryStage) throws Exception {
         _window = primaryStage;
 
+        // Set stage properties
         defaultWindowSize();
+        //_window.setResizable(false);
 
         buildMainScene();
     }

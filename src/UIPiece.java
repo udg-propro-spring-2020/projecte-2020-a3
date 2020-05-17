@@ -90,6 +90,13 @@ public class UIPiece extends StackPane {
         return this._piece.color();
     }
 
+    /// @brief Returns the piece held by this
+    /// @pre ---
+    /// @post Returns the piece held by this
+    public Piece piece() {
+        return this._piece;
+    }
+
     /// @brief Returns the image of the piece
     /// @pre ---
     /// @post Returns the image of the piece
