@@ -300,19 +300,19 @@ public class Chess implements Cloneable {
      */
     private List<PieceType> initPieceType(){
         boolean found=false;
-        List<PieceType> lpt = new ArrayList<PieceType>();
+        List<PieceType> listPieceType = new ArrayList<PieceType>();
         for(int i=0; i<initPositions.size(); i++){
             int j=0;
             found=false;
             while(j<pList.size() && !found){
                 if(pList.get(j).ptName().equals(initPositions.get(i))){
-                    lpt.add(pList.get(j));
+                    listPieceType.add(pList.get(j));
                     found = true;
                 }
                 j++;
             }
         }
-        return lpt;
+        return listPieceType;
     }
 
     /*
@@ -321,36 +321,22 @@ public class Chess implements Cloneable {
      * @post The lists that control the piece's positions has been filled
      */
     private void createInitPos(){
-        List<PieceType> lpt = new ArrayList<PieceType>();
-        lpt = initPieceType();
-        int row=0;
-        int col=0;
-        int aux=0;
-        while(row<2){
-            col=0;
-            while(col<cols()){
-                Position wPos = new Position (row,col);
-                Piece wPiece = new Piece(lpt.get(aux), false, PieceColor.White);
-                Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
-                whiteInitPos.add(wPosPiece);
-                col++;
-                aux++;
+        List<PieceType> listPieceType = new ArrayList<PieceType>();
+        listPieceType = initPieceType();
+        int whiteRowCounter=0;
+        int colCounter=0;
+        int blackRowCounter=rows()-1;
+        int insertCounter=0;
+        while(whiteRowCounter<2){
+            colCounter=0;
+            while(colCounter<cols()){
+                whiteInitPos.add(new Pair<Position,Piece>(new Position (whiteRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.White)));
+                blackInitPos.add(new Pair<Position,Piece>(new Position (blackRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.Black)));
+                colCounter++;
+                insertCounter++;
             }
-            row++;
-        }
-        row=rows()-1;
-        aux=0;
-        while(row>rows()-3){
-            col=0;
-            while(col<cols()){
-                Position bPos = new Position (row,col);
-                Piece bPiece = new Piece(lpt.get(aux), false, PieceColor.Black);
-                Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
-                blackInitPos.add(bPosPiece);
-                col++;
-                aux++;
-            }
-            row--;
+            whiteRowCounter++;
+            blackRowCounter--;
         }
     }
 
@@ -361,21 +347,12 @@ public class Chess implements Cloneable {
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
-            Position wPos = new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col());
-            Piece wPiece = new Piece(whiteInitPos.get(i).second);
-            Pair<Position,Piece> wPosPiece = new Pair<>(wPos,wPiece);
-            pListWhite.add(wPosPiece);
+            pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+            pListBlack.add(new Pair<Position,Piece>(new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col()), new Piece(blackInitPos.get(i).second)));
 
-            Position bPos = new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col());
-            Piece bPiece = new Piece(blackInitPos.get(i).second);
-            Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
-            pListBlack.add(bPosPiece);
-
-            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = wPiece;
-            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = bPiece;
+            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
+            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
         }
-
-        //copyChessTurn();
     }
 
     /*
@@ -385,29 +362,27 @@ public class Chess implements Cloneable {
      * @pre The piece can try her movement in board limits
      * @post Return if the piece can make her vertical move without crashing with other pieces
      */
-    private boolean checkVerticalMove(Position origin, Position destiny, Movement actMovement, List<Position> piecesToKill, Piece pieceToMove){
+    private boolean checkVerticalMove(Position origin, Position destiny, Movement currentMovement, List<Position> piecesToKill, Piece originPiece){
         boolean pieceOnTheWay = false;
-        if(origin.row()<destiny.row()){//de dalt a baix
+        if(origin.row()<destiny.row()){ //from top to bottom
             for(int i=origin.row(); i<destiny.row(); i++){
-                if(board[i][origin.col()] != null && board[i][origin.col()]!=pieceToMove){
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][origin.col()]))
+                if(pieceAt(i,origin.col())!=null && pieceAt(i,origin.col())!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())))
                             piecesToKill.add(new Position(i,origin.col()));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
             }
-        }else{
-            for(int i=origin.row(); i>destiny.row(); i--){
+        }else{ //from bottom to top
+            for(int i=origin.row(); i>destiny.row(); i--){ 
                 //System.out.println(i+" "+origin.col());
-                if(board[i][origin.col()] != null && board[i][origin.col()]!=pieceToMove){
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][origin.col()]))
+                if(pieceAt(i,origin.col())!=null && pieceAt(i,origin.col())!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())))
                             piecesToKill.add(new Position(i,origin.col()));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
             }
         }
@@ -421,28 +396,26 @@ public class Chess implements Cloneable {
      * @pre The piece can try her movement in board limits
      * @post Return if the piece can make her horizontal move without crashing with other pieces
      */
-    private boolean checkHorizontalMove(Position origin, Position destiny, Movement actMovement, List<Position> piecesToKill, Piece pieceToMove){
+    private boolean checkHorizontalMove(Position origin, Position destiny, Movement currentMovement, List<Position> piecesToKill, Piece originPiece){
         boolean pieceOnTheWay = false;
-        if(origin.col()<destiny.col()){//de esq a dreta
+        if(origin.col()<destiny.col()){ //from left to right
             for(int i=origin.col(); i<destiny.col(); i++){
-                if(board[origin.row()][i] != null && board[origin.row()][i]!=pieceToMove){
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[origin.row()][i]))
+                if(pieceAt(origin.row(),i) != null && pieceAt(origin.row(),i)!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)))
                             piecesToKill.add(new Position(origin.row(),i));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
-                }
+                } 
             }
-        }else{
+        }else{ //from right to left
             for(int i=origin.col(); i>destiny.col(); i--){
-                if(board[origin.row()][i] != null && board[origin.row()][i]!=pieceToMove){
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[origin.row()][i]))
+                if(pieceAt(origin.row(),i) != null && pieceAt(origin.row(),i)!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)))
                             piecesToKill.add(new Position(origin.row(),i));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
             }
         }
@@ -456,60 +429,56 @@ public class Chess implements Cloneable {
      * @pre The piece can try her movement in board limits
      * @post Return if the piece can make her diagonal move without crashing with other pieces
      */
-    private boolean checkDiagonalMove(Position origin, Position destiny, Movement actMovement, List<Position> piecesToKill, Piece pieceToMove){
+    private boolean checkDiagonalMove(Position origin, Position destiny, Movement currentMovement, List<Position> piecesToKill, Piece originPiece){
         boolean pieceOnTheWay = false;
-        if(origin.row()<destiny.row() && origin.col()<destiny.col()){//de dalt a baix, esq a dreta
+        if(origin.row()<destiny.row() && origin.col()<destiny.col()){ //from top-left to bottom-right
             int i = origin.row();
             for(int j=origin.col(); j<destiny.col(); j++){
-                if(board[i][j] != null && board[i][j]!=pieceToMove){ //podem començar a mirar a la pos+1 i evitar la comprobacio de si mateixa
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][j]))
+                if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){ //podem començar a mirar a la pos+1 i evitar la comprobacio de si mateixa
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
                             piecesToKill.add(new Position(i,j));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
                 i++;
             }
         }
-        else if(origin.row()<destiny.row() && origin.col()>destiny.col()){//de dalt a baix, dreta a esq
+        else if(origin.row()<destiny.row() && origin.col()>destiny.col()){ //from top-right to bottom-left
             int i = origin.row();
             for(int j=origin.col(); j>destiny.col(); j--){
-                if(board[i][j] != null && board[i][j]!=pieceToMove){ //podem començar a mirar a la pos+1 i evitar la comprobacio de si mateixa
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][j]))
+                if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
                             piecesToKill.add(new Position(i,j));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
                 i++;
             }
         }
-        else if(origin.row()>destiny.row() && origin.col()<destiny.col()){//de baix a dalt, esq a dreta
+        else if(origin.row()>destiny.row() && origin.col()<destiny.col()){ //from bottom-left to top-right
             int i = origin.row();
             for(int j=origin.col(); j<destiny.col(); j++){
-                if(board[i][j] != null && board[i][j]!=pieceToMove){ //podem començar a mirar a la pos+1 i evitar la comprobacio de si mateixa
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][j]))
+                if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
                             piecesToKill.add(new Position(i,j));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
                 i--;
             }
         }
-        else{ //de baix a dalt, dreta a esq
+        else{ //from bottom-right to top-left
             int i = origin.row();
             for(int j=origin.col(); j>destiny.col(); j--){
-                if(board[i][j] != null && board[i][j]!=pieceToMove){ //podem començar a mirar a la pos+1 i evitar la comprobacio de si mateixa
-                    if(actMovement.canJump()==2){
-                        if(diferentOwnerPiece(pieceToMove, board[i][j]))
+                if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){ 
+                    if(currentMovement.canJump()==2){
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
                             piecesToKill.add(new Position(i,j));
-                    }else{
+                    }else
                         pieceOnTheWay = true;
-                    }
                 }
                 i--;
             }
@@ -524,15 +493,15 @@ public class Chess implements Cloneable {
      * @pre A movement is going to be realised 
      * @post Return if there's any piece that the origin piece can't pass across and fill the list if necessary
      */
-    private boolean checkPieceOnTheWay(Position origin, Position destiny, Movement actMovement, List<Position> piecesToKill){
+    private boolean checkPieceOnTheWay(Position origin, Position destiny, Movement currentMovement, List<Position> piecesToKill){
         boolean pieceOnTheWay = false;
-        Piece pieceToMove = pieceAt(origin.row(),origin.col());
-        if(origin.row()==destiny.row()){//es mou en la mateixa fila
-            pieceOnTheWay = checkHorizontalMove(origin, destiny, actMovement, piecesToKill, pieceToMove);
-        }else if(origin.col()==destiny.col()){//es mou en la mateixa columna         
-            pieceOnTheWay = checkVerticalMove(origin, destiny, actMovement, piecesToKill, pieceToMove);
-        }else{//es mou en diagonal
-            pieceOnTheWay = checkDiagonalMove(origin, destiny, actMovement, piecesToKill, pieceToMove);
+        Piece originPiece = pieceAt(origin.row(),origin.col());
+        if(origin.row()==destiny.row()){ //same row movement
+            pieceOnTheWay = checkHorizontalMove(origin, destiny, currentMovement, piecesToKill, originPiece);
+        }else if(origin.col()==destiny.col()){ //same column movement        
+            pieceOnTheWay = checkVerticalMove(origin, destiny, currentMovement, piecesToKill, originPiece);
+        }else{ //diagonal movement
+            pieceOnTheWay = checkDiagonalMove(origin, destiny, currentMovement, piecesToKill, originPiece);
         }
         //System.out.println("Aquesta peça n'ha trobat pel mig? "+pieceOnTheWay);
         return pieceOnTheWay;
@@ -543,8 +512,8 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return if the movement is in range
      */
-    private boolean destinyInLimits(int x1, int y1){
-        return ((y1 >=0 && y1 < cols()) && (x1 >=0 && x1 < rows()));
+    private boolean destinyInLimits(int row, int col){
+        return ((col >=0 && col < cols()) && (row >=0 && row < rows()));
     }
 
     /*
@@ -879,16 +848,16 @@ public class Chess implements Cloneable {
             if(!isCastling(origin,destiny,checkResult)){
                 while(i < movesToRead.size() && !found){
                     List<Position> piecesToKill = new ArrayList<Position>();
-                    Movement actMovement = movesToRead.get(i);         
-                    //System.out.println(actMovement.movX()+" "+actMovement.movY());            
-                    if((yMove == actMovement.movY() || Math.abs(actMovement.movY()) == unlimitateMove) && (xMove == actMovement.movX() || Math.abs(actMovement.movX()) == unlimitateMove)){                        
-                        if(Math.abs(actMovement.movY())==unlimitateMove && Math.abs(actMovement.movX())==unlimitateMove){
+                    Movement currentMovement = movesToRead.get(i);         
+                    //System.out.println(currentMovement.movX()+" "+currentMovement.movY());            
+                    if((yMove == currentMovement.movY() || Math.abs(currentMovement.movY()) == unlimitateMove) && (xMove == currentMovement.movX() || Math.abs(currentMovement.movX()) == unlimitateMove)){                        
+                        if(Math.abs(currentMovement.movY())==unlimitateMove && Math.abs(currentMovement.movX())==unlimitateMove){
                             diagonalCorrect = Math.abs(yMove) == Math.abs(xMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
                             //System.out.println("La diagonal "+Math.abs(yMove)+"-"+Math.abs(xMove)+" es correcte? "+diagonalCorrect);
                         }
                         if(diagonalCorrect){
-                            if((xMove > 1 || yMove > 1 ||  xMove < -1 || yMove < -1) && actMovement.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
-                                pieceOnTheWay = checkPieceOnTheWay(origin,destiny,actMovement,piecesToKill);//passem directament r.second??
+                            if((xMove > 1 || yMove > 1 ||  xMove < -1 || yMove < -1) && currentMovement.canJump()!=1){//Si s'ha de desplaçar mes de una posicio i no salta o mata saltant
+                                pieceOnTheWay = checkPieceOnTheWay(origin,destiny,currentMovement,piecesToKill);//passem directament r.second??
                                 if(piecesToKill.size()!=0) 
                                     checkResult.second.addAll(piecesToKill);  
                                 //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
@@ -897,13 +866,13 @@ public class Chess implements Cloneable {
                             if(!pieceOnTheWay){ //Si pots saltar les peces o no n'hi ha pel mig
                                 if(board[destiny.row()][destiny.col()]!=null)//Hi ha peça al desti?
                                     enemiePieceOnDestiny = diferentOwnerPiece(board[origin.row()][origin.col()],board[destiny.row()][destiny.col()]);
-                                if(enemiePieceOnDestiny && actMovement.captureSign() != 0){//Si hi ha peça i la pot matar
+                                if(enemiePieceOnDestiny && currentMovement.captureSign() != 0){//Si hi ha peça i la pot matar
                                     checkResult.first.add(MoveAction.Correct);
                                     //System.out.println(pp.toString());
                                     checkResult.second.add(new Position(destiny.row(),destiny.col())); 
                                     found = true;
                                     //System.out.println("Mov matar");
-                                }else if(!enemiePieceOnDestiny && actMovement.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
+                                }else if(!enemiePieceOnDestiny && currentMovement.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
                                     if(board[destiny.row()][destiny.col()]!=null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
                                         //System.out.println("730. La peça que vols matar es teva");
                                     
@@ -1090,8 +1059,8 @@ public class Chess implements Cloneable {
      */
     public void undoMovement(){
         //System.out.println("Normal undo"+showBoard());
-        
-        currentTurn--;
+        copyChessTurn();
+        currentTurn=currentTurn-2;
         remakeBoard();
 
         //redoMovement();
@@ -1108,7 +1077,7 @@ public class Chess implements Cloneable {
     void redoMovement(){
         //System.out.println("Normal redo"+showBoard());
         currentTurn++;
-        //System.out.println("redo "+currentTurn);
+        //System.out.println("redo "+currentTurn+" "+boardArray.size());
         remakeBoard();
         
         //System.out.println("Guardat redo"+showBoard());
@@ -1501,7 +1470,7 @@ public class Chess implements Cloneable {
      * @post Return if a piece is from a diferent player
      */
     private boolean diferentOwnerPiece(Piece originPiece, Piece destinyPiece){
-        return originPiece.color() != destinyPiece.color();
+        return (!originPiece.color().equals(destinyPiece.color()));
     }
 
     /*
