@@ -495,9 +495,16 @@ public class FromJSONParserHelper {
                                 new Turn(color, types.get(promotion.first), types.get(promotion.second))
                             );
                         }
-
                     } else if (result.contains("ENROC")) {
-                        // TODO: Handle castling
+                        turnList.add(
+                            new Turn(
+                                color,
+                                new Pair<String, String>(
+                                    origin,
+                                    dest
+                                )
+                            )
+                        );
                     } else if (!result.isEmpty()) {
                         System.err.println("Movement result is not valid. It ill not be taken into account.");
                         System.err.println("Error result: " + result);
@@ -507,6 +514,9 @@ public class FromJSONParserHelper {
             }
 
             s = fr.nextLine().trim();
+            for (Turn t : turnList) {
+                System.out.println(t.isCastlingTurn());
+            }
         }
 
         return turnList;

@@ -349,7 +349,7 @@ public class ConsoleGame {
 			!playerOption.equals("G") &&
 			!playerOption.equals("E") &&
 			!playerOption.equals("I")
-			);
+		);
 			
 		switch (playerOption) {
 			case "G": {
@@ -388,7 +388,7 @@ public class ConsoleGame {
 			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite ||
 				_controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
 				// CPU
-				MoveAction cpuResult = cpuTurn(cpu, _controller.lastMovement());
+				MoveAction cpuResult = cpuTurn(cpu);
 
 				// Change turn
 				if (!(cpuResult == MoveAction.Escacimat)) {
@@ -472,9 +472,9 @@ public class ConsoleGame {
 		do {
 			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
-				result = cpuTurn(cpu1, _controller.lastMovement());
+				result = cpuTurn(cpu1);
 			} else {
-				result = cpuTurn(cpu2, _controller.lastMovement());
+				result = cpuTurn(cpu2);
 			}
 
 			if (inactiveLimitReached()) {
@@ -573,21 +573,15 @@ public class ConsoleGame {
 						if (moveResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
 							
+							// Apply movement and check if castling
+							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
 							if (moveResult.first.contains(MoveAction.Castling)) {
-								// Apply castling
-								List<MoveAction> actions = _controller.applyCastling(moveResult.second);
-
 								// Save the turn
 								_controller.saveCastlingTurn(moveResult.second);
 
-								// Move results
-								if (actions.contains(MoveAction.Escacimat)) {
-									result = "C";
-									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-								} 
+								// Since there will be no killing, increment the inactive turn
+								_inactiveTurns++;
 							} else {
-								List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
-
 								if (moveResult.second.isEmpty()) {
 									// Turn with no captures
 									_inactiveTurns++;
@@ -610,15 +604,15 @@ public class ConsoleGame {
 									if (actions.contains(MoveAction.Promote)) {
 										// Handle promotion of destination piece
 										handlePromotion(destination);
-									}
-												
-									if (actions.contains(MoveAction.Escacimat)) {
-										result = "C";
-										System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-									} 
-
-									stop = true;
+									}				
 								}
+
+								if (actions.contains(MoveAction.Escacimat)) {
+									result = "C";
+									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+								} 
+
+								stop = true;
 							}
 						} else {
 							System.out.println("Incorrect movement!");
@@ -716,7 +710,7 @@ public class ConsoleGame {
 	/// @pre @p cpu cannot be null
 	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
 	///       returns null.
-	private static MoveAction cpuTurn(Cpu cpu, Pair<Position, Position> lastMovement) {
+	private static MoveAction cpuTurn(Cpu cpu) {
 		if (cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
@@ -728,19 +722,19 @@ public class ConsoleGame {
 		Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(cpuMove.first, cpuMove.second);
 
 		List<MoveAction> result = null;
+		result = _controller.applyCPUMovement(
+			cpuMove.first, 
+			cpuMove.second,
+			checkResult.second
+		);
+		_controller.cancellUndoes();
+
 		// CPU movement will always be correct
 		if (checkResult.first.contains(MoveAction.Castling)) {
-			result = _controller.applyCastling(checkResult.second);
-			
-			_controller.saveCastlingTurn(checkResult.second);			
-		} else {
-			result = _controller.applyCPUMovement(
-				cpuMove.first, 
-				cpuMove.second,
-				checkResult.second
-			);
-			_controller.cancellUndoes();
-	
+			// Case CPU does a castling move
+			_controller.saveCastlingTurn(checkResult.second);
+			_inactiveTurns++;
+		} else {	
 			// Saving turn
 			_controller.saveTurn(
 				result,

@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +71,7 @@ public class GameController {
         if (!loadedTurns.isEmpty()) {
             Turn lastTurn = null;
             for (Turn t : loadedTurns) {
-                System.err.println(_currTurnColor.toString());
-                // TODO: Handle all turn possibilities
+                System.err.println(t.toJSON());
                 if (t.isPromotionTurn()) {
                     if (lastTurn == null) {
                         // If nothing has moved, there cannot be a promotion
@@ -92,6 +92,7 @@ public class GameController {
                     Map<String, PieceType> typeMap = mapOfPieceTypes();
 
                     // Promote piece
+
                     _chess.promotePiece(
                         new Position(lastTurn.destination()), 
                         typeMap.get(promoted.second)
@@ -104,26 +105,37 @@ public class GameController {
                         typeMap.get(promoted.second)
                     );
                 } else {
-                    Pair<Position, Position> temp = t.moveAsPair();
-    
-                    // Apply movements to the game
-                    Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
-    
-                    // All movements must be right!
-                    List<MoveAction> moveResult = _chess.applyMovement(
-                        temp.first,
-                        temp.second,
-                        checkResult.second,
-                        false
-                    );
-                    
-                    saveTurn(
-                        moveResult,
-                        new Pair<String, String>(
-                            temp.first.toString(),
-                            temp.second.toString()
-                        )
-                    );
+                    if (t.isCastlingTurn()) {
+                        Pair<Pair<Position, Position>, Pair<Position, Position>> castlingPair = t.castlingAsPair();
+                        saveCastlingTurn(
+                            Arrays.asList(
+                                castlingPair.first.first,
+                                castlingPair.first.second,
+                                castlingPair.second.first,
+                                castlingPair.second.second
+                            )
+                        );
+                    } else {
+                        Pair<Position, Position> temp = t.moveAsPair();
+        
+                        // Apply movements to the game
+                        Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
+        
+                        // All movements must be right!
+                        List<MoveAction> moveResult = _chess.applyMovement(
+                            temp.first,
+                            temp.second,
+                            checkResult.second,
+                            false
+                        );
+                        saveTurn(
+                            moveResult,
+                            new Pair<String, String>(
+                                temp.first.toString(),
+                                temp.second.toString()
+                            )
+                        );
+                    }
 
                     toggleTurn();
                 }
@@ -207,10 +219,6 @@ public class GameController {
 		);    
         
         return result;
-    }
-
-    public List<MoveAction> applyCastling(List<Position> list) {
-        return _chess.applyCastling(list);
     }
 
     /// @brief Changes turn value

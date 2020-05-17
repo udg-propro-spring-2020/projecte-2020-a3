@@ -32,6 +32,7 @@ public class Turn implements JSON, Cloneable {
     Turn(PieceColor color, Pair<String, String> move) {
         this._color = color;
         this._move = move;
+        this._result = "ENROC";
         this._promotionTurn = false;
         this._castlingTurn = true;
     }
@@ -109,21 +110,27 @@ public class Turn implements JSON, Cloneable {
     /// @pre This is a castling turn
     /// @post Returns a pair of pairs containing the positions of the castling (origin, destination)
     /// @throws UnsupportedOperationException if the methods is called when it is NOT a castling turn
-    public Pair<Pair<String, String>, Pair<String, String>> castlingAsPair() throws UnsupportedOperationException {
+    public Pair<Pair<Position, Position>, Pair<Position, Position>> castlingAsPair() throws UnsupportedOperationException {
         if (!_castlingTurn) {
             throw new UnsupportedOperationException("CastlingAsPair cannot be called when it is NOT a castling turn");
         }
 
         // First pair
         String partOne[] = _move.first.split("-");
-        Pair<String, String> origin = new Pair<String, String>(partOne[0], partOne[1]);
+        Pair<Position, Position> origin = new Pair<Position, Position>(
+            new Position(partOne[0]),
+            new Position(partOne[1])
+        );
 
         // Second pair
         String partTwo[] = _move.second.split("-");
-        Pair<String, String> destination = new Pair<String, String>(partTwo[0], partTwo[1]);
+        Pair<Position, Position> destination = new Pair<Position, Position>(
+            new Position(partTwo[0]), 
+            new Position(partTwo[1])
+        );
 
         // Result 
-        return new Pair<Pair<String,String>,Pair<String,String>>(origin, destination);
+        return new Pair<Pair<Position,Position>,Pair<Position,Position>>(origin, destination);
     }
 
     /// @brief Returns the result of the turn
@@ -138,6 +145,13 @@ public class Turn implements JSON, Cloneable {
     /// @post Returns if this is a promotion turn
     public boolean isPromotionTurn() {
         return this._promotionTurn;
+    }
+
+    /// @brief Returns if this is a castling turn
+    /// @pre ---
+    /// @post Returns if this is a castling turn
+    public boolean isCastlingTurn() {
+        return this._castlingTurn;
     }
 
     /// @brief Creates a String describing a promition
