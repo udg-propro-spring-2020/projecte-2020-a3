@@ -71,7 +71,6 @@ public class GameController {
         if (!loadedTurns.isEmpty()) {
             Turn lastTurn = null;
             for (Turn t : loadedTurns) {
-                System.err.println(t.toJSON());
                 if (t.isPromotionTurn()) {
                     if (lastTurn == null) {
                         // If nothing has moved, there cannot be a promotion
@@ -92,7 +91,6 @@ public class GameController {
                     Map<String, PieceType> typeMap = mapOfPieceTypes();
 
                     // Promote piece
-
                     _chess.promotePiece(
                         new Position(lastTurn.destination()), 
                         typeMap.get(promoted.second)
@@ -105,29 +103,32 @@ public class GameController {
                         typeMap.get(promoted.second)
                     );
                 } else {
+                    Pair<Position, Position> temp = null;
                     if (t.isCastlingTurn()) {
-                        Pair<Pair<Position, Position>, Pair<Position, Position>> castlingPair = t.castlingAsPair();
-                        saveCastlingTurn(
-                            Arrays.asList(
-                                castlingPair.first.first,
-                                castlingPair.first.second,
-                                castlingPair.second.first,
-                                castlingPair.second.second
-                            )
-                        );
+                        // Castling movement has the original move in the first position of the pair
+                        temp = t.castlingAsPair().first;
                     } else {
-                        Pair<Position, Position> temp = t.moveAsPair();
-        
-                        // Apply movements to the game
-                        Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
-        
-                        // All movements must be right!
-                        List<MoveAction> moveResult = _chess.applyMovement(
-                            temp.first,
-                            temp.second,
-                            checkResult.second,
-                            false
-                        );
+                        // Normal movement
+                        temp = t.moveAsPair();
+                    }
+
+                    System.err.println(temp.first + " " + temp.second);
+
+                    // Apply movements to the game
+                    Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
+    
+                    // All movements must be right!
+                    // Apply movement also checks for castling
+                    List<MoveAction> moveResult = _chess.applyMovement(
+                        temp.first,
+                        temp.second,
+                        checkResult.second,
+                        false
+                    );
+
+                    if (moveResult.contains(MoveAction.Castling)) {
+                        saveCastlingTurn(checkResult.second);
+                    } else {
                         saveTurn(
                             moveResult,
                             new Pair<String, String>(
@@ -142,7 +143,6 @@ public class GameController {
                 
                 lastTurn = t;
             }
-            System.err.println(_currTurnColor);
         }
     }
 

@@ -80,7 +80,7 @@ public class Chess implements Cloneable {
         /*board[0][6]=null;
         board[0][3]=null;
         board[1][3]=null;*/
-        Position p1=new Position(7,6);
+        /* Position p1=new Position(7,6);
         Position p2=new Position(5,7);
         applyMovement(p1, p2, null, false);
         Position p3=new Position(6,4);
@@ -96,7 +96,7 @@ public class Chess implements Cloneable {
         provaCastling.add(new Position(7,7));
         provaCastling.add(new Position(7,6));
         provaCastling.add(new Position(7,5));
-        applyMovement(p0, p00, provaCastling, false);
+        applyMovement(p0, p00, provaCastling, false); */
         /*Position p5=new Position(6,1);
         Position p6=new Position(5,1);
         applyMovement(p5, p6, null, false);

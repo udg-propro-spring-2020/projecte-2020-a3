@@ -611,9 +611,9 @@ public class ConsoleGame {
 									result = "C";
 									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
 								} 
-
-								stop = true;
 							}
+							
+							stop = true;
 						} else {
 							System.out.println("Incorrect movement!");
 						}

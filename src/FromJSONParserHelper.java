@@ -514,9 +514,6 @@ public class FromJSONParserHelper {
             }
 
             s = fr.nextLine().trim();
-            for (Turn t : turnList) {
-                System.out.println(t.isCastlingTurn());
-            }
         }
 
         return turnList;
