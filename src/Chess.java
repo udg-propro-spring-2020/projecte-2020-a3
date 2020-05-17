@@ -80,16 +80,36 @@ public class Chess implements Cloneable {
         /*board[0][6]=null;
         board[0][3]=null;
         board[1][3]=null;*/
-        /*Position p1=new Position(7,6);
-        Position p2=new Position(5,5);
+        Position p1=new Position(7,6);
+        Position p2=new Position(5,7);
         applyMovement(p1, p2, null, false);
-        Position p3=new Position(6,6);
-        Position p4=new Position(5,6);
+        Position p3=new Position(6,4);
+        Position p4=new Position(5,4);
         applyMovement(p3, p4, null, false);
         Position p7=new Position(7,5);
-        Position p8=new Position(5,7);
-        applyMovement(p7, p8, null, false);      
-        Position p5=new Position(7,4);
+        Position p8=new Position(5,3);
+        applyMovement(p7, p8, null, false);
+        Position p0=new Position(7,4);
+        Position p00=new Position(7,7);
+        List<Position> provaCastling = new ArrayList<Position>();
+        provaCastling.add(new Position(7,4));
+        provaCastling.add(new Position(7,7));
+        provaCastling.add(new Position(7,6));
+        provaCastling.add(new Position(7,5));
+        applyMovement(p0, p00, provaCastling, false);
+        /*Position p5=new Position(6,1);
+        Position p6=new Position(5,1);
+        applyMovement(p5, p6, null, false);
+        Position p9=new Position(7,2);
+        Position p10=new Position(5,0);
+        applyMovement(p9, p10, null, false);
+        Position p11=new Position(7,1);
+        Position p12=new Position(5,2);
+        applyMovement(p11, p12, null, false);
+        Position p13=new Position(7,3);
+        Position p14=new Position(6,4);
+        applyMovement(p13, p14, null, false);    
+        /*Position p5=new Position(7,4);
         Position p6=new Position(7,7);
         List<Position> provaCastling = new ArrayList<Position>();
         provaCastling.add(new Position(7,4));
@@ -535,11 +555,13 @@ public class Chess implements Cloneable {
     private boolean canPromote(Position origin, Position destiny){ //destiny perque ja ha realitzat el moviment
         Piece p = pieceAt(destiny.row(),destiny.col());
         boolean promote = false;
-        if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
-            if(origin.row() != destiny.row()){
-                //System.out.println("Promocio");
-                promote = p.type().ptPromotable();
-                p.toggleDirection(); //canviem direcció dels moviments
+        if(p!=null){ //No es un castling
+            if((p.color()==PieceColor.White && destiny.row()==rows()) || (p.color()==PieceColor.Black && destiny.row()==0)){
+                if(origin.row() != destiny.row()){
+                    //System.out.println("Promocio");
+                    promote = p.type().ptPromotable();
+                    p.toggleDirection(); //canviem direcció dels moviments
+                }
             }
         }
         return promote;
@@ -659,8 +681,7 @@ public class Chess implements Cloneable {
      * @pre The movement is possible
      * @post Retun a list of possible special actions. Alive piece's list has been updated and a turn chess has been saved
      */
-    public List<MoveAction> applyCastling(List<Position> castlingsPositions){
-        copyChessTurn();
+    public void applyCastling(List<Position> castlingsPositions){
 
         Position firstPiece = castlingsPositions.get(0);
         Position secondPiece = castlingsPositions.get(1);
@@ -674,7 +695,7 @@ public class Chess implements Cloneable {
         if(!secondP.hasMoved())   
             secondP.toggleMoved();
         
-        List<MoveAction> actions = new ArrayList<MoveAction>();
+        //List<MoveAction> actions = new ArrayList<MoveAction>();
         
         changePiecesList(firstPiece,firstPieceDestiny,null);
         changePiecesList(secondPiece,secondPieceDestiny,null);
@@ -686,7 +707,7 @@ public class Chess implements Cloneable {
         
 
         //llistes actualitzades
-        List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
+        /*List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
         List<Pair<Position,Piece>> listCounterMove = new ArrayList<Pair<Position,Piece>>();
         if(pieceAt(firstPieceDestiny.row(),firstPieceDestiny.col()).color() == PieceColor.White){
             listDoingMove = pListWhite;
@@ -704,7 +725,7 @@ public class Chess implements Cloneable {
                 actions.add(MoveAction.Escac);
         }
         
-        return actions;
+        return actions;*/
     }
 
     /*
@@ -784,7 +805,7 @@ public class Chess implements Cloneable {
      * @post Return true if the castling is possible
      */
     private boolean isCastling(Position firstPiecePos, Position secondPiecePos, Pair<List<MoveAction>,List<Position>> checkResult){
-        System.out.println("entro a castling i m'arriba: "+firstPiecePos+" "+secondPiecePos);
+        //System.out.println("entro a castling i m'arriba: "+firstPiecePos+" "+secondPiecePos);
         boolean found = false;
         boolean correctCastling = false;
         boolean emptyDestinies = false;
@@ -801,21 +822,21 @@ public class Chess implements Cloneable {
         if(pSecond!=null){
             while(i<castlings.size() && !found){
                 Castling c = castlings.get(i);
-                System.out.println("Comprobo castling pieces: "+c.aPiece()+" "+pFirst.type().ptName()+" o "+c.bPiece()+" "+pSecond.type().ptName());
+                //System.out.println("Comprobo castling pieces: "+c.aPiece()+" "+pFirst.type().ptName()+" o "+c.bPiece()+" "+pSecond.type().ptName());
                 if((c.aPiece().equals(pFirst.type().ptName()) && c.bPiece().equals(pSecond.type().ptName())) || 
                     (c.bPiece().equals(pFirst.type().ptName()) && c.aPiece().equals(pSecond.type().ptName()))){
-                    if(c.aPiece()==pSecond.type().ptName()){
+                    if(c.aPiece().equals(pSecond.type().ptName())){
                         firstPieceCastling = secondPiecePos; //Segueix essent la segona entrada, pero es la primera del castling per tant es moura mig+-1
                         secondPieceCastling = firstPiecePos;
                     }
-                    System.out.println("Existeix el castling");
+                    //System.out.println("Existeix el castling");
                     checkResult.second.add(firstPieceCastling);//initial positions
                     checkResult.second.add(secondPieceCastling);
                     if((c.stand() && !pFirst.hasMoved() && !pSecond.hasMoved()) || !c.stand()){
-                        System.out.println("Estan quietes");
+                        //System.out.println("Estan quietes");
                         emptyDestinies = checkDestinies(firstPieceCastling, secondPieceCastling, middle);
                         if((c.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !c.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
-                            System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
+                            //System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
                             findNewPositions(firstPieceCastling,secondPieceCastling, middle, checkResult);
                             checkResult.first.add(MoveAction.Castling);
                             //checkResult.second.add(firstPieceCastling);//destiny positions
@@ -830,18 +851,13 @@ public class Chess implements Cloneable {
         return correctCastling;
     }
     /*
-     * @brief Checks if the movement is possible. It validates the destiny cell status and checks if the movement is on the piece's movement list.
-     * @pre A movement is going to be realised 
-     * @post Return if the moviment is possible to execute and a position's list of the pieces to kill.
+     * @brief Checks if the movement is possible. It validates two possible movement type (castling or normal move). 
+     * @pre Origin is not null 
+     * @post Return if the moviment is possible to execute and a position's list that contains the pieces to kill if
+     * normal move case. Else it contains origin and destiny castling positions.
      */
     public Pair<List<MoveAction>,List<Position>> checkMovement(Position origin, Position destiny) {
-        /*
-        - pair.second = list de peces a matar
-            - si es mou varies caselles i pot matar saltant afegir al list (a les combinades no)
-            - si desti hi ha èça i pot matar afegir al list
-        - per ferho passem el pair a parametre de piece on the way i alla dins, si es jump = 2, afegim les positions al .second
-
-        */
+        
         //Piece pOrig = pieceAt(origin.row(),origin.col());
         Pair<List<MoveAction>,List<Position>> checkResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         Piece p = pieceAt(origin.row(),origin.col());
@@ -978,39 +994,42 @@ public class Chess implements Cloneable {
      * @pre The movement is possible
      * @post Retun a list of possible special actions, dead and alive piece's list has been updated and a turn chess has been saved
      */
-    public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> deathPositions, boolean calledByIsEscacIMAT) {
+    public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> workingPositions, boolean calledByIsEscacIMAT) {
         //Chess ch = new Chess(this);
         //System.out.println("currentTurn "+currentTurn);
         //System.out.println("Movem "+origin+" cap a "+destiny);
         //System.out.println(showBoard());
         copyChessTurn();
-
-        Piece p = pieceAt(origin.row(), origin.col());
-        if(!p.hasMoved())   
-            p.toggleMoved();
-        
         List<MoveAction> actions = new ArrayList<MoveAction>();
-        List<Piece> deadPieces = new ArrayList<Piece>();
-        if (deathPositions != null){
-            //deletePiece(board[death.row()][death.col()]);  
-            for(int i=0; i<deathPositions.size(); i++){
-                Piece deadPiece = pieceAt(deathPositions.get(i).row(),deathPositions.get(i).col()); 
-                deadPieces.add(deadPiece);     
-                board[deathPositions.get(i).row()][deathPositions.get(i).col()] = null;
-                //for(int j=0; j<100; j++)System.out.println("He entrat a matar");
-            }
+        PieceColor pOrigColor = pieceAt(origin.row(),origin.col()).color();
+        //System.out.println(origin.row()+" "+origin.col());
+        if(pieceAt(destiny.row(),destiny.col())!=null && pieceAt(origin.row(),origin.col()).color().equals(pieceAt(destiny.row(),destiny.col()).color())){
+            System.out.println("www"+workingPositions.size());
+            applyCastling(workingPositions);
         }
-        
-        //pintarLlistes();
-        changePiecesList(origin,destiny,deadPieces);
-		board[destiny.row()][destiny.col()] = pieceAt(origin.row(),origin.col());
-        board[origin.row()][origin.col()] = null;
-        
-
+        else{
+            Piece p = pieceAt(origin.row(), origin.col());
+            if(!p.hasMoved())   
+                p.toggleMoved();
+            
+            List<Piece> deadPieces = new ArrayList<Piece>();
+            if (workingPositions != null){
+                //deletePiece(board[death.row()][death.col()]);  
+                for(int i=0; i<workingPositions.size(); i++){
+                    Piece deadPiece = pieceAt(workingPositions.get(i).row(),workingPositions.get(i).col()); 
+                    deadPieces.add(deadPiece);     
+                    board[workingPositions.get(i).row()][workingPositions.get(i).col()] = null;
+                    //for(int j=0; j<100; j++)System.out.println("He entrat a matar");
+                }
+            }
+            changePiecesList(origin,destiny,deadPieces);
+            board[destiny.row()][destiny.col()] = pieceAt(origin.row(),origin.col());
+            board[origin.row()][origin.col()] = null;
+        }
         //llistes actualitzades
         List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
         List<Pair<Position,Piece>> listCounterMove = new ArrayList<Pair<Position,Piece>>();
-        if(board[destiny.row()][destiny.col()].color() == PieceColor.White){
+        if(pOrigColor == PieceColor.White){
             listDoingMove = pListWhite;
             listCounterMove = pListBlack;
         }
@@ -1029,7 +1048,6 @@ public class Chess implements Cloneable {
                     actions.add(MoveAction.Escac);
             }
         }
-        
         return actions;
     }
 
