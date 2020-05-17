@@ -80,7 +80,7 @@ public class Chess implements Cloneable {
         /*board[0][6]=null;
         board[0][3]=null;
         board[1][3]=null;*/
-        /* Position p1=new Position(7,6);
+        /*Position p1=new Position(7,6);
         Position p2=new Position(5,7);
         applyMovement(p1, p2, null, false);
         Position p3=new Position(6,4);
@@ -89,14 +89,14 @@ public class Chess implements Cloneable {
         Position p7=new Position(7,5);
         Position p8=new Position(5,3);
         applyMovement(p7, p8, null, false);
-        Position p0=new Position(7,4);
+        /*Position p0=new Position(7,4);
         Position p00=new Position(7,7);
         List<Position> provaCastling = new ArrayList<Position>();
         provaCastling.add(new Position(7,4));
         provaCastling.add(new Position(7,7));
         provaCastling.add(new Position(7,6));
         provaCastling.add(new Position(7,5));
-        applyMovement(p0, p00, provaCastling, false); */
+        applyMovement(p0, p00, provaCastling, false);
         /*Position p5=new Position(6,1);
         Position p6=new Position(5,1);
         applyMovement(p5, p6, null, false);
@@ -371,8 +371,8 @@ public class Chess implements Cloneable {
             Pair<Position,Piece> bPosPiece = new Pair<>(bPos,bPiece);
             pListBlack.add(bPosPiece);
 
-            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = whiteInitPos.get(i).second;            
-            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = blackInitPos.get(i).second;
+            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = wPiece;
+            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = bPiece;
         }
 
         //copyChessTurn();
@@ -832,11 +832,12 @@ public class Chess implements Cloneable {
                     //System.out.println("Existeix el castling");
                     checkResult.second.add(firstPieceCastling);//initial positions
                     checkResult.second.add(secondPieceCastling);
+                    //System.out.println(c.stand()+" "+pFirst.hasMoved()+" "+pSecond.hasMoved());
                     if((c.stand() && !pFirst.hasMoved() && !pSecond.hasMoved()) || !c.stand()){
                         //System.out.println("Estan quietes");
                         emptyDestinies = checkDestinies(firstPieceCastling, secondPieceCastling, middle);
                         if((c.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !c.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
-                            //System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
+                            System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
                             findNewPositions(firstPieceCastling,secondPieceCastling, middle, checkResult);
                             checkResult.first.add(MoveAction.Castling);
                             //checkResult.second.add(firstPieceCastling);//destiny positions
@@ -1004,7 +1005,7 @@ public class Chess implements Cloneable {
         PieceColor pOrigColor = pieceAt(origin.row(),origin.col()).color();
         //System.out.println(origin.row()+" "+origin.col());
         if(pieceAt(destiny.row(),destiny.col())!=null && pieceAt(origin.row(),origin.col()).color().equals(pieceAt(destiny.row(),destiny.col()).color())){
-            System.out.println("www"+workingPositions.size());
+            //System.out.println("www"+workingPositions.size());
             applyCastling(workingPositions);
         }
         else{
