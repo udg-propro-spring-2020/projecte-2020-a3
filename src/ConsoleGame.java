@@ -568,14 +568,23 @@ public class ConsoleGame {
 						Position origin = new Position(oValue);
 						Position destination = new Position(dValue);
 						// Create positions with the read strings
-						Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin,destination);
+						Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin, destination);
 	
 						if (moveResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
 							
 							if (moveResult.first.contains(MoveAction.Castling)) {
 								// Apply castling
-								// TODO: Handle castling
+								List<MoveAction> actions = _controller.applyCastling(moveResult.second);
+
+								// Save the turn
+								_controller.saveCastlingTurn(moveResult.second);
+
+								// Move results
+								if (actions.contains(MoveAction.Escacimat)) {
+									result = "C";
+									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+								} 
 							} else {
 								List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
 
@@ -722,9 +731,8 @@ public class ConsoleGame {
 		// CPU movement will always be correct
 		if (checkResult.first.contains(MoveAction.Castling)) {
 			result = _controller.applyCastling(checkResult.second);
-			/* 
-				_controller.saveCastlingTurn();
-			*/
+			
+			_controller.saveCastlingTurn(checkResult.second);			
 		} else {
 			result = _controller.applyCPUMovement(
 				cpuMove.first, 

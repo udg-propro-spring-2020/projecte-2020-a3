@@ -258,13 +258,38 @@ public class GameController {
 
     /// @brief Saves a promotion turn
     /// @pre ---
-    /// @post Creates a promotion turn, with the current color and adds it to the list
+    /// @post Creates a promotion turn, with the current color and adds it to the list.
+    ///       Turn number increases by one
     public void savePromotionTurn(PieceColor color, PieceType original, PieceType promoted) {
         _turns.add(
             new Turn(
                 color,
                 original,
                 promoted
+            )
+        );
+        _turnNumber++;
+    }
+
+    /// @brief Saves a castling turn
+    /// @pre list.size() == 4
+    /// @post Creates a new castling type turn from the current color and adds it to the list.
+    ///       Turn number increases by one
+    public void saveCastlingTurn(List<Position> list) {
+        // Origin string
+        String auxOrigin = list.get(0).toString() + "-" + list.get(1).toString();
+
+        // Destination string
+        String auxDest = list.get(2).toString() + "-" + list.get(3).toString();
+
+        // Saving the castling
+        _turns.add(
+            new Turn(
+                _currTurnColor,
+                new Pair<String, String>(
+                    auxOrigin,
+                    auxDest
+                )
             )
         );
         _turnNumber++;

@@ -7,6 +7,7 @@ public class Turn implements JSON, Cloneable {
     private Pair<String, String> _move;
     private String _result;
     private boolean _promotionTurn;
+    private boolean _castlingTurn;
 
     /// @brief Basic turn constructor
     Turn(PieceColor color, Pair<String, String> move, String result) {
@@ -14,13 +15,25 @@ public class Turn implements JSON, Cloneable {
         this._move = move;
         this._result = result;
         this._promotionTurn = false;
+        this._castlingTurn = false;
     }
 
     /// @brief Promotion turn constructor
+    /// @details The turn is defined as a castling turn
     Turn(PieceColor color, PieceType original, PieceType promoted) {
         this._color = color;
         this._result = promotionString(original, promoted);
         this._promotionTurn = true;
+        this._castlingTurn = false;
+    }
+
+    /// @brief Castling turn constructor
+    /// @details Sets the result to an empty string and the turn is defined as a castling turn
+    Turn(PieceColor color, Pair<String, String> move) {
+        this._color = color;
+        this._move = move;
+        this._promotionTurn = false;
+        this._castlingTurn = true;
     }
 
     /// @brief To know the turn color
@@ -33,10 +46,12 @@ public class Turn implements JSON, Cloneable {
     /// @brief To know the movement origin cell
     /// @pre ---
     /// @post Returns the movement origin cell
-    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
+    /// @throws UnsupportedOperationException if the method is called when it is a not promotion turn
     public String origin() throws UnsupportedOperationException {
         if (_promotionTurn) {
             throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
+        } else if (_castlingTurn) {
+            throw new UnsupportedOperationException("Origin cannot be called when it is a castling turn");
         }
 
         return _move.first;
@@ -45,10 +60,12 @@ public class Turn implements JSON, Cloneable {
     /// @brief To know the movement destination cell
     /// @pre ---
     /// @post Returns the movement destination cell
-    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
+    /// @throws UnsupportedOperationException if the method is called when it is a not promotion turn
     public String destination() {
         if (_promotionTurn) {
             throw new UnsupportedOperationException("Destination cannot be called when it is a promotion turn");
+        } else if (_castlingTurn) {
+            throw new UnsupportedOperationException("Destination cannot be called when it is a castling turn");
         }
 
         return _move.second;
@@ -61,6 +78,8 @@ public class Turn implements JSON, Cloneable {
     public Pair<Position, Position> moveAsPair() {
         if (_promotionTurn) {
             throw new UnsupportedOperationException("MoveAsPair cannot be called when it is a promotion turn");
+        } else if (_castlingTurn) {
+            throw new UnsupportedOperationException("MoveAsPair cannot be called when it is a castling turn");
         }
 
         return new Pair<Position, Position>(
@@ -72,7 +91,7 @@ public class Turn implements JSON, Cloneable {
     /// @brief Returns the pieces involved in a promotion
     /// @pre This is a promotion turn
     /// @post Returns a pair of strings as the promotion (first is original, second promoted)
-    /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
+    /// @throws UnsupportedOperationException if the method is called when it is a NOT promotion turn
     public Pair<String, String> promotionAsPair() throws UnsupportedOperationException {
         if (!_promotionTurn) {
             throw new UnsupportedOperationException("PromotionAsPair cannot be called when it is NOT a promotion turn");
@@ -84,6 +103,27 @@ public class Turn implements JSON, Cloneable {
         String[] partTwo = partOne[1].trim().split("-");
 
         return new Pair<String, String>(partTwo[0], partTwo[1]);
+    }
+
+    /// @brief Returns the pieces involved in the casling
+    /// @pre This is a castling turn
+    /// @post Returns a pair of pairs containing the positions of the castling (origin, destination)
+    /// @throws UnsupportedOperationException if the methods is called when it is NOT a castling turn
+    public Pair<Pair<String, String>, Pair<String, String>> castlingAsPair() throws UnsupportedOperationException {
+        if (!_castlingTurn) {
+            throw new UnsupportedOperationException("CastlingAsPair cannot be called when it is NOT a castling turn");
+        }
+
+        // First pair
+        String partOne[] = _move.first.split("-");
+        Pair<String, String> origin = new Pair<String, String>(partOne[0], partOne[1]);
+
+        // Second pair
+        String partTwo[] = _move.second.split("-");
+        Pair<String, String> destination = new Pair<String, String>(partTwo[0], partTwo[1]);
+
+        // Result 
+        return new Pair<Pair<String,String>,Pair<String,String>>(origin, destination);
     }
 
     /// @brief Returns the result of the turn
