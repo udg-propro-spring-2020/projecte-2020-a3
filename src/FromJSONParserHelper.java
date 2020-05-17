@@ -236,16 +236,24 @@ public class FromJSONParserHelper {
     /// @brief Returns the string from a JSON property
     /// @pre s == "x": "y"
     /// @post Returns the y value as a String without the double quotes, commas and
-    /// trimmed
+    ///       trimmed
     private static String getString(String s) {
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
-        return values.length < 2 ? "" : values[1].trim();
+        if (values.length < 2) {
+            return "";
+        } else if (values.length == 2) {
+            return values[1].trim();
+        } else {
+            // This case is when there is a castling or a promotion
+
+            return values[1].trim() + ": " + values[2].trim();
+        }
     }
 
     /// @brief Gets the movement list from the file
     /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<Movement> getListMovements(Scanner fr) {
         String s = fr.nextLine().trim();
         List<Movement> mList = new ArrayList<>();
@@ -452,7 +460,7 @@ public class FromJSONParserHelper {
             String dest = getString(fr.nextLine());
 
             s = fr.nextLine();
-            String result = s.trim().endsWith("\"\"") ? "" : getString(s);
+            String result = getString(s);
 
             // Validate turn result value
             switch (result) {
@@ -483,7 +491,9 @@ public class FromJSONParserHelper {
                                 JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
                             );
                         } else {
-
+                            turnList.add(
+                                new Turn(color, types.get(promotion.first), types.get(promotion.second))
+                            );
                         }
 
                     } else if (result.contains("ENROC")) {

@@ -23,6 +23,13 @@ public class Turn implements JSON, Cloneable {
         this._promotionTurn = true;
     }
 
+    /// @brief To know the turn color
+    /// @pre ---
+    /// @post Returns the color property of the turn
+    public PieceColor color() {
+        return this._color;
+    }
+
     /// @brief To know the movement origin cell
     /// @pre ---
     /// @post Returns the movement origin cell
@@ -67,8 +74,8 @@ public class Turn implements JSON, Cloneable {
     /// @post Returns a pair of strings as the promotion (first is original, second promoted)
     /// @throws UnsuportedOperationException if the method is called when it is a not promotion turn
     public Pair<String, String> promotionAsPair() throws UnsupportedOperationException {
-        if (_promotionTurn) {
-            throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
+        if (!_promotionTurn) {
+            throw new UnsupportedOperationException("PromotionAsPair cannot be called when it is NOT a promotion turn");
         }
         
         // Separate by the :

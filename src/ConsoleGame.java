@@ -288,6 +288,7 @@ public class ConsoleGame {
 	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(String pOne, String pTwo) {
 		String playerOption = "";
+		boolean skipToggle = false;		// Use to preserve consistency between loaded and saved files
 
 		showInstructions();
 
@@ -311,6 +312,7 @@ public class ConsoleGame {
 				if (s.toUpperCase().equals("Y")) {
 					_controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
 					playerOption = "E";
+					skipToggle = true;
 				} else {
 					System.out.println("Game continues");
 					
@@ -330,24 +332,29 @@ public class ConsoleGame {
 				}
 				playerOption = "G";
 				_controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
+				skipToggle = true;
+			} else if (playerOption.equals("G")) {
+				skipToggle = true;
 			}
 
 			if (inactiveLimitReached()) {
 				playerOption = "I";
-			} else {
+			} else if (!skipToggle) {
 				// Change turn
 				_controller.toggleTurn();
 			}
+
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
 			!playerOption.equals("E") &&
 			!playerOption.equals("I")
-		);
-
+			);
+			
 		switch (playerOption) {
 			case "G": {
 				// Save game
+				System.out.println(_controller.currentTurnColor());
 				String fileName = saveGame("PARTIDA AJORNADA");
 				System.out.println("Saved game with name: " + fileName);
 				break;
@@ -561,37 +568,44 @@ public class ConsoleGame {
 	
 						if (moveResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
-							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
-
-							if (moveResult.second.isEmpty()) {
-								// Turn with no captures
-								_inactiveTurns++;
+							
+							if (moveResult.first.contains(MoveAction.Castling)) {
+								// Apply castling
+								// TODO: Handle castling
 							} else {
-								// Otherwise
-								_inactiveTurns = 0;
-							}
-	
-							if (actions != null) {
-								if (actions.contains(MoveAction.Promote)) {
-									// Handle promotion of destination piece
-									handlePromotion(destination);
-								}
-					
-								// Save turn
-								_controller.saveTurn(
-									actions,
-									new Pair<String, String>(
-										origin.toString(),
-										destination.toString()
-									)
-								);
-					
-								if (actions.contains(MoveAction.Escacimat)) {
-									result = "C";
-									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-								} 
+								List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
 
-								stop = true;
+								if (moveResult.second.isEmpty()) {
+									// Turn with no captures
+									_inactiveTurns++;
+								} else {
+									// Otherwise
+									_inactiveTurns = 0;
+								}
+		
+								if (actions != null) {
+									// Save turn
+									_controller.saveTurn(
+										actions,
+										new Pair<String, String>(
+											origin.toString(),
+											destination.toString()
+										)
+									);
+						
+									// Check promotion
+									if (actions.contains(MoveAction.Promote)) {
+										// Handle promotion of destination piece
+										handlePromotion(destination);
+									}
+												
+									if (actions.contains(MoveAction.Escacimat)) {
+										result = "C";
+										System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+									} 
+
+									stop = true;
+								}
 							}
 						} else {
 							System.out.println("Incorrect movement!");
@@ -694,27 +708,56 @@ public class ConsoleGame {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
 		}
 
+		// Ask CPU for movement
 		Pair<Position, Position> cpuMove = cpu.doMovement();
-		Pair<List<MoveAction>, Boolean> result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second);
-		_controller.cancellUndoes();
 
-		// Handle promotion
-		if (result.first.contains(MoveAction.Promote)) {
-			_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
-			_controller.savePromotionTurn(
-				_controller.pieceAtCell(cpuMove.second).type(),
-				_controller.mostValuableType()
-			);
-		}
+		// Check CPU movement
+		Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(cpuMove.first, cpuMove.second);
 
-		if (!result.second) {
-			// Inactive turn
-			_inactiveTurns++;
+		List<MoveAction> result = null;
+		// CPU movement will always be correct
+		if (checkResult.first.contains(MoveAction.Castling)) {
+			result = _controller.applyCastling(checkResult.second);
+			/* 
+				_controller.saveCastlingTurn();
+			*/
 		} else {
-			_inactiveTurns = 0;
+			result = _controller.applyCPUMovement(
+				cpuMove.first, 
+				cpuMove.second,
+				checkResult.second
+			);
+			_controller.cancellUndoes();
+	
+			// Saving turn
+			_controller.saveTurn(
+				result,
+				new Pair<String, String>(
+					cpuMove.first.toString(),
+					cpuMove.second.toString()
+				)
+			);
+
+			// Handle promotion
+			if (result.contains(MoveAction.Promote)) {
+				_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
+				_controller.savePromotionTurn(
+					_controller.currentTurnColor(),
+					_controller.pieceAtCell(cpuMove.second).type(),
+					_controller.mostValuableType()
+				);
+			}
+	
+			if (checkResult.second.isEmpty()) {
+				// Inactive turn
+				_inactiveTurns++;
+			} else {
+				_inactiveTurns = 0;
+			}
+			
 		}
 		
-		if (result.first.contains(MoveAction.Escacimat)) {
+		if (result.contains(MoveAction.Escacimat)) {
 			return MoveAction.Escacimat;
 		} else {
 			return null;
@@ -839,12 +882,15 @@ public class ConsoleGame {
 					if (r - 1 > tempList.size() || r - 1 < 0) {
 						System.out.println("Number not valid.");
 					} else {
-						_controller.promotePiece(piecePosition, tempList.get(r - 1));
 						// Save promotion turn
 						_controller.savePromotionTurn(
+							_controller.currentTurnColor(),
 							_controller.pieceAtCell(piecePosition).type(),
 							tempList.get(r - 1)
 						);
+						// Apply promotion
+						_controller.promotePiece(piecePosition, tempList.get(r - 1));
+
 						valid = true;
 					}
 				} catch (NumberFormatException e) {

@@ -63,18 +63,26 @@ public class GameController {
             false
         );
         List<Turn> loadedTurns = info.first;
-        _currTurnColor = info.second;
+        // White color always start
+        _currTurnColor = PieceColor.White;
 
         initiateData();
         if (!loadedTurns.isEmpty()) {
             Turn lastTurn = null;
             for (Turn t : loadedTurns) {
+                System.err.println(_currTurnColor.toString());
                 // TODO: Handle all turn possibilities
                 if (t.isPromotionTurn()) {
                     if (lastTurn == null) {
                         // If nothing has moved, there cannot be a promotion
                         throw new JSONParseFormatException(
                             "First turn cannot be a promotion",
+                            JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION
+                        );
+                    } else if (lastTurn.isPromotionTurn()) {
+                        // Two promotions cannot be consequent
+                        throw new JSONParseFormatException(
+                            "A promotion cannot be followed by another promotion", 
                             JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION
                         );
                     }
@@ -88,9 +96,13 @@ public class GameController {
                         new Position(lastTurn.destination()), 
                         typeMap.get(promoted.second)
                     );
-
+                        
                     // Save turn with the PieceTypes
-                    savePromotionTurn(typeMap.get(promoted.first), typeMap.get(promoted.second));
+                    savePromotionTurn(
+                        t.color(),
+                        typeMap.get(promoted.first),
+                        typeMap.get(promoted.second)
+                    );
                 } else {
                     Pair<Position, Position> temp = t.moveAsPair();
     
@@ -98,7 +110,12 @@ public class GameController {
                     Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
     
                     // All movements must be right!
-                    List<MoveAction> moveResult = _chess.applyMovement(temp.first, temp.second, checkResult.second);
+                    List<MoveAction> moveResult = _chess.applyMovement(
+                        temp.first,
+                        temp.second,
+                        checkResult.second,
+                        false
+                    );
                     
                     saveTurn(
                         moveResult,
@@ -107,11 +124,13 @@ public class GameController {
                             temp.second.toString()
                         )
                     );
-                }
 
-                toggleTurn();
+                    toggleTurn();
+                }
+                
                 lastTurn = t;
             }
+            System.err.println(_currTurnColor);
         }
     }
 
@@ -151,7 +170,7 @@ public class GameController {
     /// @post Applies a player movement if possible and returns the result. The result
     ///       will be null if the player has to defend the king
     public List<MoveAction> applyPlayerMovement(Position origin, Position destination, List<Position> list) {
-        List<MoveAction> result = _chess.applyMovement(origin, destination, list);
+        List<MoveAction> result = _chess.applyMovement(origin, destination, list, false);
 
         // Evaluate for check
         List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
@@ -165,33 +184,33 @@ public class GameController {
         return result;
     }
 
-    /// @brief Checks and applies a cpu movement
+    /// @brief Checks and applies a player movement
+    /// @pre ---
+    /// @post Checks and applies a player movement. Returns the result of the movement as
+    ///       a String (null if not valid)
+    public Pair<List<MoveAction>, List<Position>> checkCPUMovement(Position origin, Position destination) {
+        Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(origin, destination);
+        
+        return checkResult;
+    }
+
+    /// @brief Applies a cpu movement
     /// @pre @p origin && @p dest != null
-    /// @post Checks and applies the cpu movement to the chess and returns the list of MoveActions.
-    ///       Returns a pair containing the list of move actions and if it has killed any piece
-    public Pair<List<MoveAction>, Boolean> applyCPUMovement(Position origin, Position destination) {
-        Pair<List<MoveAction>, List<Position>> moveResult = _chess.checkMovement(origin, destination);
-		
+    /// @post Applies the cpu movement to the chess and returns the list of MoveActions
+    public List<MoveAction> applyCPUMovement(Position origin, Position destination, List<Position> list) {
 		// CPU movement is always correct
 		List<MoveAction> result = _chess.applyMovement(
 			origin,
 			destination,
-			moveResult.second
-		);
-
-		// Save turn
-		saveTurn(
-			moveResult.first,
-			new Pair<String, String>(
-				origin.toString(),
-				destination.toString()
-			)
-        );
+            list,
+            false
+		);    
         
-        return new Pair<List<MoveAction>, Boolean>(
-            result,
-            moveResult.second.isEmpty()
-        );
+        return result;
+    }
+
+    public List<MoveAction> applyCastling(List<Position> list) {
+        return _chess.applyCastling(list);
     }
 
     /// @brief Changes turn value
@@ -240,10 +259,10 @@ public class GameController {
     /// @brief Saves a promotion turn
     /// @pre ---
     /// @post Creates a promotion turn, with the current color and adds it to the list
-    public void savePromotionTurn(PieceType original, PieceType promoted) {
+    public void savePromotionTurn(PieceColor color, PieceType original, PieceType promoted) {
         _turns.add(
             new Turn(
-                _currTurnColor,
+                color,
                 original,
                 promoted
             )
