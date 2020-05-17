@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,7 @@ public class GameController {
         }
     }
 
-    // CONSTRUCTORS HELPERS
+    //! CONSTRUCTOR HELPERS
     /// @brief Loads the game from a configuration file
     /// @pre @p fileLocation != null
     /// @post Loads the game from a configuration file
@@ -112,8 +111,6 @@ public class GameController {
                         temp = t.moveAsPair();
                     }
 
-                    System.err.println(temp.first + " " + temp.second);
-
                     // Apply movements to the game
                     Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
     
@@ -167,6 +164,7 @@ public class GameController {
 		}
     }
 
+    //! IN-GAME METHODS
     /// @brief Checks and applies a player movement
     /// @pre ---
     /// @post Checks and applies a player movement. Returns the result of the movement as
@@ -303,18 +301,24 @@ public class GameController {
         _turnNumber++;
     }
 
+    /// @brief To know if a movement can be undone
+    /// @pre ---
+    /// @post Returns true if a movement can be undone. False otherwise
+    public boolean canUndo() {
+        return !(_turnNumber == 0);
+    }
+
 	/// @brief Undoes one movement
 	/// @pre ---
 	/// @post If possible, undoes one movement. It is only possible to undo
 	///       if there has been one movement
 	public boolean undoMovement() {
-		if (_turnNumber == 0) {
+		if (!canUndo()) {
             /// Can't undo any movement
 			return false;
 		} else {
 			/// Get current turn values
 			_chess.undoMovement();
-            toggleTurn();
             
             // Previous turn
             _turnNumber--;
@@ -323,18 +327,24 @@ public class GameController {
 			return true;
 		}
     }
+
+    /// @brief To know if a movement can be redone
+    /// @pre ---
+    /// @post Returns true if a movement can be redone. False otherwise
+    public boolean canRedo() {
+        return !(_undoCount == 0);
+    }
     
     /// @brief Redoes one movement
 	/// @pre turnNumber pointing after the last position of list
 	/// @post If possible, redoes one movement. It is only possible to redo if
 	///       there has been at least one undone movement
 	public boolean redoMovement() {
-		if (_undoCount == 0) {
+		if (!canRedo()) {
 			return false;
 		} else {
 			// Get the current turn values
 			_chess.redoMovement();
-            toggleTurn();
 
             // Next turn
             _turnNumber++;
@@ -409,7 +419,7 @@ public class GameController {
 		}
 	}
 
-    // METHODS TO RETRIEVE GAME INFORMATION
+    //! METHODS TO RETRIEVE GAME INFORMATION
     /// @brief Returns the chess
     /// @pre ---
     /// @post Returns the chess
@@ -458,9 +468,9 @@ public class GameController {
 			new Position(_turns.get(_turnNumber - 1).origin()),
 			new Position(_turns.get(_turnNumber - 1).destination())
 		);
-	}
+    }
 
-    // METHODS TO RETRIEVE CHESS INFORMATION
+    //! METHODS TO RETRIEVE CHESS INFORMATION
     /// @brief Returns a String as the board of the chess
     /// @pre ---
     /// @post Returns a String as the board of the chess

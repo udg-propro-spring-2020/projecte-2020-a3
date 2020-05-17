@@ -1,9 +1,7 @@
-/**
- * @author Miquel de Domingo i Giralt
- * @file Position.java
- * @class Position
- * @brief Holds the position information 
- */
+/// @author Miquel de Domingo i Giralt
+/// @file Position.java
+/// @class Position
+/// @brief Holds the position information 
 public class Position implements JSON, Cloneable {
     /// TRANSFORMATION CONSTANTS
     private static final String ALPH = "abcdefghijklmnopqrstuvwxyz";        ///< Alphabet letters sorted

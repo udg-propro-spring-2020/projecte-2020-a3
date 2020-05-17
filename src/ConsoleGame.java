@@ -293,6 +293,7 @@ public class ConsoleGame {
 		showInstructions();
 
 		do {
+			System.err.println(_controller.currentTurnColor());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				System.out.println(pOne + " turn - WHITES");
 			} else {
@@ -343,7 +344,6 @@ public class ConsoleGame {
 				// Change turn
 				_controller.toggleTurn();
 			}
-
 		} while (
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
@@ -612,7 +612,7 @@ public class ConsoleGame {
 									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
 								} 
 							}
-							
+
 							stop = true;
 						} else {
 							System.out.println("Incorrect movement!");

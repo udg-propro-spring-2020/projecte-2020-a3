@@ -180,6 +180,7 @@ public class ItemBuilder {
         VBox layout = buildVBox(12.0, list, false);
         layout.getStylesheets().add(CSS_LOCATION);
         popUp.setScene(new Scene(layout));
+        popUp.setWidth(300.0);
 
         return popUp;
     }
