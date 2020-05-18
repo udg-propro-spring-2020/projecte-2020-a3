@@ -525,7 +525,7 @@ public class Chess implements Cloneable {
         Piece piece = pieceAt(destiny.row(),destiny.col()); //Movement has already been realised so piece is at her destiny
         boolean promote = false;
         if(piece!=null){ //Not a castling move. If it was a castling, destiny position would not have a piece
-            if((piece.color()==PieceColor.White && destiny.row()==rows()) || (piece.color()==PieceColor.Black && destiny.row()==0)){
+            if((piece.color()==PieceColor.White && destiny.row()==rows()-1) || (piece.color()==PieceColor.Black && destiny.row()==0)){
                 if(origin.row() != destiny.row()){
                     promote = piece.type().ptPromotable();
                     piece.toggleDirection();
