@@ -15,6 +15,8 @@ public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
 	private static GameController _controller = null;				///< Referece to the game controller
 	private static int _inactiveTurns = 0;							///< Current amount of inactive turns
+	private static int _whiteCheckTurns = 0;						///< Current amount of consecutive checks of white
+	private static int _blackCheckTurns = 0;						///< Current amount of consecutive checks of black
 
 	/// CONSTANTS
 	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
@@ -377,6 +379,7 @@ public class ConsoleGame {
 	///       works automatically. If it finishes, prints the winner
 	private static void playerCPUGame(boolean playerIsWhite) {
 		String playerOption = "";
+		boolean lastTurnDraw = false;
 
 		int diff = cpuDifficulty();
 
@@ -388,10 +391,15 @@ public class ConsoleGame {
 			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite ||
 				_controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
 				// CPU
-				MoveAction cpuResult = cpuTurn(cpu);
+				MoveAction cpuResult = null;
+				if (lastTurnDraw) {
+					System.out.println("The computer will never surrender!");
+				} else {
+					cpuResult = cpuTurn(cpu);
+				}
 
 				// Change turn
-				if (!(cpuResult == MoveAction.Escacimat)) {
+				if (cpuResult == null || !(cpuResult == MoveAction.Escacimat)) {
 					if (inactiveLimitReached()) {
 						playerOption = "I";
 					} else {
@@ -418,6 +426,7 @@ public class ConsoleGame {
 					);
 					System.out.println("The CPU has not accepted the draw");
 					playerOption = "";
+					lastTurnDraw = true;
 				} 
 
 				if (inactiveLimitReached()) {
@@ -575,12 +584,16 @@ public class ConsoleGame {
 							
 							// Apply movement and check if castling
 							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
-							if (moveResult.first.contains(MoveAction.Castling)) {
+							if (actions == null) {
+								// Player has left his king in a check position
+								System.out.println("Your king is in a dangered position. You must defend it.");
+							} else if (moveResult.first.contains(MoveAction.Castling)) {
 								// Save the turn
 								_controller.saveCastlingTurn(moveResult.second);
 
 								// Since there will be no killing, increment the inactive turn
 								_inactiveTurns++;
+								stop = true;
 							} else {
 								if (moveResult.second.isEmpty()) {
 									// Turn with no captures
@@ -607,13 +620,22 @@ public class ConsoleGame {
 									}				
 								}
 
-								if (actions.contains(MoveAction.Escacimat)) {
+								if (actions.contains(MoveAction.Escac)) {
+									handleCheck();
+								} else if (actions.contains(MoveAction.Escacimat)) {
 									result = "C";
 									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
-								} 
-							}
+								} else {
+									if (_controller.currentTurnColor() == PieceColor.White) {
+										_whiteCheckTurns = 0;
+									} else {
+										_blackCheckTurns = 0;
+									}
+								}
 
-							stop = true;
+
+								stop = true;
+							}
 						} else {
 							System.out.println("Incorrect movement!");
 						}
@@ -746,6 +768,7 @@ public class ConsoleGame {
 
 			// Handle promotion
 			if (result.contains(MoveAction.Promote)) {
+				System.err.println("CPU CONTAINS PROMOTE");
 				_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
 				_controller.savePromotionTurn(
 					_controller.currentTurnColor(),
@@ -760,7 +783,16 @@ public class ConsoleGame {
 			} else {
 				_inactiveTurns = 0;
 			}
-			
+		}
+
+		if (result.contains(MoveAction.Escac)) {
+			handleCheck();
+		} else {
+			if (_controller.currentTurnColor() == PieceColor.White) {
+				_whiteCheckTurns = 0;
+			} else {
+				_blackCheckTurns = 0;
+			}
 		}
 		
 		if (result.contains(MoveAction.Escacimat)) {
@@ -904,6 +936,18 @@ public class ConsoleGame {
 				}
 			} while (!valid);
 		} 
+	}
+
+	/// @brief Handles when the turn result is a check
+	/// @pre ---
+	/// @post Increments the total check turn of the current color 
+	private static void handleCheck() {
+		System.out.println("Check on " + _controller.currentTurnColor().toString() + "'s king'");
+		if (_controller.currentTurnColor() == PieceColor.White) {
+			_whiteCheckTurns++;
+		} else {
+			_blackCheckTurns++;
+		}
 	}
 
 	/// @brief Returns the opposite color of @p color

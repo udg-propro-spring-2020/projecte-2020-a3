@@ -184,8 +184,8 @@ public class GameController {
 
         // Evaluate for check
         List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
-            ? _chess.pListWhite()
-            : _chess.pListBlack();
+            ? _chess.pListBlack()
+            : _chess.pListWhite();
         if (_chess.isEscac(colorList)) {
             _chess.undoMovement();
             return null;
@@ -470,6 +470,19 @@ public class GameController {
 		);
     }
 
+    /// @brief To know if the last turn of the current color was a check
+    /// @pre ---
+    /// @post Returns true if the last turn of the current color was a check. False otherwise
+    public boolean wasLastTurnCheck() {
+        if (_turnNumber < 3) {
+            return false;
+        }
+
+        // Get two turns before
+        Turn t = _turns.get(_turnNumber - 3);
+        return t.turnResult().equals(MoveAction.Escac.toString());
+    }
+
     //! METHODS TO RETRIEVE CHESS INFORMATION
     /// @brief Returns a String as the board of the chess
     /// @pre ---
@@ -536,6 +549,13 @@ public class GameController {
     /// @post Returns the inactive turns limit value
     public int inactiveLimit() {
         return _chess.inactiveLimits();
+    }
+
+    /// @brief Returns the consecutive check limit
+    /// @pre ---
+    /// @post Returns the consecutive check limit value
+    public int chessLimit() {
+        return _chess.chessLimits();
     }
 
     /// @brief Returns the most valuable PieceType after the king
