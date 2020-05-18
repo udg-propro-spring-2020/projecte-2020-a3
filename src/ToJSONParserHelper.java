@@ -1,13 +1,11 @@
 import java.util.List;
 
-/**
- * @author Miquel de Domingo i Giralt
- * @file ToJSONParserHelper.java
- * @class ToJSONParserHelper
- * @brief Functional class to help parsing objects to JSON
- */
+/// @author Miquel de Domingo i Giralt
+/// @file ToJSONParserHelper.java
+/// @class ToJSONParserHelper
+/// @brief Functional class to help parsing objects to JSON
 public class ToJSONParserHelper {
-    /// CONSTANTS
+    // CONSTANTS
     /// @brief JSON Style control constants
     private static final String NEXT_LINE  = "\n";              ///< Next line 
     private static final String EOL        = ",\n";             ///< Coma & next line 
@@ -15,7 +13,7 @@ public class ToJSONParserHelper {
     private static final String QUOTE      = "\"";              ///< Scaped quote
     private static final String SEPARATOR  = ": ";              ///< JSON Separator
 
-    /// PUBLIC UTIL CONSTANTS
+    // PUBLIC UTIL CONSTANTS
     /// @brief Util constants to avoid code repetition and meaningless strings
     public static final String ONE_TAB    = "\t";               ///< Simulates one tab
     public static final String TWO_TABS   = "\t\t";             ///< Simulates two tabs
@@ -152,8 +150,8 @@ public class ToJSONParserHelper {
     /// @post Parses the given list to a String of a JSON style list
     /// @throw NullPointerException If the @p list is null or contains a null item
     /// @thwo IllegalArgumentException If the @p identation does not contain only spaces or tabs
-    public static String objectListToJSON(String listName, List<? extends JSON> list, Boolean lastItem,
-            String identation) {
+    public static String objectListToJSON(String listName, List<? extends JSON> list, Boolean lastItem, String identation)
+            throws NullPointerException, IllegalArgumentException {
         if (listName.isEmpty() || listName == null) {
             throw new NullPointerException("primitiveListToJSON listName value cannot be null nor empty");
         } else if (!identation.trim().isEmpty()) {
@@ -204,8 +202,8 @@ public class ToJSONParserHelper {
     ///       tabbed one more.
     /// @throw NullPointerException If the @p list is null or contains a null item
     /// @throw IllegalArgumentException If the @p identation does not contain only spaces or tabs
-    public static String primitiveListToJSON(String listName, List<? extends Object> list, String identation,
-            Boolean inQuotes, Boolean lastItem) {
+    public static String primitiveListToJSON(String listName, List<? extends Object> list, String identation, Boolean inQuotes, Boolean lastItem) 
+            throws NullPointerException, IllegalArgumentException {
         if (listName.isEmpty() || listName == null) {
             throw new NullPointerException("primitiveListToJSON listName value cannot be null nor empty");
         } else if (!identation.trim().isEmpty()) {

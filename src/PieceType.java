@@ -141,7 +141,7 @@ public class PieceType implements JSON, Cloneable {
                 .append(ToJSONParserHelper.propertyToJSON("invulnerabilitat", _invulnerable, false, false, ToJSONParserHelper.THREE_TABS))
                 .append(ToJSONParserHelper.TWO_TABS)
                 .append(ToJSONParserHelper.OBJ_END);
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return s.toString();

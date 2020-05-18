@@ -53,13 +53,22 @@ public class FromJSONParserHelper {
 
         // Skip two lines
         in.nextLine();
-        in.nextLine();
-        List<PieceType> typeList = getListPieceTypes(in);
+        String temp = getString(in.nextLine());
+        List<PieceType> typeList = null;
+
+        if (!temp.equals("[]")) {
+            typeList = getListPieceTypes(in);
+        } else {
+            throw new JSONParseFormatException(
+                "Piece type list cannot be empty",
+                JSONParseFormatException.ExceptionType.EMPTY_LIST
+            );
+        }
         Map<String, PieceType> typeMap = mapFromTypes(typeList);
 
         // Next two lines
         in.nextLine();
-        String temp = getString(in.nextLine());
+        temp = getString(in.nextLine());
         List<String> initialPos = new ArrayList<>();
 
         if (!temp.equals("[]")) {
@@ -354,8 +363,7 @@ public class FromJSONParserHelper {
             boolean invulnerable = getString(fr.nextLine()).equals("true") ? true : false;
 
             pList.add(
-                new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements
-                )
+                new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements)
             );
 
             s = fr.nextLine().trim();
