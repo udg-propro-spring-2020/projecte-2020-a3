@@ -762,33 +762,35 @@ public class Chess implements Cloneable {
             //Si es de dreta a esq, aPiece +mig altre mig+1
             //Si al reves aPiece +mig altre mig+1
         if(secondPiece!=null){
-            while(i<castlings.size() && !found){
-                Castling castling = castlings.get(i);
-                //System.out.println("Comprobo castling pieces: "+c.aPiece()+" "+firstPiece.type().ptName()+" o "+c.bPiece()+" "+secondPiece.type().ptName());
-                if((castling.aPiece().equals(firstPiece.type().ptName()) && castling.bPiece().equals(secondPiece.type().ptName())) || 
-                    (castling.bPiece().equals(firstPiece.type().ptName()) && castling.aPiece().equals(secondPiece.type().ptName()))){
-                    if(castling.aPiece().equals(secondPiece.type().ptName())){
-                        firstPieceCastling = secondPiecePos; //Segueix essent la segona entrada, pero es la primera del castling per tant es moura mig+-1
-                        secondPieceCastling = firstPiecePos;
-                    }
-                    //System.out.println("Existeix el castling");
-                    checkResult.second.add(firstPieceCastling);//initial positions
-                    checkResult.second.add(secondPieceCastling);
-                    //System.out.println(c.stand()+" "+firstPiece.hasMoved()+" "+secondPiece.hasMoved());
-                    if((castling.stand() && !firstPiece.hasMoved() && !secondPiece.hasMoved()) || !castling.stand()){
-                        //System.out.println("Estan quietes");
-                        emptyDestinies = checkDestinies(firstPieceCastling, secondPieceCastling, middle);
-                        if((castling.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !castling.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
-                            //System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
-                            findNewPositions(firstPieceCastling,secondPieceCastling, middle, checkResult);
-                            checkResult.first.add(MoveAction.Castling);
-                            //checkResult.second.add(firstPieceCastling);//destiny positions
-                            //checkResult.second.add(secondPieceCastling);
-                            correctCastling = true;
+            if(secondPiece.color().equals(firstPiece.color())){
+                while(i<castlings.size() && !found){
+                    Castling castling = castlings.get(i);
+                    //System.out.println("Comprobo castling pieces: "+c.aPiece()+" "+firstPiece.type().ptName()+" o "+c.bPiece()+" "+secondPiece.type().ptName());
+                    if((castling.aPiece().equals(firstPiece.type().ptName()) && castling.bPiece().equals(secondPiece.type().ptName())) || 
+                        (castling.bPiece().equals(firstPiece.type().ptName()) && castling.aPiece().equals(secondPiece.type().ptName()))){
+                        if(castling.aPiece().equals(secondPiece.type().ptName())){
+                            firstPieceCastling = secondPiecePos; //Segueix essent la segona entrada, pero es la primera del castling per tant es moura mig+-1
+                            secondPieceCastling = firstPiecePos;
+                        }
+                        //System.out.println("Existeix el castling");
+                        checkResult.second.add(firstPieceCastling);//initial positions
+                        checkResult.second.add(secondPieceCastling);
+                        //System.out.println(c.stand()+" "+firstPiece.hasMoved()+" "+secondPiece.hasMoved());
+                        if((castling.stand() && !firstPiece.hasMoved() && !secondPiece.hasMoved()) || !castling.stand()){
+                            //System.out.println("Estan quietes");
+                            emptyDestinies = checkDestinies(firstPieceCastling, secondPieceCastling, middle);
+                            if((castling.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !castling.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
+                                //System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
+                                findNewPositions(firstPieceCastling,secondPieceCastling, middle, checkResult);
+                                checkResult.first.add(MoveAction.Castling);
+                                //checkResult.second.add(firstPieceCastling);//destiny positions
+                                //checkResult.second.add(secondPieceCastling);
+                                correctCastling = true;
+                            }
                         }
                     }
+                    i++;
                 }
-                i++;
             }
         }
         return correctCastling;
@@ -1043,7 +1045,7 @@ public class Chess implements Cloneable {
         List<Pair<Position,Piece>> listToRemoveOn;
         boolean search=true;
         Piece originPiece = pieceAt(origin.row(),origin.col());
-        
+        if(originPiece==null) System.out.println(showBoard());
         if(originPiece.color() == PieceColor.White){
             listToChange = pListWhite;
             listToRemoveOn = pListBlack;
@@ -1133,12 +1135,12 @@ public class Chess implements Cloneable {
             boolean keepSearching = true; //Keep looking movement possible destinies while movement is correct
             Movement currentMove = movesToRead.get(i);
             //System.out.println(currentMove.movX()+" "+currentMove.movY());
-            if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove) && (currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){//Diagonals            
+            if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove) && (currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){ //Diagonals            
                 keepSearching = true;
                 int y=1;
                 int x=1;
                 if(currentMove.movX() == unlimitadeMove && currentMove.movY() == unlimitadeMove || currentMove.movX() == -unlimitadeMove && currentMove.movY() == -unlimitadeMove){
-                    while(destinyInLimits(origin.row()+x,origin.col()+y) && keepSearching){    //De dreta a esquerra , de dalt a baix 
+                    while(destinyInLimits(origin.row()+x,origin.col()+y) && keepSearching){ //From top-right to bottom-left
                         //System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
                         destiny = new Position(origin.row()+x, origin.col()+y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1148,7 +1150,7 @@ public class Chess implements Cloneable {
                     keepSearching = true;
                     y=1;
                     x=1;
-                    while(destinyInLimits(origin.row()-x,origin.col()-y) && keepSearching){    //De esquerra a dreta, de baix a dalt 
+                    while(destinyInLimits(origin.row()-x,origin.col()-y) && keepSearching){ //From bottom-left to top-right
                         //System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()-x, origin.col()-y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1157,7 +1159,7 @@ public class Chess implements Cloneable {
                     }
                 }
                 if(currentMove.movX() == -unlimitadeMove && currentMove.movY() == unlimitadeMove || currentMove.movX() == unlimitadeMove && currentMove.movY() == -unlimitadeMove){
-                    while(destinyInLimits(origin.row()-x,origin.col()+y) && keepSearching){    //De dreta a esquerra, de baix a dalt 
+                    while(destinyInLimits(origin.row()-x,origin.col()+y) && keepSearching){ //From bottom-right to top-left 
                         //System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
                         destiny = new Position(origin.row()-x, origin.col()+y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1167,7 +1169,7 @@ public class Chess implements Cloneable {
                     keepSearching=true;
                     y=1;
                     x=1;
-                    while(destinyInLimits(origin.row()+x,origin.col()-y) && keepSearching){    //De esquerra a dreta, de dalt a baix mentre estiguis dins els limits
+                    while(destinyInLimits(origin.row()+x,origin.col()-y) && keepSearching){    //From top-left to bottom-right
                         //System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()+x, origin.col()-y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1175,9 +1177,9 @@ public class Chess implements Cloneable {
                         y++;
                     }
                 }
-            }else if((currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){//Es mou horitzontal
+            }else if((currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){ //Horizontal move
                 int y=1;
-                while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+y) && keepSearching){    //De dreta a esquerra  
+                while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+y) && keepSearching){ //From right to left
                     //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()+currentMove.movX(), origin.col()+y);
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1185,16 +1187,16 @@ public class Chess implements Cloneable {
                 }
                 keepSearching=true;
                 y=1;
-                while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()-y) && keepSearching){     //De esquerra a dreta 
+                while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()-y) && keepSearching){  //From left to right
                     //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()-currentMove.movX(), origin.col()-y);
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
                     y++;
                 }
             }
-            else if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove)){//Es mou en vertical, nomes la fila cambia
+            else if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove)){ //Vertical move
                 int x=1;
-                while(destinyInLimits(origin.row()+x, origin.col()+currentMove.movY()) && keepSearching){  //De dalt a baix 
+                while(destinyInLimits(origin.row()+x, origin.col()+currentMove.movY()) && keepSearching){ //From top to bottom
                     //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()+x, origin.col()+currentMove.movY());
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
@@ -1202,7 +1204,7 @@ public class Chess implements Cloneable {
                 }
                 keepSearching=true; 
                 x=1;
-                while(destinyInLimits(origin.row()-x, origin.col()-currentMove.movY()) && keepSearching){  //De dalt a baix 
+                while(destinyInLimits(origin.row()-x, origin.col()-currentMove.movY()) && keepSearching){ //From bottom to top
                     //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()-x, origin.col()-currentMove.movY());
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
