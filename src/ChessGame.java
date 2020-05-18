@@ -1,6 +1,5 @@
 import javafx.application.Application;
 
-
 /// @author Miquel de Domingo i Giralt
 /// @file ChessGame.java
 /// @class ChessGame
