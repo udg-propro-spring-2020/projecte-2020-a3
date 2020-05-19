@@ -697,9 +697,7 @@ public class ConsoleGame {
 				List<Pair<List<Turn>, PieceColor>> complexList = new ArrayList<>();
 				for (String location : list) {
 					try {
-						complexList.add(
-							FromJSONParserHelper.matchInformation(location, _controller.mapOfPieceTypes(), true)
-						);
+						complexList.add(_controller.readKnowledge(location));
 					} catch (FileNotFoundException e) {
 						System.err.println("File [" + location + "] not found.");
 					} catch (JSONParseFormatException e) {
@@ -764,7 +762,6 @@ public class ConsoleGame {
 
 			// Handle promotion
 			if (result.contains(MoveAction.Promote)) {
-				System.err.println("CPU CONTAINS PROMOTE");
 				_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
 				_controller.savePromotionTurn(
 					_controller.currentTurnColor(),

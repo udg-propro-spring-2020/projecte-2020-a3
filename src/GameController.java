@@ -161,6 +161,13 @@ public class GameController {
         }
     }
 
+    /// @brief Reads the match information from the file
+    /// @pre @p list != null
+    /// @post Returns a Pair containing the information extracted from the location file
+    public Pair<List<Turn>, PieceColor> readKnowledge(String location) throws FileNotFoundException, JSONParseFormatException {
+        return FromJSONParserHelper.matchInformation(location, mapOfPieceTypes(), true);
+    }
+
     /// @brief Returns a map of the piece types
     /// @pre ---
     /// @post Creates a map of the piece types in which the key is their name
