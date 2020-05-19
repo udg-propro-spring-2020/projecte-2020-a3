@@ -483,7 +483,10 @@ public class FromJSONParserHelper {
                     // End of game
                     break;
                 case "TAULES SOL·LICITADES":
-                    // Skip turn
+                    // Empty turn
+                    turnList.add(
+                        new Turn(color, result)
+                    );
                     break;
                 case "": {
                     // Add new turn

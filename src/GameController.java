@@ -101,7 +101,7 @@ public class GameController {
                         typeMap.get(promoted.first),
                         typeMap.get(promoted.second)
                     );
-                } else {
+                } else if (!t.isEmptyTurn()) {
                     Pair<Position, Position> temp = null;
                     if (t.isCastlingTurn()) {
                         // Castling movement has the original move in the first position of the pair
@@ -135,6 +135,10 @@ public class GameController {
                         );
                     }
 
+                    toggleTurn();
+                } else {
+                    // Current turn is empty turn
+                    saveEmptyTurn(t.turnResult(), t.color());
                     toggleTurn();
                 }
                 
@@ -257,7 +261,7 @@ public class GameController {
 	/// @post Adds a turn to the list containing only a result value
 	public void saveEmptyTurn(String result, PieceColor color) {
 		_turns.add(
-			new Turn(color, new Pair<String, String>("", ""), result)
+			new Turn(color, result)
 		);
 		_turnNumber++;
     }
@@ -321,11 +325,25 @@ public class GameController {
 			_chess.undoMovement();
             
             // Previous turn
+            if (canUndo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
+                // Since will be an empty turn, we have to descrease once more
+                _turnNumber--;
+            }
             _turnNumber--;
+
             ///Increase undone movements
             _undoCount++;
 			return true;
 		}
+    }
+
+    /// @brief Decreases the undone movements count
+    /// @pre ---
+    /// @post If the undo count value is > 0, it will decrease it by 1
+    public void decreaseUndoCount() {
+        if (_undoCount > 0) {
+            _undoCount--;
+        }
     }
 
     /// @brief To know if a movement can be redone
@@ -348,6 +366,10 @@ public class GameController {
 
             // Next turn
             _turnNumber++;
+            if (canRedo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
+                // Since will be an empty turn, we have to increase once more
+                _turnNumber++;
+            }
             // Decrement the undone movements
             _undoCount--;
 			return true;
@@ -364,6 +386,7 @@ public class GameController {
         if (_undoCount > 0) {
             // turnNumber == turns.size() - undoCount
             for (int i = _turns.size() - 1; i >= _turnNumber; i--) {
+                System.out.println(_turns.get(i).toString());
                 _turns.remove(i);
             }
             _undoCount = 0;
@@ -434,18 +457,18 @@ public class GameController {
         return _currTurnColor;
     }
 
-    /// @brief Returns if the turn number ends with 0 or 1
-    /// @pre ---
-    /// @post Returns true if the turn number ends with 0 or 1
-    public boolean zeroOrOneTurn() {
-        return _turnNumber % 10 == 0 || _turnNumber % 10 == 1;
-    }
-
     /// @brief Returns if the current turn is even
     /// @pre ---
     /// @post Returns true if the current turn is even. False otherwise
     public boolean evenTurn() {
         return _turnNumber % 2 == 0;
+    }
+
+    /// @brief Returns the turn number
+    /// @pre ---
+    /// @post Returns the turn number
+    public int turnNumber() {
+        return _turnNumber;
     }
 
     /// @brief Returns the configuration file of the game
@@ -464,10 +487,28 @@ public class GameController {
             return null;
         } 
 
+        if (!_turns.get(_turnNumber - 1).isEmptyTurn()) {
+            return new Pair<Position, Position>(
+                new Position(_turns.get(_turnNumber - 1).origin()),
+                new Position(_turns.get(_turnNumber - 1).destination())
+            );
+        } else {
+            return new Pair<Position, Position>(
+                new Position(_turns.get(_turnNumber - 2).origin()),
+                new Position(_turns.get(_turnNumber - 2).destination())
+            );
+        }
+    }
+
+    /// @brief To get the last undone movement
+    /// @pre @p undoCount > 0
+    /// @post Returns the last movement undone
+    public Pair<Position, Position> lastUndoneMovement() {
+        // Last undone movement is the on at the _turnNumber value
         return new Pair<Position, Position>(
-			new Position(_turns.get(_turnNumber - 1).origin()),
-			new Position(_turns.get(_turnNumber - 1).destination())
-		);
+            new Position(_turns.get(_turnNumber).origin()),
+            new Position(_turns.get(_turnNumber).destination())
+        );
     }
 
     /// @brief To know if the last turn of the current color was a check

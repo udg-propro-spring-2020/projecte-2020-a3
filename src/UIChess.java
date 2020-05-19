@@ -19,7 +19,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 /// @author Miquel de Domingo i Giralt
 /// @file UIChess.java
@@ -52,6 +51,8 @@ public class UIChess extends Application {
     private GameController _controller = null;                      ///< Game flow controller
     private Group _tiles = null;                                    ///< Group of tiles of the board
     private Group _pieces = null;                                   ///< Group of pieces of the board
+    private List<Pair<Integer, UIPiece>> _deathPieces;              ///< Controls the death pieces and the turn in which they died
+    private List<Pair<Integer, UIPiece>> _revivedPieces;            ///< Controls the revived pieces and the turn in which they were revived
 
     /// @brief Defines the type of the match currently playing
     private static enum GameType {
@@ -483,6 +484,10 @@ public class UIChess extends Application {
     }
 
     // IN-GAME HANDLING OPTIONS
+    /// @brief Function that handles the event of the undo button
+    /// @pre The user pressed the undo button
+    /// @post If possible, undoes one movement. If a pieces were killed in that movement, 
+    ///       all of them revive now and are deleted from the death list
     private void handleUndo() {
         if (!_controller.canUndo()) {
             ItemBuilder.buildPopUp(
@@ -493,6 +498,7 @@ public class UIChess extends Application {
         } else {
             // Get last movement <Origin, Destination>
             Pair<Position, Position> temp = _controller.lastMovement();
+
             // Undo from chess
             _controller.undoMovement();
 
@@ -500,10 +506,25 @@ public class UIChess extends Application {
             UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.first));
             toChange.move(temp.first.col(), temp.first.row());
 
+            // Add pieces that died in the turn to the UI
+            List<Pair<Integer, UIPiece>> listToDelete = new ArrayList<>();
+            for (Pair<Integer, UIPiece> p : _deathPieces) {
+                if (p.first == _controller.turnNumber()) {
+                    _pieces.getChildren().add(p.second);
+                    listToDelete.add(p);
+                }
+            }
+            _deathPieces.removeAll(listToDelete);
+            _revivedPieces.addAll(listToDelete);
+
             _controller.toggleTurn();
         }
     }
 
+    /// @brief Function thant handles the event of the redo button
+    /// @pre The user pressed the draw button
+    /// @post If possible, redoes the movement. Applies the movement and kills all the
+    ///       pieces that died due to the move
     private void handleRedo() {
         if (!_controller.canRedo()) {
             ItemBuilder.buildPopUp(
@@ -514,17 +535,41 @@ public class UIChess extends Application {
         } else {
             // Redo from chess
             _controller.redoMovement();
-            // Get last movement <Origin, Destination>
+
+            // Get last undone movement <Origin, Destination>
             Pair<Position, Position> temp = _controller.lastMovement();
 
-            // Redo in the UI
+            // Redo in the UI 
+            // Move piece
             UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.second));
             toChange.move(temp.second.col(), temp.second.row());
+            // Kill revived
+            List<Pair<Integer, UIPiece>> listOfRevived = new ArrayList<>();
+            List<Position> listToKill = new ArrayList<>();
+            for (Pair<Integer, UIPiece> p : _revivedPieces) {
+                if (p.first == _controller.turnNumber() - 1) {
+                    listToKill.add(
+                        new Position(
+                            boardPosition(p.second.oldY()),
+                            boardPosition(p.second.oldX())
+                        )
+                    );
+                    listOfRevived.add(p);
+                }
+            }
+            killPieces(listToKill);
+            _revivedPieces.removeAll(listOfRevived);
 
             _controller.toggleTurn();
+            _controller.decreaseUndoCount();
         }
     }
 
+    /// @brief Function that handles the event of the draw button
+    /// @pre The user pressed the draw button
+    /// @post Saves an empty turn and displays a confirmation pop up. The user then
+    ///       has to choose whether he accepts the draw or not. If so, it ends the game
+    ///       with a draw
     private void handleDraw() {
         PieceColor currColor = _controller.currentTurnColor();
         // Save action
@@ -631,6 +676,8 @@ public class UIChess extends Application {
     private void setGameUp(GameType gameType) {
         // On any fatal loading error, the application will exit
         try {
+            _deathPieces = new ArrayList<>();
+            _revivedPieces = new ArrayList<>();
             if (_choosenGameFile != null) {
                 _controller = new GameController(_choosenGameFile, true);
             } else if (_choosenConfigFile != null) {
@@ -801,37 +848,16 @@ public class UIChess extends Application {
                     Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin, dest);
                     if (moveResult.first.contains(MoveAction.Correct)) {
                         // Correct movement
-                        // Apply to chess
-                        _controller.applyPlayerMovement(origin, dest, moveResult.second);
-
-                        // Apply to user interface
-                        piece.move(dest.col(), dest.row());
-
-                        // Check if killed
-                        if (!moveResult.second.isEmpty()) {
-                            UIPiece temp = null;
-                            for (Position p : moveResult.second) {
-                                // Can kill more than one piece
-                                for (Node n : _pieces.getChildren()) {
-                                    // Saving the reference to the piece to delete
-                                    temp = (UIPiece) n;
-                                    if (pieceInPosition(temp, p) && temp.color() != _controller.currentTurnColor()) {
-                                        break;
-                                    }
-                                }
-                                _pieces.getChildren().remove(temp);
-                            }
-                        }
-
-                        _controller.saveTurn(
+                        _controller.cancellUndoes();                                // Cancelling undoes
+                        applyPieceMovement(piece, moveResult, origin, dest);        // Applying movment
+                        _controller.saveTurn(                                       // Saving the turn
                             moveResult.first, 
                             new Pair<String, String> (
                                 origin.toString(),
                                 dest.toString()
                             )
                         );
-
-                        _controller.toggleTurn();
+                        _controller.toggleTurn();                                   // Changing the turn
                     } else {
                         piece.cancelMove();
                     }
@@ -841,6 +867,46 @@ public class UIChess extends Application {
             }
         );
         return piece;
+    }
+
+    /// @brief Function that handles the event of a UIPiece killing another
+    /// @pre The movement has been check and it is correct
+    /// @post Applies the movement to the chess and calculates, if there has, which are the
+    ///       pieces that got killed by that move. It removes them from the UI and addds them in
+    ///       the death list. If the function is called to apply a redone movement
+    private void applyPieceMovement(UIPiece piece, Pair<List<MoveAction>, List<Position>> moveResult, Position origin, Position dest) {
+        // Apply to chess
+        _controller.applyPlayerMovement(origin, dest, moveResult.second);
+
+        // Apply to user interface
+        piece.move(dest.col(), dest.row());
+
+        // Check if killed
+        if (!moveResult.second.isEmpty()) {
+            killPieces(moveResult.second);            
+        }
+    }
+
+    /// @brief Kills all the pieces from the list
+    /// @pre ---
+    /// @post Removes from the UI all the pieces from the list and adds them to the death list
+    private void killPieces(List<Position> list) {
+        UIPiece temp = null;
+        for (Position p : list) {
+            // Can kill more than one piece
+            for (Node n : _pieces.getChildren()) {
+                // Saving the reference to the piece to delete
+                temp = (UIPiece) n;
+                if (pieceInPosition(temp, p) && temp.color() != _controller.currentTurnColor()) {
+                    break;
+                }
+            }
+            // We keep the reference
+            _deathPieces.add(
+                new Pair<Integer, UIPiece>(_controller.turnNumber(), temp)
+            );
+            _pieces.getChildren().remove(temp);
+        }
     }
 
     /// @brief Returns the opposite color of @p color

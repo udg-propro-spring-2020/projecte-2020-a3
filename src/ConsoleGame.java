@@ -408,7 +408,7 @@ public class ConsoleGame {
 					playerOption = "C";
 				}
 			} else {
-				if (_controller.zeroOrOneTurn()) {
+				if (_controller.turnNumber() % 10 == 0) {
 					// Avoid showing instructions every now and then
 					showInstructions();
 				}

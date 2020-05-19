@@ -6,6 +6,7 @@ public class Turn implements JSON, Cloneable {
     private PieceColor _color;
     private Pair<String, String> _move;
     private String _result;
+    private boolean _emptyTurn;
     private boolean _promotionTurn;
     private boolean _castlingTurn;
 
@@ -14,8 +15,9 @@ public class Turn implements JSON, Cloneable {
         this._color = color;
         this._move = move;
         this._result = result;
-        this._promotionTurn = false;
+        this._emptyTurn = false;
         this._castlingTurn = false;
+        this._promotionTurn = false;
     }
 
     /// @brief Promotion turn constructor
@@ -23,8 +25,9 @@ public class Turn implements JSON, Cloneable {
     Turn(PieceColor color, PieceType original, PieceType promoted) {
         this._color = color;
         this._result = promotionString(original, promoted);
-        this._promotionTurn = true;
+        this._emptyTurn = false;
         this._castlingTurn = false;
+        this._promotionTurn = true;
     }
 
     /// @brief Castling turn constructor
@@ -33,8 +36,20 @@ public class Turn implements JSON, Cloneable {
         this._color = color;
         this._move = move;
         this._result = "ENROC";
-        this._promotionTurn = false;
+        this._emptyTurn = false;
         this._castlingTurn = true;
+        this._promotionTurn = false;
+    }
+
+    /// @brief Empty turn constructor
+    /// @details Sets the move as two empty strings and the turn is defined as an empty tusn
+    Turn(PieceColor color, String result) {
+        this._color = color;
+        this._move = new Pair<String, String>("", "");
+        this._result = result;
+        this._emptyTurn = true;
+        this._castlingTurn = false;
+        this._promotionTurn = false;
     }
 
     /// @brief To know the turn color
@@ -53,6 +68,8 @@ public class Turn implements JSON, Cloneable {
             throw new UnsupportedOperationException("Origin cannot be called when it is a promotion turn");
         } else if (_castlingTurn) {
             throw new UnsupportedOperationException("Origin cannot be called when it is a castling turn");
+        } else if (_emptyTurn) {
+            throw new UnsupportedOperationException("Origin cannot be called when it is an empty turn");
         }
 
         return _move.first;
@@ -67,6 +84,8 @@ public class Turn implements JSON, Cloneable {
             throw new UnsupportedOperationException("Destination cannot be called when it is a promotion turn");
         } else if (_castlingTurn) {
             throw new UnsupportedOperationException("Destination cannot be called when it is a castling turn");
+        } else if (_emptyTurn) {
+            throw new UnsupportedOperationException("Destination cannot be called when it is an empty turn");
         }
 
         return _move.second;
@@ -81,6 +100,8 @@ public class Turn implements JSON, Cloneable {
             throw new UnsupportedOperationException("MoveAsPair cannot be called when it is a promotion turn");
         } else if (_castlingTurn) {
             throw new UnsupportedOperationException("MoveAsPair cannot be called when it is a castling turn");
+        } else if (_emptyTurn) {
+            throw new UnsupportedOperationException("MoveAsPair cannot be called when it is an empty turn");
         }
 
         return new Pair<Position, Position>(
@@ -152,6 +173,13 @@ public class Turn implements JSON, Cloneable {
     /// @post Returns if this is a castling turn
     public boolean isCastlingTurn() {
         return this._castlingTurn;
+    }
+
+    /// @brief Returns if this is an empty turn
+    /// @pre ---
+    /// @post Returns if this is an empty turn
+    public boolean isEmptyTurn() {
+        return this._emptyTurn;
     }
 
     /// @brief Creates a String describing a promition
