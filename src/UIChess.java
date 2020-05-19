@@ -29,7 +29,6 @@ public class UIChess extends Application {
     private static final String TITLE = "ESCACS";                   ///< Main title of the window
     private static final String MENU = "MENU";                      ///< Menu title of the window
     private static final double MAX_BTN_WIDTH = 300.0;              ///< Max width of the buttons
-    private static final int SIDEBAR_PIXELS = 300;                  ///< Default side bar size
     private static final int IMG_PIXELS = 60;                       ///< Default images size (60x60)
     private static final double SPACER_PIXELS = 40.0;               ///< Default height of a spacer
 
@@ -348,7 +347,6 @@ public class UIChess extends Application {
                         List<String> files = new ArrayList<>();
                         for (File f : selected) {
                             files.add(f.getPath());
-                            System.out.println(f.getPath());
                         }
                         if (_knowledgeFiles != null) {
                             _knowledgeFiles.clear();
@@ -1113,8 +1111,6 @@ public class UIChess extends Application {
                     death.second.first.row()    // Position of death y
                 );
     
-                System.out.println(death.first.type().ptName());
-    
                 // Instead of saving it to _pieces, we add it to the death list with the turn number 
                 _deathPieces.add(
                     new Pair<Integer,UIPiece>(death.second.second, temp)
@@ -1147,7 +1143,6 @@ public class UIChess extends Application {
     /// @pre ---
     /// @post Removes from the UI all the pieces from the list and adds them to the death list
     private void killPieces(List<Position> list, int turn) {
-        System.out.println(list.size());
         UIPiece temp = null;
         for (Position p : list) {
             // Can kill more than one piece
