@@ -972,7 +972,7 @@ public class UIChess extends Application {
 
     /// @brief Builds the game scene
     /// @pre ---
-    /// @post
+    /// @post Builds the game scene and sets the given buttons to the right of the layout
     private Scene buildGameScene(Node buttons) {
         // Set scene
         return new Scene(
@@ -1215,6 +1215,9 @@ public class UIChess extends Application {
         return result;
     }
 
+    /// @brief To know what UIPiece is held in a position of the chess
+    /// @pre ---
+    /// @post Returns the UIPiece which is in the position @p p of the chess
     public UIPiece getUIPieceAt(Position p) {
         UIPiece result = null;
 
