@@ -22,6 +22,9 @@ public class GameController {
 	private List<Turn> _turns = null;							///< List of turns
 	private boolean _dataSet = false;							///< To know if the data has been initialized
     private Chess _chess = null;                                ///< Game chess
+    ///< Holder <Piece, Position, TurnNumber> of the pieces that died when loading a saved game
+    private List<Pair<Piece, Pair<Position, Integer>>> _loadedGameDeaths = null;
+    private boolean _fromSavedGame = false;
 
     // CONSTANTS
     private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
@@ -31,8 +34,10 @@ public class GameController {
     ///          in the game flow file
     public GameController(String fileLocation, boolean savedGame) throws FileNotFoundException, JSONParseFormatException {
         if (savedGame) {
+            _fromSavedGame = true;
             loadSavedGameToChess(fileLocation);
         } else {
+            _fromSavedGame = false;
             loadChess(fileLocation);
         }
     }
@@ -45,7 +50,6 @@ public class GameController {
         initiateData();
         _defaultConfigFileName = fileLocation;
         _chess = FromJSONParserHelper.buildChess(fileLocation);
-        System.out.println(_defaultConfigFileName);
     }
 
     /// @brief Loads the game data from a saved game
@@ -115,6 +119,16 @@ public class GameController {
                     Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
     
                     // All movements must be right!
+                    // Add to deaths list
+                    for (Position p : checkResult.second) {
+                        _loadedGameDeaths.add(
+                            new Pair<Piece,Pair<Position,Integer>>(
+                                _chess.pieceAt(p.row(), p.col()),               // Piece
+                                new Pair<Position, Integer>(p, _turnNumber)     // Position - Turn
+                            )
+                        );
+                    }
+                    
                     // Apply movement also checks for castling
                     List<MoveAction> moveResult = _chess.applyMovement(
                         temp.first,
@@ -164,6 +178,7 @@ public class GameController {
 			_turnNumber = 0;
 			_undoCount = 0;
 			_turns = new ArrayList<>();
+			_loadedGameDeaths = new ArrayList<>();
 			_dataSet = true;
 		}
     }
@@ -386,7 +401,6 @@ public class GameController {
         if (_undoCount > 0) {
             // turnNumber == turns.size() - undoCount
             for (int i = _turns.size() - 1; i >= _turnNumber; i--) {
-                System.out.println(_turns.get(i).toString());
                 _turns.remove(i);
             }
             _undoCount = 0;
@@ -448,6 +462,18 @@ public class GameController {
     /// @post Returns the chess
     public Chess chess() {
         return _chess;
+    }
+
+    /// @brief Returns the list of deaths occurred when loading a saved game
+    /// @pre ---
+    /// @post Returns the list of deaths occurred when loading a saved game. If game 
+    ///       controller was initialized not from a saved game, returns null
+    public List<Pair<Piece, Pair<Position, Integer>>> loadingGameDeaths() {
+        if (!_fromSavedGame) {
+            return null;
+        } else {
+            return _loadedGameDeaths;
+        }
     }
     
     /// @brief Returns the current turn color

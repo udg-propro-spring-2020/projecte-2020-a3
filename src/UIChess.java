@@ -112,7 +112,6 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         goBackButton.setOnAction(e -> {
-            System.out.println(_lastGameState.toString());
             switch (_lastGameState) {
                 case GAME_INIT: 
                     buildMainScene();
@@ -340,7 +339,6 @@ public class UIChess extends Application {
 
                     if (selected != null) {
                         List<String> files = new ArrayList<>();
-                        System.out.println("Knowledge Added Files:");
                         for (File f : selected) {
                             files.add(f.getPath());
                             System.out.println(f.getPath());
@@ -358,7 +356,7 @@ public class UIChess extends Application {
         Button continueBtn = new Button();
         ItemBuilder.buildButton(
             continueBtn,
-            "CHOOSE GAME TYPE",
+            "CHOOSE GAME MODE",
             MAX_BTN_WIDTH,
             ItemBuilder.BtnType.ACCENT
         );
@@ -380,7 +378,7 @@ public class UIChess extends Application {
             if (!beginnerBtn.getStyleClass().contains(SELECTED_CSS)) {
                 beginnerBtn.getStyleClass().remove(SELECTED_CSS);
                 beginnerBtn.getStyleClass().add(SELECTED_CSS);
-                _cpuDifficulty = 2;
+                _cpuDifficulty = 1;
             }
         });
         intermediateBtn.setOnAction(e -> {
@@ -395,7 +393,7 @@ public class UIChess extends Application {
             if (!intermediateBtn.getStyleClass().contains(SELECTED_CSS)) {
                 intermediateBtn.getStyleClass().remove(SELECTED_CSS);
                 intermediateBtn.getStyleClass().add(SELECTED_CSS);
-                _cpuDifficulty = 4;
+                _cpuDifficulty = 2;
             }
         });
         advancedBtn.setOnAction(e -> {
@@ -410,7 +408,7 @@ public class UIChess extends Application {
             if (!advancedBtn.getStyleClass().contains(SELECTED_CSS)) {
                 advancedBtn.getStyleClass().remove(SELECTED_CSS);
                 advancedBtn.getStyleClass().add(SELECTED_CSS);
-                _cpuDifficulty = 6;
+                _cpuDifficulty = 3;
             }
         });
 
@@ -557,11 +555,10 @@ public class UIChess extends Application {
                     listOfRevived.add(p);
                 }
             }
-            killPieces(listToKill);
+            killPieces(listToKill, _controller.turnNumber() - 1);
             _revivedPieces.removeAll(listOfRevived);
 
             _controller.toggleTurn();
-            _controller.decreaseUndoCount();
         }
     }
 
@@ -680,6 +677,8 @@ public class UIChess extends Application {
             _revivedPieces = new ArrayList<>();
             if (_choosenGameFile != null) {
                 _controller = new GameController(_choosenGameFile, true);
+                // Load deaths
+                loadSavedGameDeaths();
             } else if (_choosenConfigFile != null) {
                 // Load saved game
                 _controller = new GameController(_choosenConfigFile, false);
@@ -715,16 +714,14 @@ public class UIChess extends Application {
                 null
             )
         );
+        System.out.println(gameType.toString());
         switch (gameType) {
             case PLAYER_PLAYER:
                 _window.setScene(scene);
                 _window.sizeToScene();
                 break;
             case CPU_PLAYER:
-                System.out.println("INSIDE CPU_PLAYER");
-                for (String s : _knowledgeFiles) {
-                    System.out.println(s);
-                }
+                
                 System.out.println("Cpu level: " + _cpuDifficulty);
                 break;
             case CPU_CPU:
@@ -869,6 +866,30 @@ public class UIChess extends Application {
         return piece;
     }
 
+    /// @brief Loads to the death list the pieces that died while loading the game
+    /// @pre ---
+    /// @post Gets the death list from the controller and adds it to the in-game lists
+    private void loadSavedGameDeaths() {
+        List<Pair<Piece, Pair<Position, Integer>>> deaths = _controller.loadingGameDeaths();
+        // <Position of death, turn of death>
+        if (deaths != null) {
+            for (Pair<Piece, Pair<Position, Integer>> death : deaths) {
+                UIPiece temp = buildPiece(
+                    death.first,                // Piece 
+                    death.second.first.col(),   // Position of death x
+                    death.second.first.row()    // Position of death y
+                );
+    
+                System.out.println(death.first.type().ptName());
+    
+                // Instead of saving it to _pieces, we add it to the death list with the turn number 
+                _deathPieces.add(
+                    new Pair<Integer,UIPiece>(death.second.second, temp)
+                );
+            }
+        }
+    }
+
     /// @brief Function that handles the event of a UIPiece killing another
     /// @pre The movement has been check and it is correct
     /// @post Applies the movement to the chess and calculates, if there has, which are the
@@ -883,14 +904,15 @@ public class UIChess extends Application {
 
         // Check if killed
         if (!moveResult.second.isEmpty()) {
-            killPieces(moveResult.second);            
+            killPieces(moveResult.second, _controller.turnNumber());            
         }
     }
 
     /// @brief Kills all the pieces from the list
     /// @pre ---
     /// @post Removes from the UI all the pieces from the list and adds them to the death list
-    private void killPieces(List<Position> list) {
+    private void killPieces(List<Position> list, int turn) {
+        System.out.println(list.size());
         UIPiece temp = null;
         for (Position p : list) {
             // Can kill more than one piece
@@ -903,7 +925,7 @@ public class UIChess extends Application {
             }
             // We keep the reference
             _deathPieces.add(
-                new Pair<Integer, UIPiece>(_controller.turnNumber(), temp)
+                new Pair<Integer, UIPiece>(turn, temp)
             );
             _pieces.getChildren().remove(temp);
         }
