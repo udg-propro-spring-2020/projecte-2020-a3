@@ -955,7 +955,9 @@ public class UIChess extends Application {
                         );
                         _controller.toggleTurn();                                   // Changing the turn
                         // Block the user
-                        _blockPlayer = true; 
+                        if (_gameType == GameType.CPU_PLAYER) {
+                            _blockPlayer = true; 
+                        }
                     } else {
                         piece.cancelMove();
                     }
