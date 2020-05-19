@@ -437,8 +437,9 @@ public class GameController {
 			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
             gameFile.createNewFile();
 
-			FileWriter gameWriter = new FileWriter(gameFile);
-			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, _turns, finalResult));
+            FileWriter gameWriter = new FileWriter(gameFile);
+            List<Turn> turnsToSave = getTurnsToSave();
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";
@@ -448,7 +449,14 @@ public class GameController {
 			System.err.println(e.getMessage());
 			return null;
 		}
-	}
+    }
+    
+    /// @brief To know the turns that have to be saved
+    /// @pre ---
+    /// @post Returns the turn that are from the 0 position to the current turn
+    private List<Turn> getTurnsToSave() {
+        return _turns.subList(0, _turnNumber);
+    }
 
 	/// @brief If not exists, creates a directory for the saved games
 	/// @pre ---
