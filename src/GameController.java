@@ -24,7 +24,7 @@ public class GameController {
     private Chess _chess = null;                                ///< Game chess
 
     // CONSTANTS
-	private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
+    private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
 
     /// @brief Builds a game controller for a chess with the given file location
     /// @details If saved game is true, it will apply all the turns that are saved
@@ -554,7 +554,7 @@ public class GameController {
     /// @brief Returns the consecutive check limit
     /// @pre ---
     /// @post Returns the consecutive check limit value
-    public int chessLimit() {
+    public int checkLimit() {
         return _chess.chessLimits();
     }
 

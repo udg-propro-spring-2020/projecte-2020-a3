@@ -340,10 +340,9 @@ public class ConsoleGame {
 				skipToggle = true;
 			}
 
-			if (inactiveLimitReached()) {
+			if (checkLimits()) {
 				playerOption = "I";
 			} else if (!skipToggle) {
-				// Change turn
 				_controller.toggleTurn();
 			}
 		} while (
@@ -400,10 +399,9 @@ public class ConsoleGame {
 
 				// Change turn
 				if (cpuResult == null || !(cpuResult == MoveAction.Escacimat)) {
-					if (inactiveLimitReached()) {
+					if (checkLimits()) {
 						playerOption = "I";
 					} else {
-						// Change turn
 						_controller.toggleTurn();
 					}
 				} else {
@@ -486,11 +484,9 @@ public class ConsoleGame {
 				result = cpuTurn(cpu2);
 			}
 
-			if (inactiveLimitReached()) {
-				// End of game
+			if (checkLimits()) {
 				inactivity = true;
 			} else {
-				// Continue
 				_controller.toggleTurn();
 			}
 
@@ -976,6 +972,31 @@ public class ConsoleGame {
 		return false;
 	}
 
+	/// @brief Returns if the players have reached the consecutive check limit
+	/// @pre ---
+	/// @post Returns true if there has been a color doing as many consecutive checks
+	///       as the limit set
+	private static boolean checkLimitReached() {
+		return _whiteCheckTurns >= _controller.checkLimit() ||
+			   _blackCheckTurns >= _controller.checkLimit();
+	}
+
+	/// @brief To know if one of the limits has been reached
+	/// @pre ---
+	/// @post If a limit has been reached, saves an empty turn with that limit and returns true
+	private static boolean checkLimits() {
+		if (checkLimitReached()) {
+			// End of game
+			_controller.saveEmptyTurn("TAULES PER ESCAC CONTINU", _controller.currentTurnColor());
+			return true;
+		} else if (inactiveLimitReached()) {
+			_controller.saveEmptyTurn("TAULES PER INNACCIÓ", _controller.currentTurnColor());
+			return true;
+		}
+
+		return false;
+	}
+
 	/// @brief Handles the end of game
 	/// @pre ---
 	/// @post Prints the game result and saves the game developement
@@ -983,9 +1004,9 @@ public class ConsoleGame {
 		String res = null;
 
 		if (inactivity) {
-			System.out.println("Draw due to inactivity");
+			System.out.println("Draw due to inactivity or consecutive check");
 			System.out.println("Game finished");
-			res = "TAULES PER INNACCIÓ";
+			res = "TAULES";
 		} else if (draw) {
 			System.out.println("Draw accepted");
 			System.out.println("Game finished");
