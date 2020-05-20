@@ -95,10 +95,18 @@ public class UIChess extends Application {
         list.addAll(buildMenuButtons());
         VBox body = ItemBuilder.buildVBox(16.0, list, true);
         
-        //resetData();
+        resetData();
         
         _window.setScene(ItemBuilder.buildScene(body));
         _window.show();
+    }
+
+    /// @brief Resets some of the atributes to their default
+    /// @pre ---
+    /// @post Resets some of the atributes to their default
+    private void resetData() {
+        _choosenConfigFile = null;
+        _choosenGameFile = null;
     }
     
     /// @brief Adds a go back button to a collection
@@ -480,6 +488,15 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.EXIT
         );
         exitGameBtn.setOnAction(e -> {
+            boolean res = buildConfirmationPopUp(
+                "EXIT GAME", 
+                "Do you want to save before leaving?"
+            );
+            
+            if (res) {
+                String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
+                savedGamePopUp(fileName);
+            }
             resetToMainScene();
         });
         list.add(exitGameBtn);
@@ -811,7 +828,15 @@ public class UIChess extends Application {
     private void handleSaveGame() {
         String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
         savedGamePopUp(fileName);
-        resetToMainScene();
+        boolean res = buildConfirmationPopUp(
+            "CONTINUE PLAYING",
+            "Do you want tot continue playing?"
+        );
+
+        if (!res) {
+            // Get back to the menu
+            resetToMainScene();
+        }
     }
 
     /// @brief Displays the main scene
