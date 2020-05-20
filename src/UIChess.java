@@ -3,6 +3,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import javafx.application.Application;
@@ -570,29 +571,17 @@ public class UIChess extends Application {
                 true
             ).showAndWait();
         } else {
-            // Get last movement <Origin, Destination>
-            Pair<Position, Position> temp = _controller.lastMovement();
-
-            // Undo from chess
-            _controller.undoMovement();
-
-            // Undo in the UI
-            UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.first));
-            toChange.move(temp.first.col(), temp.first.row());
-
-            // Add pieces that died in the turn to the UI
-            List<Pair<Integer, UIPiece>> listToDelete = new ArrayList<>();
-            for (Pair<Integer, UIPiece> p : _deathPieces) {
-                if (p.first == _controller.turnNumber()) {
-                    _pieces.getChildren().add(p.second);
-                    listToDelete.add(p);
-                }
+            // Check the turn type
+            Turn lastTurn = _controller.lastTurn();
+            if (lastTurn.isCastlingTurn()) {
+                handleCastlingUndo(lastTurn);
+            } else if (lastTurn.isPromotionTurn()) {
+                handlePromotionUndo(lastTurn);
+            } else {
+                handleDefaultUndo();
             }
-            _deathPieces.removeAll(listToDelete);
-            _revivedPieces.addAll(listToDelete);
 
             _controller.toggleTurn();
-
             // Check if player has to be blocked or unblocked
             if (_gameType == GameType.CPU_PLAYER) {
                 if (_controller.currentTurnColor() == PieceColor.Black) {
@@ -604,6 +593,71 @@ public class UIChess extends Application {
                 }
             }
         }
+    }
+
+    /// @brief Default undo action handling
+    /// @pre The turn to undo is a normal turn
+    /// @post Applies the default undo logic: revives all dead pieces during that turn and
+    ///       moves piece back to its original position
+    private void handleDefaultUndo() {
+        // Get last movement <Origin, Destination>
+        Pair<Position, Position> temp = _controller.lastMovement();
+    
+        // Undo from chess
+        _controller.undoMovement();
+
+        // Undo in the UI
+        UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.first));
+        toChange.move(temp.first.col(), temp.first.row());
+
+        // Add pieces that died in the turn to the UI
+        List<Pair<Integer, UIPiece>> listToDelete = new ArrayList<>();
+        for (Pair<Integer, UIPiece> p : _deathPieces) {
+            if (p.first == _controller.turnNumber()) {
+                _pieces.getChildren().add(p.second);
+                listToDelete.add(p);
+            }
+        }
+        _deathPieces.removeAll(listToDelete);
+        _revivedPieces.addAll(listToDelete);
+    }
+
+    /// @brief Undoes a turn that is a castling turn
+    /// @pre The turn to undo is a castling turn
+    /// @post Resets both pieces moved during the castling to its original positions
+    private void handleCastlingUndo(Turn castling) {
+        // Undo from chess
+        _controller.undoMovement();
+
+        // <SecondOrigin, FirstOrigin> <SecondDestination, FirstDestination>
+        Pair<Pair<Position, Position>, Pair<Position, Position>> move = castling.castlingAsPair();
+
+        // Move first piece 
+        UIPiece firstPiece = getUIPieceAt(move.second.first);
+        firstPiece.move(move.first.first.col(), move.first.first.row());
+        // Move second piece
+        UIPiece secondPiece = getUIPieceAt(move.second.second);
+        secondPiece.move(move.first.second.col(), move.first.second.row());
+        // No need to check for dead pieces
+    }
+
+    /// @brief Undoes a turn that is a promotion turn
+    /// @pre The turn to undo is a promotion turn
+    /// @post Moves the piece back to its position and resets the type to the original
+    private void handlePromotionUndo(Turn promotion) {
+        // Get last movement to know which piece was moved <Origin, Destination>
+        Pair<Position, Position> move = _controller.lastMovement();
+
+        // Undo from chess
+        _controller.undoMovement();
+
+        // Get the piece and change it's values
+        UIPiece tempPiece = getUIPieceAt(move.second);
+        Piece promoted = _controller.pieceAtCell(move.first);
+        tempPiece.promoteType(promoted);
+
+        // Move the piece to its original position
+        tempPiece.move(move.first.col(), move.first.row());
     }
 
     /// @brief Function thant handles the event of the redo button
@@ -621,29 +675,15 @@ public class UIChess extends Application {
             // Redo from chess
             _controller.redoMovement();
 
-            // Get last undone movement <Origin, Destination>
-            Pair<Position, Position> temp = _controller.lastMovement();
-
-            // Redo in the UI 
-            // Move piece
-            UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.second));
-            toChange.move(temp.second.col(), temp.second.row());
-            // Kill revived
-            List<Pair<Integer, UIPiece>> listOfRevived = new ArrayList<>();
-            List<Position> listToKill = new ArrayList<>();
-            for (Pair<Integer, UIPiece> p : _revivedPieces) {
-                if (p.first == _controller.turnNumber() - 1) {
-                    listToKill.add(
-                        new Position(
-                            boardPosition(p.second.oldY()),
-                            boardPosition(p.second.oldX())
-                        )
-                    );
-                    listOfRevived.add(p);
-                }
+            // Check the turn type
+            Turn lastTurn = _controller.lastTurn();
+            if (lastTurn.isCastlingTurn()) {
+                handleCastlingRedo(lastTurn);
+            } else if (lastTurn.isPromotionTurn()) {
+                handlePromotionRedo(lastTurn);
+            } else {
+                handleDefaultRedo();
             }
-            killPieces(listToKill, _controller.turnNumber() - 1);
-            _revivedPieces.removeAll(listOfRevived);
 
             _controller.toggleTurn();
 
@@ -658,6 +698,73 @@ public class UIChess extends Application {
                 }
             }
         }
+    }
+
+    /// @brief Default redo action handling
+    /// @pre The turn to redo is a normal turn
+    /// @post Applies the default redo logic: kills all pieces killed during that turn and
+    ///       moves piece back to its desitination position
+    private void handleDefaultRedo() {
+        // Get last undone movement <Origin, Destination>
+        Pair<Position, Position> temp = _controller.lastMovement();
+
+        // Redo in the UI 
+        // Move piece
+        UIPiece toChange = getUIPieceFromPiece(_controller.pieceAtCell(temp.second));
+        toChange.move(temp.second.col(), temp.second.row());
+        // Kill revived
+        List<Pair<Integer, UIPiece>> listOfRevived = new ArrayList<>();
+        List<Position> listToKill = new ArrayList<>();
+        for (Pair<Integer, UIPiece> p : _revivedPieces) {
+            if (p.first == _controller.turnNumber() - 1) {
+                listToKill.add(
+                    new Position(
+                        boardPosition(p.second.oldY()),
+                        boardPosition(p.second.oldX())
+                    )
+                );
+                listOfRevived.add(p);
+            }
+        }
+        killPieces(listToKill, _controller.turnNumber() - 1);
+        _revivedPieces.removeAll(listOfRevived);
+    }
+
+    /// @brief Redoes a turn that is a castling turn
+    /// @pre The turn to redo is a castling turn
+    /// @post Resets both pieces moved during the castling to its destination positions
+    private void handleCastlingRedo(Turn castling) {
+        // Extract the castling information
+        // <SecondOrigin, FirstOrigin> <SecondDestination, FirstDestination>
+        Pair<Pair<Position, Position>, Pair<Position, Position>> move = castling.castlingAsPair();
+
+        // Move first piece
+        UIPiece firstPiece = getUIPieceAt(move.first.first);
+        firstPiece.move(move.second.first.col(), move.second.first.row());
+        // Move second piece
+        UIPiece secondPiece = getUIPieceAt(move.first.second);
+        secondPiece.move(move.second.second.col(), move.second.second.row());
+        // No need to check for dead pieces
+    }
+    
+    /// @brief Redoes a turn that is a promotion turn
+    /// @pre The turn to redo is a promotion turn
+    /// @post Moves the piece back to its destination position and changes the type
+    ///       to the choosen to promote
+    private void handlePromotionRedo(Turn promotion) {
+        // The last turn is an empty turn, since it contains the promotion information
+        // Get the last non-empty turn, which will be the one that contains the movement
+        // <Origin, Destination>
+        Pair<Position, Position> move = _controller.lastNotEmptyTurn().moveAsPair();
+        System.out.println(move.first.toString() + " " + move.second.toString());
+
+        // Move and promote the piece
+        UIPiece tempPiece = getUIPieceAt(move.first);
+        Piece promoted = _controller.pieceAtCell(move.second);
+        tempPiece.promoteType(promoted);
+
+        // Move the piece
+        tempPiece.move(move.second.col(), move.second.row());
     }
 
     /// @brief Function that handles the event of the draw button
@@ -949,18 +1056,33 @@ public class UIChess extends Application {
                     if (checkResult.first.contains(MoveAction.Correct)) {
                         // Correct movement
                         _controller.cancellUndoes();                                // Cancelling undoes
-                        applyPieceMovement(piece, checkResult, origin, dest);        // Applying movment
-                        _controller.saveTurn(                                       // Saving the turn
-                            checkResult.first, 
-                            new Pair<String, String> (
-                                origin.toString(),
-                                dest.toString()
-                            )
-                        );
-                        _controller.toggleTurn();                                   // Changing the turn
-                        // Block the user
-                        if (_gameType == GameType.CPU_PLAYER) {
-                            _blockPlayer = true; 
+                        List<MoveAction> actions = applyPieceMovement(piece, checkResult, origin, dest);       // Applying movment
+
+                        if (actions == null) {
+                            displayErrorPopUp(
+                                "GOD SAVE THE KING",
+                                "Your king is in danger. You have to save him!"    
+                            );
+                        } else {
+                            if (checkResult.first.contains(MoveAction.Castling)) {
+                                // Save castling turn
+                                _controller.saveCastlingTurn(checkResult.second);
+                            } else {
+                                // Save normal turn
+                                _controller.saveTurn(
+                                    checkResult.first, 
+                                    new Pair<String, String> (
+                                        origin.toString(),
+                                        dest.toString()
+                                    )
+                                );
+                            }
+                            _controller.toggleTurn();
+                                    
+                            // Block the user
+                            if (_gameType == GameType.CPU_PLAYER) {
+                                _blockPlayer = true; 
+                            }
                         }
                     } else {
                         piece.cancelMove();
@@ -1129,20 +1251,34 @@ public class UIChess extends Application {
     ///       pieces that got killed by that move. It removes them from the UI and addds them in
     ///       the death list. If the function is called to apply a redone movement
     private List<MoveAction> applyPieceMovement(UIPiece piece, Pair<List<MoveAction>, List<Position>> moveResult, Position origin, Position dest) {
-        // Apply to chess
-        if (piece == null) System.err.println("piece null");
-        if (moveResult == null) System.err.println("moveresult null");
-        if (origin == null) System.err.println("origin null");
-        if (dest == null) System.err.println("dest null");
-        
+        // Apply to chess        
         List<MoveAction> result = _controller.applyPlayerMovement(origin, dest, moveResult.second);
-        // Apply to user interface
-        piece.move(dest.col(), dest.row());
+        
+        // Check if castling
+        if (moveResult.first.contains(MoveAction.Castling)) {
+            for (Position p : moveResult.second) {
+                System.out.println(p.toString());
+            }
+            // Both pieces have to be moved
+            Position tempPos = moveResult.second.get(2); 
+            // Get the destination piece
+            UIPiece tempPiece = getUIPieceFromPiece(
+                _controller.pieceAtCell(tempPos)
+            );
 
-        // Check if killed
-        if (!moveResult.second.isEmpty()) {
-            killPieces(moveResult.second, _controller.turnNumber());            
+            // Apply move to the destination piece
+            tempPiece.move(tempPos.col(), tempPos.row());
+            // Apply move to the origin piece
+            tempPos = moveResult.second.get(3);
+            piece.move(tempPos.col(), tempPos.row());
+        } else {
+            piece.move(dest.col(), dest.row());
+            // Check if killed
+            if (!moveResult.second.isEmpty()) {
+                killPieces(moveResult.second, _controller.turnNumber());            
+            }
         }
+
 
         return result;
     }

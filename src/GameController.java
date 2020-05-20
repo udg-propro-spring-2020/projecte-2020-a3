@@ -387,7 +387,7 @@ public class GameController {
 
             // Next turn
             _turnNumber++;
-            if (canRedo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
+            if (canRedo() && _turns.get(_turnNumber).isEmptyTurn()) {
                 // Since will be an empty turn, we have to increase once more
                 _turnNumber++;
             }
@@ -518,6 +518,36 @@ public class GameController {
         return _defaultConfigFileName;
     }
 
+    /// @brief To get the last turn of the game
+    /// @pre ---
+    /// @post Returns the last turn of the game. If there are no turns
+    ///       returns  null value
+    public Turn lastTurn() {
+        if (_turnNumber == 0) {
+            return null;
+        }
+
+        return _turns.get(_turnNumber - 1);
+    }
+
+    /// @brief To get the last non-empty turn
+    /// @pre ---
+    /// @post Returns the last non-empty turn of the game. If there are no turns 
+    ///       returns a null value
+    public Turn lastNotEmptyTurn() {
+        if (_turnNumber == 0) {
+            return null;
+        }
+
+        for (int i = _turnNumber - 1; i >= 0; i--) {
+            Turn temp = _turns.get(i);
+            if (!temp.isEmptyTurn()) {
+                return temp;
+            }
+        }
+        return null;
+    }
+
     /// @brief To get the last movement of the game
 	/// @pre ---
     /// @post Returns the last movement of the game. If there are no turns
@@ -611,11 +641,27 @@ public class GameController {
         return _chess.cellColor(p);
     }
 
-    /// @brieg Returns the type list of the chess game
+    /// @brief Returns the type list of the chess game
     /// @pre ---
     /// @post Returns a list of PieceType of the chess
     public List<PieceType> typeList() {
         return _chess.typeList();
+    }
+
+    /// @brief Returns the type corresponding to the given name
+    /// @pre ---
+    /// @post If the type does not exist, returns null. Else, returns the type
+    public PieceType typeFromString(String name) {
+        PieceType temp = null;
+
+        for (PieceType pt : typeList()) {
+            if (pt.ptName().equals(name)) {
+                temp = pt;
+                break;
+            }
+        }
+
+        return temp;
     }
 
     /// @brief Returns if a board cell is empty
