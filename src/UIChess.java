@@ -958,6 +958,7 @@ public class UIChess extends Application {
                         if (_gameType == GameType.CPU_PLAYER) {
                             _blockPlayer = true; 
                         }
+                        System.out.println(_controller.showBoard());
                     } else {
                         piece.cancelMove();
                     }
@@ -1128,8 +1129,12 @@ public class UIChess extends Application {
     ///       the death list. If the function is called to apply a redone movement
     private List<MoveAction> applyPieceMovement(UIPiece piece, Pair<List<MoveAction>, List<Position>> moveResult, Position origin, Position dest) {
         // Apply to chess
+        if (piece == null) System.err.println("piece null");
+        if (moveResult == null) System.err.println("moveresult null");
+        if (origin == null) System.err.println("origin null");
+        if (dest == null) System.err.println("dest null");
+        
         List<MoveAction> result = _controller.applyPlayerMovement(origin, dest, moveResult.second);
-
         // Apply to user interface
         piece.move(dest.col(), dest.row());
 

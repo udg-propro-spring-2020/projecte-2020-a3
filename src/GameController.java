@@ -193,8 +193,7 @@ public class GameController {
     //! IN-GAME METHODS
     /// @brief Checks and applies a player movement
     /// @pre ---
-    /// @post Checks and applies a player movement. Returns the result of the movement as
-    ///       a String (null if not valid)
+    /// @post Checks and applies a player movement. Returns the result of the movement (null if not valid)
     public Pair<List<MoveAction>, List<Position>> checkPlayerMovement(Position origin, Position destination) {
         Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(origin, destination);
         
