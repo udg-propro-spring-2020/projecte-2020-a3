@@ -502,7 +502,8 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.ACCENT
         );
         cpuButton.setOnAction(e -> {
-            if (_gameType == GameType.CPU_PLAYER && _controller.currentTurnColor() == PieceColor.Black) {
+            System.out.println(_gameType.toString());
+            if (isTurnOfCPU()) {
                 Pair<Position, Position> move = null;
                 if (_controller.currentTurnColor() == PieceColor.White || black == null) {
                     // If black equals null, means that the game type is CPU_PLAYER
@@ -516,7 +517,8 @@ public class UIChess extends Application {
 
                 // Apply movement - always a correct movement
                 List<MoveAction> result = null;
-                result = applyPieceMovement(getUIPieceAt(move.first), checkResult, move.first, move.second);
+                UIPiece piece = getUIPieceAt(move.first);
+                result = applyPieceMovement(piece, checkResult, move.first, move.second);
                 
                 _controller.cancellUndoes();
                 
@@ -534,14 +536,18 @@ public class UIChess extends Application {
                         )
                     );
 
-                    // Handle promotion
+                    // Handle promotion of the CPU - automated
                     if (result.contains(MoveAction.Promote)) {
+                        PieceType oldType = _controller.pieceAtCell(move.second).type();
                         _controller.promotePiece(move.second, _controller.mostValuableType());
                         _controller.savePromotionTurn(
                             _controller.currentTurnColor(),
-                            _controller.pieceAtCell(move.second).type(),
+                            oldType,
                             _controller.mostValuableType()
                         );
+
+                        // Promote in UI
+                        piece.promoteType(_controller.pieceAtCell(move.second));
                     }
                 }
 
@@ -756,12 +762,10 @@ public class UIChess extends Application {
         // Get the last non-empty turn, which will be the one that contains the movement
         // <Origin, Destination>
         Pair<Position, Position> move = _controller.lastNotEmptyTurn().moveAsPair();
-        System.out.println(move.first.toString() + " " + move.second.toString());
 
         // Move and promote the piece
         UIPiece tempPiece = getUIPieceAt(move.first);
-        Piece promoted = _controller.pieceAtCell(move.second);
-        tempPiece.promoteType(promoted);
+        tempPiece.promoteType(_controller.pieceAtCell(move.second));
 
         // Move the piece
         tempPiece.move(move.second.col(), move.second.row());
@@ -1061,8 +1065,10 @@ public class UIChess extends Application {
                         if (actions == null) {
                             displayErrorPopUp(
                                 "GOD SAVE THE KING",
-                                "Your king is in danger. You have to save him!"    
+                                "Your king is in danger. You have to protect him!"    
                             );
+                            // Reset move
+                            piece.move(origin.col(), origin.row());
                         } else {
                             if (checkResult.first.contains(MoveAction.Castling)) {
                                 // Save castling turn
@@ -1256,9 +1262,6 @@ public class UIChess extends Application {
         
         // Check if castling
         if (moveResult.first.contains(MoveAction.Castling)) {
-            for (Position p : moveResult.second) {
-                System.out.println(p.toString());
-            }
             // Both pieces have to be moved
             Position tempPos = moveResult.second.get(2); 
             // Get the destination piece
@@ -1352,6 +1355,16 @@ public class UIChess extends Application {
         }
 
         return result;
+    }
+
+    /// @brief To know if the CPU can move
+    /// @pre ---
+    /// @post Returns true if the CPU can execute a move
+    private boolean isTurnOfCPU() {
+        return (
+            _gameType == GameType.CPU_CPU ||
+            (_gameType == GameType.CPU_PLAYER && _controller.currentTurnColor() == PieceColor.Black)
+        );
     }
 
     /// @brief To know what UIPiece is held in a position of the chess

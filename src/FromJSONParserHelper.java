@@ -492,6 +492,7 @@ public class FromJSONParserHelper {
                     // Add new turn
                     Pair<String, String> move = new Pair<String, String>(origin, dest);
                     turnList.add(new Turn(color, move, result));
+                    break;
                 }
                 default: {
                     if (result.contains("PROMOCIÓ")) {
