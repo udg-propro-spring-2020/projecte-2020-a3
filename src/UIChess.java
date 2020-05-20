@@ -501,52 +501,56 @@ public class UIChess extends Application {
             ItemBuilder.BtnType.ACCENT
         );
         cpuButton.setOnAction(e -> {
-            Pair<Position, Position> move = null;
-            if (_controller.currentTurnColor() == PieceColor.White || black == null) {
-                // If black equals null, means that the game type is CPU_PLAYER
-                move = white.doMovement();
-            } else {
-                move = black.doMovement();
-            }
-
-            // Check movement
-            Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(move.first, move.second);
-
-            // Apply movement - always a correct movement
-            List<MoveAction> result = null;
-            result = applyPieceMovement(getUIPieceAt(move.first), checkResult, move.first, move.second);
-            
-            _controller.cancellUndoes();
-            
-            // CPU movement will always be correct
-            if (checkResult.first.contains(MoveAction.Castling)) {
-                // Case CPU does a castling move
-                _controller.saveCastlingTurn(checkResult.second);
-            } else {	
-                // Saving turn
-                _controller.saveTurn(
-                    result,
-                    new Pair<String, String>(
-                        move.first.toString(),
-                        move.second.toString()
-                    )
-                );
-
-                // Handle promotion
-                if (result.contains(MoveAction.Promote)) {
-                    _controller.promotePiece(move.second, _controller.mostValuableType());
-                    _controller.savePromotionTurn(
-                        _controller.currentTurnColor(),
-                        _controller.pieceAtCell(move.second).type(),
-                        _controller.mostValuableType()
-                    );
+            if (_gameType == GameType.CPU_PLAYER && _controller.currentTurnColor() == PieceColor.Black) {
+                Pair<Position, Position> move = null;
+                if (_controller.currentTurnColor() == PieceColor.White || black == null) {
+                    // If black equals null, means that the game type is CPU_PLAYER
+                    move = white.doMovement();
+                } else {
+                    move = black.doMovement();
                 }
-            }
 
-            _controller.toggleTurn();
+                // Check movement
+                Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(move.first, move.second);
 
-            if (_gameType == GameType.CPU_PLAYER) {
-                _blockPlayer = false;
+                // Apply movement - always a correct movement
+                List<MoveAction> result = null;
+                result = applyPieceMovement(getUIPieceAt(move.first), checkResult, move.first, move.second);
+                
+                _controller.cancellUndoes();
+                
+                // CPU movement will always be correct
+                if (checkResult.first.contains(MoveAction.Castling)) {
+                    // Case CPU does a castling move
+                    _controller.saveCastlingTurn(checkResult.second);
+                } else {	
+                    // Saving turn
+                    _controller.saveTurn(
+                        result,
+                        new Pair<String, String>(
+                            move.first.toString(),
+                            move.second.toString()
+                        )
+                    );
+
+                    // Handle promotion
+                    if (result.contains(MoveAction.Promote)) {
+                        _controller.promotePiece(move.second, _controller.mostValuableType());
+                        _controller.savePromotionTurn(
+                            _controller.currentTurnColor(),
+                            _controller.pieceAtCell(move.second).type(),
+                            _controller.mostValuableType()
+                        );
+                    }
+                }
+
+                _controller.toggleTurn();
+
+                if (_gameType == GameType.CPU_PLAYER) {
+                    _blockPlayer = false;
+                }
+            } else {
+                System.out.println("Player turn");
             }
         });
         
@@ -958,12 +962,9 @@ public class UIChess extends Application {
                         if (_gameType == GameType.CPU_PLAYER) {
                             _blockPlayer = true; 
                         }
-                        System.out.println(_controller.showBoard());
                     } else {
                         piece.cancelMove();
                     }
-                } else {
-                    piece.cancelMove();
                 }
             }
         );
