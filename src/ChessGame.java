@@ -10,7 +10,6 @@ public abstract class ChessGame {
 	/// @pre args is [-g] or [-c] 
 	/// @post Runs UI if -g or console if -c
 	public static void main(String[] args) {
-		Application.launch(UIChess.class, args);
 		try {
 			if (args.length > 0) {
 				if (args[0].equals("-g")) {
