@@ -14,7 +14,7 @@ public abstract class ChessGame {
 			if (args.length > 0) {
 				if (args[0].equals("-g")) {
 					/// Run UI Application - Ask for files when screen opens.
-					System.out.println("UI Application running.");
+					Application.launch(UIChess.class, args);
 				} else if (args[0].equals("-c")) {
 					ConsoleGame.start();
 				} else {
