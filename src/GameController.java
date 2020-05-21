@@ -211,7 +211,7 @@ public class GameController {
         List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
             ? _chess.pListBlack()
             : _chess.pListWhite();
-        if (_chess.isEscac(colorList)) {
+        if (_chess.isCheck(colorList)) {
             _chess.undoMovement();
             return null;
         }
