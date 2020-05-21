@@ -587,6 +587,10 @@ public class UIChess extends Application {
                     }
                 }
 
+                if (result.contains(MoveAction.Escacimat)) {
+                    handleEndOfGame();
+                }
+
                 _controller.toggleTurn();
 
                 if (_gameType == GameType.CPU_PLAYER) {
@@ -871,6 +875,24 @@ public class UIChess extends Application {
         }
     }
 
+    /// @brief Function that handles the end of a game
+    /// @pre Last move result is check mate 
+    /// @post One of the players has done a check mate to the other. The game is finished
+    ///       and asked if wanted to be saved. If so, saves the game
+    private void handleEndOfGame() {
+        boolean res = buildConfirmationPopUp(
+            _controller.currentTurnColor().toString() + " WINS!",
+            _controller.currentTurnColor().toString() + " WINS! \nDo you want to save the game?"
+        );
+
+        if (res) {
+            String fileName = _controller.saveGame("ESCAC I MAT", false);
+            savedGamePopUp(fileName);
+        }
+
+        resetToMainScene();
+    }
+
     /// @brief Function that handles the event of saving the game button
     /// @pre ---
     /// @post Saves the game and goes back to the main scene
@@ -1147,10 +1169,15 @@ public class UIChess extends Application {
                             if (checkResult.first.contains(MoveAction.Castling)) {
                                 // Save castling turn
                                 _controller.saveCastlingTurn(checkResult.second);
+
+                                // Result of castling may be a checkmate
+                                if (actions.contains(MoveAction.Escacimat)) {
+                                    handleEndOfGame();
+                                }
                             } else {
                                 // Save normal turn
                                 _controller.saveTurn(
-                                    checkResult.first, 
+                                    actions, 
                                     new Pair<String, String> (
                                         origin.toString(),
                                         dest.toString()
@@ -1161,6 +1188,11 @@ public class UIChess extends Application {
                                     handlePromotion(dest);
                                 }
                             }
+
+                            if (actions.contains(MoveAction.Escacimat)) {
+                                handleEndOfGame();
+                            }
+
                             _controller.toggleTurn();
                                     
                             // Block the user
