@@ -120,7 +120,7 @@ public class Chess implements Cloneable {
         /*
         //applyMovement(p5,p6,lp);
         System.out.println(showBoard());
-        System.out.println(isEscac(PieceColor.Black));*/
+        System.out.println(isCheck(PieceColor.Black));*/
         //System.out.println(this.castlings.get(0).toJSON());
         //System.out.println(showBoard());
         //applyMovement(p,p2,null);
@@ -521,14 +521,14 @@ public class Chess implements Cloneable {
      * @pre Piece is at her destiny position
      * @post Return if the piece can promote
      */
-    private boolean canPromote(Position origin, Position destiny){
+    private boolean canPromote(Position origin, Position destiny, boolean calledByMoveDestiniesController){
         Piece piece = pieceAt(destiny.row(),destiny.col()); //Movement has already been realised so piece is at her destiny
         boolean promote = false;
         if(piece!=null){ //Not a castling move. If it was a castling, destiny position would not have a piece
             if((piece.color()==PieceColor.White && destiny.row()==rows()-1) || (piece.color()==PieceColor.Black && destiny.row()==0)){
                 if(origin.row() != destiny.row()){
                     promote = piece.type().ptPromotable();
-                    piece.toggleDirection();
+                    if(!calledByMoveDestiniesController) piece.toggleDirection();
                 }
             }
         }
@@ -540,7 +540,7 @@ public class Chess implements Cloneable {
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
-    private boolean isEscacIMat(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
+    private boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
         boolean checkmate = true;
        
         Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
@@ -557,7 +557,7 @@ public class Chess implements Cloneable {
                     checkMovementResult = checkMovement(origin, destiny);
                     if(checkMovementResult.first.get(0) == MoveAction.Correct){
                         applyMovement(origin, destiny, checkMovementResult.second, true);
-                        if(!isEscac(listDoingCheck)){
+                        if(!isCheck(listDoingCheck)){
                             checkmate = false;
                         }
                         undoMovement();
@@ -576,13 +576,13 @@ public class Chess implements Cloneable {
      * @pre List is not empty
      * @post Return if the king is checked
      */
-    public boolean isEscac(List<Pair<Position,Piece>> listDoingMove){
+    public boolean isCheck(List<Pair<Position,Piece>> listDoingMove){
         //System.out.println("597. Miro si es escac");
         boolean checkKing = false;
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
         //for(int i=0;i<listDoingMove.size();i++)System.out.println("839. Peces que mirem si fan check "+listDoingMove.get(i).first.toString()+" "+listDoingMove.get(i).second.type().ptName());
-        listDoingMove.forEach((p)->allMovesWithValues.add(destinyWithValues(p.first)));
+        listDoingMove.forEach((p)->allMovesWithValues.add(allPiecesDestinyWithValues(p.first)));
         
         int i = 0;
         while(i<allMovesWithValues.size() && !found){
@@ -939,7 +939,7 @@ public class Chess implements Cloneable {
      * @pre The movement is possible
      * @post Retun a list of possible special actions, dead and alive piece's list has been updated and a turn chess has been saved
      */
-    public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> workingPositions, boolean calledByIsEscacIMAT) { 
+    public List<MoveAction> applyMovement(Position origin, Position destiny, List<Position> workingPositions, boolean calledByIsCheckmate) { 
         //Working positions represents killed pieces in normal move case or origin-destiny positions in castling move
         copyChessTurn();
         List<MoveAction> actions = new ArrayList<MoveAction>();
@@ -979,12 +979,12 @@ public class Chess implements Cloneable {
             listDoingMove = pListBlack;
             listCounterMove = pListWhite;
         }
-        if(!calledByIsEscacIMAT){
-            if(canPromote(origin, destiny))
+        if(!calledByIsCheckmate){
+            if(canPromote(origin, destiny, false))
                 actions.add(MoveAction.Promote);
-            if(isEscac(listDoingMove)){
+            if(isCheck(listDoingMove)){
                 //System.out.println("1106. Hi ha escac");
-                if(isEscacIMat(listCounterMove, listDoingMove))
+                if(isCheckmate(listCounterMove, listDoingMove))
                     actions.add(MoveAction.Escacimat);
                 else
                     actions.add(MoveAction.Escac);
@@ -1099,6 +1099,8 @@ public class Chess implements Cloneable {
         boolean keepSearching = true;    
         if(pieceAt(destiny.row(),destiny.col()) == null && currentMove.captureSign() != 2){ //No needed to kill
             currentDesinyValue = new Pair<>(destiny, 0);
+            if(canPromote(origin,destiny,true))
+                currentDesinyValue.second+=1;
             destinyWithValues.add(currentDesinyValue);
         }else if(pieceAt(destiny.row(),destiny.col()) != null && currentMove.captureSign() != 0 && diferentOwnerPiece(pieceAt(origin.row(),origin.col()),pieceAt(destiny.row(),destiny.col()))){
             value = pieceAt(destiny.row(),destiny.col()).type().ptValue();
@@ -1117,7 +1119,7 @@ public class Chess implements Cloneable {
      * @pre Origin is not null
      * @post Return all possible piece's destinies and its movement value
     */
-    public List<Pair<Position, Integer>> destinyWithValues(Position origin){
+    public List<Pair<Position, Integer>> allPiecesDestinyWithValues(Position origin){
         /*Sempre mirem ambdos costats: msg forum sobre a -a */
         List<Pair<Position, Integer>> destinyWithValues = new ArrayList<Pair<Position, Integer>>();
         Position destiny;
