@@ -25,7 +25,7 @@ public class Turn implements JSON, Cloneable {
     Turn(PieceColor color, PieceType original, PieceType promoted) {
         this._color = color;
         this._result = promotionString(original, promoted);
-        this._emptyTurn = false;
+        this._emptyTurn = true;         // In this case, a promotion turn has no move values, so it's empty
         this._castlingTurn = false;
         this._promotionTurn = true;
     }

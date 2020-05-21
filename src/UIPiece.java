@@ -96,6 +96,19 @@ public class UIPiece extends StackPane {
         return this._piece;
     }
 
+    /// @brief Promotes the piece to the given one
+    /// @pre ---
+    /// @post Promotes the piece to the given one
+    public void promoteType(Piece promoted) {
+        this._piece = promoted;
+
+        // Add the piece image
+        ImageView img = new ImageView(getImage());
+        // Remove last image
+        getChildren().remove(getChildren().size() - 1);
+        getChildren().add(img);
+    }
+
     /// @brief Returns the image of the piece
     /// @pre ---
     /// @post Returns the image of the piece

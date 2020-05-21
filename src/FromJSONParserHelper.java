@@ -472,7 +472,6 @@ public class FromJSONParserHelper {
 
             // Validate turn result value
             switch (result) {
-                case "ESCAC":
                 case "ESCAC I MAT":
                 case "TAULES PER REI OFEGAT":
                 case "TAULES PER ESCAC CONTINU":
@@ -488,10 +487,12 @@ public class FromJSONParserHelper {
                         new Turn(color, result)
                     );
                     break;
+                case "ESCAC":
                 case "": {
                     // Add new turn
                     Pair<String, String> move = new Pair<String, String>(origin, dest);
                     turnList.add(new Turn(color, move, result));
+                    break;
                 }
                 default: {
                     if (result.contains("PROMOCIÓ")) {

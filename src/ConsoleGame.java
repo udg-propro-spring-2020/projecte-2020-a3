@@ -490,9 +490,17 @@ public class ConsoleGame {
 				_controller.toggleTurn();
 			}
 
-			System.out.println("[SCAPE FOR NEXT TURN]");
+			System.out.println("[SCAPE FOR NEXT TURN - G TO SAVE THE GAME - X TO CLOSE THE APP]");
 			// "Pause the program"
-			readInputLine(false);
+			String in = readInputLine(false);
+			switch (in) {
+				case "X": 
+					System.exit(1);
+				case "G":
+					String fileName = _controller.saveGame("PARTIDA APLAÇADA", false);
+					System.out.println("Saved game with name: " + fileName);
+					break;
+			}
 		} while (result == null && !inactivity);
 		
 		// Game finished - can't never be draw
