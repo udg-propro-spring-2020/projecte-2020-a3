@@ -127,19 +127,19 @@ public class Chess implements Cloneable {
         /*Position p4=new Position(7,3);
         Position p5=new Position(5,3);*/
         //applyMovement(p4,p5,null);
-        //destinyWithValues(p2);
+        //destiniesWithValues(p2);
         /*Position p1=new Position(6,7);
         Position p2=new Position(4,7);
         applyMovement(p1,p2,null);
         Position p5=new Position(4,7);
         Position p6=new Position(3,7);
         applyMovement(p5,p6,null);
-        destinyWithValues(p6);
+        destiniesWithValues(p6);
         Position p7=new Position(3,7);
         Position p8=new Position(2,7);
         applyMovement(p7,p8,null);
         System.out.println("HOLA");
-        destinyWithValues(p8);*//*
+        destiniesWithValues(p8);*//*
         Position p1=new Position(4,7);
         Position p2=new Position(3,7);
         applyMovement(p1,p2,null);*/
@@ -582,7 +582,7 @@ public class Chess implements Cloneable {
         boolean found = false;
         List<List<Pair<Position, Integer>>> allMovesWithValues = new ArrayList<List<Pair<Position, Integer>>>();
         //for(int i=0;i<listDoingMove.size();i++)System.out.println("839. Peces que mirem si fan check "+listDoingMove.get(i).first.toString()+" "+listDoingMove.get(i).second.type().ptName());
-        listDoingMove.forEach((p)->allMovesWithValues.add(allPiecesDestinyWithValues(p.first)));
+        listDoingMove.forEach((p)->allMovesWithValues.add(allPiecesDestiniesWithValues(p.first)));
         
         int i = 0;
         while(i<allMovesWithValues.size() && !found){
@@ -1093,7 +1093,7 @@ public class Chess implements Cloneable {
      * @pre Destiny is inside the board limits
      * @post Return if the piece can continue checking destinies with the current movement. Correct destinies has been added to the list
     */
-    private boolean moveDestiniesController(Position origin, Position destiny, Movement currentMove, List<Pair<Position, Integer>> destinyWithValues){
+    private boolean moveDestiniesController(Position origin, Position destiny, Movement currentMove, List<Pair<Position, Integer>> destiniesWithValues){
         Pair<Position, Integer> currentDesinyValue = new Pair<>(destiny, 0);
         int value = 0;
         boolean keepSearching = true;    
@@ -1101,11 +1101,11 @@ public class Chess implements Cloneable {
             currentDesinyValue = new Pair<>(destiny, 0);
             if(canPromote(origin,destiny,true))
                 currentDesinyValue.second+=1;
-            destinyWithValues.add(currentDesinyValue);
+            destiniesWithValues.add(currentDesinyValue);
         }else if(pieceAt(destiny.row(),destiny.col()) != null && currentMove.captureSign() != 0 && diferentOwnerPiece(pieceAt(origin.row(),origin.col()),pieceAt(destiny.row(),destiny.col()))){
             value = pieceAt(destiny.row(),destiny.col()).type().ptValue();
             currentDesinyValue = new Pair<>(destiny, value);
-            destinyWithValues.add(currentDesinyValue);
+            destiniesWithValues.add(currentDesinyValue);
             keepSearching=false;      //Kill a piece                     
         }else{                
             keepSearching=false;  //Find ally piece
@@ -1119,9 +1119,9 @@ public class Chess implements Cloneable {
      * @pre Origin is not null
      * @post Return all possible piece's destinies and its movement value
     */
-    public List<Pair<Position, Integer>> allPiecesDestinyWithValues(Position origin){
+    public List<Pair<Position, Integer>> allPiecesDestiniesWithValues(Position origin){
         /*Sempre mirem ambdos costats: msg forum sobre a -a */
-        List<Pair<Position, Integer>> destinyWithValues = new ArrayList<Pair<Position, Integer>>();
+        List<Pair<Position, Integer>> destiniesWithValues = new ArrayList<Pair<Position, Integer>>();
         Position destiny;
         int value = 0;        
         Piece piece = pieceAt(origin.row(),origin.col());
@@ -1145,7 +1145,7 @@ public class Chess implements Cloneable {
                     while(destinyInLimits(origin.row()+x,origin.col()+y) && keepSearching){ //From top-right to bottom-left
                         //System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
                         destiny = new Position(origin.row()+x, origin.col()+y);
-                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
                         y++;
                     }
@@ -1155,7 +1155,7 @@ public class Chess implements Cloneable {
                     while(destinyInLimits(origin.row()-x,origin.col()-y) && keepSearching){ //From bottom-left to top-right
                         //System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()-x, origin.col()-y);
-                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
                         y++;
                     }
@@ -1164,7 +1164,7 @@ public class Chess implements Cloneable {
                     while(destinyInLimits(origin.row()-x,origin.col()+y) && keepSearching){ //From bottom-right to top-left 
                         //System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
                         destiny = new Position(origin.row()-x, origin.col()+y);
-                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
                         y++;
                     }
@@ -1174,7 +1174,7 @@ public class Chess implements Cloneable {
                     while(destinyInLimits(origin.row()+x,origin.col()-y) && keepSearching){    //From top-left to bottom-right
                         //System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()+x, origin.col()-y);
-                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                        keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
                         y++;
                     }
@@ -1184,7 +1184,7 @@ public class Chess implements Cloneable {
                 while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+y) && keepSearching){ //From right to left
                     //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()+currentMove.movX(), origin.col()+y);
-                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     y++;
                 }
                 keepSearching=true;
@@ -1192,7 +1192,7 @@ public class Chess implements Cloneable {
                 while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()-y) && keepSearching){  //From left to right
                     //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()-currentMove.movX(), origin.col()-y);
-                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     y++;
                 }
             }
@@ -1201,7 +1201,7 @@ public class Chess implements Cloneable {
                 while(destinyInLimits(origin.row()+x, origin.col()+currentMove.movY()) && keepSearching){ //From top to bottom
                     //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()+x, origin.col()+currentMove.movY());
-                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     x++;
                 }
                 keepSearching=true; 
@@ -1209,7 +1209,7 @@ public class Chess implements Cloneable {
                 while(destinyInLimits(origin.row()-x, origin.col()-currentMove.movY()) && keepSearching){ //From bottom to top
                     //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()-x, origin.col()-currentMove.movY());
-                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destinyWithValues);                    
+                    keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     x++;
                 }
             }else{      
@@ -1221,14 +1221,14 @@ public class Chess implements Cloneable {
                     //System.out.println(p.type().ptName()+" Origin row "+origin.row()+" Origin col "+origin.col()+" Moviment "+currentMove.movX()+" "+currentMove.movY()+" i anem a "+(origin.row()+currentMove.movX())+","+(origin.col()+currentMove.movY()));
                         destiny = new Position(origin.row()+currentMove.movX(), origin.col()+currentMove.movY());
                 //}
-                        keepSearching=moveDestiniesController(origin,destiny,currentMove,destinyWithValues);
+                        keepSearching=moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);
                     }
                     //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
         //System.out.println("Retorn de destiny with values de la peça "+p.type().ptName()+": ");
-        //for(int i=0;i<destinyWithValues.size();i++)System.out.println(destinyWithValues.get(i).first.toString()+" "+destinyWithValues.get(i).second);
-        return destinyWithValues;
+        //for(int i=0;i<destiniesWithValues.size();i++)System.out.println(destiniesWithValues.get(i).first.toString()+" "+destiniesWithValues.get(i).second);
+        return destiniesWithValues;
     }
 
     /*
