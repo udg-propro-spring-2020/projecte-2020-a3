@@ -101,6 +101,7 @@ public class UIPiece extends StackPane {
     /// @post Promotes the piece to the given one
     public void promoteType(Piece promoted) {
         this._piece = promoted;
+        System.out.println(promoted.type().ptName());
 
         // Add the piece image
         ImageView img = new ImageView(getImage());

@@ -648,6 +648,20 @@ public class GameController {
         return _chess.typeList();
     }
 
+    /// @brief Returns the type list of the possibile promotion types
+    /// @pre ---
+    public List<PieceType> promotableTypes() {
+        List<PieceType> tempList = new ArrayList<>();
+        // Cannot become a king, so filter it
+        for (PieceType t : typeList()) {
+            if (!t.isKingType()) {
+                tempList.add(t);
+            }
+        }
+
+        return tempList;
+    }
+
     /// @brief Returns the type corresponding to the given name
     /// @pre ---
     /// @post If the type does not exist, returns null. Else, returns the type

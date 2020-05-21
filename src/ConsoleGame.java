@@ -563,8 +563,6 @@ public class ConsoleGame {
 					showInstructions();
 					break;
 				case "R":
-					// There's no need to remove any of the movements done
-					// since we will overlap the data
 					if (_controller.redoMovement()) {
 						System.out.println("Movement redone!");
 						stop = true;
@@ -897,14 +895,7 @@ public class ConsoleGame {
 		System.out.print("Do you want to promote the piece? [Y/N]: ");
 		String s = readInputLine(false);
 		if (s.toUpperCase().equals("Y")) {
-			List<PieceType> tempList = new ArrayList<>();
-
-			// Cannot become a king, so filter it
-			for (PieceType t : _controller.typeList()) {
-				if (!t.isKingType()) {
-					tempList.add(t);
-				}
-			}
+			List<PieceType> tempList = _controller.promotableTypes();
 			
 			// Display the possibilities
 			System.out.println("Available types: ");
