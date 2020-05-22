@@ -440,7 +440,7 @@ public class GameController {
 
             gameWriter = new FileWriter(gameFile);
             List<Turn> turnsToSave = getTurnsToSave();
-			gameWriter.write(ToJSONParserHelper.saveGameToJSON(null, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";

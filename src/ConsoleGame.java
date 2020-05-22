@@ -485,6 +485,7 @@ public class ConsoleGame {
 		MoveAction result = null;
 		boolean inactivity = false;
 		do {
+			System.out.println(_controller.currentTurnColor().toString());
 			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				result = cpuTurn(cpu1);
