@@ -32,8 +32,8 @@ public class UIChess extends Application {
     private static final int IMG_PIXELS = 60;                       ///< Default images size (60x60)
     private static final double SPACER_PIXELS = 40.0;               ///< Default height of a spacer
 
-    private static final String DEF_GAME_LOCATION = "./data/configuration.json";    ///< Game default configuration location
-    private static final String DEF_IMG_LOCATION = "./data/img/";                   ///< Default image location
+    private static final String DEF_GAME_LOCATION = "data/configuration.json";    ///< Game default configuration location
+    private static final String DEF_IMG_LOCATION = "data/img/";                   ///< Default image location
     private static final String DEF_WHITE_TILE_LOCATION = "w.png";                  ///< Default white tile image name
     private static final String DEF_BLACK_TILE_LOCATION = "b.png";                  ///< Default black tile image name
 

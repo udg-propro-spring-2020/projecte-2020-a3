@@ -19,7 +19,7 @@ public class ConsoleGame {
 	private static int _blackCheckTurns = 0;						///< Current amount of consecutive checks of black
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "./data/configuration.json";								///< Location of the default configuration
+	private static String DEFAULT_CONFIGURATION = "data/configuration.json";								///< Location of the default configuration
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
 	private static int INACTIVE_THRESHOLD = 40;																///< Inactive turns threshold
 
