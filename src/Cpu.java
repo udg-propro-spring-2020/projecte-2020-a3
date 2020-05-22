@@ -7,7 +7,6 @@ import java.util.Random;
 /** @file Cpu.java
     @brief Automatic player.
  */
-
 /**
     @class Cpu
     @brief Automatic player with knowledge of previous games.
@@ -88,7 +87,7 @@ public class Cpu{
             Boolean follow = true;
             while(itPieces.hasNext() && follow){//for each peice
                 Pair<Position,Piece> piece = itPieces.next();
-                List<Pair<Position,Integer>> destinyWithScores= tauler.destinyWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
+                List<Pair<Position,Integer>> destinyWithScores= tauler.allPiecesDestiniesWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
 
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext() && follow){//for each movement
@@ -103,7 +102,7 @@ public class Cpu{
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chgit ess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
                     
                     List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);//we apply this movement with the returnend parameters on the checkMovement
-                    if(!taulerCopia.isEscac(piecesContrincant)){
+                    if(!taulerCopia.isCheck(piecesContrincant)){
                         actions.forEach((action)->{
                             //System.out.println("action "+action.toString());
                             //System.out.println(taulerCopia.showBoard());
@@ -185,7 +184,7 @@ public class Cpu{
             Boolean follow = true;
             while(itPieces.hasNext() && follow){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
-                List<Pair<Position,Integer>> destinyWithScores=tauler.destinyWithValues(piece.first);
+                List<Pair<Position,Integer>> destinyWithScores=tauler.allPiecesDestiniesWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
                 while(itMoviments.hasNext() && follow){ //FOR EACH MOVEMENT
                     Chess taulerCopia = (Chess)tauler.clone();
@@ -195,7 +194,7 @@ public class Cpu{
                     //taulerCopia.pintarLlistes();
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
-                    if(!taulerCopia.isEscac(piecesContrincant)){
+                    if(!taulerCopia.isCheck(piecesContrincant)){
                         actions.forEach((action)->{
                             //System.out.println("action "+action.toString());
                             //System.out.println(taulerCopia.showBoard());
