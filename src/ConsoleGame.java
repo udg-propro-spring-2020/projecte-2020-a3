@@ -496,7 +496,9 @@ public class ConsoleGame {
 			if (checkLimits()) {
 				inactivity = true;
 			} else {
-				_controller.toggleTurn();
+				if (result == null) {
+					_controller.toggleTurn();
+				}
 			}
 
 			System.out.println("[SCAPE FOR NEXT TURN - G TO SAVE THE GAME - X TO CLOSE THE APP]");
