@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ValidacioDadesEntrada</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#títol">TÍTOL</a>
+<ul>
+<li><a href="#taula-de-continguts">Taula de continguts</a></li>
+<li><a href="#tractament-de-fitxers-json">Tractament de fitxers JSON</a></li>
+<li><a href="#partides-configurades">Partides configurades</a></li>
+<li><a href="#partides-guardades">Partides guardades</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="títol">TÍTOL</h1>
+<h2 id="taula-de-continguts">Taula de continguts</h2>
+<ol>
+<li><a href="#tractament-de-fitxers-%60JSON%60">Tractament de fitxers <code>JSON</code></a></li>
+<li><a href="#partides-configurades">Partides configurades</a></li>
+<li><a href="#partides-guardades">Partides guardades</a></li>
+<li><a href="#funcions-del-joc">Funcions del joc</a>
+<ol>
+<li><a href="#guardant-i-carregant-partides">Guardant i carregant partides</a></li>
+<li><a href="#refent-i-desfent-moviments">Refent i desfent moviments</a></li>
+<li><a href="#taules">Taules</a></li>
+</ol>
+</li>
+</ol>
+<hr>
+<h2 id="tractament-de-fitxers-json">Tractament de fitxers <code>JSON</code></h2>
+<h3 id="descripció">Descripció</h3>
+<p>Una de les parts importants del projecte consisteix en la lectura i escriptura de fitxers <code>JSON</code>. Per al tractament de les dades (d’objectes JSON a objectes del joc, i a l’inversa) es fan servir les classes:</p>
+<ul>
+<li><a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/FromJSONParserHelper.java"><code>FromJSONParserHelper.java</code></a>: Mòdul que ens fa el <em>parse</em> d’objectes JSON als de l’aplicatiu.</li>
+<li><a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/ToJSONParserHelper.java"><code>ToJSONParserHelper.java</code></a>: Mòdul que ens fa el <em>parse</em> d’objectes de l’aplicació a objectes JSON.</li>
+<li><a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/JSONParseFormatException.java"><code>JSONParseFormatException.java</code></a>: Excepció pròpia llençada per la classe <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/FromJSONParserHelper.java"><code>FromJSONParserHelper</code></a> quan tracta un fitxer el qual conté un error de format.</li>
+</ul>
+<p>La majoria dels errors que es donen en la lectura del fitxer provoquen la sortida de l’aplicació, ja que, no es podria començar el joc amb fitxers corruptes (per exemple, no es podria iniciar una partida que no conté tipus de peça). Tot seguit s’explicaran més exemples on es tenca l’aplicació i on es pot continuar amb l’execució.<br>
+D’altre banda, els errors tractats en l’escriptura de fitxers són, en gran majoria, validació d’arguments.</p>
+<h3 id="demostració">Demostració</h3>
+<p>Per demostrar el funcionament de les exepcions, s’han creat diferents fitxers els quals contenen probables errors d’entrada. Es poden trobar en <a href="https://github.com/udg-propro/projecte-2020-a3/tree/master/src/data/file_errors_tests">aquesta carpeta</a> i la descripció dels fitxers es troba <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/README.md">aquí</a>.<br>
+Dividirem la demostració en dos grups: els errors d’<a href="#entrada">entrada</a> i els errors de <a href="#sortida">sortida</a>.</p>
+<h4 id="entrada">Entrada</h4>
+<p>Quan es dona un error d’entrada el qual implica que el programa no es pugui executar de manera correcte i això impliqui que s’han d’acabar l’execució del programa, en el cas de l’interfície es mostrarà un <em>pop up</em>, mentre que amb el mode de cónsola es mostrarà el missatge. Si el tractament d’aquest error permet continuar amb una execució correcte del programa, per els dos modes es mostrarà un missatge d’error, <strong>sempre per el canal d’error</strong>.</p>
+<blockquote>
+<p><strong>Nota</strong><br>
+En el cas de l’interfície gràfica, el joc no es carrega fins que no s’ha escollit el mode de partida, per tant l’error no surt fins just abans de començar la partida. D’altre banda, en el joc per cónsola, es carrega abans d’escollir el mode.</p>
+</blockquote>
+<p>Primer comprovarem el tractament d’errors en els fitxers d’entrada de configuració (cal seleccionar l’opció d’entrar una partida configurada) . Si executem els fitxers amb nom <code>config_error_X.json</code>, seguint l’ordre numèric i per a qualsevol mode (gràfic o cònsola), en aquest cas, quan ens carregui el fitxer, se’ns mostraran els següents errors:</p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/config_error_1json"><code>config_error_1.json</code></a></em><br>
+<img src="https://i.imgur.com/7nUYMfe.png" alt="Error fitxer 1"></p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/config_error_2.json"><code>config_error_2.json</code></a></em><br>
+<img src="https://i.imgur.com/POSXuT6.png" alt="Error fitxer 2"></p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/config_error_3.json"><code>config_error_3.json</code></a></em><br>
+<img src="https://i.imgur.com/SZrnxn6.png" alt="Error fitxer 3"></p>
+<p>En el cas del fitxer <em><a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/config_error_4.json"><code>config_error_4.json</code></a></em>, com que conté una peça amb moviments solapats, només es mostra el següent missatge d’error per cònsola:</p>
+<pre><code>Two movements have the same displacement vector.
+The second movement won't be added.
+</code></pre>
+<p>Seguidament, comprovarem possibles errors que ens podem trobar quan l’usuari ens entra un fitxer de desenvolupament de partida (cal seleccionar l’opció d’entrar una partida carregada). Si executem els fitxers amb nom <code>game_error_X.json</code>, seguint l’ordre numeric i per a qualsevol mode (gràfic o cònsola), en aquest cas, quan ens carregui el fitxer se’ns mostraran els següents errors:</p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/game_error_1.json"><code>game_error_1.json</code></a></em><br>
+<img src="https://i.imgur.com/zdG1iNr.png" alt="Error partida guardada 1"></p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/game_error_1.json"><code>game_error_2.json</code></a></em><br>
+<img src="https://i.imgur.com/ZfKkMyE.png" alt="Error partida guardada 2"></p>
+<p><em>Imatge del fitxer d’error <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/file_errors_tests/game_error_1.json"><code>game_error_3.json</code></a></em><br>
+<img src="https://i.imgur.com/RYLs6R0.png" alt="Error partida guardada 3"></p>
+<blockquote>
+<p><strong>Nota</strong><br>
+Es mostren només captures de pantalla del <em>pop up</em> que surt a la interfície gràfica. En el cas de la cònsola es mostraria el mateix missatge que es mostra dins del <em>pop up</em> com he anunciat abans, <em><strong>sempre per el canal d’error</strong></em>.</p>
+</blockquote>
+<h4 id="sortida">Sortida</h4>
+<p>Els errors de sortida són aquells els quals es poden provocar únicament quan l’usuari decideix guardar la partida, ja que es crea el fitxer <code>JSON</code> el qual contindrà el desenvolupament de la partida. Tot i que aquests errors s’haurien de provocar ínfimes, per no dir mai, és adient tractar-los per avisar a l’usuari. En cas que aquest error sigui causat, s’avisarà a l’usuari que hi ha hagut un error guardant el fitxer, mostrant un <em>pop up</em> en el cas gràfic o un missatge d’error en el cas per cònsola.</p>
+<blockquote>
+<p><strong>Nota</strong><br>
+En cas que hi hagi un error mentre s’està guardant la partida, aquesta no es guardarà i si s’ha creat el fitxer i s’ha començat a escriure, aquest es borrarà.</p>
+</blockquote>
+<p>Com he comentat a la <a href="#descripci%C3%B3">descripció</a>, els controls que es duen a terme a la classe <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/FromJSONParserHelper.java"><code>FromJSONParserHelper</code></a> són de validacions de paràmetres, majoritàriament es comproba si les referències passades per paràmetres apunten a valors nulls. Si es donés aquest cas, el missatge de sortida seria el següent:</p>
+<p><img src="https://i.imgur.com/rqYpDlW.png" alt="Error guardar partida"></p>
+<p>En el cas que s’estigui jugant per el mode de la consola, el missatge mostrat serà el següent:</p>
+<pre><code>Error on saving the game!
+</code></pre>
+<h2 id="partides-configurades">Partides configurades</h2>
+<h3 id="descripció-1">Descripció</h3>
+<p>Una de les funcions amb les quals compte el joc és la de permetre a l’usuari carregar un fitxer del tipus de configuració diferent al típic d’escacs. Això dona a l’usuari la llibertat de modificar els moviments de les peces, modificar les posicions inicials, entre d’altres. Alhora, és font de possibles errors ja que l’usuari pot no seguir l’estil que s’explica a l’enunciat de fitxer de configuració de partida.<br>
+El tractament d’aquests possibles errors el trobeu a l’apartat de <a href="#tractament-de-fitxers-%60JSON%60">Tractament de fitxers <code>JSON</code></a>.</p>
+<h3 id="demostració-1">Demostració</h3>
+<p>L’aplicació ja conté el seu propi fitxer amb les normes bàsiques dels escacs. A més, hem trobat adient afegir un fitxer amb una petita modificació: els jugadors començaran amb dues torres de més, davant de les originals.<br>
+Si carreguem aquesta configuració (la qual es pot trobar al directori <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/modified_config.json"><code>data/modified_config.json</code></a>, a una partida per cònsola, se’ns mostrarà el següent tauler:</p>
+<pre><code>   +---+---+---+---+---+---+---+---+
+ 1 | T | C | A | D | R | A | C | T |
+   +---+---+---+---+---+---+---+---+
+ 2 | T | P | P | P | P | P | P | T |
+   +---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+
+ 4 |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+
+ 5 |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+
+ 6 |   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+---+
+ 7 | t | p | p | p | p | p | p | t |
+   +---+---+---+---+---+---+---+---+
+ 8 | t | c | a | d | r | a | c | t |
+   +---+---+---+---+---+---+---+---+
+     a   b   c   d   e   f   g   h
+</code></pre>
+<p>Podem veure que a les posicions a2, h2 (per les blanques) i a7, h7 (per les negres) tenen una torre enlloc d’un peò.</p>
+<h2 id="partides-guardades">Partides guardades</h2>
+<h3 id="descripció-2">Descripció</h3>
+<p>A</p>
+
+    </div>
+  </div>
+</body>
+
+</html>
