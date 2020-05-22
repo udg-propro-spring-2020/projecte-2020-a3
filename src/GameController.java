@@ -419,6 +419,7 @@ public class GameController {
 	/// @post Saves the game in two JSON files, pulling away the configuration and
 	///       the game developement. Returns the fileName or null if there's an error
     public String saveGame(String finalResult, boolean newConfigFile) {
+        File gameFile = null;
 		try {
 			/// Configuration
 			File configurationFile = new File(_defaultConfigFileName);
@@ -433,7 +434,7 @@ public class GameController {
 			/// Game
 			createSavedGameDirectory();
 			Long fileName = new Date().getTime();
-			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
+			gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
             gameFile.createNewFile();
 
             FileWriter gameWriter = new FileWriter(gameFile);
@@ -443,8 +444,12 @@ public class GameController {
 
 			return fileName.toString() + ".json";
 		} catch (IOException e) {
+            // Delete the created file
+            gameFile.delete();
 			return null;
 		} catch (NullPointerException e) {
+            // Delete the created file
+            gameFile.delete();
 			System.err.println(e.getMessage());
 			return null;
 		}

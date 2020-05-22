@@ -898,15 +898,22 @@ public class UIChess extends Application {
     /// @post Saves the game and goes back to the main scene
     private void handleSaveGame() {
         String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
-        savedGamePopUp(fileName);
-        boolean res = buildConfirmationPopUp(
-            "CONTINUE PLAYING",
-            "Do you want tot continue playing?"
-        );
-
-        if (!res) {
-            // Get back to the menu
-            resetToMainScene();
+        if (fileName != null) {
+            savedGamePopUp(fileName);
+            boolean res = buildConfirmationPopUp(
+                "CONTINUE PLAYING",
+                "Do you want tot continue playing?"
+            );
+    
+            if (!res) {
+                // Get back to the menu
+                resetToMainScene();
+            }
+        } else {
+            displayErrorPopUp(
+                "ERROR", 
+                "There was an error saving the file.\nTry again.\nIf the error persists, talk to the developers."
+            );
         }
     }
 
