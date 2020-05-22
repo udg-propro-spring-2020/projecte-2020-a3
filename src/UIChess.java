@@ -3,7 +3,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import javafx.application.Application;
@@ -93,10 +92,10 @@ public class UIChess extends Application {
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("CHESS"));
         list.addAll(buildMenuButtons());
-        VBox body = ItemBuilder.buildVBox(16.0, list, true);
+        VBox body = ItemBuilder.buildVBox(16.0, list, true, true);
         
         resetData();
-        
+
         _window.setScene(ItemBuilder.buildScene(body));
         _window.show();
     }
@@ -121,7 +120,8 @@ public class UIChess extends Application {
             goBackButton,
             "GO BACK",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.EXIT
+            ItemBuilder.BtnType.EXIT,
+            false
         );
         goBackButton.setOnAction(e -> {
             switch (_lastGameState) {
@@ -151,7 +151,8 @@ public class UIChess extends Application {
             defaultGameButton,
             "START GAME",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         defaultGameButton.setOnAction(e -> {
             setSceneTitle("NORMAL GAME");
@@ -164,7 +165,8 @@ public class UIChess extends Application {
             configuredGameButton,
             "CONFIGURE A GAME",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         configuredGameButton.setOnAction(e -> {
             setSceneTitle("CONFIGURED GAME");
@@ -177,7 +179,8 @@ public class UIChess extends Application {
             loadGameButton,
             "LOAD A GAME",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         loadGameButton.setOnAction(e -> {
             setSceneTitle("LOADING GAME");
@@ -192,7 +195,8 @@ public class UIChess extends Application {
             exitGameButton,
             "EXIT",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.EXIT
+            ItemBuilder.BtnType.EXIT,
+            false
         );
         exitGameButton.setOnAction(e -> {
             _window.close();
@@ -213,7 +217,8 @@ public class UIChess extends Application {
             playerVsPlayer, 
             "PLAYER VS PLAYER", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         playerVsPlayer.setOnAction(e -> {
             _gameType = GameType.PLAYER_PLAYER;
@@ -226,7 +231,8 @@ public class UIChess extends Application {
             cpuVsPlayer, 
             "PLAYER VS COMPUTER", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         cpuVsPlayer.setOnAction(e -> {
             _gameType = GameType.CPU_PLAYER;
@@ -239,7 +245,8 @@ public class UIChess extends Application {
             cpuVsCpu, 
             "COMPUTER VS COMPUTER", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         cpuVsCpu.setOnAction(e -> {
             _gameType = GameType.CPU_CPU;
@@ -265,8 +272,9 @@ public class UIChess extends Application {
             enterFileBtn, 
             "ADD FILE", 
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.PRIMARY
-            );   
+            ItemBuilder.BtnType.PRIMARY,
+            false
+        );   
         enterFileBtn.setOnAction(
             new EventHandler<ActionEvent>(){
                 @Override
@@ -308,7 +316,8 @@ public class UIChess extends Application {
             beginnerBtn, 
             "BEGINNER", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         beginnerBtn.getStyleClass().add(SELECTED_CSS);
         list.add(beginnerBtn);
@@ -318,7 +327,8 @@ public class UIChess extends Application {
             intermediateBtn, 
             "INTERMEDIATE", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         intermediateBtn.getStyleClass().add(UNSELECTED_CSS);
         list.add(intermediateBtn);
@@ -328,7 +338,8 @@ public class UIChess extends Application {
             advancedBtn, 
             "ADVANCED", 
             MAX_BTN_WIDTH, 
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         advancedBtn.getStyleClass().add(UNSELECTED_CSS);
         list.add(advancedBtn);
@@ -340,7 +351,8 @@ public class UIChess extends Application {
             addKnowledgeBtn,
             "KNOWLEDGE",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.SECONDARY
+            ItemBuilder.BtnType.SECONDARY,
+            false
         );
         addKnowledgeBtn.setOnAction(
             new EventHandler<ActionEvent>(){
@@ -372,7 +384,8 @@ public class UIChess extends Application {
             continueBtn,
             "START GAME",
             MAX_BTN_WIDTH,
-            ItemBuilder.BtnType.ACCENT
+            ItemBuilder.BtnType.ACCENT,
+            false
         );
         continueBtn.setOnAction(e -> {
             setGameUp();
@@ -443,7 +456,8 @@ public class UIChess extends Application {
             undoBtn,
             "UNDO",
             MAX_BTN_WIDTH / 2,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         undoBtn.setOnAction(e -> handleUndo());
         list.add(undoBtn);
@@ -453,7 +467,8 @@ public class UIChess extends Application {
             redoBtn,
             "REDO",
             MAX_BTN_WIDTH / 2,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         redoBtn.setOnAction(e -> handleRedo());
         list.add(redoBtn);
@@ -463,7 +478,8 @@ public class UIChess extends Application {
             drawBtn,
             "DRAW",
             MAX_BTN_WIDTH / 2,
-            ItemBuilder.BtnType.PRIMARY
+            ItemBuilder.BtnType.PRIMARY,
+            false
         );
         drawBtn.setOnAction(e -> handleDraw());
         list.add(drawBtn);
@@ -475,7 +491,8 @@ public class UIChess extends Application {
             saveGame,
             "SAVE GAME",
             MAX_BTN_WIDTH / 2,
-            ItemBuilder.BtnType.SECONDARY
+            ItemBuilder.BtnType.SECONDARY,
+            false
         );
         saveGame.setOnAction(e -> handleSaveGame());
         list.add(saveGame);
@@ -485,7 +502,8 @@ public class UIChess extends Application {
             exitGameBtn,
             "EXIT",
             MAX_BTN_WIDTH / 2,
-            ItemBuilder.BtnType.EXIT
+            ItemBuilder.BtnType.EXIT,
+            false
         );
         exitGameBtn.setOnAction(e -> {
             boolean res = buildConfirmationPopUp(
@@ -516,7 +534,8 @@ public class UIChess extends Application {
             cpuButton, 
             "NEXT TURN", 
             MAX_BTN_WIDTH / 2, 
-            ItemBuilder.BtnType.ACCENT
+            ItemBuilder.BtnType.ACCENT,
+            false
         );
         cpuButton.setOnAction(e -> {
             System.out.println(_gameType.toString());
@@ -568,6 +587,10 @@ public class UIChess extends Application {
                     }
                 }
 
+                if (result.contains(MoveAction.Escacimat)) {
+                    handleEndOfGame();
+                }
+
                 _controller.toggleTurn();
 
                 if (_gameType == GameType.CPU_PLAYER) {
@@ -581,7 +604,37 @@ public class UIChess extends Application {
         return cpuButton;
     }
 
+    private PieceType buildPromotionPopUp() {
+        return ItemBuilder.buildPromotionPopUp(
+            "PROMOTION", 
+            "Choose the type to promote to",
+            _controller.promotableTypes()
+        );
+    }
+
     // IN-GAME HANDLING OPTIONS
+    /// @brief Function that handles de logic of a promotion
+    /// @pre There is a piece in @p piecePosition
+    /// @post Promotes the piece in @p piecePosition both in the UI and the chess
+    private void handlePromotion(Position piecePosition) {
+        // Let the user choose
+        PieceType promoted = buildPromotionPopUp();
+
+        // Save promotion turn
+        _controller.savePromotionTurn(
+            _controller.currentTurnColor(),
+            _controller.pieceAtCell(piecePosition).type(),
+            promoted
+        );
+
+        // Update in chess
+        _controller.promotePiece(piecePosition, promoted);
+        
+        // Update in the UI
+        UIPiece tempPiece = getUIPieceAt(piecePosition);
+        tempPiece.promoteType(_controller.pieceAtCell(piecePosition));
+    }
+
     /// @brief Function that handles the event of the undo button
     /// @pre The user pressed the undo button
     /// @post If possible, undoes one movement. If a pieces were killed in that movement, 
@@ -822,20 +875,45 @@ public class UIChess extends Application {
         }
     }
 
+    /// @brief Function that handles the end of a game
+    /// @pre Last move result is check mate 
+    /// @post One of the players has done a check mate to the other. The game is finished
+    ///       and asked if wanted to be saved. If so, saves the game
+    private void handleEndOfGame() {
+        boolean res = buildConfirmationPopUp(
+            _controller.currentTurnColor().toString() + " WINS!",
+            _controller.currentTurnColor().toString() + " WINS! \nDo you want to save the game?"
+        );
+
+        if (res) {
+            String fileName = _controller.saveGame("ESCAC I MAT", false);
+            savedGamePopUp(fileName);
+        }
+
+        resetToMainScene();
+    }
+
     /// @brief Function that handles the event of saving the game button
     /// @pre ---
     /// @post Saves the game and goes back to the main scene
     private void handleSaveGame() {
         String fileName = _controller.saveGame("PARTIDA AJORNADA", false);
-        savedGamePopUp(fileName);
-        boolean res = buildConfirmationPopUp(
-            "CONTINUE PLAYING",
-            "Do you want tot continue playing?"
-        );
-
-        if (!res) {
-            // Get back to the menu
-            resetToMainScene();
+        if (fileName != null) {
+            savedGamePopUp(fileName);
+            boolean res = buildConfirmationPopUp(
+                "CONTINUE PLAYING",
+                "Do you want tot continue playing?"
+            );
+    
+            if (!res) {
+                // Get back to the menu
+                resetToMainScene();
+            }
+        } else {
+            displayErrorPopUp(
+                "ERROR", 
+                "There was an error saving the file.\nTry again.\nIf the error persists, talk to the developers."
+            );
         }
     }
 
@@ -874,7 +952,7 @@ public class UIChess extends Application {
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("CHOOSE A GAME MODE"));
         list.addAll(buildOptionButtons());
-        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true, true));
         _window.setScene(s);
     }
 
@@ -885,7 +963,7 @@ public class UIChess extends Application {
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("CONFIGURED GAME"));
         list.addAll(buildLoadFileButton(false));
-        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true, true));
         _window.setScene(s);
     }
 
@@ -896,7 +974,7 @@ public class UIChess extends Application {
         Collection<Node> list = new ArrayList<>(); 
         list.add(ItemBuilder.buildTitle("LOAD A GAME"));
         list.addAll(buildLoadFileButton(true));
-        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true, true));
         _window.setScene(s);
     }
 
@@ -908,7 +986,7 @@ public class UIChess extends Application {
         Collection<Node> list = new ArrayList<>();
         list.add(ItemBuilder.buildTitle("DEFINE THE \n COMPUTER"));
         list.addAll(buildCPUButtons());
-        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true));
+        Scene s = ItemBuilder.buildScene(ItemBuilder.buildVBox(16.0, list, true, true));
         _window.setScene(s);
     }
 
@@ -954,7 +1032,7 @@ public class UIChess extends Application {
         switch (_gameType) {
             case PLAYER_PLAYER:
                 // Buttons
-                VBox buttons = ItemBuilder.buildVBox(12.0, buildInGameButtons(), true);
+                VBox buttons = ItemBuilder.buildVBox(12.0, buildInGameButtons(), true, true);
                 buttons.setPrefWidth(300);
                 _window.setScene(buildGameScene(buttons));
                 _window.sizeToScene();
@@ -1098,16 +1176,30 @@ public class UIChess extends Application {
                             if (checkResult.first.contains(MoveAction.Castling)) {
                                 // Save castling turn
                                 _controller.saveCastlingTurn(checkResult.second);
+
+                                // Result of castling may be a checkmate
+                                if (actions.contains(MoveAction.Escacimat)) {
+                                    handleEndOfGame();
+                                }
                             } else {
                                 // Save normal turn
                                 _controller.saveTurn(
-                                    checkResult.first, 
+                                    actions, 
                                     new Pair<String, String> (
                                         origin.toString(),
                                         dest.toString()
                                     )
                                 );
+
+                                if (actions.contains(MoveAction.Promote)) {
+                                    handlePromotion(dest);
+                                }
                             }
+
+                            if (actions.contains(MoveAction.Escacimat)) {
+                                handleEndOfGame();
+                            }
+
                             _controller.toggleTurn();
                                     
                             // Block the user
@@ -1185,7 +1277,7 @@ public class UIChess extends Application {
         buttons.add(buttons.size() - 3, buildInGameCPUButton(cpu, null));
 
         // Create layout
-        VBox layout = ItemBuilder.buildVBox(12.0, buttons, true);
+        VBox layout = ItemBuilder.buildVBox(12.0, buttons, true, true);
         layout.setPrefWidth(300);
         _window.setScene(buildGameScene(layout));
         _window.sizeToScene();
@@ -1248,7 +1340,7 @@ public class UIChess extends Application {
         buttons.add(buttons.size() - 3, buildInGameCPUButton(white, black));
 
         // Create layout
-        VBox layout = ItemBuilder.buildVBox(12.0, buttons, true);
+        VBox layout = ItemBuilder.buildVBox(12.0, buttons, true, true);
         layout.setPrefWidth(300);
         _window.setScene(buildGameScene(layout));
         _window.sizeToScene();

@@ -211,7 +211,7 @@ public class GameController {
         List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
             ? _chess.pListBlack()
             : _chess.pListWhite();
-        if (_chess.isEscac(colorList)) {
+        if (_chess.isCheck(colorList)) {
             _chess.undoMovement();
             return null;
         }
@@ -419,6 +419,8 @@ public class GameController {
 	/// @post Saves the game in two JSON files, pulling away the configuration and
 	///       the game developement. Returns the fileName or null if there's an error
     public String saveGame(String finalResult, boolean newConfigFile) {
+        File gameFile = null;
+        FileWriter gameWriter = null;
 		try {
 			/// Configuration
 			File configurationFile = new File(_defaultConfigFileName);
@@ -433,18 +435,36 @@ public class GameController {
 			/// Game
 			createSavedGameDirectory();
 			Long fileName = new Date().getTime();
-			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
+			gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
             gameFile.createNewFile();
 
-            FileWriter gameWriter = new FileWriter(gameFile);
+            gameWriter = new FileWriter(gameFile);
             List<Turn> turnsToSave = getTurnsToSave();
 			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";
 		} catch (IOException e) {
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
+            gameFile.delete();
 			return null;
 		} catch (NullPointerException e) {
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
+            gameFile.delete();
 			System.err.println(e.getMessage());
 			return null;
 		}
@@ -646,6 +666,20 @@ public class GameController {
     /// @post Returns a list of PieceType of the chess
     public List<PieceType> typeList() {
         return _chess.typeList();
+    }
+
+    /// @brief Returns the type list of the possibile promotion types
+    /// @pre ---
+    public List<PieceType> promotableTypes() {
+        List<PieceType> tempList = new ArrayList<>();
+        // Cannot become a king, so filter it
+        for (PieceType t : typeList()) {
+            if (!t.isKingType()) {
+                tempList.add(t);
+            }
+        }
+
+        return tempList;
     }
 
     /// @brief Returns the type corresponding to the given name

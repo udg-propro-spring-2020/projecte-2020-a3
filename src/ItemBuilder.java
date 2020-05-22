@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +21,7 @@ import javafx.stage.Stage;
 /// @author Miquel de Domingo 
 /// @file ItemBuilder.java
 /// @class ItemBuilder
-/// @brief Modular class to keep a constant style along the application
+/// @brief Modular class to construct all the UI items
 public class ItemBuilder {
     /// CONSTANTS
     private static final String CSS_LOCATION = "./data/styles/style.css";      ///< Default CSS file location
@@ -55,14 +56,19 @@ public class ItemBuilder {
     /// @brief Builds a default button item
     /// @pre @p btn has been initialized
     /// @post Sets the button with the desired properties
-    public static void buildButton(Button btn, String text, Double width, BtnType type) {
+    public static void buildButton(Button btn, String text, Double width, BtnType type, boolean shadowless) {
         btn.setText(text);
         btn.getStyleClass().add(BTN);
 
+        /// If it is null, set it to default
         if (width != null) {
             btn.setMaxWidth(width);
         }
-        /// If it is null, set it to default
+
+        // Check if shadowless
+        if (shadowless) {
+            btn.getStyleClass().add(BTN_SHADOWLESS);
+        }
 
         switch (type) {
             case PRIMARY:
@@ -83,9 +89,9 @@ public class ItemBuilder {
 
     /// @brief Builds a default VBox
     /// @pre @p layout has been initialized
-    /// @post Sets the VBox with the desired properties. If @p hasBackground is true
-    ///       adds the pane class
-    public static VBox buildVBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
+    /// @post Sets the VBox with the desired properties. If @p hasPadding is true
+    //        adds padding. If @p hasBackground is true adds the pane class
+    public static VBox buildVBox(Double spacing, Collection<? extends Node> children, boolean hasPadding, boolean hasBackground) {
         VBox layout = new VBox();
         
         layout.getStyleClass().add(PANE);
@@ -93,7 +99,9 @@ public class ItemBuilder {
             layout.getStyleClass().add(PANE_BG);
         }
         layout.setSpacing((spacing == null) ? 24.0 : spacing);
-        layout.setPadding(new Insets(16.0, 12.0, 16.0, 12.0));
+        if (hasPadding) {
+            layout.setPadding(new Insets(16.0, 12.0, 16.0, 12.0));
+        }
         layout.setAlignment(Pos.CENTER);
         layout.getChildren().addAll(children);
 
@@ -102,9 +110,9 @@ public class ItemBuilder {
 
     /// @brief Builds a default HBox
     /// @pre ---
-    /// @post Returns a HBox with the desired properties. If @p hasBackground is true
-    ///       adds the pane class
-    public static HBox buildHBox(Double spacing, Collection<? extends Node> children, boolean hasBackground) {
+    /// @post Sets the HBox with the desired properties. If @p hasPadding is true
+    //        adds padding. If @p hasBackground is true adds the pane class
+    public static HBox buildHBox(Double spacing, Collection<? extends Node> children, boolean hasPadding, boolean hasBackground) {
         HBox layout = new HBox();
 
         layout.getStyleClass().add(PANE);
@@ -112,11 +120,45 @@ public class ItemBuilder {
             layout.getStyleClass().add(PANE_BG);
         }
         layout.setSpacing((spacing == null) ? 24.0 : spacing);
-        layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
+        if (hasPadding) {
+            layout.setPadding(new Insets(16.0, 48.0, 16.0, 48.0));
+        }
         layout.setAlignment(Pos.CENTER);
         layout.getChildren().addAll(children);
 
         return layout;
+    }
+
+    public static VBox buildGridOnVBox(Collection<? extends Node> children, boolean hasBackground) {
+        Collection<Node> grid = new ArrayList<>();
+        int limit = (children.size() % 2 == 0) 
+            ? children.size() - 1
+            : children.size() - 2;
+        ArrayList<Node> itemArray = new ArrayList<>(children);
+
+        int i = 0; 
+        while (i < limit) {
+            Collection<Node> temp = new ArrayList<>();
+            temp.add(itemArray.get(i));
+            i++;
+            temp.add(itemArray.get(i));
+            i++;
+
+            grid.add(
+                buildHBox(
+                    4.0,
+                    temp,
+                    false, 
+                    false
+                )
+            );
+        }
+        if (children.size() % 2 != 0) {
+            // Add the odd value
+            grid.add(itemArray.get(i));
+        }
+
+        return buildVBox(4.0, grid, false, false);
     }
 
     /// @brief Builds a spacer with the given/default height
@@ -169,7 +211,7 @@ public class ItemBuilder {
 
         if (hasButton) {
             Button closeBtn = new Button();
-            buildButton(closeBtn, "CLOSE", 125.0, BtnType.EXIT);
+            buildButton(closeBtn, "CLOSE", 125.0, BtnType.EXIT, false);
             closeBtn.setOnAction(e -> {
                 popUp.close();
             });
@@ -177,7 +219,7 @@ public class ItemBuilder {
             list.add(closeBtn);
         }
         
-        VBox layout = buildVBox(12.0, list, false);
+        VBox layout = buildVBox(12.0, list, true, false);
         layout.getStylesheets().add(CSS_LOCATION);
         popUp.setScene(new Scene(layout));
         popUp.setWidth(300.0);
@@ -209,13 +251,13 @@ public class ItemBuilder {
             yesBtn, 
             "YES", 
             75.0, 
-            ItemBuilder.BtnType.SECONDARY
+            ItemBuilder.BtnType.SECONDARY,
+            true
         );
         yesBtn.setOnAction(e -> {
             yesBtn.setUserData(true);
             popUp.close();
         });
-        yesBtn.getStyleClass().add(BTN_SHADOWLESS);
         buttons.add(yesBtn);
             
         Button noBtn = new Button();
@@ -223,21 +265,21 @@ public class ItemBuilder {
             noBtn, 
             "NO", 
             75.0, 
-            ItemBuilder.BtnType.EXIT
+            ItemBuilder.BtnType.EXIT,
+            true
         );
         noBtn.setOnAction(e -> {
             noBtn.setUserData(false);
             popUp.close();
         });
-        noBtn.getStyleClass().add(BTN_SHADOWLESS);
         buttons.add(noBtn);
         
         // Button layout
-        HBox buttonsBox = buildHBox(12.0, buttons, false);
+        HBox buttonsBox = buildHBox(12.0, buttons, true, false);
         list.add(buttonsBox);
         
         // Pop up layout
-        VBox layout = buildVBox(12.0, list, false);
+        VBox layout = buildVBox(12.0, list, true, false);
         layout.getStylesheets().add(CSS_LOCATION);
         popUp.setScene(new Scene(layout));
         
@@ -249,5 +291,66 @@ public class ItemBuilder {
         } else {
             return false;
         }
+    }
+
+    /// @brief Builds a pop up window displaying the given children
+    /// @pre ---
+    /// @post Creates a pop up window with the given title and a centered label. If has
+    ///       a button, this button will close the pop up
+    public static PieceType buildPromotionPopUp(String title, String text, List<PieceType> types) {
+        // Create the stage
+        Stage popUp = new Stage();
+        Collection<Node> list = new ArrayList<>();
+
+        // Set title
+        popUp.initModality(Modality.APPLICATION_MODAL);
+        popUp.setTitle(title);
+
+        // Set text
+        Label labelText = new Label(text);
+        labelText.setTextAlignment(TextAlignment.CENTER);
+        list.add(labelText);
+                
+        Collection<Button> buttons = new ArrayList<>();
+        // Create items buttons
+        for (PieceType t : types) {
+            Button temp = new Button();
+            ItemBuilder.buildButton(
+                temp, 
+                t.ptName(), 
+                90.0, 
+                ItemBuilder.BtnType.SECONDARY,
+                true
+            );
+            // Assign the piece to the button
+            temp.setOnAction(e -> {
+                temp.setUserData(t);
+                popUp.close();
+            });
+
+            buttons.add(temp);
+        }
+
+        // Grid
+        VBox grid = ItemBuilder.buildGridOnVBox(buttons, false);
+        list.add(grid);
+        // Final layout
+        VBox layout = buildVBox(12.0, list, false, false);
+        layout.setPadding(new Insets(12.0, 48.0, 12.0, 48.0));
+        layout.getStylesheets().add(CSS_LOCATION);
+        popUp.setScene(new Scene(layout));
+        
+        // Show and wait
+        popUp.showAndWait();
+        // Return pressed value
+        for (Button b : buttons) {
+            // Check which is the button that was clicked
+            if (b.getUserData() != null) {
+                return (PieceType) b.getUserData();
+            }
+        }
+        
+        // Error
+        return null;
     }
 }

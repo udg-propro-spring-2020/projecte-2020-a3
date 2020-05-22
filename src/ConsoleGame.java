@@ -357,7 +357,11 @@ public class ConsoleGame {
 				// Save game
 				System.out.println(_controller.currentTurnColor());
 				String fileName = saveGame("PARTIDA AJORNADA");
-				System.out.println("Saved game with name: " + fileName);
+				if (fileName == null) {
+					System.out.println("Error on saving the game!");
+				} else {
+					System.out.println("Game saved with name: " + fileName);
+				}
 				break;
 			}
 			case "E": {
@@ -448,7 +452,11 @@ public class ConsoleGame {
 			}
 			case "G": {
 				String fileName = saveGame("PARTIDA AJORNADA");
-				System.out.println("Saved game with name: " + fileName);
+				if (fileName == null) {
+					System.out.println("Error on saving the game!");
+				} else {
+					System.out.println("Game saved with name: " + fileName);
+				}
 				break;
 			}
 			case "I": {
@@ -477,6 +485,7 @@ public class ConsoleGame {
 		MoveAction result = null;
 		boolean inactivity = false;
 		do {
+			System.out.println(_controller.currentTurnColor().toString());
 			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				result = cpuTurn(cpu1);
@@ -563,8 +572,6 @@ public class ConsoleGame {
 					showInstructions();
 					break;
 				case "R":
-					// There's no need to remove any of the movements done
-					// since we will overlap the data
 					if (_controller.redoMovement()) {
 						System.out.println("Movement redone!");
 						stop = true;
@@ -897,14 +904,7 @@ public class ConsoleGame {
 		System.out.print("Do you want to promote the piece? [Y/N]: ");
 		String s = readInputLine(false);
 		if (s.toUpperCase().equals("Y")) {
-			List<PieceType> tempList = new ArrayList<>();
-
-			// Cannot become a king, so filter it
-			for (PieceType t : _controller.typeList()) {
-				if (!t.isKingType()) {
-					tempList.add(t);
-				}
-			}
+			List<PieceType> tempList = _controller.promotableTypes();
 			
 			// Display the possibilities
 			System.out.println("Available types: ");
