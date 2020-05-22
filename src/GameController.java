@@ -420,6 +420,7 @@ public class GameController {
 	///       the game developement. Returns the fileName or null if there's an error
     public String saveGame(String finalResult, boolean newConfigFile) {
         File gameFile = null;
+        FileWriter gameWriter = null;
 		try {
 			/// Configuration
 			File configurationFile = new File(_defaultConfigFileName);
@@ -437,18 +438,32 @@ public class GameController {
 			gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
             gameFile.createNewFile();
 
-            FileWriter gameWriter = new FileWriter(gameFile);
+            gameWriter = new FileWriter(gameFile);
             List<Turn> turnsToSave = getTurnsToSave();
-			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
+			gameWriter.write(ToJSONParserHelper.saveGameToJSON(null, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";
 		} catch (IOException e) {
-            // Delete the created file
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
             gameFile.delete();
 			return null;
 		} catch (NullPointerException e) {
-            // Delete the created file
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
             gameFile.delete();
 			System.err.println(e.getMessage());
 			return null;

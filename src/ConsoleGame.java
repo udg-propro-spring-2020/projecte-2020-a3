@@ -357,7 +357,11 @@ public class ConsoleGame {
 				// Save game
 				System.out.println(_controller.currentTurnColor());
 				String fileName = saveGame("PARTIDA AJORNADA");
-				System.out.println("Saved game with name: " + fileName);
+				if (fileName == null) {
+					System.out.println("Error on saving the game!");
+				} else {
+					System.out.println("Game saved with name: " + fileName);
+				}
 				break;
 			}
 			case "E": {
@@ -448,7 +452,11 @@ public class ConsoleGame {
 			}
 			case "G": {
 				String fileName = saveGame("PARTIDA AJORNADA");
-				System.out.println("Saved game with name: " + fileName);
+				if (fileName == null) {
+					System.out.println("Error on saving the game!");
+				} else {
+					System.out.println("Game saved with name: " + fileName);
+				}
 				break;
 			}
 			case "I": {
