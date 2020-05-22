@@ -862,7 +862,7 @@ public class Chess implements Cloneable {
                                 //System.out.println("740. La teva peça no en pot saltar d'altres");
                             }  
                         }else{
-                            System.out.println("743. La diagonal es incorrecte");
+                            //System.out.println("743. La diagonal es incorrecte");
                         }
                     }
                 i++; 
