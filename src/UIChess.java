@@ -466,7 +466,7 @@ public class UIChess extends Application {
         ItemBuilder.buildButton(
             redoBtn,
             "REDO",
-            MAX_BTN_WIDTH / 1,
+            MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.PRIMARY,
             false
         );
