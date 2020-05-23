@@ -27,6 +27,7 @@ public class Cpu{
     @param chess Reference to the Chess
      */
     public Cpu(Knowledge knowledge,Chess chess,int profundity,PieceColor color){
+        System.out.println("Soc nivell:"+profundity + " color:"+color.toString());
         if(chess==null)throw new NullPointerException("chess given argument cannot be null");
         else if(color==null)throw new NullPointerException("color given argument cannot be null");
         else if(profundity<=0)throw new IllegalArgumentException("profunidty argument cannot be less or equal to zero");
@@ -62,10 +63,10 @@ public class Cpu{
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
         Chess taulerCopia = (Chess)_chess.clone();//not necessary (take it out)
         long startTime = System.nanoTime();
-        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
+        int punt =i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime);
-        System.out.println("(cpu.java:63)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
+        System.out.println("(cpu.java:63)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() +" puntuacio:"+punt);
         double seconds = (double)duration / 1_000_000_000.0;
         if(seconds>maxim)maxim=seconds;
         System.out.println("Maxim temps:"+maxim);
@@ -91,19 +92,21 @@ public class Cpu{
                 piecesContrincant=tauler.pListWhite();
             }
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            Boolean follow = true;
-            while(itPieces.hasNext() && follow){//for each peice
+            while(itPieces.hasNext()){//for each peice
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores= tauler.allPiecesDestiniesWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
 
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
+                Boolean follow = true;
                 while(itMoviments.hasNext() && follow){//for each movement
                     
                     Chess taulerCopia = (Chess)tauler.clone();//copy the actual chess because after applying this movememnt and al the minmax alogirthm we need the chess as now
                     
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
-                    //System.out.println("crido jugador amb moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
+                    //System.out.println(taulerCopia.showBoard());
+                    //System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                    //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" max:"+max);
                     //taulerCopia.pintarLlistes();
                     //if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chgit ess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
@@ -132,7 +135,7 @@ public class Cpu{
                         result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
 
                         if(result>max){
-                                biggestAnterior=result;
+                                if(result>biggestAnterior)biggestAnterior=result;
                                 max=result;
                                 if(profundity==0){
                                     equealMovementsFirstLevel.clear();
@@ -158,18 +161,33 @@ public class Cpu{
                         the anterior node (because anterior will choose the samllest)
                         we dont have to continue inspecinting this branch so we cut it.
                         */
-                        if(smallerAnterior<=biggestAnterior){/*System.out.println("tallo desde CPU");*/follow=false;}
+                        if(smallerAnterior<=biggestAnterior){/*System.out.println("tallo desde CPU nivell:"+profundity);*/follow=false;}
                     }
                     else taulerCopia.undoMovement();
                 }
             }
             //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
             if(profundity==0){
-                Random rand = new Random();
-                int n = rand.nextInt(equealMovementsFirstLevel.size());
-                Pair<Position,Position> choosed = equealMovementsFirstLevel.get(n);
-                movement.first = choosed.first;
-                movement.second = choosed.second;
+                if(equealMovementsFirstLevel.isEmpty()){
+                    itPieces = pieces.iterator();
+                    while(itPieces.hasNext()){
+                        Pair<Position,Piece> piece = itPieces.next();
+                        List<Pair<Position,Integer>> destinyWithScores= tauler.allPiecesDestiniesWithValues(piece.first);
+                        Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
+                        while(itMoviments.hasNext()){
+                            Pair<Position,Integer> pieceMovement = itMoviments.next();
+                            System.out.println("moviment possible Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
+                        }
+                    }
+                    
+                }
+                else{
+                    Random rand = new Random();
+                    int n = rand.nextInt(equealMovementsFirstLevel.size());
+                    Pair<Position,Position> choosed = equealMovementsFirstLevel.get(n);
+                    movement.first = choosed.first;
+                    movement.second = choosed.second;
+                }
                 //System.out.println("Total de moviments iguals:"+equealMovementsFirstLevel.size());
             }
             return max;
@@ -188,16 +206,18 @@ public class Cpu{
                 piecesContrincant=tauler.pListWhite();
             }
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            Boolean follow = true;
-            while(itPieces.hasNext() && follow){  //FOR EACH PIECE
+            while(itPieces.hasNext()){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores=tauler.allPiecesDestiniesWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
+                Boolean follow = true;
                 while(itMoviments.hasNext() && follow){ //FOR EACH MOVEMENT
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
-                    //System.out.println("SOC contrincant nivell:"+profundity+"min:"+min+"biggestAnterior:"+biggestAnterior+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    //System.out.println(taulerCopia.showBoard());
+                    //System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" min:"+min);
                     //taulerCopia.pintarLlistes();
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
@@ -222,14 +242,14 @@ public class Cpu{
                         //System.out.println("SOC el contrincant trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                         result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
                         if(result<min){
-                            smallerAnterior=result;
+                            if(result<smallerAnterior)smallerAnterior=result;
                             min=result;
                         }
                         /*If the new smallest is smaller than biggest on
                         the anterior node (because anterior will choose the bigger)
                         we dont have to continue inspecinting this branch so we cut it.
                         */
-                        if(biggestAnterior>=smallerAnterior){/*System.out.println("tallo desde CONTRINCANT");*/follow=false;}
+                        if(biggestAnterior>=smallerAnterior){/*System.out.println("tallo desde CONTRINCANT nivell:"+profundity);*/follow=false;}
                     }
                     else taulerCopia.undoMovement();
                 }
