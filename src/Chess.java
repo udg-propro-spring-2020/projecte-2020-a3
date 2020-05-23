@@ -458,6 +458,38 @@ public class Chess implements Cloneable {
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
+    /*private boolean isDrownedKing(List<Pair<Position,Piece>> listCheckDrowned, List<Pair<Position,Piece>> enemieList){
+        boolean drowned = true;
+        Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
+        int i = 0;
+        while(i<listCheckDrowned.size() && drowned){
+            Piece piece = listCheckDrowned.get(i).second;
+            Position origin = listCheckDrowned.get(i).first;
+            List<Movement> pListMoves = piece.pieceMovements();
+            int j = 0;
+            while(j<pListMoves.size() && drowned){
+                if(destinyInLimits(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY())){
+                    Position destiny = new Position(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY());
+                    checkMovementResult = checkMovement(origin, destiny);
+                    if(checkMovementResult.first.get(0) == MoveAction.Correct){
+                        applyMovement(origin, destiny, checkMovementResult.second, true);
+                        if(!isCheck(enemieList))
+                            drowned = false;
+                        undoMovement();
+                    }
+                }
+                j++;
+            }
+            i++;
+        }
+        return checkmate;
+    }*/
+
+    /*
+     * @brief Check if the king can't escape from a check
+     * @pre Lists are not empty
+     * @post Return if the player can realize any move that makes him escape from a check
+     */
     private boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
         boolean checkmate = true;
         Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
@@ -481,10 +513,6 @@ public class Chess implements Cloneable {
                 j++;
             }
             i++;
-        }
-        if(checkmate){
-            //System.out.println(showBoard());
-            //System.out.println("Ha detectat escac i mat");
         }
         return checkmate;
     }
@@ -871,6 +899,9 @@ public class Chess implements Cloneable {
                     actions.add(MoveAction.Escacimat);
                 else
                     actions.add(MoveAction.Escac);
+            }else{
+                if(isCheckmate(listCounterMove, listDoingMove))
+                    actions.add(MoveAction.Escacimat);
             }
         }
         return actions;
