@@ -18,6 +18,7 @@ public class Cpu{
     private Chess _chess;           ///< Reference to global chess object
     private int _profundity;        ///< Profunidty level for search the possibilities movements tree.
     private PieceColor _color;      ///< Color of the CPU player
+    private double maxim=0;
 
 
     /** @brief Default CPU constructor
@@ -60,8 +61,14 @@ public class Cpu{
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
         Chess taulerCopia = (Chess)_chess.clone();//not necessary (take it out)
+        long startTime = System.nanoTime();
         i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,taulerCopia);
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);
         System.out.println("(cpu.java:63)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() );
+        double seconds = (double)duration / 1_000_000_000.0;
+        if(seconds>maxim)maxim=seconds;
+        System.out.println("Maxim temps:"+maxim);
         return movement;
     }
 
