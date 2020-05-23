@@ -119,14 +119,16 @@ public class GameController {
                     Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
     
                     // All movements must be right!
-                    // Add to deaths list
-                    for (Position p : checkResult.second) {
-                        _loadedGameDeaths.add(
-                            new Pair<Piece,Pair<Position,Integer>>(
-                                _chess.pieceAt(p.row(), p.col()),               // Piece
-                                new Pair<Position, Integer>(p, _turnNumber)     // Position - Turn
-                            )
-                        );
+                    // Add to deaths list - only add if it is not a castling
+                    if (!t.isCastlingTurn()) {
+                        for (Position p : checkResult.second) {
+                            _loadedGameDeaths.add(
+                                new Pair<Piece,Pair<Position,Integer>>(
+                                    _chess.pieceAt(p.row(), p.col()),               // Piece
+                                    new Pair<Position, Integer>(p, _turnNumber)     // Position - Turn
+                                )
+                            );
+                        }
                     }
                     
                     // Apply movement also checks for castling
@@ -137,7 +139,7 @@ public class GameController {
                         false
                     );
 
-                    if (moveResult.contains(MoveAction.Castling)) {
+                    if (t.isCastlingTurn()) {
                         saveCastlingTurn(checkResult.second);
                     } else {
                         saveTurn(
@@ -387,7 +389,7 @@ public class GameController {
 
             // Next turn
             _turnNumber++;
-            if (canRedo() && _turns.get(_turnNumber).isEmptyTurn()) {
+            if (canRedo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
                 // Since will be an empty turn, we have to increase once more
                 _turnNumber++;
             }
@@ -419,6 +421,8 @@ public class GameController {
 	/// @post Saves the game in two JSON files, pulling away the configuration and
 	///       the game developement. Returns the fileName or null if there's an error
     public String saveGame(String finalResult, boolean newConfigFile) {
+        File gameFile = null;
+        FileWriter gameWriter = null;
 		try {
 			/// Configuration
 			File configurationFile = new File(_defaultConfigFileName);
@@ -433,18 +437,36 @@ public class GameController {
 			/// Game
 			createSavedGameDirectory();
 			Long fileName = new Date().getTime();
-			File gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
+			gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
             gameFile.createNewFile();
 
-            FileWriter gameWriter = new FileWriter(gameFile);
+            gameWriter = new FileWriter(gameFile);
             List<Turn> turnsToSave = getTurnsToSave();
 			gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor, turnsToSave, finalResult));
 			gameWriter.close();	
 
 			return fileName.toString() + ".json";
 		} catch (IOException e) {
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
+            gameFile.delete();
 			return null;
 		} catch (NullPointerException e) {
+            // First close the game writer
+            try {
+                gameWriter.close();
+            } catch (IOException io) {
+                System.err.println("Error when closing the game writer");
+            }
+
+            // Then delete the file
+            gameFile.delete();
 			System.err.println(e.getMessage());
 			return null;
 		}

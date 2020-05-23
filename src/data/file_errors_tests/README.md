@@ -1,4 +1,4 @@
-Aquesta carpeta conté diferents fitxers de configuració i de partides guardades amb errors. S'han fet servir per a comprovar el correcte funcionament de les excepcions.
+_Aquesta carpeta conté diferents fitxers de configuració i de partides guardades amb errors. S'han fet servir per a comprovar el correcte funcionament de les excepcions.
 
 La descripció dels fitxers és la següent:
 
