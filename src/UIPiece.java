@@ -19,7 +19,7 @@ public class UIPiece extends StackPane {
     private double _mouseY;             ///< Y Coordinates of the mouse (pixels)
     private double _oldY;               ///< Y Old coordinate (pixels)
 
-    private static final String DEF_IMG_LOCATION = "./data/img/";       ///< Default image location
+    private static final String DEF_IMG_LOCATION = "data/img/";       ///< Default image location
 
     /// @brief Default piece constructor
     /// @param piece Piece it will display

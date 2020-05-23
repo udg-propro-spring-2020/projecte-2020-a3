@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 /// @brief Modular class to construct all the UI items
 public class ItemBuilder {
     /// CONSTANTS
-    private static final String CSS_LOCATION = "./data/styles/style.css";      ///< Default CSS file location
+    private static final String CSS_LOCATION = "data/styles/style.css";      ///< Default CSS file location
 
     /// CSS CLASSNAME CONSTANTS
     private static final String BTN = "btn";                            ///< Default button class name

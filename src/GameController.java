@@ -119,14 +119,16 @@ public class GameController {
                     Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(temp.first, temp.second);
     
                     // All movements must be right!
-                    // Add to deaths list
-                    for (Position p : checkResult.second) {
-                        _loadedGameDeaths.add(
-                            new Pair<Piece,Pair<Position,Integer>>(
-                                _chess.pieceAt(p.row(), p.col()),               // Piece
-                                new Pair<Position, Integer>(p, _turnNumber)     // Position - Turn
-                            )
-                        );
+                    // Add to deaths list - only add if it is not a castling
+                    if (!t.isCastlingTurn()) {
+                        for (Position p : checkResult.second) {
+                            _loadedGameDeaths.add(
+                                new Pair<Piece,Pair<Position,Integer>>(
+                                    _chess.pieceAt(p.row(), p.col()),               // Piece
+                                    new Pair<Position, Integer>(p, _turnNumber)     // Position - Turn
+                                )
+                            );
+                        }
                     }
                     
                     // Apply movement also checks for castling
@@ -137,7 +139,7 @@ public class GameController {
                         false
                     );
 
-                    if (moveResult.contains(MoveAction.Castling)) {
+                    if (t.isCastlingTurn()) {
                         saveCastlingTurn(checkResult.second);
                     } else {
                         saveTurn(
@@ -387,7 +389,7 @@ public class GameController {
 
             // Next turn
             _turnNumber++;
-            if (canRedo() && _turns.get(_turnNumber).isEmptyTurn()) {
+            if (canRedo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
                 // Since will be an empty turn, we have to increase once more
                 _turnNumber++;
             }
