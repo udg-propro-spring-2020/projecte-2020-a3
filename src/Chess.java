@@ -454,7 +454,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Check if the king can escape from a check
+     * @brief Check if the king can't escape from a check
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
@@ -484,7 +484,7 @@ public class Chess implements Cloneable {
         }
         if(checkmate){
             //System.out.println(showBoard());
-            System.out.println("Ha detectat escac i mat");
+            //System.out.println("Ha detectat escac i mat");
         }
         return checkmate;
     }
@@ -865,11 +865,13 @@ public class Chess implements Cloneable {
         if(!calledByIsCheckmate){
             if(canPromote(origin, destiny, false))
                 actions.add(MoveAction.Promote);
-            if(isCheck(listDoingMove))
+            if(isCheck(listDoingMove)){
                 //System.out.println("1106. Hi ha escac");
-                    actions.add(MoveAction.Escac);
-            if(isCheckmate(listCounterMove, listDoingMove))
+                if(isCheckmate(listCounterMove, listDoingMove))
                     actions.add(MoveAction.Escacimat);
+                else
+                    actions.add(MoveAction.Escac);
+            }
         }
         return actions;
     }
@@ -960,8 +962,6 @@ public class Chess implements Cloneable {
                     i++;
                 }
             }
-            /*System.out.println("He matat i el jugador negre te un total de peces: "+pListBlack.size());
-            pintarLlistes();*/
         }/*
         for(int j=0;j<listToChange.size();j++){
             System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
