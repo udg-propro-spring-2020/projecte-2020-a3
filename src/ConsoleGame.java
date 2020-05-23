@@ -333,9 +333,8 @@ public class ConsoleGame {
 				} else {
 					System.out.println(pTwo + " surrenders");
 				}
-				playerOption = "G";
 				_controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
-				skipToggle = true;
+				skipToggle = false;
 			} else if (playerOption.equals("G")) {
 				skipToggle = true;
 			}
@@ -349,7 +348,8 @@ public class ConsoleGame {
 			!playerOption.equals("X") && 
 			!playerOption.equals("G") &&
 			!playerOption.equals("E") &&
-			!playerOption.equals("I")
+			!playerOption.equals("I") &&
+			!playerOption.equals("S")
 		);
 			
 		switch (playerOption) {
@@ -370,6 +370,10 @@ public class ConsoleGame {
 			}
 			case "I": {
 				endOfGame(true, true);
+				break;
+			}
+			case "S": {
+				endOfGame(false, false);
 				break;
 			}
 		}
@@ -429,7 +433,11 @@ public class ConsoleGame {
 					System.out.println("The CPU has not accepted the draw");
 					playerOption = "";
 					lastTurnDraw = true;
-				} 
+				} else if (playerOption.equals("S")) {
+					_controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
+					System.out.println(_controller.currentTurnColor().value() +  " surrenders!");
+					playerOption = "C";
+				}
 
 				if (inactiveLimitReached()) {
 					playerOption = "I";
@@ -449,6 +457,7 @@ public class ConsoleGame {
 			case "C": {
 				// One of them wins
 				endOfGame(false, false);
+				break;
 			}
 			case "G": {
 				String fileName = saveGame("PARTIDA AJORNADA");
@@ -485,7 +494,7 @@ public class ConsoleGame {
 		MoveAction result = null;
 		boolean inactivity = false;
 		do {
-			System.out.println(_controller.currentTurnColor().toString());
+			System.out.println(_controller.currentTurnColor().value());
 			System.out.println(_controller.showBoard());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				result = cpuTurn(cpu1);
@@ -637,7 +646,7 @@ public class ConsoleGame {
 									handleCheck();
 								} else if (actions.contains(MoveAction.Escacimat)) {
 									result = "C";
-									System.out.println(_controller.currentTurnColor().toString() + " checkmate");
+									System.out.println(_controller.currentTurnColor().value() + " checkmate");
 								} else {
 									if (_controller.currentTurnColor() == PieceColor.White) {
 										_whiteCheckTurns = 0;
@@ -945,7 +954,7 @@ public class ConsoleGame {
 	/// @pre ---
 	/// @post Increments the total check turn of the current color 
 	private static void handleCheck() {
-		System.out.println("Check on " + _controller.currentTurnColor().toString() + "'s king'");
+		System.out.println("Check on " + _controller.currentTurnColor().value() + "'s king'");
 		if (_controller.currentTurnColor() == PieceColor.White) {
 			_whiteCheckTurns++;
 		} else {
@@ -1019,7 +1028,7 @@ public class ConsoleGame {
 			System.out.println("Game finished");
 			res = "TAULES";
 		} else {
-			System.out.println("Winner: " + _controller.currentTurnColor().toString());
+			System.out.println("Winner: " + _controller.currentTurnColor().value());
 			System.out.println("Game finished");
 			res = _controller.currentTurnColor().toString() + " GUANYEN";
 		}

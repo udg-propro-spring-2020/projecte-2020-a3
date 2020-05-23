@@ -466,7 +466,7 @@ public class UIChess extends Application {
         ItemBuilder.buildButton(
             redoBtn,
             "REDO",
-            MAX_BTN_WIDTH / 2,
+            MAX_BTN_WIDTH / 1,
             ItemBuilder.BtnType.PRIMARY,
             false
         );
@@ -486,16 +486,27 @@ public class UIChess extends Application {
 
         list.add(ItemBuilder.buildSpacer(SPACER_PIXELS));
 
-        Button saveGame = new Button();
+        Button surrenderBtn = new Button();
         ItemBuilder.buildButton(
-            saveGame,
+            surrenderBtn,
+            "SURRENDER",
+            MAX_BTN_WIDTH / 2,
+            ItemBuilder.BtnType.ACCENT,
+            false
+        );
+        surrenderBtn.setOnAction(e -> handleSurrender());
+        list.add(surrenderBtn);
+
+        Button saveGameBtn = new Button();
+        ItemBuilder.buildButton(
+            saveGameBtn,
             "SAVE GAME",
             MAX_BTN_WIDTH / 2,
             ItemBuilder.BtnType.SECONDARY,
             false
         );
-        saveGame.setOnAction(e -> handleSaveGame());
-        list.add(saveGame);
+        saveGameBtn.setOnAction(e -> handleSaveGame());
+        list.add(saveGameBtn);
 
         Button exitGameBtn = new Button();
         ItemBuilder.buildButton(
@@ -881,8 +892,8 @@ public class UIChess extends Application {
     ///       and asked if wanted to be saved. If so, saves the game
     private void handleEndOfGame() {
         boolean res = buildConfirmationPopUp(
-            _controller.currentTurnColor().toString() + " WINS!",
-            _controller.currentTurnColor().toString() + " WINS! \nDo you want to save the game?"
+            _controller.currentTurnColor().value() + " WINS!",
+            _controller.currentTurnColor().value() + " WINS! \nDo you want to save the game?"
         );
 
         if (res) {
@@ -914,6 +925,30 @@ public class UIChess extends Application {
                 "ERROR", 
                 "There was an error saving the file.\nTry again.\nIf the error persists, talk to the developers."
             );
+        }
+    }
+
+    /// @brief Function that handles the event of a player surrendering
+    /// @pre ---
+    /// @post Saves the game and goes back to the main scene
+    private void handleSurrender() {
+        boolean res = buildConfirmationPopUp(
+            "Are you sure?",
+            "Do you really want to surrender?"
+        );
+
+        if (res) {
+            _controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
+            PieceColor loser = _controller.currentTurnColor();
+            _controller.toggleTurn();
+
+            ItemBuilder.buildPopUp(
+                "SURRENDER", 
+                loser.value() + " has surrendered!\n" + _controller.currentTurnColor().value() + " wins!",
+                true
+            ).showAndWait();
+
+            handleEndOfGame();
         }
     }
 
@@ -1133,7 +1168,7 @@ public class UIChess extends Application {
                     piece.setMouseX(m.getSceneX());
                     piece.setMouseY(m.getSceneY());
                 } else {
-                    System.out.println("Turn of: " + _controller.currentTurnColor().toString());
+                    System.out.println("Turn of: " + _controller.currentTurnColor().value());
                 }
             }
         );
@@ -1274,7 +1309,7 @@ public class UIChess extends Application {
         // Create cpu adapted menu
         ArrayList<Node> buttons = new ArrayList<>();
         buttons.addAll(buildInGameButtons());
-        buttons.add(buttons.size() - 3, buildInGameCPUButton(cpu, null));
+        buttons.add(buttons.size() - 4, buildInGameCPUButton(cpu, null));
 
         // Create layout
         VBox layout = ItemBuilder.buildVBox(12.0, buttons, true, true);
@@ -1337,7 +1372,7 @@ public class UIChess extends Application {
         // Create cpu adapted menu
         ArrayList<Node> buttons = new ArrayList<>();
         buttons.addAll(buildInGameButtons());
-        buttons.add(buttons.size() - 3, buildInGameCPUButton(white, black));
+        buttons.add(buttons.size() - 4, buildInGameCPUButton(white, black));
 
         // Create layout
         VBox layout = ItemBuilder.buildVBox(12.0, buttons, true, true);
