@@ -1,0 +1,213 @@
+{
+	"fitxerRegles": "./data/configuration.json",
+	"posIniBlanques": [
+		{
+			"pos": "a1",
+			"tipus": "TORRE",
+			"moguda": false
+		},
+		{
+			"pos": "b1",
+			"tipus": "CAVALL",
+			"moguda": false
+		},
+		{
+			"pos": "c1",
+			"tipus": "ALFIL",
+			"moguda": false
+		},
+		{
+			"pos": "d1",
+			"tipus": "DAMA",
+			"moguda": false
+		},
+		{
+			"pos": "e1",
+			"tipus": "REI",
+			"moguda": false
+		},
+		{
+			"pos": "f1",
+			"tipus": "ALFIL",
+			"moguda": false
+		},
+		{
+			"pos": "g1",
+			"tipus": "CAVALL",
+			"moguda": false
+		},
+		{
+			"pos": "h1",
+			"tipus": "TORRE",
+			"moguda": false
+		},
+		{
+			"pos": "a2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "b2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "c2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "d2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "e2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "f2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "g2",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "h2",
+			"tipus": "PEO",
+			"moguda": false
+		}
+	],
+	"posIniNegres": [
+		{
+			"pos": "a8",
+			"tipus": "TORRE",
+			"moguda": false
+		},
+		{
+			"pos": "b8",
+			"tipus": "CAVALL",
+			"moguda": false
+		},
+		{
+			"pos": "c8",
+			"tipus": "ALFIL",
+			"moguda": false
+		},
+		{
+			"pos": "d8",
+			"tipus": "DAMA",
+			"moguda": false
+		},
+		{
+			"pos": "e8",
+			"tipus": "REI",
+			"moguda": false
+		},
+		{
+			"pos": "f8",
+			"tipus": "ALFIL",
+			"moguda": false
+		},
+		{
+			"pos": "g8",
+			"tipus": "CAVALL",
+			"moguda": false
+		},
+		{
+			"pos": "h8",
+			"tipus": "TORRE",
+			"moguda": false
+		},
+		{
+			"pos": "a7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "b7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "c7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "d7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "e7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "f7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "g7",
+			"tipus": "PEO",
+			"moguda": false
+		},
+		{
+			"pos": "h7",
+			"tipus": "PEO",
+			"moguda": false
+		}
+	],
+	"proper_torn": "BLANQUES",
+	"tirades": [
+		{
+			"torn": "BLANQUES",
+			"origen": "g1",
+			"desti": "h3",
+			"resultat": ""
+		},
+		{
+			"torn": "NEGRES",
+			"origen": "a7",
+			"desti": "a5",
+			"resultat": ""
+		},
+		{
+			"torn": "BLANQUES",
+			"origen": "g2",
+			"desti": "g4",
+			"resultat": ""
+		},
+		{
+			"torn": "NEGRES",
+			"origen": "a5",
+			"desti": "a4",
+			"resultat": ""
+		},
+		{
+			"torn": "BLANQUES",
+			"origen": "f1",
+			"desti": "g2",
+			"resultat": ""
+		},
+		{
+			"torn": "NEGRES",
+			"origen": "b7",
+			"desti": "b5",
+			"resultat": ""
+		},
+		{
+			"torn": "BLANQUES",
+			"origen": "h1-e1",
+			"desti": "f1-g1",
+			"resultat": "ENROC"
+		}
+	],
+	"resultat_final": "PARTIDA AJORNADA"
+}
