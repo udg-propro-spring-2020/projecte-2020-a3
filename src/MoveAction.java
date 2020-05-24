@@ -15,7 +15,7 @@ public enum MoveAction {
             case Check:
                 return new String("ESCAC");
             case Checkmate:
-                return new String("ESCACIMAT");
+                return new String("ESCAC I MAT");
             case Promote:
                 return new String("PROMOTION");
             case Castling:
