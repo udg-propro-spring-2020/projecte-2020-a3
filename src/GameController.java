@@ -27,7 +27,8 @@ public class GameController {
     private boolean _fromSavedGame = false;
 
     // CONSTANTS
-    private static String SAVED_GAMES_LOCATION = "./saved_games/";											///< Saved games directory
+    private static String SAVED_GAMES_LOCATION = "./saved_games/";				    ///< Saved games directory
+    private static int INACTIVE_THRESHOLD = 40;									    ///< Inactive turns threshold
 
     /// @brief Builds a game controller for a chess with the given file location
     /// @details If saved game is true, it will apply all the turns that are saved
@@ -132,7 +133,7 @@ public class GameController {
                     }
                     
                     // Apply movement also checks for castling
-                    List<MoveAction> moveResult = _chess.applyMovement(
+                    List<MoveAction> actions = _chess.applyMovement(
                         temp.first,
                         temp.second,
                         checkResult.second,
@@ -143,7 +144,7 @@ public class GameController {
                         saveCastlingTurn(checkResult.second);
                     } else {
                         saveTurn(
-                            moveResult,
+                            actions,
                             new Pair<String, String>(
                                 temp.first.toString(),
                                 temp.second.toString()
@@ -615,6 +616,32 @@ public class GameController {
         Turn t = _turns.get(_turnNumber - 3);
         return t.turnResult().equals(MoveAction.Escac.toString());
     }
+
+    /// @brief Returns if the players have reached the inactive limit
+	/// @pre ---
+	/// @post Returns true if the players have played as many turns without killing 
+	///       as there are in the configuration. If the config limit is grater than the
+	///       threshold, it will return false
+	public boolean inactiveLimitReached(int inactiveTurns) {
+		if (evenTurn() && inactiveLimit() < INACTIVE_THRESHOLD) {
+			// Check for inactivity
+			if ((inactiveTurns / 2) >= inactiveLimit()) {
+				// Game finished due to inactivity
+				return true;
+			}
+		}
+
+		return false;
+    }
+    
+    /// @brief Returns if the players have reached the consecutive check limit
+	/// @pre ---
+	/// @post Returns true if there has been a color doing as many consecutive checks
+	///       as the limit set
+	public boolean checkLimitReached(int whiteCheckTurns, int blackCheckTurns) {
+		return whiteCheckTurns >= checkLimit() ||
+			   blackCheckTurns >= checkLimit();
+	}
 
     //! METHODS TO RETRIEVE CHESS INFORMATION
     /// @brief Returns a String as the board of the chess

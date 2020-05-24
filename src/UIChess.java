@@ -54,6 +54,9 @@ public class UIChess extends Application {
     private List<Pair<Integer, UIPiece>> _deathPieces;              ///< Controls the death pieces and the turn in which they died
     private List<Pair<Integer, UIPiece>> _revivedPieces;            ///< Controls the revived pieces and the turn in which they were revived
     private boolean _blockPlayer = false;                           ///< To control when the player can move a piece
+    private int _inactiveTurns = 0;                                 ///< Current amount of inactive turns
+	private static int _whiteCheckTurns = 0;						///< Current amount of consecutive checks of white
+	private static int _blackCheckTurns = 0;						///< Current amount of consecutive checks of black
 
     /// @brief Defines the type of the match currently playing
     private static enum GameType {
@@ -550,61 +553,11 @@ public class UIChess extends Application {
         );
         cpuButton.setOnAction(e -> {
             if (isTurnOfCPU()) {
-                Pair<Position, Position> move = null;
                 if (_controller.currentTurnColor() == PieceColor.White || black == null) {
                     // If black equals null, means that the game type is CPU_PLAYER
-                    move = white.doMovement();
+                    cpuTurn(white);
                 } else {
-                    move = black.doMovement();
-                }
-
-                // Check movement
-                Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(move.first, move.second);
-
-                // Apply movement - always a correct movement
-                List<MoveAction> result = null;
-                UIPiece piece = getUIPieceAt(move.first);
-                result = applyPieceMovement(piece, checkResult, move.first, move.second);
-                
-                _controller.cancellUndoes();
-                
-                // CPU movement will always be correct
-                if (checkResult.first.contains(MoveAction.Castling)) {
-                    // Case CPU does a castling move
-                    _controller.saveCastlingTurn(checkResult.second);
-                } else {	
-                    // Saving turn
-                    _controller.saveTurn(
-                        result,
-                        new Pair<String, String>(
-                            move.first.toString(),
-                            move.second.toString()
-                        )
-                    );
-
-                    // Handle promotion of the CPU - automated
-                    if (result.contains(MoveAction.Promote)) {
-                        PieceType oldType = _controller.pieceAtCell(move.second).type();
-                        _controller.promotePiece(move.second, _controller.mostValuableType());
-                        _controller.savePromotionTurn(
-                            _controller.currentTurnColor(),
-                            oldType,
-                            _controller.mostValuableType()
-                        );
-
-                        // Promote in UI
-                        piece.promoteType(_controller.pieceAtCell(move.second));
-                    }
-                }
-
-                if (result.contains(MoveAction.Escacimat)) {
-                    handleEndOfGame();
-                }
-
-                _controller.toggleTurn();
-
-                if (_gameType == GameType.CPU_PLAYER) {
-                    _blockPlayer = false;
+                    cpuTurn(black);
                 }
             } else {
                 System.out.println("Player turn");
@@ -622,7 +575,7 @@ public class UIChess extends Application {
         );
     }
 
-    // IN-GAME HANDLING OPTIONS
+    //! IN-GAME HANDLING OPTIONS
     /// @brief Function that handles de logic of a promotion
     /// @pre There is a piece in @p piecePosition
     /// @post Promotes the piece in @p piecePosition both in the UI and the chess
@@ -871,10 +824,7 @@ public class UIChess extends Application {
             // Response
             if (res) {
                 // End of game
-                _controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
-                String fileName = _controller.saveGame("TAULES", false);
-                savedGamePopUp(fileName);
-                resetToMainScene();
+                handleDrawEndOfGame();
             }
         } else {
             ItemBuilder.buildPopUp(
@@ -897,6 +847,23 @@ public class UIChess extends Application {
 
         if (res) {
             String fileName = _controller.saveGame("ESCAC I MAT", false);
+            savedGamePopUp(fileName);
+        }
+
+        resetToMainScene();
+    }
+
+    /// @brief Function that handles a draw end of game
+    /// @pre ---
+    /// @post The game has ended as a draw
+    private void handleDrawEndOfGame() {
+        boolean res = buildConfirmationPopUp(
+            "DRAW",
+            "The game has finished as a draw! \nDo you want to save the game?"
+        );
+
+        if (res) {
+            String fileName = _controller.saveGame("TAULES", false);
             savedGamePopUp(fileName);
         }
 
@@ -949,6 +916,46 @@ public class UIChess extends Application {
 
             handleEndOfGame();
         }
+    }
+
+    /// @brief Function that handles when there is a check
+    /// @pre Last movement's result is a check
+    /// @post Increases the corresponding color check counter if there is a check
+    private void handleCheck() {
+        if (_controller.currentTurnColor() == PieceColor.White) {
+            _whiteCheckTurns++;
+        } else {
+            _blackCheckTurns++;
+        }
+    }
+
+    /// @brief Function that handles when there is not a check
+    /// @pre Last movement's result is not check nor checkmate
+    /// @post Resets the corresponding color check counter
+    private void handleCheckReset() {
+        if (_controller.currentTurnColor() == PieceColor.White) {
+            _whiteCheckTurns = 0;
+        } else {
+            _blackCheckTurns = 0;
+        }
+    }
+
+    /// @brief Function that handles when one of the limits has been reached
+    /// @pre @p limitRes > 0
+    /// @post Displays a pop up depending on the limit type
+    private void handleLimitReached(int limitRes) {
+        String message = null;
+        if (limitRes == 1) {
+            message = "Draw due to consecutive check limit exceeded";
+        } else {
+            message = "Draw due to inactive limit exceeded";
+        }
+
+        ItemBuilder.buildPopUp(
+            "DRAW", 
+            message, 
+            true
+        ).showAndWait();
     }
 
     /// @brief Displays the main scene
@@ -1183,67 +1190,7 @@ public class UIChess extends Application {
         piece.setOnMouseReleased(
             (MouseEvent m) -> {
                 if (_controller.currentTurnColor() == piece.color() && !_blockPlayer) {
-                    // Origin
-                    int oX = boardPosition(piece.oldX());
-                    int oY = boardPosition(piece.oldY());
-                    Position origin = new Position(oY, oX);
-                    // Destination
-                    int dX = boardPosition(piece.getLayoutX());
-                    int dY = boardPosition(piece.getLayoutY());
-                    Position dest = new Position(dY, dX);
-
-                    // Check if valid movement
-                    Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkPlayerMovement(origin, dest);
-                    if (checkResult.first.contains(MoveAction.Correct)) {
-                        // Correct movement
-                        _controller.cancellUndoes();                                // Cancelling undoes
-                        List<MoveAction> actions = applyPieceMovement(piece, checkResult, origin, dest);       // Applying movment
-
-                        if (actions == null) {
-                            displayErrorPopUp(
-                                "GOD SAVE THE KING",
-                                "Your king is in danger. You have to protect him!"    
-                            );
-                            // Reset move
-                            piece.move(origin.col(), origin.row());
-                        } else {
-                            if (checkResult.first.contains(MoveAction.Castling)) {
-                                // Save castling turn
-                                _controller.saveCastlingTurn(checkResult.second);
-
-                                // Result of castling may be a checkmate
-                                if (actions.contains(MoveAction.Escacimat)) {
-                                    handleEndOfGame();
-                                }
-                            } else {
-                                // Save normal turn
-                                _controller.saveTurn(
-                                    actions, 
-                                    new Pair<String, String> (
-                                        origin.toString(),
-                                        dest.toString()
-                                    )
-                                );
-
-                                if (actions.contains(MoveAction.Promote)) {
-                                    handlePromotion(dest);
-                                }
-                            }
-
-                            if (actions.contains(MoveAction.Escacimat)) {
-                                handleEndOfGame();
-                            }
-
-                            _controller.toggleTurn();
-                                    
-                            // Block the user
-                            if (_gameType == GameType.CPU_PLAYER) {
-                                _blockPlayer = true; 
-                            }
-                        }
-                    } else {
-                        piece.cancelMove();
-                    }
+                    playerTurn(piece);
                 }
             }
         );
@@ -1402,19 +1349,182 @@ public class UIChess extends Application {
         }
     }
 
+    
+    /// @brief Function that manages a player turn of a piece
+    /// @pre ---
+    /// @post Evaluates a drag movement applied on the @p piece and applies it to the chess.
+    ///       Also, handles the results of the movement as well as moving the piece
+    private void playerTurn(UIPiece piece) {
+        // Origin
+        int oX = boardPosition(piece.oldX());
+        int oY = boardPosition(piece.oldY());
+        Position origin = new Position(oY, oX);
+        // Destination
+        int dX = boardPosition(piece.getLayoutX());
+        int dY = boardPosition(piece.getLayoutY());
+        Position dest = new Position(dY, dX);
+
+        // Check if valid movement
+        Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkPlayerMovement(origin, dest);
+        if (checkResult.first.contains(MoveAction.Correct)) {
+            // Correct movement
+            _controller.cancellUndoes();                                // Cancelling undoes
+            List<MoveAction> actions = applyPieceMovement(piece, checkResult, origin, dest);       // Applying movment
+
+            if (actions == null) {
+                displayErrorPopUp(
+                    "GOD SAVE THE KING",
+                    "Your king is in danger. You have to protect him!"    
+                );
+                // Reset move
+                piece.move(origin.col(), origin.row());
+            } else {
+                if (checkResult.first.contains(MoveAction.Castling)) {
+                    // Save castling turn
+                    _controller.saveCastlingTurn(checkResult.second);
+                    _inactiveTurns++;
+
+                    // Result of castling may be a checkmate
+                    if (actions.contains(MoveAction.Escacimat)) {
+                        handleEndOfGame();
+                    }
+                } else {
+                    if (checkResult.second.isEmpty()) {
+                        // Turn with no captures
+                        _inactiveTurns++;
+                    } else {
+                        // Otherwise
+                        _inactiveTurns = 0;
+                    }
+
+                    // Save normal turn
+                    _controller.saveTurn(
+                        actions, 
+                        new Pair<String, String> (
+                            origin.toString(),
+                            dest.toString()
+                        )
+                    );
+
+                    if (actions.contains(MoveAction.Promote)) {
+                        handlePromotion(dest);
+                    }
+                }
+
+                if (actions.contains(MoveAction.Escacimat)) {
+                    handleEndOfGame();
+                } else if (actions.contains(MoveAction.Escac)) {
+                    handleCheck();
+                } else {
+                    handleCheckReset();
+                }
+
+                int limitRes = checkLimits();
+                if (limitRes > 0) {
+                    handleLimitReached(limitRes);
+                    handleDrawEndOfGame();
+                } else {
+                    _controller.toggleTurn();
+                }
+                        
+                // Block the user
+                if (_gameType == GameType.CPU_PLAYER) {
+                    _blockPlayer = true; 
+                }
+            }
+        } else {
+            piece.cancelMove();
+        }
+    }
+
+    /// @brief Function that manages a CPU turn
+    /// @pre @p cpu 's color is equal to the current turn color
+    /// @post Asks for the @p cpu a movment and applies it. Also handles the result
+    private void cpuTurn(Cpu cpu) {
+        Pair<Position, Position> move = cpu.doMovement();
+
+        // Check movement
+        Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(move.first, move.second);
+
+        // Apply movement - always a correct movement
+        UIPiece piece = getUIPieceAt(move.first);
+        List<MoveAction> actions = applyPieceMovement(piece, checkResult, move.first, move.second);
+        
+        _controller.cancellUndoes();
+        
+        // CPU movement will always be correct
+        if (checkResult.first.contains(MoveAction.Castling)) {
+            // Case CPU does a castling move
+            _controller.saveCastlingTurn(checkResult.second);
+            _inactiveTurns++;
+        } else {
+            if (checkResult.second.isEmpty()) {
+                // Turn with no captures
+                _inactiveTurns++;
+            } else {
+                // Otherwise
+                _inactiveTurns = 0;
+            }
+
+            // Saving turn
+            _controller.saveTurn(
+                actions,
+                new Pair<String, String>(
+                    move.first.toString(),
+                    move.second.toString()
+                )
+            );
+
+            // Handle promotion of the CPU - automated
+            if (actions.contains(MoveAction.Promote)) {
+                PieceType oldType = _controller.pieceAtCell(move.second).type();
+                _controller.promotePiece(move.second, _controller.mostValuableType());
+                _controller.savePromotionTurn(
+                    _controller.currentTurnColor(),
+                    oldType,
+                    _controller.mostValuableType()
+                );
+
+                // Promote in UI
+                piece.promoteType(_controller.pieceAtCell(move.second));
+            }
+        }
+
+        if (actions.contains(MoveAction.Escacimat)) {
+            handleEndOfGame();
+        } else if (actions.contains(MoveAction.Escac)) {
+            handleCheck();
+        } else {
+            handleCheckReset();
+        }
+
+        int limitRes = checkLimits();
+        if (limitRes > 0) {
+            handleLimitReached(limitRes);
+            handleDrawEndOfGame();
+        } else {
+            _controller.toggleTurn();
+        }
+
+
+        if (_gameType == GameType.CPU_PLAYER) {
+            _blockPlayer = false;
+        }
+    }
+
     /// @brief Function that handles the event of a UIPiece killing another
     /// @pre The movement has been check and it is correct
     /// @post Applies the movement to the chess and calculates, if there has, which are the
     ///       pieces that got killed by that move. It removes them from the UI and addds them in
     ///       the death list. If the function is called to apply a redone movement
-    private List<MoveAction> applyPieceMovement(UIPiece piece, Pair<List<MoveAction>, List<Position>> moveResult, Position origin, Position dest) {
+    private List<MoveAction> applyPieceMovement(UIPiece piece, Pair<List<MoveAction>, List<Position>> checkResult, Position origin, Position dest) {
         // Apply to chess        
-        List<MoveAction> result = _controller.applyPlayerMovement(origin, dest, moveResult.second);
+        List<MoveAction> result = _controller.applyPlayerMovement(origin, dest, checkResult.second);
         
         // Check if castling
-        if (moveResult.first.contains(MoveAction.Castling)) {
+        if (checkResult.first.contains(MoveAction.Castling)) {
             // Both pieces have to be moved
-            Position tempPos = moveResult.second.get(2); 
+            Position tempPos = checkResult.second.get(2); 
             // Get the destination piece
             UIPiece tempPiece = getUIPieceFromPiece(
                 _controller.pieceAtCell(tempPos)
@@ -1423,13 +1533,13 @@ public class UIChess extends Application {
             // Apply move to the destination piece
             tempPiece.move(tempPos.col(), tempPos.row());
             // Apply move to the origin piece
-            tempPos = moveResult.second.get(3);
+            tempPos = checkResult.second.get(3);
             piece.move(tempPos.col(), tempPos.row());
         } else {
             piece.move(dest.col(), dest.row());
             // Check if killed
-            if (!moveResult.second.isEmpty()) {
-                killPieces(moveResult.second, _controller.turnNumber());            
+            if (!checkResult.second.isEmpty()) {
+                killPieces(checkResult.second, _controller.turnNumber());            
             }
         }
 
@@ -1506,6 +1616,23 @@ public class UIChess extends Application {
         }
 
         return result;
+    }
+
+	/// @brief To know if one of the limits has been reached
+	/// @pre ---
+	/// @post If a limit has been reached, saves an empty turn with that limit and returns 
+	///       1 if check limit, 2 if inactivity and -1 if none
+	private int checkLimits() {
+		if (_controller.checkLimitReached(_whiteCheckTurns, _blackCheckTurns)) {
+			// End of game
+			_controller.saveEmptyTurn("TAULES PER ESCAC CONTINU", _controller.currentTurnColor());
+			return 1;
+		} else if (_controller.inactiveLimitReached(_inactiveTurns)) {
+			_controller.saveEmptyTurn("TAULES PER INNACCIÓ", _controller.currentTurnColor());
+			return 2;
+		}
+
+		return -1;
     }
 
     /// @brief To know if the CPU can move
