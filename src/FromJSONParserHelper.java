@@ -421,26 +421,31 @@ public class FromJSONParserHelper {
 
             Position pos = new Position(getString(s));
             String ptName = getString(fr.nextLine());
-            PieceType type = null;
 
-            for (PieceType pt : pTypes) {
-                // Search for the type
-                if (pt.ptName().equals(ptName)) {
-                    type = pt;
-                    break;
+            if (ptName.isEmpty()) {
+                pList.add(null);
+            } else {
+                PieceType type = null;
+                for (PieceType pt : pTypes) {
+                    // Search for the type
+                    if (pt.ptName().equals(ptName)) {
+                        type = pt;
+                        break;
+                    }
                 }
+
+                if (type == null) {
+                    throw new JSONParseFormatException(
+                        "A piece from the initial positions list does not exits.",
+                        JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
+                    );
+                }
+    
+                boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
+    
+                pList.add(new Pair<Position, Piece>(pos, new Piece(type, moved, color)));
             }
 
-            if (type == null) {
-                throw new JSONParseFormatException(
-                    "A piece from the initial positions list does not exits.",
-                    JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
-                );
-            }
-
-            boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
-
-            pList.add(new Pair<Position, Piece>(pos, new Piece(type, moved, color)));
             s = fr.nextLine().trim();
         }
 

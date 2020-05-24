@@ -153,9 +153,9 @@ public class ToJSONParserHelper {
     public static String objectListToJSON(String listName, List<? extends JSON> list, Boolean lastItem, String identation)
             throws NullPointerException, IllegalArgumentException {
         if (listName.isEmpty() || listName == null) {
-            throw new NullPointerException("primitiveListToJSON listName value cannot be null nor empty");
+            throw new NullPointerException("objectListToJSON listName value cannot be null nor empty");
         } else if (!identation.trim().isEmpty()) {
-            throw new IllegalArgumentException("primitiveListToJSON identation can only be tabs or empty");
+            throw new IllegalArgumentException("objectListToJSON identation can only be tabs or empty");
         }
 
         StringBuilder s = new StringBuilder();
@@ -169,7 +169,7 @@ public class ToJSONParserHelper {
             s.append(LIST_START);
             for (int i = 0; i < list.size() - 1; i++) {
                 if (list.get(i) == null) {
-                    throw new NullPointerException("primitiveListToJSON list contains a null value at " + i);
+                    throw new NullPointerException("objectListToJSON list contains a null value at " + i);
                 }
 
                 s.append(list.get(i).toJSON())
@@ -177,7 +177,7 @@ public class ToJSONParserHelper {
             }
 
             if (list.get(list.size() - 1) == null) {
-                throw new NullPointerException("primitiveListToJSON list contains a null value at last item");
+                throw new NullPointerException("objectListToJSON list contains a null value at last item");
             }
 
             s.append(list.get(list.size() - 1).toJSON())
@@ -221,25 +221,33 @@ public class ToJSONParserHelper {
             s.append(LIST_START);
             for (int i = 0; i < list.size() - 1; i++) {
                 if (list.get(i) == null) {
-                    throw new NullPointerException("primitiveListToJSON list contains a null value at " + i);
+                    s.append(identation)
+                        .append(ONE_TAB)
+                        .append(valueToJSONString(""))
+                        .append(EOL);   
+                } else {
+                    s.append(identation)
+                        .append(ONE_TAB)
+                        .append(inQuotes ? valueToJSONString(list.get(i)) : list.get(i))
+                        .append(EOL);
                 }
-
-                s.append(identation)
-                    .append(ONE_TAB)
-                    .append(inQuotes ? valueToJSONString(list.get(i)) : list.get(i))
-                    .append(EOL);
             }
             
             if (list.get(list.size() - 1) == null) {
-                throw new NullPointerException("primitiveListToJSON list contains a null value at last item");
-            }
-
-            s.append(identation)
+                s.append(identation)
+                    .append(ONE_TAB)
+                    .append(valueToJSONString(""))
+                    .append(NEXT_LINE)
+                    .append(identation)
+                    .append(LIST_END);
+            } else {
+                s.append(identation)
                 .append(ONE_TAB)
                 .append(inQuotes ? valueToJSONString(list.get(list.size() - 1)) : list.get(list.size() - 1))
                 .append(NEXT_LINE)
                 .append(identation)
                 .append(LIST_END);
+            }
         }
 
         if (lastItem) {
