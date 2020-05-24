@@ -5,7 +5,7 @@
  * @brief The move make some special actions
  */
 public enum MoveAction { 
-    Incorrect, Correct, Escac, Escacimat, Promote, Castling;
+    Incorrect, Correct, Check, Checkmate, Promote, Castling;
 
     @Override
     public String toString() {
