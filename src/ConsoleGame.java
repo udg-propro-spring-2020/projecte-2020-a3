@@ -325,7 +325,6 @@ public class ConsoleGame {
 					}
 					playerOption = playerTurn();			
 				}
-
 			} else if (playerOption.equals("S")) {
 				if (_controller.currentTurnColor() == PieceColor.White) {
 					System.out.println(pOne + " surrenders");
@@ -336,6 +335,9 @@ public class ConsoleGame {
 				skipToggle = false;
 			} else if (playerOption.equals("G")) {
 				skipToggle = true;
+			} else if (playerOption.equals("C")) {
+				skipToggle = true;
+				playerOption = "S";
 			}
 
 			int limitRes = checkLimits();
