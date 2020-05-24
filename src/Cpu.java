@@ -91,19 +91,21 @@ public class Cpu{
                 pieces=tauler.pListBlack();
                 piecesContrincant=tauler.pListWhite();
             }
+            Boolean follow = true;
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            while(itPieces.hasNext()){//for each peice
+            while(itPieces.hasNext() && follow){//for each peice
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores= tauler.allPiecesDestiniesWithValues(piece.first);//take all possibles movements for this piece which the socre asssociated at this movement
 
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
-                Boolean follow = true;
                 while(itMoviments.hasNext() && follow){//for each movement
                     
                     Chess taulerCopia = (Chess)tauler.clone();//copy the actual chess because after applying this movememnt and al the minmax alogirthm we need the chess as now
                     
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
+                    //System.out.println(taulerCopia.showBoard());
+                    //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     //System.out.println(taulerCopia.showBoard());
                     //System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
                     //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" max:"+max);
@@ -161,7 +163,7 @@ public class Cpu{
                         the anterior node (because anterior will choose the samllest)
                         we dont have to continue inspecinting this branch so we cut it.
                         */
-                        if(smallerAnterior<=biggestAnterior){/*System.out.println("tallo desde CPU nivell:"+profundity);*/follow=false;}
+                        if(smallerAnterior<biggestAnterior){/*System.out.println("tallo desde CPU result:"+result+" nivell:"+profundity);*/follow=false;}
                     }
                     else taulerCopia.undoMovement();
                 }
@@ -205,15 +207,16 @@ public class Cpu{
                 pieces=tauler.pListBlack();
                 piecesContrincant=tauler.pListWhite();
             }
+            Boolean follow = true;
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
-            while(itPieces.hasNext()){  //FOR EACH PIECE
+            while(itPieces.hasNext() && follow){  //FOR EACH PIECE
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores=tauler.allPiecesDestiniesWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
-                Boolean follow = true;
                 while(itMoviments.hasNext() && follow){ //FOR EACH MOVEMENT
                     Chess taulerCopia = (Chess)tauler.clone();
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
+                    //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     Integer result= -pieceMovement.second + score;
                     //System.out.println(taulerCopia.showBoard());
                     //System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
@@ -249,7 +252,7 @@ public class Cpu{
                         the anterior node (because anterior will choose the bigger)
                         we dont have to continue inspecinting this branch so we cut it.
                         */
-                        if(biggestAnterior>=smallerAnterior){/*System.out.println("tallo desde CONTRINCANT nivell:"+profundity);*/follow=false;}
+                        if(biggestAnterior>smallerAnterior){/*System.out.println("tallo desde CONTRINCANT result:"+result+" nivell:"+profundity);*/follow=false;}
                     }
                     else taulerCopia.undoMovement();
                 }
