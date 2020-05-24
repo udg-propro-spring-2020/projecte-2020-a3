@@ -21,7 +21,6 @@ public class ConsoleGame {
 	/// CONSTANTS
 	private static String DEFAULT_CONFIGURATION = "data/configuration.json";								///< Location of the default configuration
 	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));	///< List of valid options of menu
-	private static int INACTIVE_THRESHOLD = 40;																///< Inactive turns threshold
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
@@ -326,7 +325,6 @@ public class ConsoleGame {
 					}
 					playerOption = playerTurn();			
 				}
-
 			} else if (playerOption.equals("S")) {
 				if (_controller.currentTurnColor() == PieceColor.White) {
 					System.out.println(pOne + " surrenders");
@@ -337,9 +335,14 @@ public class ConsoleGame {
 				skipToggle = false;
 			} else if (playerOption.equals("G")) {
 				skipToggle = true;
+			} else if (playerOption.equals("C")) {
+				skipToggle = true;
+				playerOption = "S";
 			}
 
-			if (checkLimits()) {
+			int limitRes = checkLimits();
+			if (limitRes > 0) {
+				handleLimitReached(limitRes);
 				playerOption = "I";
 			} else if (!skipToggle) {
 				_controller.toggleTurn();
@@ -407,7 +410,9 @@ public class ConsoleGame {
 
 				// Change turn
 				if (cpuResult == null || !(cpuResult == MoveAction.Escacimat)) {
-					if (checkLimits()) {
+					int limitRes = checkLimits();
+					if (limitRes > 0) {
+						handleLimitReached(limitRes);
 						playerOption = "I";
 					} else {
 						_controller.toggleTurn();
@@ -439,7 +444,9 @@ public class ConsoleGame {
 					playerOption = "C";
 				}
 
-				if (inactiveLimitReached()) {
+				int limitRes = checkLimits();
+				if (limitRes > 0) {
+					handleLimitReached(limitRes);
 					playerOption = "I";
 				} else {
 					// Change turn
@@ -502,7 +509,9 @@ public class ConsoleGame {
 				result = cpuTurn(cpu2);
 			}
 
-			if (checkLimits()) {
+			int limitRes = checkLimits();
+			if (limitRes > 0) {
+				handleLimitReached(limitRes);
 				inactivity = true;
 			} else {
 				if (result == null) {
@@ -599,25 +608,30 @@ public class ConsoleGame {
 						Position origin = new Position(oValue);
 						Position destination = new Position(dValue);
 						// Create positions with the read strings
-						Pair<List<MoveAction>, List<Position>> moveResult = _controller.checkPlayerMovement(origin, destination);
+						Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkPlayerMovement(origin, destination);
 	
-						if (moveResult.first.contains(MoveAction.Correct)) {
+						if (checkResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
 							
 							// Apply movement and check if castling
-							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, moveResult.second);
+							List<MoveAction> actions = _controller.applyPlayerMovement(origin, destination, checkResult.second);
 							if (actions == null) {
 								// Player has left his king in a check position
 								System.out.println("Your king is in a dangered position. You must defend it.");
-							} else if (moveResult.first.contains(MoveAction.Castling)) {
+							} else if (checkResult.first.contains(MoveAction.Castling)) {
 								// Save the turn
-								_controller.saveCastlingTurn(moveResult.second);
+								_controller.saveCastlingTurn(checkResult.second);
 
 								// Since there will be no killing, increment the inactive turn
 								_inactiveTurns++;
 								stop = true;
+
+								if (actions.contains(MoveAction.Escacimat)) {
+									result = "C";
+									System.out.println(_controller.currentTurnColor().value() + " checkmate");
+								}
 							} else {
-								if (moveResult.second.isEmpty()) {
+								if (checkResult.second.isEmpty()) {
 									// Turn with no captures
 									_inactiveTurns++;
 								} else {
@@ -648,13 +662,8 @@ public class ConsoleGame {
 									result = "C";
 									System.out.println(_controller.currentTurnColor().value() + " checkmate");
 								} else {
-									if (_controller.currentTurnColor() == PieceColor.White) {
-										_whiteCheckTurns = 0;
-									} else {
-										_blackCheckTurns = 0;
-									}
+									handleCheckReset();
 								}
-
 
 								stop = true;
 							}
@@ -962,6 +971,30 @@ public class ConsoleGame {
 		}
 	}
 
+    /// @brief Function that handles when there is not a check
+    /// @pre Last movement's result is not check nor checkmate
+    /// @post Resets the corresponding color check counter
+    private static void handleCheckReset() {
+        if (_controller.currentTurnColor() == PieceColor.White) {
+            _whiteCheckTurns = 0;
+        } else {
+            _blackCheckTurns = 0;
+        }
+    }
+
+	/// @brief Handles when a limit has been reached
+	/// @pre ---
+	/// @post Handles the output when a limit has been reached
+	private static void handleLimitReached(int limitRes) {
+		if (limitRes == 1) {
+			_controller.saveEmptyTurn("TAULES PER ESCAC CONTINU", _controller.currentTurnColor());
+			System.out.println("Draw due to consecutive check limit exceeded");
+		} else {
+			_controller.saveEmptyTurn("TAULES PER INNACCIÓ", _controller.currentTurnColor());
+			System.out.println("Draw to inactive turn limit exceeded");
+		}
+	} 
+
 	/// @brief Returns the opposite color of @p color
 	/// @pre ---
 	/// @post Returns the opposite color of @p color
@@ -971,46 +1004,18 @@ public class ConsoleGame {
 			: PieceColor.White;
 	}
 
-	/// @brief Returns if the players have reached the inactive limit
-	/// @pre ---
-	/// @post Returns true if the players have played as many turns without killing 
-	///       as there are in the configuration. If the config limit is grater than the
-	///       threshold, it will return false
-	private static boolean inactiveLimitReached() {
-		if (_controller.evenTurn() && _controller.inactiveLimit() < INACTIVE_THRESHOLD) {
-			// Check for inactivity
-			if ((_inactiveTurns / 2) >= _controller.inactiveLimit()) {
-				// Game finished due to inactivity
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/// @brief Returns if the players have reached the consecutive check limit
-	/// @pre ---
-	/// @post Returns true if there has been a color doing as many consecutive checks
-	///       as the limit set
-	private static boolean checkLimitReached() {
-		return _whiteCheckTurns >= _controller.checkLimit() ||
-			   _blackCheckTurns >= _controller.checkLimit();
-	}
-
 	/// @brief To know if one of the limits has been reached
 	/// @pre ---
-	/// @post If a limit has been reached, saves an empty turn with that limit and returns true
-	private static boolean checkLimits() {
-		if (checkLimitReached()) {
-			// End of game
-			_controller.saveEmptyTurn("TAULES PER ESCAC CONTINU", _controller.currentTurnColor());
-			return true;
-		} else if (inactiveLimitReached()) {
-			_controller.saveEmptyTurn("TAULES PER INNACCIÓ", _controller.currentTurnColor());
-			return true;
+	/// @post If a limit has been reached, saves an empty turn with that limit and returns 
+	///       1 if check limit, 2 if inactivity and -1 if none
+	private static int checkLimits() {
+		if (_controller.checkLimitReached(_whiteCheckTurns, _blackCheckTurns)) {
+			return 1;
+		} else if (_controller.inactiveLimitReached(_inactiveTurns)) {
+			return 2;
 		}
 
-		return false;
+		return -1;
 	}
 
 	/// @brief Handles the end of game
@@ -1020,7 +1025,6 @@ public class ConsoleGame {
 		String res = null;
 
 		if (inactivity) {
-			System.out.println("Draw due to inactivity or consecutive check");
 			System.out.println("Game finished");
 			res = "TAULES";
 		} else if (draw) {
