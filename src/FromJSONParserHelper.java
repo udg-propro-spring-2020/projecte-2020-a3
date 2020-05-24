@@ -462,7 +462,8 @@ public class FromJSONParserHelper {
         fr.nextLine();
         List<Turn> turnList = new ArrayList<>();
         String s = fr.nextLine().trim();
-        while (!s.equals("}")) {
+        boolean matchHasFinished = false;
+        while (!(s.equals("}") || matchHasFinished)) {
             if (s.equals("},")) {
                 fr.nextLine();
                 s = fr.nextLine().trim();
@@ -483,9 +484,13 @@ public class FromJSONParserHelper {
                 case "TAULES PER INACCIÓ":
                 case "TAULES ACCEPTADES":
                 case "RENDICIÓ":
-                case "AJORNAMENT":
+                case "AJORNAMENT": {
                     // End of game
+                    Pair<String, String> move = new Pair<String, String>(origin, dest);
+                    turnList.add(new Turn(color, move, result));
+                    matchHasFinished = true;
                     break;
+                }
                 case "TAULES SOL·LICITADES":
                     // Empty turn
                     turnList.add(
