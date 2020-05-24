@@ -702,7 +702,7 @@ public class ConsoleGame {
 		do {
 			System.out.print("Add knowledge to the " + name + "? [Y/N]: ");
 			String s = readInputLine(false);
-			if (s.toUpperCase().equals("S")) {
+			if (s.toUpperCase().equals("Y")) {
 				valid = true;
 
 				// Get the file locations
