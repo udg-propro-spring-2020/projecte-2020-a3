@@ -80,13 +80,6 @@ public class FromJSONParserHelper {
             );
         }
 
-        if (illegalPieceName(initialPos, typeMap)) {
-            throw new JSONParseFormatException(
-                "Initial positions contains a piece that is not a piece type",
-                JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
-            );
-        }
-
         int chessLimits = getInt(in.nextLine());
         if (chessLimits < 0) {
             System.err.println("Chess limit must be greater than 0.");
@@ -572,33 +565,6 @@ public class FromJSONParserHelper {
     private static boolean illegalType(String name, Map<String, PieceType> types) {
         // Contains is O(1)
         return !types.containsKey(name);
-    }
-
-    /// @brief Checks if there's a piece name that is not a pieceType
-    /// @pre ---
-    /// @post Returns true if there's a piece name that is not a pieceType
-    private static boolean illegalPieceName(List<String> initPositions, Map<String, PieceType> types) {
-        if (initPositions != null && types == null || (!initPositions.isEmpty() && types.isEmpty())) {
-            return true;
-        } else if ((initPositions == null && types == null) || (initPositions.isEmpty() && types.isEmpty())) {
-            return true;
-        } else {
-            // List of false
-            List<Boolean> exists = new ArrayList<>();
-            for (int i = 0; i < initPositions.size(); i++) {
-                exists.add(false);
-            }
-
-            for (int i = 0; i < initPositions.size(); i++) {
-                String name = initPositions.get(i);
-                if (!illegalType(name, types)) {
-                    exists.set(i, true);
-                }
-            }
-
-            // If does not contain false, all piece names exist and are correct
-            return exists.contains(false);
-        }
     }
 
     /// @brief Checks if there's a movement which contains a moving vector
