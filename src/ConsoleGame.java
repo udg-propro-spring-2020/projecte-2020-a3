@@ -706,7 +706,7 @@ public class ConsoleGame {
 				valid = true;
 
 				// Get the file locations
-				System.out.println("Enter a location each line [STOP to finish]: ");
+				System.out.println("Enter a location each line [EXIT to finish]: ");
 				List<String> list = new ArrayList<>();
 				String temp;
 
