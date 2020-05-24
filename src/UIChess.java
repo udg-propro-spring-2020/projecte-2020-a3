@@ -549,7 +549,6 @@ public class UIChess extends Application {
             false
         );
         cpuButton.setOnAction(e -> {
-            System.out.println(_gameType.toString());
             if (isTurnOfCPU()) {
                 Pair<Position, Position> move = null;
                 if (_controller.currentTurnColor() == PieceColor.White || black == null) {
