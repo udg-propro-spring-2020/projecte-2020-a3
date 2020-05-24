@@ -249,14 +249,6 @@ public class Chess implements Cloneable {
     private void createInitPos(){
         List<PieceType> listPieceType = new ArrayList<PieceType>();
         listPieceType = initPieceType();
-        /*for(int i=0;i<listPieceType.size();i++){
-            if(listPieceType.get(i)==null){
-                System.out.println("out");
-            }
-            else{
-                System.out.println(listPieceType.get(i).ptName());
-            }
-        } */
         int whiteRowCounter=0;
         int colCounter=0;
         int blackRowCounter=rows()-1;
@@ -295,8 +287,7 @@ public class Chess implements Cloneable {
 
                 board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
                 board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
-            }
-            
+            }            
         }
     }
 
@@ -490,11 +481,10 @@ public class Chess implements Cloneable {
         while(i<listEvadeCheckmate.size() && checkmate){
             Piece piece = listEvadeCheckmate.get(i).second;
             Position origin = listEvadeCheckmate.get(i).first;
-            List<Movement> pListMoves = piece.pieceMovements();
+            List<Pair<Position, Integer>> pieceDestinies = allPiecesDestiniesWithValues(origin);
             int j = 0;
-            while(j<pListMoves.size() && checkmate){
-                if(destinyInLimits(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY())){
-                    Position destiny = new Position(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY());
+            while(j<pieceDestinies.size() && checkmate){
+                    Position destiny = pieceDestinies.get(j).first;
                     checkMovementResult = checkMovement(origin, destiny);
                     if(checkMovementResult.first.get(0) == MoveAction.Correct){
                         applyMovement(origin, destiny, checkMovementResult.second, true);
@@ -502,7 +492,6 @@ public class Chess implements Cloneable {
                             checkmate = false;
                         undoMovement();
                     }
-                }
                 j++;
             }
             i++;
@@ -851,12 +840,12 @@ public class Chess implements Cloneable {
                 actions.add(MoveAction.Promote);
             if(isCheck(listDoingMove)){
                 if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Escacimat);
+                    actions.add(MoveAction.Checkmate);
                 else
-                    actions.add(MoveAction.Escac);
+                    actions.add(MoveAction.Check);
             }else{
                 if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Escacimat);
+                    actions.add(MoveAction.Checkmate);
             }
         }
         return actions;
