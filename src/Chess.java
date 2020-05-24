@@ -73,6 +73,7 @@ public class Chess implements Cloneable {
      * @param blackInitPos List with a pair that contains black pieces and their positions
      */
     Chess(Chess chess, List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos) {
+        if(chess==null) throw new NullPointerException("Chess given argument cannot be null");
         this.rows = chess.rows;
         this.cols = chess.cols;
         this.chessLimits = chess.chessLimits;
@@ -215,21 +216,26 @@ public class Chess implements Cloneable {
 
     /*
      * @brief Create an organized pieceType's list using the initial piece order
-     * @pre initPositions is not null
+     * @pre --
      * @post Return an organized pieceType's list
      */
     private List<PieceType> initPieceType(){
         boolean found=false;
         List<PieceType> listPieceType = new ArrayList<PieceType>();
         for(int i=0; i<initPositions.size(); i++){
-            int j=0;
-            found=false;
-            while(j<pList.size() && !found){
-                if(pList.get(j).ptName().equals(initPositions.get(i))){
-                    listPieceType.add(pList.get(j));
-                    found = true;
+            if(initPositions.get(i).isEmpty()){
+                listPieceType.add(null);
+            }
+            else{
+                int j=0;
+                found=false;
+                while(j<pList.size() && !found){
+                    if(pList.get(j).ptName().equals(initPositions.get(i))){
+                        listPieceType.add(pList.get(j));
+                        found = true;
+                    }
+                    j++;
                 }
-                j++;
             }
         }
         return listPieceType;
@@ -243,6 +249,14 @@ public class Chess implements Cloneable {
     private void createInitPos(){
         List<PieceType> listPieceType = new ArrayList<PieceType>();
         listPieceType = initPieceType();
+        /*for(int i=0;i<listPieceType.size();i++){
+            if(listPieceType.get(i)==null){
+                System.out.println("out");
+            }
+            else{
+                System.out.println(listPieceType.get(i).ptName());
+            }
+        } */
         int whiteRowCounter=0;
         int colCounter=0;
         int blackRowCounter=rows()-1;
@@ -250,8 +264,13 @@ public class Chess implements Cloneable {
         while(whiteRowCounter<2){
             colCounter=0;
             while(colCounter<cols()){
-                whiteInitPos.add(new Pair<Position,Piece>(new Position (whiteRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.White)));
-                blackInitPos.add(new Pair<Position,Piece>(new Position (blackRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.Black)));
+                if(listPieceType.get(insertCounter)==null){
+                    whiteInitPos.add(new Pair<Position,Piece>(new Position (whiteRowCounter,colCounter),null));
+                    blackInitPos.add(new Pair<Position,Piece>(new Position (blackRowCounter,colCounter),null));
+                }else{
+                    whiteInitPos.add(new Pair<Position,Piece>(new Position (whiteRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.White)));
+                    blackInitPos.add(new Pair<Position,Piece>(new Position (blackRowCounter,colCounter),new Piece(listPieceType.get(insertCounter), false, PieceColor.Black)));
+                }
                 colCounter++;
                 insertCounter++;
             }
@@ -267,11 +286,17 @@ public class Chess implements Cloneable {
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
-            pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
-            pListBlack.add(new Pair<Position,Piece>(new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col()), new Piece(blackInitPos.get(i).second)));
+            if(blackInitPos.get(i).second==null){
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = null;
+                board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = null;
+            }else{
+                pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+                pListBlack.add(new Pair<Position,Piece>(new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col()), new Piece(blackInitPos.get(i).second)));
 
-            board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
-            board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
+                board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
+            }
+            
         }
     }
 
@@ -452,38 +477,6 @@ public class Chess implements Cloneable {
         }
         return promote;
     }
-
-    /*
-     * @brief Check if the king can't escape from a check
-     * @pre Lists are not empty
-     * @post Return if the player can realize any move that makes him escape from a check
-     */
-    /*private boolean isDrownedKing(List<Pair<Position,Piece>> listCheckDrowned, List<Pair<Position,Piece>> enemieList){
-        boolean drowned = true;
-        Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
-        int i = 0;
-        while(i<listCheckDrowned.size() && drowned){
-            Piece piece = listCheckDrowned.get(i).second;
-            Position origin = listCheckDrowned.get(i).first;
-            List<Movement> pListMoves = piece.pieceMovements();
-            int j = 0;
-            while(j<pListMoves.size() && drowned){
-                if(destinyInLimits(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY())){
-                    Position destiny = new Position(origin.row()+pListMoves.get(j).movX(),origin.col()+pListMoves.get(j).movY());
-                    checkMovementResult = checkMovement(origin, destiny);
-                    if(checkMovementResult.first.get(0) == MoveAction.Correct){
-                        applyMovement(origin, destiny, checkMovementResult.second, true);
-                        if(!isCheck(enemieList))
-                            drowned = false;
-                        undoMovement();
-                    }
-                }
-                j++;
-            }
-            i++;
-        }
-        return checkmate;
-    }*/
 
     /*
      * @brief Check if the king can't escape from a check
@@ -697,19 +690,13 @@ public class Chess implements Cloneable {
                             firstPieceCastling = secondPiecePos; 
                             secondPieceCastling = firstPiecePos;
                         }
-                        //System.out.println("Existeix el castling");
                         checkResult.second.add(firstPieceCastling); //Origin positions
                         checkResult.second.add(secondPieceCastling);
-                        //System.out.println(c.stand()+" "+firstPiece.hasMoved()+" "+secondPiece.hasMoved());
                         if((castling.stand() && !firstPiece.hasMoved() && !secondPiece.hasMoved()) || !castling.stand()){
-                            //System.out.println("Estan quietes");
                             emptyDestinies = checkDestinies(firstPieceCastling, secondPieceCastling, middle);
-                            if((castling.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !castling.emptyMid() && emptyDestinies){ //checkMIddleCells only change to false
-                                //System.out.println("El centre esta buit? "+checkMiddleCells(firstPiecePos,secondPiecePos));
+                            if((castling.emptyMid() && checkMiddleCells(firstPiecePos,secondPiecePos)) || !castling.emptyMid() && emptyDestinies){
                                 findNewPositions(firstPieceCastling,secondPieceCastling, middle, checkResult);
                                 checkResult.first.add(MoveAction.Castling);
-                                //checkResult.second.add(firstPieceCastling);//destiny positions
-                                //checkResult.second.add(secondPieceCastling);
                                 correctCastling = true;
                             }
                         }
@@ -720,6 +707,7 @@ public class Chess implements Cloneable {
         }
         return correctCastling;
     }
+
     /*
      * @brief Checks if the movement is possible. It validates two possible movement type (castling or normal move). 
      * @pre Origin is not null 
@@ -727,76 +715,53 @@ public class Chess implements Cloneable {
      * normal move case. Else it contains origin and destiny castling positions.
      */
     public Pair<List<MoveAction>,List<Position>> checkMovement(Position origin, Position destiny) {
-        
-        //Piece pOrig = pieceAt(origin.row(),origin.col());
         Pair<List<MoveAction>,List<Position>> checkResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         Piece piece = pieceAt(origin.row(),origin.col());
         List<Movement> movesToRead = piece.pieceMovements();
         boolean enemiePieceOnDestiny = false;
-                //System.out.println("Hi ha peça");   
-                //System.out.println(enemiePieceOnDestiny);        
-        //Hi ha peça al origen
+ 
         if(destinyInLimits(destiny.row(),destiny.col())){
             int rowMove=destiny.row()-origin.row();
-            int colMove=destiny.col()-origin.col();
-            
+            int colMove=destiny.col()-origin.col();           
             int i = 0;
             boolean found = false;
             boolean pieceOnTheWay = false;
             boolean correctDiagonal = true;
-            //bool cast = isCstling
             if(!isCastling(origin,destiny,checkResult)){
                 while(i < movesToRead.size() && !found){
                     List<Position> piecesToKill = new ArrayList<Position>();
                     Movement currentMovement = movesToRead.get(i);         
-                    //System.out.println(currentMovement.movX()+" "+currentMovement.movY());            
                     if((colMove == currentMovement.movY() || Math.abs(currentMovement.movY()) == unlimitadeMove) && (rowMove == currentMovement.movX() || Math.abs(currentMovement.movX()) == unlimitadeMove)){                        
                         if(Math.abs(currentMovement.movY())==unlimitadeMove && Math.abs(currentMovement.movX())==unlimitadeMove){
-                            correctDiagonal = Math.abs(colMove) == Math.abs(rowMove); //En cas de moure'ns varies caselles en diagonal, comprobar si es coherent
-                            //System.out.println("La diagonal "+Math.abs(colMove)+"-"+Math.abs(rowMove)+" es correcte? "+diagonalCorrect);
+                            correctDiagonal = Math.abs(colMove) == Math.abs(rowMove);
                         }
                         if(correctDiagonal){
                             if((rowMove > 1 || colMove > 1 ||  rowMove < -1 || colMove < -1) && currentMovement.canJump()!=1){ //Piece can't jump or kill while jumping
                                 pieceOnTheWay = checkPieceOnTheWay(origin,destiny,currentMovement,piecesToKill);
                                 if(piecesToKill.size()!=0) 
                                     checkResult.second.addAll(piecesToKill);  
-                                //System.out.println("Hi ha peça al cami? "+pieceOnTheWay);
                             }
-                            //Si pot matar saltant haura recopilat totes les peces que pot matar al camí
                             if(!pieceOnTheWay){ //If piece can jump or there is not any piece on the way
-                                if(pieceAt(destiny.row(),destiny.col())!=null)//Hi ha peça al desti?
+                                if(pieceAt(destiny.row(),destiny.col())!=null)
                                     enemiePieceOnDestiny = diferentOwnerPiece(pieceAt(origin.row(),origin.col()),pieceAt(destiny.row(),destiny.col()));
-                                if(enemiePieceOnDestiny && currentMovement.captureSign() != 0){//Si hi ha peça i la pot matar
+                                if(enemiePieceOnDestiny && currentMovement.captureSign() != 0){
                                     if(!pieceAt(destiny.row(),destiny.col()).type().ptInvulnerable()){
                                         checkResult.first.add(MoveAction.Correct);
-                                        //System.out.println(pp.toString());
                                         checkResult.second.add(new Position(destiny.row(),destiny.col())); 
                                         found = true;
                                     }
-                                }else if(!enemiePieceOnDestiny && currentMovement.captureSign() != 2){//Si no hi ha peça enemiga i no es un moviment que nomes fa per matar
-                                    if(pieceAt(destiny.row(),destiny.col())==null){ //La peça que vols matar es teva, ja que no s'ha detectat peça enemiga pero n'hi ha una
-                                        //System.out.println("730. La peça que vols matar es teva");
-                                    
-                                   // }else{
+                                }else if(!enemiePieceOnDestiny && currentMovement.captureSign() != 2){ //Only killing move control
+                                    if(pieceAt(destiny.row(),destiny.col())==null){ //At this point, destiny piece is from the same player doing the move
                                         checkResult.first.add(MoveAction.Correct);
-                                        //r.second = null; 
                                         found = true;
-                                        //System.out.println("Mov normal");
                                     }
                                 }              
-                            }else{
-                                //System.out.println("740. La teva peça no en pot saltar d'altres");
                             }  
-                        }else{
-                            //System.out.println("743. La diagonal es incorrecte");
                         }
                     }
-                i++; 
-                    //captura: 0=no, 1=si, 2=mov possible nomes al matar
+                    i++; 
                 }   
             }else{
-                //System.out.println("He trobat un castling i he rebut: ");
-                //for(int f=0;f<checkResult.second.size();f++) System.out.println(checkResult.second.get(f));
                 checkResult.first.add(MoveAction.Correct);
                 checkResult.first.add(MoveAction.Castling);
             }
@@ -804,14 +769,8 @@ public class Chess implements Cloneable {
                 checkResult.first.add(MoveAction.Incorrect);
             }
         }
-        //if(r.first) applyMovement(origin, destiny, r.second);
-        /*for(int i=0;i<r.first.size();i++)
-            System.out.println(r.first.get(i).toString()); */   
-    
     return checkResult;
     }
-
-
 
     /*
      * @brief Creates a copy of the tunr, cloning the board and the piece's lists and save them into
@@ -856,7 +815,6 @@ public class Chess implements Cloneable {
         copyChessTurn();
         List<MoveAction> actions = new ArrayList<MoveAction>();
         PieceColor originPieceColor = pieceAt(origin.row(),origin.col()).color();
-        //System.out.println(origin.row()+" "+origin.col());
         if(pieceAt(destiny.row(),destiny.col())!=null && pieceAt(origin.row(),origin.col()).color().equals(pieceAt(destiny.row(),destiny.col()).color())){
             applyCastling(workingPositions);
         }
@@ -867,19 +825,17 @@ public class Chess implements Cloneable {
             
             List<Piece> listDeadPieces = new ArrayList<Piece>();
             if (workingPositions != null){
-                //deletePiece(board[death.row()][death.col()]);  
                 for(int i=0; i<workingPositions.size(); i++){
                     Piece deadPiece = pieceAt(workingPositions.get(i).row(),workingPositions.get(i).col()); 
                     listDeadPieces.add(deadPiece);     
                     board[workingPositions.get(i).row()][workingPositions.get(i).col()] = null;
-                    //for(int j=0; j<100; j++)System.out.println("He entrat a matar");
                 }
             }
             changePiecesList(origin,destiny,listDeadPieces);
             board[destiny.row()][destiny.col()] = pieceAt(origin.row(),origin.col());
             board[origin.row()][origin.col()] = null;
         }
-        //llistes actualitzades
+        //Updated lists
         List<Pair<Position,Piece>> listDoingMove = new ArrayList<Pair<Position,Piece>>();
         List<Pair<Position,Piece>> listCounterMove = new ArrayList<Pair<Position,Piece>>();
         if(originPieceColor == PieceColor.White){
@@ -894,7 +850,6 @@ public class Chess implements Cloneable {
             if(canPromote(origin, destiny, false))
                 actions.add(MoveAction.Promote);
             if(isCheck(listDoingMove)){
-                //System.out.println("1106. Hi ha escac");
                 if(isCheckmate(listCounterMove, listDoingMove))
                     actions.add(MoveAction.Escacimat);
                 else
@@ -913,16 +868,14 @@ public class Chess implements Cloneable {
      * @post Chess has been updated
      */
     private void remakeBoard(){
-        //System.out.println("taulers "+boardArray.size());
-        int val = currentTurn;
-        Piece[][] boardCopy = this.boardArray.get(val);
+        Piece[][] boardCopy = this.boardArray.get(currentTurn);
         for(int i=0;i<rows();i++){
             for(int j=0;j<cols();j++){
                 this.board[i][j]=boardCopy[i][j];
             }
         }
-        this.pListWhite=whitePiecesTurn.get(val);
-        this.pListBlack=blackPiecesTurn.get(val);
+        this.pListWhite=whitePiecesTurn.get(currentTurn);
+        this.pListBlack=blackPiecesTurn.get(currentTurn);
     }
 
     /*
@@ -931,7 +884,6 @@ public class Chess implements Cloneable {
      * @post Board has been updated and a copy of current turn has been saved
      */
     public void undoMovement(){
-        //System.out.println("Normal undo"+showBoard());
         copyChessTurn();
         currentTurn=currentTurn-2;
         remakeBoard();
@@ -943,9 +895,7 @@ public class Chess implements Cloneable {
      * @post Board has been updated
      */
     public void redoMovement(){
-        //System.out.println("Normal redo"+showBoard());
         currentTurn++;
-        //System.out.println("redo "+currentTurn+" "+boardArray.size());
         remakeBoard();
     }
 
@@ -975,29 +925,19 @@ public class Chess implements Cloneable {
             }
             i++;    
         }
-        //System.out.println(listDeadPieces.size());
         if(listDeadPieces!=null){
             for(int j=0; j<listDeadPieces.size(); j++){
                 i=0;
                 search=true;
                 while(i<listToRemoveOn.size() && search){
                     if(listToRemoveOn.get(i).second.equals(listDeadPieces.get(j))){
-                        //System.out.println("Matare al peo en i:"+listToRemoveOn.get(i).first);
                         listToRemoveOn.remove(i);
-                        //System.out.println("Peo en i :"+listToRemoveOn.get(i).first);
                         search = false;
-                        /*for(int x=0;x<pListBlack.size();x++){
-                            System.out.println("Piece: "+pListBlack.get(x).second.type().ptName()+"   Pos "+pListBlack.get(x).first.toString());
-                        }*/
                     }
                     i++;
                 }
             }
-        }/*
-        for(int j=0;j<listToChange.size();j++){
-            System.out.println("Piece: "+listToChange.get(j).second.type().ptName()+"   Pos"+listToChange.get(j).first.row()+" "+listToChange.get(j).first.col()+"    "+listToChange.get(j).first.toString());
-        }*/
-
+        }
     }
 
     /*
@@ -1018,9 +958,9 @@ public class Chess implements Cloneable {
             value = pieceAt(destiny.row(),destiny.col()).type().ptValue();
             currentDesinyValue = new Pair<>(destiny, value);
             destiniesWithValues.add(currentDesinyValue);
-            keepSearching=false;      //Kill a piece                     
+            keepSearching=false;  //Killed a piece                     
         }else{                
-            keepSearching=false;  //Find ally piece
+            keepSearching=false;  //Found an ally piece
         }             
     
         return keepSearching;
@@ -1032,30 +972,24 @@ public class Chess implements Cloneable {
      * @post Return all possible piece's destinies and its movement value
     */
     public List<Pair<Position, Integer>> allPiecesDestiniesWithValues(Position origin){
-        /*Sempre mirem ambdos costats: msg forum sobre a -a */
+        if(origin==null)throw new NullPointerException("Trying to read a null position (allPiecesDestiniesWithValues)");
+
         List<Pair<Position, Integer>> destiniesWithValues = new ArrayList<Pair<Position, Integer>>();
         Position destiny;
         int value = 0;        
         Piece piece = pieceAt(origin.row(),origin.col());
         List<Movement> movesToRead = new ArrayList<Movement>(); 
-        /*for(int i=0;i<pListWhite.size();i++){
-            System.out.println(pListWhite.get(i).first.row()+" "+pListWhite.get(i).first.col()+" "+pListWhite.get(i).second.type().ptName());
-        }*/
-        //System.out.println("Li toca a "+origin.row()+" "+origin.col()+" -> "+p.type().ptName());
         movesToRead=piece.pieceMovements();
-        //System.out.println(p.type().ptName()+" es el que estem mirant i ha passat be");  
 
         for(int i=0; i<movesToRead.size(); i++){
             boolean keepSearching = true; //Keep looking movement possible destinies while movement is correct
             Movement currentMove = movesToRead.get(i);
-            //System.out.println(currentMove.movX()+" "+currentMove.movY());
             if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove) && (currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){ //Diagonals            
                 keepSearching = true;
                 int y=1;
                 int x=1;
                 if(currentMove.movX() == unlimitadeMove && currentMove.movY() == unlimitadeMove || currentMove.movX() == -unlimitadeMove && currentMove.movY() == -unlimitadeMove){
                     while(destinyInLimits(origin.row()+x,origin.col()+y) && keepSearching){ //From top-right to bottom-left
-                        //System.out.println((origin.row()+x)+" d "+(origin.col()+y));                                                       
                         destiny = new Position(origin.row()+x, origin.col()+y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
@@ -1065,7 +999,6 @@ public class Chess implements Cloneable {
                     y=1;
                     x=1;
                     while(destinyInLimits(origin.row()-x,origin.col()-y) && keepSearching){ //From bottom-left to top-right
-                        //System.out.println((origin.row()-x)+" d- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()-x, origin.col()-y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
@@ -1074,7 +1007,6 @@ public class Chess implements Cloneable {
                 }
                 if(currentMove.movX() == -unlimitadeMove && currentMove.movY() == unlimitadeMove || currentMove.movX() == unlimitadeMove && currentMove.movY() == -unlimitadeMove){
                     while(destinyInLimits(origin.row()-x,origin.col()+y) && keepSearching){ //From bottom-right to top-left 
-                        //System.out.println((origin.row()-x)+" d-+ "+(origin.col()+y));                                                             
                         destiny = new Position(origin.row()-x, origin.col()+y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
@@ -1084,7 +1016,6 @@ public class Chess implements Cloneable {
                     y=1;
                     x=1;
                     while(destinyInLimits(origin.row()+x,origin.col()-y) && keepSearching){    //From top-left to bottom-right
-                        //System.out.println((origin.row()+x)+" d+- "+(origin.col()-y));                                                              
                         destiny = new Position(origin.row()+x, origin.col()-y);
                         keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                         x++;
@@ -1094,7 +1025,6 @@ public class Chess implements Cloneable {
             }else if((currentMove.movY() == unlimitadeMove || currentMove.movY() == -unlimitadeMove)){ //Horizontal move
                 int y=1;
                 while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+y) && keepSearching){ //From right to left
-                    //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()+currentMove.movX(), origin.col()+y);
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     y++;
@@ -1102,7 +1032,6 @@ public class Chess implements Cloneable {
                 keepSearching=true;
                 y=1;
                 while(destinyInLimits(origin.row()+currentMove.movX(), origin.col()-y) && keepSearching){  //From left to right
-                    //System.out.println(currentMove.movX()+" "+y);                                                       
                     destiny = new Position(origin.row()-currentMove.movX(), origin.col()-y);
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     y++;
@@ -1111,7 +1040,6 @@ public class Chess implements Cloneable {
             else if((currentMove.movX() == unlimitadeMove || currentMove.movX() == -unlimitadeMove)){ //Vertical move
                 int x=1;
                 while(destinyInLimits(origin.row()+x, origin.col()+currentMove.movY()) && keepSearching){ //From top to bottom
-                    //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()+x, origin.col()+currentMove.movY());
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     x++;
@@ -1119,27 +1047,17 @@ public class Chess implements Cloneable {
                 keepSearching=true; 
                 x=1;
                 while(destinyInLimits(origin.row()-x, origin.col()-currentMove.movY()) && keepSearching){ //From bottom to top
-                    //System.out.println(x+" "+currentMove.movY());                                                       
                     destiny = new Position(origin.row()-x, origin.col()-currentMove.movY());
                     keepSearching = moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);                    
                     x++;
                 }
             }else{      
-                //System.out.println("F");
-                //if(p.color() == PieceColor.Black){
-                //    destiny = new Position(origin.row()-currentMove.movX(), origin.col()-currentMove.movY());
-                //}else{
                     if(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+currentMove.movY())){
-                    //System.out.println(p.type().ptName()+" Origin row "+origin.row()+" Origin col "+origin.col()+" Moviment "+currentMove.movX()+" "+currentMove.movY()+" i anem a "+(origin.row()+currentMove.movX())+","+(origin.col()+currentMove.movY()));
                         destiny = new Position(origin.row()+currentMove.movX(), origin.col()+currentMove.movY());
-                //}
                         keepSearching=moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);
                     }
-                    //System.out.println("entro pel peo i miro si pot anar a "+destiny.row()+" "+destiny.col());
             }
         }
-        //System.out.println("Retorn de destiny with values de la peça "+p.type().ptName()+": ");
-        //for(int i=0;i<destiniesWithValues.size();i++)System.out.println(destiniesWithValues.get(i).first.toString()+" "+destiniesWithValues.get(i).second);
         return destiniesWithValues;
     }
 
@@ -1187,15 +1105,13 @@ public class Chess implements Cloneable {
         int col = 0;
         boolean same = true;
         while(row < rows() && same){
-            //System.out.println("fila "+i);
             col=0;
             while(col < cols() && same){
                 Position position = new Position (row,col);
-                if(!emptyCell(position) && !chess.emptyCell(position)){ //les dues plenes
-                    //System.out.println("columna "+j+" de la fila "+i+" amb valors "+board[i][j].name()+" i "+c.board[i][j].name());
+                if(!emptyCell(position) && !chess.emptyCell(position)){
                     if(pieceAt(row,col).color() != chess.pieceAt(row,col).color() || pieceAt(row,col).type().ptName() != chess.pieceAt(row,col).type().ptName())
                         same = false;
-                }else{ //una es plena i l'altre no
+                }else{
                     if(emptyCell(position) && !chess.emptyCell(position) || !emptyCell(position) && chess.emptyCell(position))
                         same = false;
                 }
@@ -1203,7 +1119,6 @@ public class Chess implements Cloneable {
             }
             row++;
         }
-        //System.out.println("Els chess son iguals? "+same);
         return same;
     }
 
