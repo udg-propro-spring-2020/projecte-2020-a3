@@ -12,9 +12,9 @@ public enum MoveAction {
         switch(this) {
             case Correct:
                 return new String("CORRECT");
-            case Escac:
+            case Check:
                 return new String("ESCAC");
-            case Escacimat:
+            case Checkmate:
                 return new String("ESCACIMAT");
             case Promote:
                 return new String("PROMOTION");
