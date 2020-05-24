@@ -91,14 +91,14 @@ public class FromJSONParserHelper {
             System.err.println("Default value [3] will be used.");
         }
 
-        /// Castlings
+        // Castlings
         List<Castling> castlings = new ArrayList<>();
         if (!getString(in.nextLine()).equals("[]")) {
-            /// If castlings list is not empty
+            // If castlings list is not empty
             castlings = getListCastlings(in, typeMap);
         }
 
-        /// Close scanner
+        // Close scanner
         in.close();
 
         return new Chess(nRows, nCols, typeList, initialPos, chessLimits, inactiveLimits, castlings);
@@ -292,7 +292,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the string (positions) list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON positions list and the scanner poiting at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<String> getListStrings(Scanner fr) {
         List<String> posList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -307,7 +307,7 @@ public class FromJSONParserHelper {
     /// @brief Gets the piece type list from the file
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
-    /// the line where the list ends.
+    ///       the line where the list ends.
     private static List<PieceType> getListPieceTypes(Scanner fr) {
         List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
@@ -415,29 +415,25 @@ public class FromJSONParserHelper {
             Position pos = new Position(getString(s));
             String ptName = getString(fr.nextLine());
 
-            if (ptName.isEmpty()) {
-                pList.add(null);
-            } else {
-                PieceType type = null;
-                for (PieceType pt : pTypes) {
-                    // Search for the type
-                    if (pt.ptName().equals(ptName)) {
-                        type = pt;
-                        break;
-                    }
+            PieceType type = null;
+            for (PieceType pt : pTypes) {
+                // Search for the type
+                if (pt.ptName().equals(ptName)) {
+                    type = pt;
+                    break;
                 }
-
-                if (type == null) {
-                    throw new JSONParseFormatException(
-                        "A piece from the initial positions list does not exits.",
-                        JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
-                    );
-                }
-    
-                boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
-    
-                pList.add(new Pair<Position, Piece>(pos, new Piece(type, moved, color)));
             }
+
+            if (type == null) {
+                throw new JSONParseFormatException(
+                    "A piece from the initial positions list does not exits.",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_TYPE
+                );
+            }
+
+            boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
+
+            pList.add(new Pair<Position, Piece>(pos, new Piece(type, moved, color)));
 
             s = fr.nextLine().trim();
         }
