@@ -82,4 +82,16 @@ public class Position implements JSON, Cloneable {
             .append(_row + 1);
         return value.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+       Position p = (Position) obj;
+
+       return row() == p.row() && col() == p.col();
+    }
+
+    @Override
+    public int hashCode() {
+        return col() + (row() * 10);
+    }
 }

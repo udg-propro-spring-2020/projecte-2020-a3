@@ -36,14 +36,31 @@ public class FromJSONParserHelper {
 
         // Skip first {
         in.nextLine();
-        int nRows = getInt(in.nextLine());
+        int nRows;
+        try {
+            nRows = getInt(in.nextLine());
+        } catch (NumberFormatException e) {
+            throw new JSONParseFormatException(
+                "The file contains a number of rows not valid",
+                JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
+            );
+        }
         if (nRows < 4 || nRows > 16) {
             throw new JSONParseFormatException(
                 "The file contains a number of rows not valid",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
             );
         }
-        int nCols = getInt(in.nextLine());
+
+        int nCols;
+        try {
+            nCols = getInt(in.nextLine());
+        } catch (NumberFormatException e) {
+            throw new JSONParseFormatException(
+                "The file contains a number of columns not valid",
+                JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
+            );
+        }
         if (nCols < 4 || nCols > 16) {
             throw new JSONParseFormatException(
                 "The file contains a number of columns not valid",
@@ -65,6 +82,12 @@ public class FromJSONParserHelper {
             );
         }
         Map<String, PieceType> typeMap = mapFromTypes(typeList);
+        if (!typeMap.containsKey("REI")) {
+            throw new JSONParseFormatException(
+                "Piece type list is lacking of a king type",
+                JSONParseFormatException.ExceptionType.KING_MISSING
+            );
+        }
 
         // Next two lines
         in.nextLine();
@@ -77,6 +100,22 @@ public class FromJSONParserHelper {
             throw new JSONParseFormatException(
                 "Initial positions list cannot be empty",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
+            );
+        }
+
+        // Check if initial positions contain valid pieces
+        if (illegalInitialPositions(initialPos, typeMap)) {
+            throw new JSONParseFormatException(
+                "Initial position list contains an invalid piece name",
+                JSONParseFormatException.ExceptionType.ILLEGAL_NAME
+            );
+        }
+
+        // Check if initial position list contains king. Must have a king
+        if (!checkIfKingInInitPositions(initialPos)) {
+            throw new JSONParseFormatException(
+                "Initial positions list MUST contain a piece with the name of \"REI\"",
+                JSONParseFormatException.ExceptionType.KING_MISSING
             );
         }
 
@@ -127,30 +166,47 @@ public class FromJSONParserHelper {
         Chess chess = buildChess(configFileName);
 
         // INITIAL POSITIONS
+        // Type map helper
+        Map<String, PieceType> typeMap = mapFromTypes(chess.typeList());
+
         // Read initial white positions
-        List<Pair<Position, Piece>> whiteInitPos = new ArrayList<>();
+        Map<Position, Piece> whiteTempMap = new HashMap<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            whiteInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.White);
+            whiteTempMap = getInitialPositionMap(mainSc, typeMap, PieceColor.White);
         } else {
             throw new JSONParseFormatException(
-                "White piece list cannot be null",
+                "White piece list cannot be empty",
+                JSONParseFormatException.ExceptionType.EMPTY_LIST
+            );
+        }
+        
+        // Skip ],
+        mainSc.nextLine();
+
+        Map<Position, Piece> blackTempMap = new HashMap<>();
+        if (!getString(mainSc.nextLine()).equals("[]")) {
+            blackTempMap = getInitialPositionMap(mainSc, typeMap, PieceColor.Black);
+        } else {
+            throw new JSONParseFormatException(
+                "Black piece list cannot be empty",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
             );
         }
         // Skip ],
         mainSc.nextLine();
 
-        List<Pair<Position, Piece>> blackInitPos = new ArrayList<>();
-        if (!getString(mainSc.nextLine()).equals("[]")) {
-            blackInitPos = getInitialPositionList(mainSc, chess.typeList(), PieceColor.Black);
-        } else {
+        // Check if there's a piece in that position
+        if (hasRepeatedPosition(whiteTempMap, blackTempMap)) {
+            // Exception
             throw new JSONParseFormatException(
-                "Black piece list cannot be null",
-                JSONParseFormatException.ExceptionType.EMPTY_LIST
+                "There are two pieces from different color in the same position",
+                JSONParseFormatException.ExceptionType.ILLEGAL_INITIAL_POSITION
             );
         }
-        // Skip ],
-        mainSc.nextLine();
+
+        // Convert to list 
+        List<Pair<Position, Piece>> whiteInitPos = initPosMapToList(whiteTempMap);
+        List<Pair<Position, Piece>> blackInitPos = initPosMapToList(blackTempMap);
 
         // Check if last line has a result (which means that the match) has ended
         // Skip lines
@@ -232,6 +288,7 @@ public class FromJSONParserHelper {
     private static int getInt(String s) {
         // Remove comas and "
         String[] values = s.replace(",", "").replace("\"", "").trim().split(":");
+        
         return Integer.valueOf(values[1].trim());
     }
 
@@ -256,7 +313,8 @@ public class FromJSONParserHelper {
     /// @pre Scanner poiting at first line of the list
     /// @post Returns the JSON movements list and the scanner poiting at the end of
     ///       the line where the list ends.
-    private static List<Movement> getListMovements(Scanner fr) {
+    /// @throws JSONParseFormatException If there's a movement property that is not valid
+    private static List<Movement> getListMovements(Scanner fr) throws JSONParseFormatException {
         String s = fr.nextLine().trim();
         List<Movement> mList = new ArrayList<>();
         while (!s.equals("]")) {
@@ -271,10 +329,19 @@ public class FromJSONParserHelper {
             // Y
             aux = fr.nextLine().trim().replace("\"", "").replace(",", "");
             int y = aux.equals("a") ? 50 : (aux.equals("-a") ? -50 : Integer.parseInt(aux));
-            // Can capture
-            int capture = Integer.parseInt(fr.nextLine().trim().replace(",", ""));
-            // Can jump
-            int jump = Integer.parseInt(fr.nextLine().trim().replace(",", ""));
+
+            int capture, jump;
+            try {
+                // Can capture
+                capture = Integer.parseInt(fr.nextLine().trim().replace(",", ""));
+                // Can jump
+                jump = Integer.parseInt(fr.nextLine().trim().replace(",", ""));
+            } catch (NumberFormatException e) {
+                throw new JSONParseFormatException(
+                    "Movement property is no valid or in incorrect format",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_MOVE_VALUE
+                );
+            }
 
             // Check if movement already exists
             Movement temp = new Movement(x, y, capture, jump);
@@ -308,9 +375,13 @@ public class FromJSONParserHelper {
     /// @pre The JSON list is not empty
     /// @post Returns the JSON pieces list and the scanner pointing at the end of
     ///       the line where the list ends.
-    private static List<PieceType> getListPieceTypes(Scanner fr) {
+    /// @post Throws JSONParseFormatException If the king does not have the max value
+    private static List<PieceType> getListPieceTypes(Scanner fr) throws JSONParseFormatException {
         List<PieceType> pList = new ArrayList<>();
         String s = fr.nextLine().trim();
+        int maxValue = 0;
+        int kingValue = 0;
+        boolean kingRead = false;
 
         while (!s.equals("}")) { /// While not last object
             if (s.equals("},")) {
@@ -330,6 +401,22 @@ public class FromJSONParserHelper {
             String bImage = getString(fr.nextLine());
             // Value
             int value = getInt(fr.nextLine());
+
+            if (name.equals("REI")) {
+                kingValue = value;
+
+                if (!kingRead) {
+                    kingRead = true;
+                } else {
+                    throw new JSONParseFormatException(
+                        "There are two piece types with the name of king",
+                        JSONParseFormatException.ExceptionType.KING_REPEATED
+                    );
+                }
+            } 
+            if (value > maxValue) {
+                maxValue = value;
+            }
 
             // Movements
             // Skip 2 lines
@@ -358,6 +445,13 @@ public class FromJSONParserHelper {
             pList.add(
                 new PieceType(name, symbol, wImage, bImage, value, promotable, invulnerable, movements, initMovements)
             );
+
+            if (maxValue > kingValue) {
+                throw new JSONParseFormatException(
+                    "King's value must be the highest",
+                    JSONParseFormatException.ExceptionType.KING_VALUE
+                );
+            }
 
             s = fr.nextLine().trim();
         }
@@ -397,14 +491,15 @@ public class FromJSONParserHelper {
     /// @pre Gets the initial positios list fro the file
     /// @pre Scanner pointing at {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
-    ///       the piece type
+    ///       the piece type.
     /// @throws JSONParseFormatException If there's a piece in the list that does
-    ///         not exist as a piece type
-    private static List<Pair<Position, Piece>> getInitialPositionList(Scanner fr, List<PieceType> pTypes,
-            PieceColor color) throws JSONParseFormatException {
+    ///         not exist as a piece type or the list does not have a king
+    private static Map<Position, Piece> getInitialPositionMap(Scanner fr, Map<String, PieceType> pTypes, PieceColor color)
+            throws JSONParseFormatException {
         // Skip {
         fr.nextLine();
-        List<Pair<Position, Piece>> pList = new ArrayList<>();
+        Map<Position, Piece> map = new HashMap<>();
+        boolean hasKing = false;
         String s = fr.nextLine().trim();
         while (!s.equals("}")) {
             if (s.equals("},")) {
@@ -413,17 +508,19 @@ public class FromJSONParserHelper {
             }
 
             Position pos = new Position(getString(s));
-            String ptName = getString(fr.nextLine());
-
-            PieceType type = null;
-            for (PieceType pt : pTypes) {
-                // Search for the type
-                if (pt.ptName().equals(ptName)) {
-                    type = pt;
-                    break;
-                }
+            // Check if repeated position
+            if (map.containsKey(pos)) {
+                throw new JSONParseFormatException(
+                    "Two pieces have the same initial position",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_INITIAL_POSITION
+                );
             }
 
+            // Search for the type
+            String ptName = getString(fr.nextLine());
+            PieceType type = pTypes.get(ptName);
+
+            // Validate type
             if (type == null) {
                 throw new JSONParseFormatException(
                     "A piece from the initial positions list does not exits.",
@@ -431,14 +528,35 @@ public class FromJSONParserHelper {
                 );
             }
 
+            // Check if it's king
+            if (type.isKingType()) {
+                if (!hasKing) {   
+                    hasKing = true;
+                } else {
+                    throw new JSONParseFormatException(
+                        "King is repeated in the initial position list",
+                        JSONParseFormatException.ExceptionType.KING_REPEATED
+                    );
+                }
+            }
+
             boolean moved = getString(fr.nextLine()).equals("true") ? true : false;
 
-            pList.add(new Pair<Position, Piece>(pos, new Piece(type, moved, color)));
+            // Add new map entry and check i
+            map.put(pos, new Piece(type, moved, color));
 
             s = fr.nextLine().trim();
         }
 
-        return pList;
+        if (!hasKing) {
+            // If does not have king
+            throw new JSONParseFormatException(
+                "Initial piece list is lacking of a king type",
+                JSONParseFormatException.ExceptionType.KING_MISSING
+            );
+        }
+
+        return map;
     }
 
     /// @brief Gets the turn list from the file
@@ -555,12 +673,58 @@ public class FromJSONParserHelper {
         return map;
     }
 
+    /// @brief Checks if the init positions list contains a king piece
+    /// @pre @p list is not empty
+    /// @post Returns true if @p list contains a king piece
+    private static boolean checkIfKingInInitPositions(List<String> list) {
+        for (String s : list) {
+            if (s.equals("REI")) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// @brief Checks if both maps contain the same position
+    /// @pre ---
+    /// @post Returns true if a key (piece) of the @p ma is included in @p mb
+    /// @throws NullPointerException
+    private static boolean hasRepeatedPosition(Map<Position, Piece> ma, Map<Position, Piece> mb)
+            throws NullPointerException {
+        if (ma == null || mb == null) {
+            throw new NullPointerException("HasRepeatedMap null map passed");
+        }
+
+        // Check existence
+        for (Position p : ma.keySet()) {
+            if (mb.containsKey(p)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// @brief Checks if the name corresponds to a piece type
     /// @pre ---
     /// @post Returns true if the name does not exist in the @p types list
     private static boolean illegalType(String name, Map<String, PieceType> types) {
         // Contains is O(1)
         return !types.containsKey(name);
+    }
+
+    /// @brief Checks if the list of initial positions does not contain an illegal name
+    /// @pre @p list != null
+    /// @post Returns true if one of the strings in @p list does not exist as a piece name
+    private static boolean illegalInitialPositions(List<String> list, Map<String, PieceType> map) {
+        for (String s : list) {
+            if (illegalType(s, map)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// @brief Checks if there's a movement which contains a moving vector
@@ -580,5 +744,19 @@ public class FromJSONParserHelper {
         }
 
         return existent;
+    }
+
+    /// @brief Creates a list from the map
+    /// @pre @p map != null
+    /// @post Creates a list of pairs from the map as <key, value>
+    private static List<Pair<Position, Piece>> initPosMapToList(Map<Position, Piece> map) {
+        List<Pair<Position, Piece>> list = new ArrayList<>();
+
+        // Add from map to the list
+        map.forEach((key, value) -> list.add(
+            new Pair<Position, Piece>(key, value)
+        ));
+
+        return list;
     }
 }
