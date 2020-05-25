@@ -181,7 +181,7 @@ public class Cpu{
             }
             //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
             if(profundity==0){
-                equealMovementsFirstLevel.forEach((action)->System.out.println("1 moviment possible Origen:"+action.first.toString()+" desti:"+action.second.toString()));
+                //equealMovementsFirstLevel.forEach((action)->System.out.println("1 moviment possible Origen:"+action.first.toString()+" desti:"+action.second.toString()));
                 if(equealMovementsFirstLevel.isEmpty()){
                     itPieces = pieces.iterator();
                     while(itPieces.hasNext()){
