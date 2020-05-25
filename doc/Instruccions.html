@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Instruccions</title>
+    <link rel="stylesheet" href="https://stackedit.io/style.css" />
+  </head>
+
+  <body class="stackedit">
+    <div class="stackedit__html">
+      <h1 id="instruccions">INSTRUCCIONS</h1>
+      <h2 id="índex">Índex</h2>
+      <ol>
+        <li><a href="#instruccions">Introducció</a></li>
+        <li>
+          <a href="#instal%C2%B7laci%C3%B3">Instal·lació</a>
+          <ul>
+            <li><a href="#desc%C3%A0rrega">Descàrrega</a></li>
+            <li><a href="#execuci%C3%B3">Execució</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#comen%C3%A7a-a-jugar">Comença a jugar</a>
+          <ul>
+            <li>
+              <a href="#configurar-la-partida">Configurar la partida</a>
+              <ul>
+                <li><a href="#inici-de-partida">Inici de partida</a></li>
+                <li><a href="#mode-de-la-partida">Mode de la partida</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#cpu">CPU</a>
+              <ul>
+                <li>
+                  <a href="#configuraci%C3%B3-de-la-cpu"
+                    >Configuració de la CPU</a
+                  >
+                </li>
+                <li><a href="#partida-amb-cpu">Partida amb CPU</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#aspectes-configurables">Aspectes configurables</a>
+          <ul>
+            <li><a href="#modificacions-del-joc">Modificacions del joc</a></li>
+            <li>
+              <a href="#modificacions-de-les-peces"
+                >Modificacions de les peces</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#altres-aspectes">Altres aspectes</a>
+          <ul>
+            <li>
+              <a href="#moviments-especials">Moviments especials</a>
+              <ul>
+                <li><a href="#enroc">Enroc</a></li>
+                <li><a href="#promoci%C3%B3">Promoció</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#l%C3%ADmits">Límits</a>
+              <ul>
+                <li><a href="#escac">Escac</a></li>
+                <li><a href="#inactivitat">Inactivitat</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ol>
+      <h2 id="introducció">Introducció</h2>
+      <p>
+        En aquest fitxer consten les instruccions, des dels conceptes més bàsics
+        fins als més avançats sobre el projecte d’un joc d’escacs de
+        l’assignatura de Projecte de Programació.
+      </p>
+      <p>
+        El projecte ha sigut desenvolupat per: David Càceres, Joan Plaja i
+        Miquel de Domingo.
+      </p>
+      <h2 id="instal·lació">Instal·lació</h2>
+      <p>
+        Per a poder jugar al joc d’escacs s’ha de seguir el següent procés
+        d’instal·lació:
+      </p>
+      <h4 id="descàrrega">1. Descàrrega</h4>
+      <p>
+        El joc es troba comprimit en el fitxer
+        <a href="https://github.com/udg-propro/projecte-2020-a3/tree/master/jar"
+          ><code>ChessGame.jar</code></a
+        >. Per a obtenir-lo es pot clonar el repositori o descarregar-se el
+        projecte en <code>.zip</code>. Dins la carpeta
+        <code>/jar</code> trobareu el fitxer.
+      </p>
+      <h4 id="execució">2. Execució</h4>
+      <p>
+        El joc, com s’ha explicat abans, compte amb dos modes d’interfície. A
+        partir de la cònsola del dispositiu, s’ha d’executar una de les dues
+        comandes següents:
+      </p>
+      <blockquote>
+        <p>Si es vol executar en mode per cònsola</p>
+      </blockquote>
+      <pre><code>$ java -jar ChessGame.jar -c
+</code></pre>
+      <blockquote>
+        <p>Si es vol executar el mode gràfic</p>
+      </blockquote>
+      <pre><code>$ java -jar ChessGame.jar -g
+</code></pre>
+      <h2 id="comença-a-jugar">Comença a jugar</h2>
+      <h3 id="configurar-la-partida">Configurar la partida</h3>
+      <h4 id="tipus-de-partida">Tipus de partida</h4>
+      <p>El joc consta amb 3 maneres diferents d’iniciar una partida:</p>
+      <ul>
+        <li>
+          <p>
+            Partida normal: en aquest cas es carrega una partida d’escacs amb la
+            configuració per defecte i s’inicia des de zero.
+          </p>
+        </li>
+        <li>
+          <p>
+            Partida configurada: en aquest cas es permet a l’usuari seleccionar
+            un fitxer de configuració de joc en el qual s’hagin modificat les
+            dades pertinents. La partida s’iniciarà des de zero, també.
+          </p>
+          <blockquote>
+            <p>
+              <strong>Avís</strong><br />
+              Són moltes les configuracions que es poden modificar del joc i
+              aquestes, alhora, estan protegides a partir del lector de fitxers.
+              Si les dades no es troben en el fomat esperat, no seran acceptades
+              i el joc no s’iniciarà. Per veure les recomanacions sobre què i
+              com modificar, vegeu
+              <a href="#aspectes-configurables">Aspectes configurables</a>.
+            </p>
+          </blockquote>
+        </li>
+        <li>
+          <p>
+            Partida guardada: en aquest cas es permet a l’usuari carregar una
+            partida ja començada i s’iniciarà al turn abans d’haver-se guardat
+            la partida.
+          </p>
+          <blockquote>
+            <p>
+              <strong>Avís</strong><br />
+              Per què el programa pugui carregar bé la partida, és condició
+              <em>sin equano</em> que el fitxer de configuració de la partida es
+              trobi a la úbicació explicada en el fitxer. D’altre banda, el
+              programa mostrarà un missatge d’error i no s’executarà.
+            </p>
+          </blockquote>
+        </li>
+      </ul>
+      <h4 id="mode-de-partida">Mode de partida</h4>
+      <p>
+        Una vegada s’ha escollit el tipus de partida, la següent pestanya que
+        s’obrirà és per escollir el mode de partida. En aquest cas també tenim 3
+        opcions:
+      </p>
+      <ul>
+        <li>
+          <p>
+            Jugador vs Jugador: aquest mode iniciarà la partida carregada i
+            permetrà que un jugador mogui les peces blanques i un altre les
+            negres.
+          </p>
+        </li>
+        <li>
+          <p>
+            Jugador vs CPU: en aquest mode s’iniciarà la partida carregada i el
+            jugador competirà contra la CPU. En el mode gràfic, el jugador
+            sempre serà el color blanc, mentre que la CPU serà el color negre.
+          </p>
+          <blockquote>
+            <p>
+              Per llegir més sobre com configurar la CPU, vegeu
+              <a href="#configuraci%C3%B3-de-la-cpu">configuració de la CPU</a
+              >.<br />
+              Per a llegir més sobre el funcionament de les partides amb CPU,
+              vegeu <a href="#partida-amb-cpu">partida amb cpu</a>.
+            </p>
+          </blockquote>
+        </li>
+        <li>
+          <p>
+            CPU vs CPU: en aquest mode, per sort o per desgràcia, no hi ha
+            interacció humana. Quan es configuri la computadora, en el cas
+            gràfic, aquella configuració serà per a les dues, mentre que a la
+            cònsola podran tenir diferents nivells.
+          </p>
+          <blockquote>
+            <p>
+              Per llegir més sobre com configurar la CPU, vegeu
+              <a href="#configuraci%C3%B3-de-la-cpu">configuració de la CPU</a
+              >.<br />
+              Per a llegir més sobre el funcionament de les partides amb CPU,
+              vegeu <a href="#partida-amb-cpu">partida amb cpu</a>.
+            </p>
+          </blockquote>
+        </li>
+      </ul>
+      <h3 id="inici-de-partida">Inici de partida</h3>
+      <p>
+        Un cop s’ha entrat el mode, s’iniciarà la partida. L’objectiu dels
+        escacs és moure les peces fins aconseguir un escac i mat sobre el rei
+        del contrincant.<br />
+        Dins de la partida, a la dreta del tauler, l’usuari tindrà diferents
+        opcions a dur a terme mentre es juga.
+      </p>
+      <h4 id="desfer">Desfer</h4>
+      <p>
+        Permet desferl’últim moviment a l’usuari. Si per exemple, el color
+        <strong>blanc</strong> ha fet el moviment <strong>a2-a4</strong>, en
+        apretar el botó de desfer, es tornarà la peça al seu lloc original i el
+        color <strong>blanc</strong> tornarà a tirar.
+      </p>
+      <h4 id="refer">Refer</h4>
+      <p>
+        Permet refer un últim moviment desfet. És essencial, doncs, que per
+        poder refer <strong>n</strong> moviments se n’han hagut de desfer
+        <strong>n</strong> de consecutius.<br />
+        En el cas que un usuari desfaci <strong>n</strong> i llavors se’n
+        refacin <strong>n-m</strong> (m ∈ [1, n]) però l’usuari mogui una peça,
+        tots els moviments restants que es podien refer, queden esborrats per
+        tant no es podrà refer més enllà d’aquell moviment.
+      </p>
+      <h4 id="taules">Taules</h4>
+      <p>
+        Una de les opcions dins el joc d’escacs és la de demanar taules, que
+        equivaldria a un empat, però aquest ha de ser acordat. Doncs, quan es
+        demanin taules, si el contrincant no les accepta, s’ha de seguir jugant.
+      </p>
+      <h4 id="rendició">Rendició</h4>
+      <p>
+        En aquest cas, la rendició d’un jugador equivaldria a la derrota del seu
+        color.
+      </p>
+      <h4 id="guardar-partida">Guardar partida</h4>
+      <p>
+        Es permet, també, guardar una partida a mig fer. Aquesta partida es
+        guardarà en un directori anomenat <em>saved_games</em>, el qual, en cas
+        que no existeixi serà creat per l’aplicatiu. També, a part de poder-se
+        guardar partides a mig fer, sempre, en acabar una partida, es permetrà a
+        l’usuari escollir si la vol guardar o no.
+      </p>
+      <blockquote>
+        <p>
+          <strong>Nota</strong><br />
+          Tot i que s’ha parlat majoritàriament del funcionament del mode
+          gràfic, el funcionament per la cònsola és pràcticament idèntic, tret
+          dels incissos pertinents.
+        </p>
+      </blockquote>
+      <h3 id="cpu">CPU</h3>
+      <h4 id="configuració-de-la-cpu">Configuració de la CPU</h4>
+      <p>
+        Una altre possibilitat que ofereix l’aplicació és inicialitzar la CPU
+        d’una manera més personalitzada. D’entrada, la CPU no comptarà amb
+        coneixament, és a dir, simplement funcionarà a partir de l’algorisme
+        implementat. Però, quan es configura, es dona la possibilitat a l’usuari
+        de poder-hi afegir aquest coneixement.
+      </p>
+      <blockquote>
+        <p>
+          <strong>NOTA</strong><br />
+          Aquest coneixement ha de ser un fitxer de desenvolupament de partida i
+          ha d’acabar en victòria.
+        </p>
+      </blockquote>
+      <p>
+        A més, es pot escollir 3 nivells diferents de dificultat: principiant,
+        intermedi i avançat.
+      </p>
+      <h4 id="partida-amb-cpu">Partida amb CPU</h4>
+      <p>
+        Quan s’està jugant amb la CPU, en el menú de botons, sota el de
+        <em>Taules</em>, apareixerà un nou botó el qual activarà la CPU perquè
+        executi el moviment. Si el jugador encara no ha executat el moviment,
+        aquest botò no farà res.<br />
+        Quan la partida és amb dues CPUs, el funcionament d’aquest botò serà
+        idèntic. No hi hauran dos botons, sinó que el mateix servirà per anar
+        alternant els torns.
+      </p>
+      <p>
+        La resta d’opcions <em>in-game</em> segueixen funcionant però cal
+        remarcar que la CPU mai es rendirà ni acceptarà taules. És un robot i
+        està programat per guanyar! Tot i això, es poden refer i desfer
+        moviments amb total normalitat.
+      </p>
+      <h2 id="aspectes-configurables">Aspectes configurables</h2>
+      <p>
+        Una de les principals característiques que té l’aplicació és el fet de
+        poder carregar <a href="#mode-de-partida">partides configurades</a>.
+        Però, aquestes propietats tenen alguns límits i han de complir certs
+        aspectes. Alhora, hi ha certes configuracions que no es recomanaria
+        modificar com exemple, les imatges de les peces.
+      </p>
+      <h3 id="modificacions-del-joc">Modificacions del joc</h3>
+      <p>
+        Les configuracions que es poden modificar del funcionament del joc són:
+      </p>
+      <ul>
+        <li>
+          <strong>Files i columnes</strong>. El valor de les files i les es pot
+          modificar i no han de perquè ser iguals els dos. Els valors que poden
+          tenir estan limitat entre 4 i 16.
+        </li>
+        <li>
+          <a href="#l%C3%ADmits"><strong>Límits</strong></a
+          >. Els dos valors dels límits poden ser modificats i el rang pot anar
+          de 0 a n. Cal dir, que sí el valor és 0, no es podrà jugar!
+        </li>
+        <li>
+          <a href="#enroc"><strong>Enrocs</strong></a
+          >. Els enrocs es poden afegir i treure segons convingui. Alhora de
+          crear un enroc, ha de comptar amb les següents propietats (per ordre):
+          peçaA, peçaB, quiets (si les dues peces han no s’han mogut des de
+          l’inici) i si l’espai entre elles és buit
+        </li>
+      </ul>
+      <h3 id="modificacions-de-les-peces">Modificacions de les peces</h3>
+      <p>
+        Hi ha certes propietats dels tipus de peces que es recomanarien no
+        modificar, ja que podrien provocar que l’aplicació no funcioni. D’altre
+        banda, els que sí que es poden modificar són:
+      </p>
+      <ul>
+        <li>
+          <strong>El nom i el símbol</strong>. El nom es pot modificar però cal
+          que hi hagi un tipus de peça que es digui rei.
+        </li>
+        <li>
+          <strong>El valor</strong>. El valor és la propietat que qualifica com
+          d’importants són les peces. Per exemple, el rei, al ser la peça més
+          important del joc, ha de tenir la puntuació més alta d’entre totes.
+        </li>
+        <li>
+          <strong>Els moviments</strong>. El vector de moviments és un altre
+          aspecte modificable, però, qualsevol format incorrecte provocarà una
+          exepció que acabarà amb el programa.
+        </li>
+        <li>
+          <strong>Promoció i invulnerabilitat</strong>. Són dos booleans que
+          indiquen si una tipus té capacitat per
+          <a href="#promoci%C3%B3">promocionar</a> i si és invulnerable o no.
+        </li>
+      </ul>
+      <h2 id="altres-aspectes">Altres aspectes</h2>
+      <h3 id="moviments-especials">Moviments especials</h3>
+      <p>
+        Dins els escacs, més enllà dels moviments que pot arribar a fer una peça
+        se’n poden fer d’especials. Dins l’aplicació, una o més peces poden fer
+        els següents moviments:
+      </p>
+      <h4 id="enroc">Enroc</h4>
+      <p>
+        L’enroc és un moviment especial que té el rei i amb una de les dues
+        torres per protegir-se d’actacs enemics. És l’única jugada en la que es
+        poden moure dues peces a la vegada.<br />
+        Suposem que tenim una torre a la posició h1 i el rei a la e1. Podem
+        doncs, demanar a la torre que es mogui a la posició del rei, és a dir,
+        fer un enroc i llavors el rei es posicionarà a la casella g1 mentre que
+        la torre a la f1.
+      </p>
+      <blockquote>
+        <p>
+          <strong>Nota</strong><br />
+          Per afegir un enroc diferent al per defecte, s’han d’afegir al fitxer
+          de configuració a l’apartat d’enrocs.
+        </p>
+      </blockquote>
+      <h4 id="promoció">Promoció</h4>
+      <p>
+        La promoció, més que un moviment, és el resultat d’un moviment alhora
+        que una propietat d’una peça. És a dir, la promoció es durà a terme si i
+        només si:
+      </p>
+      <ul>
+        <li>Una peça arribar al final del tauler (del costat oposat).</li>
+        <li>Aquesta peça té a propietat de poder-se promocionar.</li>
+      </ul>
+      <p>
+        Per exemple, en el joc d’escacs convencional, la única peça que té
+        aquesta capacitat és el peó. Llavors, dincs l’aplicacitiu, es donaran
+        les diferents opcions a la qual es podrà promocionar aquesta peça que
+        compleixi les dues condicions.
+      </p>
+      <blockquote>
+        <p>
+          <strong>Nota</strong><br />
+          Es podrà promocionar a qualsevol tipus de peça tret del rei, ja que és
+          una peça única.
+        </p>
+      </blockquote>
+      <h3 id="límits">Límits</h3>
+      <p>
+        La partida pot acabar degut a certes decisions dels jugadors: escac i
+        mat, taules o rendició. A més, l’aplicactiu compte amb dos paràmetres
+        configurables que estableixen un límit d’accions consecutives que, en
+        cas que se superin, provocaran un final de partida. Aquests dos límits
+        són:
+      </p>
+      <h4 id="escac">Escac</h4>
+      <p>
+        El límit d’escacs indica quantes tirades pot fer un color i fer escac a
+        cada tirada. És a dir, quantes vegades pot el color blanc fer un
+        moviment i que aquest moviment tingui com a resultat fer un escac al rei
+        negre. Si en nombre de tirades consecutives és superior a aquest límit,
+        la partida acabarà amb <em>taules per escac continu</em>.
+      </p>
+      <h4 id="inactivitat">Inactivitat</h4>
+      <p>
+        El límit per inactivitat ens dirà quants torns poden passar sense cap
+        del jugadors mati a cap peça. És a dir, si aquest límit té un valor de
+        7, implicarà que si es juguen 7 torns (7 tirades blanques i 7 tirades
+        negres) sense matar cap peça, el joc acabi en
+        <em>taules per inactivitat</em>.
+      </p>
+      <blockquote>
+        <p>
+          <strong>Nota</strong><br />
+          Aquests paràmetres poden ser opcionals. Per a què l’aplicatiu no els
+          tingui en compte, s’ha de configurar un valor superior a 40 a les
+          propietats corresponents (<em>limitEscacsSeguits</em> i
+          <em>limitTornsInnacció</em>, respectivament).
+        </p>
+      </blockquote>
+    </div>
+  </body>
+</html>
