@@ -77,7 +77,7 @@ public class Cpu{
     @pre --
     @return Returns the puntuation choosen for the @p playerType of the actual profunity.
      */
-    private int i_minMax(int score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
+    private int i_minMax(Integer score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
         if(profundity==_profundity)return score;
         else if(playerType==0){ //Turn of the cpu player (we will maximize score here)
             Integer max = Integer.MIN_VALUE;
@@ -107,7 +107,13 @@ public class Cpu{
                     //System.out.println(taulerCopia.showBoard());
                     //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     //System.out.println(taulerCopia.showBoard());
-                    //System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                    /*if(profundity==0)System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                    if(pieceMovement.second>=100){
+                        
+                        System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                        System.out.println(taulerCopia.showBoard());
+                        System.out.println("PUNTUACIO JUGADA:"+pieceMovement.second);
+                    }*/
                     //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" max:"+max);
                     //taulerCopia.pintarLlistes();
                     //if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
@@ -115,7 +121,9 @@ public class Cpu{
                     
                     List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);//we apply this movement with the returnend parameters on the checkMovement
                     if(!taulerCopia.isCheck(piecesContrincant)){
+                        //if(profundity==0)System.out.println("no és escac");
                         actions.forEach((action)->{
+                            
                             //System.out.println("action "+action.toString());
                             //System.out.println(taulerCopia.showBoard());
                             if(action==MoveAction.Promote){
@@ -135,16 +143,18 @@ public class Cpu{
                         //System.out.println("SOC cpu nivell:"+profundity+"max:"+max+"smallestAnterior:"+smallerAnterior+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                         //if(profundity==0)System.out.println("Max actual:"+max);
                         result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
-
-                        if(result>max){
+                        //if(profundity==0)System.out.println("result actual:"+result+" max actual:"+max+ "  profunity:"+profundity);
+                        if(result>=max){
                                 if(result>biggestAnterior)biggestAnterior=result;
                                 max=result;
                                 if(profundity==0){
+                                    //System.out.println("nou valor");
                                     equealMovementsFirstLevel.clear();
                                     equealMovementsFirstLevel.add(new Pair<Position,Position>( (Position) piece.first.clone(),(Position) pieceMovement.first.clone()));
                                 }
-                            }
+                        }
                         else if(result==max && profundity == 0){
+                            //System.out.println("valor igual");
                             equealMovementsFirstLevel.add(new Pair<Position,Position>((Position) piece.first.clone(),(Position) pieceMovement.first.clone()));
                         }
 
@@ -165,11 +175,12 @@ public class Cpu{
                         */
                         if(smallerAnterior<biggestAnterior){/*System.out.println("tallo desde CPU result:"+result+" nivell:"+profundity);*/follow=false;}
                     }
-                    else taulerCopia.undoMovement();
+                    else {taulerCopia.undoMovement();}
                 }
             }
             //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
             if(profundity==0){
+                equealMovementsFirstLevel.forEach((action)->System.out.println("1 moviment possible Origen:"+action.first.toString()+" desti:"+action.second.toString()));
                 if(equealMovementsFirstLevel.isEmpty()){
                     itPieces = pieces.iterator();
                     while(itPieces.hasNext()){
@@ -219,12 +230,19 @@ public class Cpu{
                     //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     Integer result= -pieceMovement.second + score;
                     //System.out.println(taulerCopia.showBoard());
-                    //System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    /*if(profundity==0)System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    if(pieceMovement.second>=100){
+                        
+                        System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                        System.out.println(taulerCopia.showBoard());
+                        System.out.println("PUNTUACIO JUGADA:"+pieceMovement.second);
+                    }*/
                     //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" min:"+min);
                     //taulerCopia.pintarLlistes();
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
                     if(!taulerCopia.isCheck(piecesContrincant)){
+                        //if(profundity==0)System.out.println("no és escac");
                         actions.forEach((action)->{
                             //System.out.println("action "+action.toString());
                             //System.out.println(taulerCopia.showBoard());
@@ -244,7 +262,7 @@ public class Cpu{
                         });
                         //System.out.println("SOC el contrincant trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                         result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
-                        if(result<min){
+                        if(result<=min){
                             if(result<smallerAnterior)smallerAnterior=result;
                             min=result;
                         }
@@ -254,7 +272,7 @@ public class Cpu{
                         */
                         if(biggestAnterior>smallerAnterior){/*System.out.println("tallo desde CONTRINCANT result:"+result+" nivell:"+profundity);*/follow=false;}
                     }
-                    else taulerCopia.undoMovement();
+                    else {taulerCopia.undoMovement();}
                 }
                     
             }

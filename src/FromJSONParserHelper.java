@@ -246,8 +246,9 @@ public class FromJSONParserHelper {
         Scanner in = new Scanner(new File(fileLocation));
 
         // Skip 167 lines
-        for (int i = 0; i < 167; i++) {
-            in.nextLine();
+        String aux = in.nextLine();
+        while (!aux.contains("proper_torn")) {
+            aux = in.nextLine();
         }
 
         // Read turns
@@ -258,7 +259,7 @@ public class FromJSONParserHelper {
 
             // Skip ],
             in.nextLine();
-        } else {
+        } else if (forKnowledge) {
             throw new JSONParseFormatException(
                 "The match does not have any turns",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
