@@ -722,10 +722,10 @@ public class UIChess extends Application {
                 "There are no movements to be redone!",
                 true
             ).showAndWait();
-        } else {
+        } else {            
             // Redo from chess
             _controller.redoMovement();
-
+            
             // Check the turn type
             Turn lastTurn = _controller.lastTurn();
             if (lastTurn.isCastlingTurn()) {
@@ -1436,6 +1436,7 @@ public class UIChess extends Application {
 
                     if (actions.contains(MoveAction.Promote)) {
                         handlePromotion(dest);
+                        actions.add(_controller.promotionResults());
                     }
                 }
 
@@ -1443,6 +1444,12 @@ public class UIChess extends Application {
                     handleEndOfGame();
                 } else if (actions.contains(MoveAction.Check)) {
                     handleCheck();
+                } else if (actions.contains(MoveAction.Drowned)) {
+                    _controller.saveEmptyTurn(
+                        "TAULES PER REI OFEGAT",
+                        _controller.currentTurnColor()
+                    );
+                    handleDrawEndOfGame();
                 } else {
                     handleCheckReset();
                 }
@@ -1520,6 +1527,8 @@ public class UIChess extends Application {
 
                 // Promote in UI
                 piece.promoteType(_controller.pieceAtCell(move.second));
+
+                actions.add(_controller.promotionResults());
             }
         }
 
@@ -1527,6 +1536,12 @@ public class UIChess extends Application {
             handleEndOfGame();
         } else if (actions.contains(MoveAction.Check)) {
             handleCheck();
+        } else if (actions.contains(MoveAction.Drowned)) {
+            _controller.saveEmptyTurn(
+                "TAULES PER REI OFEGAT",
+                _controller.currentTurnColor()
+            );
+            handleDrawEndOfGame();
         } else {
             handleCheckReset();
         }

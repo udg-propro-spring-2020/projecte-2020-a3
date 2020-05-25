@@ -319,7 +319,10 @@ public class ConsoleGame {
 				System.out.print("The opponent asks for a draw, accept? [Y/N]: ");
 				String s = readInputLine(false);
 				if (s.toUpperCase().equals("Y")) {
-					_controller.saveEmptyTurn("TAULES ACCEPTADES", oppositeColor(_controller.currentTurnColor()));
+					_controller.saveEmptyTurn(
+						"TAULES ACCEPTADES", 
+						oppositeColor(_controller.currentTurnColor())
+					);
 					playerOption = "E";
 					skipToggle = true;
 				} else {
@@ -345,6 +348,13 @@ public class ConsoleGame {
 			} else if (playerOption.equals("C")) {
 				skipToggle = true;
 				playerOption = "S";
+			} else if (playerOption.equals("K")) {
+				skipToggle = true;
+				_controller.saveEmptyTurn(
+					"TAULES PER REI OFEGAT",
+					_controller.currentTurnColor()
+				);
+				playerOption = "E";
 			}
 
 			int limitRes = checkLimits();
@@ -423,8 +433,10 @@ public class ConsoleGame {
 					} else {
 						_controller.toggleTurn();
 					}
-				} else {
+				} else if (cpuResult == MoveAction.Checkmate) {
 					playerOption = "C";
+				} else if (cpuResult == MoveAction.Drowned) {
+					playerOption = "K";
 				}
 			} else {
 				if (_controller.turnNumber() % 10 == 0) {
@@ -445,7 +457,7 @@ public class ConsoleGame {
 					_controller.saveEmptyTurn("RENDICIÓ", _controller.currentTurnColor());
 					System.out.println(_controller.currentTurnColor().value() + " surrenders!");
 					playerOption = "C";
-				}
+				} 
 
 				int limitRes = checkLimits();
 				if (limitRes > 0) {
@@ -459,12 +471,23 @@ public class ConsoleGame {
 		} while (!playerOption.equals("X") && 
 				 !playerOption.equals("G") && 
 				 !playerOption.equals("I") && 
-				 !playerOption.equals("C"));
+				 !playerOption.equals("C") &&
+				 !playerOption.equals("K"));
 
 		switch (playerOption) {
 			case "C": {
 				// One of them wins
 				endOfGame(false, false);
+				break;
+			}
+			case "K": {
+				// Draw
+				System.out.println("Tables due to drowned king");
+				_controller.saveEmptyTurn(
+					"TAULES PER REI OFEGAT",
+					_controller.currentTurnColor()
+				);
+				endOfGame(true, false);
 				break;
 			}
 			case "G": {
@@ -540,8 +563,16 @@ public class ConsoleGame {
 			// Draw due to inactivity
 			endOfGame(true, true);
 		} else {
-			// One computer has won
-			endOfGame(false, false);
+			if (result == MoveAction.Drowned) {
+				_controller.saveEmptyTurn(
+					"TAULES PER REI OFEGAT",
+					_controller.currentTurnColor()
+				);
+				endOfGame(true, false);
+			} else {
+				// One computer has won 
+				endOfGame(false, false);
+			}
 		}
 	}
 
@@ -623,8 +654,7 @@ public class ConsoleGame {
 						Position origin = new Position(oValue);
 						Position destination = new Position(dValue);
 						// Create positions with the read strings
-						Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkPlayerMovement(origin,
-								destination);
+						Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkPlayerMovement(origin, destination);
 
 						if (checkResult.first.contains(MoveAction.Correct)) {
 							_controller.cancellUndoes();
@@ -635,34 +665,26 @@ public class ConsoleGame {
 							if (actions == null) {
 								// Player has left his king in a check position
 								System.out.println("Your king is in a dangered position. You must defend it.");
-							} else if (checkResult.first.contains(MoveAction.Castling)) {
-								// Save the turn
-								_controller.saveCastlingTurn(checkResult.second);
-
-								// Since there will be no killing, increment the inactive turn
-								_inactiveTurns++;
-								stop = true;
-
-								if (actions.contains(MoveAction.Checkmate)) {
-									result = "C";
-									System.out.println(_controller.currentTurnColor().value() + " checkmate");
-								}
 							} else {
-								if (checkResult.second.isEmpty()) {
-									// Turn with no captures
+								if (checkResult.first.contains(MoveAction.Castling)) {
+									// Save the turn
+									_controller.saveCastlingTurn(checkResult.second);
+	
+									// Since there will be no killing, increment the inactive turn
 									_inactiveTurns++;
 								} else {
-									// Otherwise
-									_inactiveTurns = 0;
-									if (_controller.currentTurnColor() == PieceColor.White) {
-										_controller.setInactiveResetOnWhites(true);
+									if (checkResult.second.isEmpty()) {
+										// Turn with no captures
+										_inactiveTurns++;
 									} else {
-										_controller.setInactiveResetOnWhites(false);
+										// Otherwise
+										_inactiveTurns = 0;
+										if (_controller.currentTurnColor() == PieceColor.White) {
+											_controller.setInactiveResetOnWhites(true);
+										} else {
+											_controller.setInactiveResetOnWhites(false);
+										}
 									}
-								}
-
-								if (actions != null) {
-									// Save turn
 									_controller.saveTurn(
 										actions,
 										new Pair<String, String>(
@@ -670,19 +692,23 @@ public class ConsoleGame {
 											destination.toString()
 										)
 									);
-
+	
 									// Check promotion
 									if (actions.contains(MoveAction.Promote)) {
 										// Handle promotion of destination piece
 										handlePromotion(destination);
+	
+										actions.add(_controller.promotionResults());
 									}
 								}
-
+								
 								if (actions.contains(MoveAction.Check)) {
 									handleCheck();
 								} else if (actions.contains(MoveAction.Checkmate)) {
 									result = "C";
 									System.out.println(_controller.currentTurnColor().value() + " checkmate");
+								} else if (actions.contains(MoveAction.Drowned)) {
+									result = "K";
 								} else {
 									handleCheckReset();
 								}
@@ -791,11 +817,9 @@ public class ConsoleGame {
 		Pair<Position, Position> cpuMove = cpu.doMovement();
 
 		// Check CPU movement
-		Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(cpuMove.first,
-				cpuMove.second);
+		Pair<List<MoveAction>, List<Position>> checkResult = _controller.checkCPUMovement(cpuMove.first, cpuMove.second);
 
-		List<MoveAction> result = null;
-		result = _controller.applyCPUMovement(cpuMove.first, cpuMove.second, checkResult.second);
+		List<MoveAction> actions = _controller.applyCPUMovement(cpuMove.first, cpuMove.second, checkResult.second);
 		_controller.cancellUndoes();
 
 		// CPU movement will always be correct
@@ -805,16 +829,18 @@ public class ConsoleGame {
 			_inactiveTurns++;
 		} else {
 			// Saving turn
-			_controller.saveTurn(result, new Pair<String, String>(cpuMove.first.toString(), cpuMove.second.toString()));
+			_controller.saveTurn(actions, new Pair<String, String>(cpuMove.first.toString(), cpuMove.second.toString()));
 
 			// Handle promotion
-			if (result.contains(MoveAction.Promote)) {
+			if (actions.contains(MoveAction.Promote)) {
 				_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
 				_controller.savePromotionTurn(
 					_controller.currentTurnColor(),
 					_controller.pieceAtCell(cpuMove.second).type(),
 					_controller.mostValuableType()
 				);
+
+				actions.add(_controller.promotionResults());
 			}
 
 			if (checkResult.second.isEmpty()) {
@@ -830,7 +856,7 @@ public class ConsoleGame {
 			}
 		}
 
-		if (result.contains(MoveAction.Check)) {
+		if (actions.contains(MoveAction.Check)) {
 			handleCheck();
 		} else {
 			if (_controller.currentTurnColor() == PieceColor.White) {
@@ -840,8 +866,10 @@ public class ConsoleGame {
 			}
 		}
 
-		if (result.contains(MoveAction.Checkmate)) {
+		if (actions.contains(MoveAction.Checkmate)) {
 			return MoveAction.Checkmate;
+		} else if (actions.contains(MoveAction.Drowned)) {
+			return MoveAction.Drowned;
 		} else {
 			return null;
 		}
