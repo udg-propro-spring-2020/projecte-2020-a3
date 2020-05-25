@@ -15,25 +15,25 @@ import java.util.Map;
 ///          turn control, turn management, game loading, game saving and others
 public class GameController {
     /// GAME CONTROL VARIABLES
-    private String _defaultConfigFileName = null; /// < Keeps the configuration file name
-    private PieceColor _currTurnColor = null; /// < Current turn color
-    private Integer _turnNumber = null; /// < Current turn number
-    private Integer _undoCount = null; /// < Amount of consequent undo movements
-    private List<Turn> _turns = null; /// < List of turns
-    private boolean _dataSet = false; /// < To know if the data has been initialized
-    private Chess _chess = null; /// < Game chess
-    /// < Holder <Piece, Position, TurnNumber> of the pieces that died when loading
-    /// a saved game
+    private String _defaultConfigFileName = null;   ///< Keeps the configuration file name
+    private PieceColor _currTurnColor = null;       ///< Current turn color
+    private Integer _turnNumber = null;             ///< Current turn number
+    private Integer _undoCount = null;              ///< Amount of consequent undo movements
+    private List<Turn> _turns = null;               ///< List of turns
+    private boolean _dataSet = false;               ///< To know if the data has been initialized
+    private Chess _chess = null;                    ///< Game chess
+    ///< Holder <Piece, Position, TurnNumber> of the pieces that died when loading a saved game
     private List<Pair<Piece, Pair<Position, Integer>>> _loadedGameDeaths = null;
-    private boolean _fromSavedGame = false;
+    private boolean _fromSavedGame = false;             ///< To know if the game is loaded from a saved game
+    private boolean _inactiveResetOnWhites = false;     ///< To know if the inactive count has been reset on a black turn
 
     // CONSTANTS
-    private static String SAVED_GAMES_LOCATION = "./saved_games/"; /// < Saved games directory
-    private static int INACTIVE_THRESHOLD = 40; /// < Inactive turns threshold
+    private static String SAVED_GAMES_LOCATION = "./saved_games/";      ///< Saved games directory
+    private static int INACTIVE_THRESHOLD = 40;                         ///< Inactive turns threshold
 
     /// @brief Builds a game controller for a chess with the given file location
     /// @details If saved game is true, it will apply all the turns that are saved
-    /// in the game flow file
+    ///          in the game flow file
     public GameController(String fileLocation, boolean savedGame)
             throws FileNotFoundException, JSONParseFormatException {
         if (savedGame) {
@@ -77,12 +77,16 @@ public class GameController {
                 if (t.isPromotionTurn()) {
                     if (lastTurn == null) {
                         // If nothing has moved, there cannot be a promotion
-                        throw new JSONParseFormatException("First turn cannot be a promotion",
-                                JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION);
+                        throw new JSONParseFormatException(
+                            "First turn cannot be a promotion",
+                            JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION
+                        );
                     } else if (lastTurn.isPromotionTurn()) {
                         // Two promotions cannot be consequent
-                        throw new JSONParseFormatException("A promotion cannot be followed by another promotion",
-                                JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION);
+                        throw new JSONParseFormatException(
+                            "A promotion cannot be followed by another promotion",
+                                JSONParseFormatException.ExceptionType.ILLEGAL_PROMOTION
+                            );
                     }
 
                     // <Original, Promoted> names
@@ -90,10 +94,17 @@ public class GameController {
                     Map<String, PieceType> typeMap = mapOfPieceTypes();
 
                     // Promote piece
-                    _chess.promotePiece(new Position(lastTurn.destination()), typeMap.get(promoted.second));
+                    _chess.promotePiece(
+                        new Position(lastTurn.destination()),
+                        typeMap.get(promoted.second)
+                    );
 
                     // Save turn with the PieceTypes
-                    savePromotionTurn(t.color(), typeMap.get(promoted.first), typeMap.get(promoted.second));
+                    savePromotionTurn(
+                        t.color(),
+                        typeMap.get(promoted.first),
+                        typeMap.get(promoted.second)
+                    );
                 } else if (!t.isEmptyTurn()) {
                     Pair<Position, Position> temp = null;
                     if (t.isCastlingTurn()) {
@@ -111,10 +122,12 @@ public class GameController {
                     // Add to deaths list - only add if it is not a castling
                     if (!t.isCastlingTurn()) {
                         for (Position p : checkResult.second) {
-                            _loadedGameDeaths
-                                    .add(new Pair<Piece, Pair<Position, Integer>>(_chess.pieceAt(p.row(), p.col()), // Piece
-                                            new Pair<Position, Integer>(p, _turnNumber) // Position - Turn
-                                    ));
+                            _loadedGameDeaths.add(
+                                new Pair<Piece, Pair<Position, Integer>>(
+                                    _chess.pieceAt(p.row(), p.col()),           // Piece
+                                    new Pair<Position, Integer>(p, _turnNumber) // Position - Turn
+                                )
+                            );
                         }
                     }
 
@@ -141,10 +154,8 @@ public class GameController {
 
     /// @brief Reads the match information from the file
     /// @pre @p list != null
-    /// @post Returns a Pair containing the information extracted from the location
-    /// file
-    public Pair<List<Turn>, PieceColor> readKnowledge(String location)
-            throws FileNotFoundException, JSONParseFormatException {
+    /// @post Returns a Pair containing the information extracted from the location file
+    public Pair<List<Turn>, PieceColor> readKnowledge(String location) throws FileNotFoundException, JSONParseFormatException {
         return FromJSONParserHelper.matchInformation(location, mapOfPieceTypes(), true);
     }
 
@@ -174,7 +185,7 @@ public class GameController {
     /// @brief Checks and applies a player movement
     /// @pre ---
     /// @post Checks and applies a player movement. Returns the result of the
-    // movement (null if not valid)
+    //        movement (null if not valid)
     public Pair<List<MoveAction>, List<Position>> checkPlayerMovement(Position origin, Position destination) {
         Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(origin, destination);
 
@@ -183,15 +194,16 @@ public class GameController {
 
     /// @brief Applies a player movement if possible and returns the result
     /// @pre @p origin && @p destination != null
-    /// @post Applies a player movement if possible and returns the result. The
-    /// result
-    /// will be null if the player has to defend the king
+    /// @post Applies a player movement if possible and returns the result. The result
+    ///       will be null if the player has to defend the king
     public List<MoveAction> applyPlayerMovement(Position origin, Position destination, List<Position> list) {
         List<MoveAction> result = _chess.applyMovement(origin, destination, list, false);
 
         // Evaluate for check
-        List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) ? _chess.pListBlack()
+        List<Pair<Position, Piece>> colorList = (_currTurnColor == PieceColor.White) 
+                ? _chess.pListBlack()
                 : _chess.pListWhite();
+
         if (_chess.isCheck(colorList)) {
             _chess.undoMovement();
             return null;
@@ -202,9 +214,8 @@ public class GameController {
 
     /// @brief Checks and applies a player movement
     /// @pre ---
-    /// @post Checks and applies a player movement. Returns the result of the
-    /// movement as
-    /// a String (null if not valid)
+    /// @post Checks and applies a player movement. Returns the result of the movement as
+    ///       a String (null if not valid)
     public Pair<List<MoveAction>, List<Position>> checkCPUMovement(Position origin, Position destination) {
         Pair<List<MoveAction>, List<Position>> checkResult = _chess.checkMovement(origin, destination);
 
@@ -213,8 +224,7 @@ public class GameController {
 
     /// @brief Applies a cpu movement
     /// @pre @p origin && @p dest != null
-    /// @post Applies the cpu movement to the chess and returns the list of
-    /// MoveActions
+    /// @post Applies the cpu movement to the chess and returns the list of MoveActions
     public List<MoveAction> applyCPUMovement(Position origin, Position destination, List<Position> list) {
         // CPU movement is always correct
         List<MoveAction> result = _chess.applyMovement(origin, destination, list, false);
@@ -230,13 +240,21 @@ public class GameController {
             throw new NullPointerException("ToggleTurn cannot toggle a null value");
         }
 
-        _currTurnColor = (_currTurnColor == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+        _currTurnColor = (_currTurnColor == PieceColor.White) 
+            ? PieceColor.Black 
+            : PieceColor.White;
+    }
+
+    /// @brief Changes if the inactive limit was reseted on a white turn
+    /// @pre ---
+    /// @post Sets @p value to the inactive limit reset controller
+    public void setInactiveResetOnWhites(boolean value) {
+        _inactiveResetOnWhites = value;
     }
 
     /// @brief Saves turn information
     /// @pre @p p cannot be null
-    /// @post Creates a new turn with the given movement and increments @p
-    /// turnNumber.
+    /// @post Creates a new turn with the given movement and increments @p turnNumber
     public void saveTurn(List<MoveAction> results, Pair<String, String> p) {
         MoveAction res = null;
         if (results.contains(MoveAction.Checkmate)) {
@@ -264,9 +282,8 @@ public class GameController {
 
     /// @brief Saves a promotion turn
     /// @pre ---
-    /// @post Creates a promotion turn, with the current color and adds it to the
-    /// list.
-    /// Turn number increases by one
+    /// @post Creates a promotion turn, with the current color and adds it to the list.
+    ///       Turn number increases by one
     public void savePromotionTurn(PieceColor color, PieceType original, PieceType promoted) {
         _turns.add(new Turn(color, original, promoted));
         _turnNumber++;
@@ -274,9 +291,8 @@ public class GameController {
 
     /// @brief Saves a castling turn
     /// @pre list.size() == 4
-    /// @post Creates a new castling type turn from the current color and adds it to
-    /// the list.
-    /// Turn number increases by one
+    /// @post Creates a new castling type turn from the current color and adds it to the list.
+    ///       Turn number increases by one
     public void saveCastlingTurn(List<Position> list) {
         // Origin string
         String auxOrigin = list.get(0).toString() + "-" + list.get(1).toString();
@@ -285,7 +301,9 @@ public class GameController {
         String auxDest = list.get(2).toString() + "-" + list.get(3).toString();
 
         // Saving the castling
-        _turns.add(new Turn(_currTurnColor, new Pair<String, String>(auxOrigin, auxDest)));
+        _turns.add(
+            new Turn(_currTurnColor, new Pair<String, String>(auxOrigin, auxDest))
+        );
         _turnNumber++;
     }
 
@@ -340,7 +358,7 @@ public class GameController {
     /// @brief Redoes one movement
     /// @pre turnNumber pointing after the last position of list
     /// @post If possible, redoes one movement. It is only possible to redo if
-    /// there has been at least one undone movement
+    ///       there has been at least one undone movement
     public boolean redoMovement() {
         if (!canRedo()) {
             return false;
@@ -362,8 +380,7 @@ public class GameController {
 
     /// @brief Cancells all the undoes since a new move has been applied
     /// @pre ---
-    /// @post Removes all the undone movements from the list and resets the undo
-    /// count
+    /// @post Removes all the undone movements from the list and resets the undo count
     public void cancellUndoes() {
         // If the user has undone x movements, and not redone all of them
         // then the match mus continue from that and all the movements after the
@@ -381,12 +398,12 @@ public class GameController {
     /// @brief Saves the game in a file
     /// @pre ---
     /// @post Saves the game in two JSON files, pulling away the configuration and
-    /// the game developement. Returns the fileName or null if there's an error
+    ///       the game developement. Returns the fileName or null if there's an error
     public String saveGame(String finalResult, boolean newConfigFile) {
         File gameFile = null;
         FileWriter gameWriter = null;
         try {
-            /// Configuration
+            // Configuration
             File configurationFile = new File(_defaultConfigFileName);
 
             if (newConfigFile) {
@@ -396,7 +413,7 @@ public class GameController {
                 configWriter.close();
             }
 
-            /// Game
+            // Game
             createSavedGameDirectory();
             Long fileName = new Date().getTime();
             gameFile = new File(SAVED_GAMES_LOCATION + fileName.toString() + ".json");
@@ -404,8 +421,15 @@ public class GameController {
 
             gameWriter = new FileWriter(gameFile);
             List<Turn> turnsToSave = getTurnsToSave();
-            gameWriter.write(ToJSONParserHelper.saveGameToJSON(_chess, _defaultConfigFileName, _currTurnColor,
-                    turnsToSave, finalResult));
+            gameWriter.write(
+                ToJSONParserHelper.saveGameToJSON(
+                    _chess, 
+                    _defaultConfigFileName, 
+                    _currTurnColor,
+                    turnsToSave, 
+                    finalResult
+                )
+            );
             gameWriter.close();
 
             return fileName.toString() + ".json";
@@ -466,7 +490,7 @@ public class GameController {
     /// @brief Returns the list of deaths occurred when loading a saved game
     /// @pre ---
     /// @post Returns the list of deaths occurred when loading a saved game. If game
-    /// controller was initialized not from a saved game, returns null
+    ///       controller was initialized not from a saved game, returns null
     public List<Pair<Piece, Pair<Position, Integer>>> loadingGameDeaths() {
         if (!_fromSavedGame) {
             return null;
@@ -506,7 +530,7 @@ public class GameController {
     /// @brief To get the last turn of the game
     /// @pre ---
     /// @post Returns the last turn of the game. If there are no turns
-    /// returns null value
+    ///       returns null value
     public Turn lastTurn() {
         if (_turnNumber == 0) {
             return null;
@@ -518,7 +542,7 @@ public class GameController {
     /// @brief To get the last non-empty turn
     /// @pre ---
     /// @post Returns the last non-empty turn of the game. If there are no turns
-    /// returns a null value
+    ///       returns a null value
     public Turn lastNotEmptyTurn() {
         if (_turnNumber == 0) {
             return null;
@@ -536,18 +560,22 @@ public class GameController {
     /// @brief To get the last movement of the game
     /// @pre ---
     /// @post Returns the last movement of the game. If there are no turns
-    /// returns null value
+    ///       returns null value
     public Pair<Position, Position> lastMovement() {
         if (_turnNumber == 0) {
             return null;
         }
 
         if (!_turns.get(_turnNumber - 1).isEmptyTurn()) {
-            return new Pair<Position, Position>(new Position(_turns.get(_turnNumber - 1).origin()),
-                    new Position(_turns.get(_turnNumber - 1).destination()));
+            return new Pair<Position, Position>(
+                new Position(_turns.get(_turnNumber - 1).origin()),
+                new Position(_turns.get(_turnNumber - 1).destination())
+            );
         } else {
-            return new Pair<Position, Position>(new Position(_turns.get(_turnNumber - 2).origin()),
-                    new Position(_turns.get(_turnNumber - 2).destination()));
+            return new Pair<Position, Position>(
+                new Position(_turns.get(_turnNumber - 2).origin()),
+                new Position(_turns.get(_turnNumber - 2).destination())
+            );
         }
     }
 
@@ -556,14 +584,15 @@ public class GameController {
     /// @post Returns the last movement undone
     public Pair<Position, Position> lastUndoneMovement() {
         // Last undone movement is the on at the _turnNumber value
-        return new Pair<Position, Position>(new Position(_turns.get(_turnNumber).origin()),
-                new Position(_turns.get(_turnNumber).destination()));
+        return new Pair<Position, Position>(
+            new Position(_turns.get(_turnNumber).origin()),
+            new Position(_turns.get(_turnNumber).destination())
+        );
     }
 
     /// @brief To know if the last turn of the current color was a check
     /// @pre ---
-    /// @post Returns true if the last turn of the current color was a check. False
-    /// otherwise
+    /// @post Returns true if the last turn of the current color was a check. False otherwise
     public boolean wasLastTurnCheck() {
         if (_turnNumber < 3) {
             return false;
@@ -577,15 +606,26 @@ public class GameController {
     /// @brief Returns if the players have reached the inactive limit
     /// @pre ---
     /// @post Returns true if the players have played as many turns without killing
-    /// as there are in the configuration. If the config limit is grater than the
-    /// threshold, it will return false
+    ///       as there are in the configuration. If the config limit is grater than the
+    ///       threshold, it will return false
     public boolean inactiveLimitReached(int inactiveTurns) {
-        if (evenTurn() && inactiveLimit() < INACTIVE_THRESHOLD) {
-            // Check for inactivity
-            if ((inactiveTurns / 2) >= inactiveLimit()) {
-                // Game finished due to inactivity
-                return true;
+        if (_inactiveResetOnWhites) {
+            if (!evenTurn() && inactiveLimit() < INACTIVE_THRESHOLD) {
+                // Check for inactivity
+                if ((inactiveTurns / 2) >= inactiveLimit()) {
+                    // Game finished due to inactivity
+                    return true;
+                }
             }
+        } else {
+            if (evenTurn() && inactiveLimit() < INACTIVE_THRESHOLD) {
+                // Check for inactivity
+                if ((inactiveTurns / 2) >= inactiveLimit()) {
+                    // Game finished due to inactivity
+                    return true;
+                }
+            }
+            
         }
 
         return false;
@@ -593,9 +633,8 @@ public class GameController {
 
     /// @brief Returns if the players have reached the consecutive check limit
     /// @pre ---
-    /// @post Returns true if there has been a color doing as many consecutive
-    /// checks
-    /// as the limit set
+    /// @post Returns true if there has been a color doing as many consecutive checks
+    ///       as the limit set
     public boolean checkLimitReached(int whiteCheckTurns, int blackCheckTurns) {
         return whiteCheckTurns >= checkLimit() || blackCheckTurns >= checkLimit();
     }
@@ -656,6 +695,7 @@ public class GameController {
 
     /// @brief Returns the type list of the possibile promotion types
     /// @pre ---
+    /// @post Returns the type list of the possible promotion types
     public List<PieceType> promotableTypes() {
         List<PieceType> tempList = new ArrayList<>();
         // Cannot become a king, so filter it

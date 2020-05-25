@@ -13,22 +13,21 @@ import java.io.InputStreamReader;
 /// @brief Class that controls the game played in a console display
 public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
-	private static GameController _controller = null; /// < Referece to the game controller
-	private static int _inactiveTurns = 0; /// < Current amount of inactive turns
-	private static int _whiteCheckTurns = 0; /// < Current amount of consecutive checks of white
-	private static int _blackCheckTurns = 0; /// < Current amount of consecutive checks of black
+	private static GameController _controller = null; 		///< Referece to the game controller
+	private static int _inactiveTurns = 0; 					///< Current amount of inactive turns
+	private static int _whiteCheckTurns = 0; 				///< Current amount of consecutive checks of white
+	private static int _blackCheckTurns = 0; 				///< Current amount of consecutive checks of black
 
 	/// CONSTANTS
-	private static String DEFAULT_CONFIGURATION = "data/configuration.json"; /// < Location of the default configuration
-	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3)); /// < List of
-																											/// valid
-																											/// options
-																											/// of menu
+	///< Location of the default configuration
+	private static String DEFAULT_CONFIGURATION = "data/configuration.json"; 
+	///< List of valid options of menu
+	private static final List<Integer> VALID_OPTIONS = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
 
 	/// @brief Shows a menu asking how to start a game
 	/// @pre ---
 	/// @post Displays a menu with 3 options: 1. Play with the default rules 2. Play
-	/// with modified rules (enter filename) 3. Enter a saved game
+	///		  with modified rules (enter filename) 3. Enter a saved game
 	public static void start() {
 		showMenu();
 
@@ -172,7 +171,7 @@ public class ConsoleGame {
 	/// @brief Asks for the filename of the configuration and starts the game
 	/// @pre ---
 	/// @post If the file name from the user is correct, starts the game with that
-	/// configuration.
+	/// 		 configuration.
 	private static void configuredChessGame(String text, boolean hasStarted) {
 		boolean validFileLocation = false;
 		while (!validFileLocation) {
@@ -293,7 +292,7 @@ public class ConsoleGame {
 	/// two players
 	/// @pre ---
 	/// @post While the game has not finished nor been saved, will keep asking for
-	/// turns. If it finishes, prints the winner.
+	/// 	  turns. If it finishes, prints the winner.
 	private static void twoPlayersGame(String pOne, String pTwo) {
 		String playerOption = "";
 		boolean skipToggle = false; // Use to preserve consistency between loaded and saved files
@@ -354,8 +353,11 @@ public class ConsoleGame {
 			} else if (!skipToggle) {
 				_controller.toggleTurn();
 			}
-		} while (!playerOption.equals("X") && !playerOption.equals("G") && !playerOption.equals("E")
-				&& !playerOption.equals("I") && !playerOption.equals("S"));
+		} while (!playerOption.equals("X") && 
+				 !playerOption.equals("G") && 
+				 !playerOption.equals("E") && 
+				 !playerOption.equals("I") && 
+				 !playerOption.equals("S"));
 
 		switch (playerOption) {
 			case "G": {
@@ -388,8 +390,8 @@ public class ConsoleGame {
 	/// player
 	/// @pre ---
 	/// @post The player is the only one who can stop the game or save it. While the
-	/// game has not finished, will keep askig for turns to the user. The cpu
-	/// works automatically. If it finishes, prints the winner
+	/// 	  game has not finished, will keep askig for turns to the user. The cpu
+	/// 	  works automatically. If it finishes, prints the winner
 	private static void playerCPUGame(boolean playerIsWhite) {
 		String playerOption = "";
 		boolean lastTurnDraw = false;
@@ -401,8 +403,8 @@ public class ConsoleGame {
 		Cpu cpu = new Cpu(knowledge, _controller.chess(), diff, playerIsWhite ? PieceColor.Black : PieceColor.White);
 
 		do {
-			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite
-					|| _controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
+			if (_controller.currentTurnColor() == PieceColor.White && !playerIsWhite || 
+				_controller.currentTurnColor() == PieceColor.Black && playerIsWhite) {
 				// CPU
 				MoveAction cpuResult = null;
 				if (lastTurnDraw) {
@@ -453,8 +455,10 @@ public class ConsoleGame {
 					_controller.toggleTurn();
 				}
 			}
-		} while (!playerOption.equals("X") && !playerOption.equals("G") && !playerOption.equals("I")
-				&& !playerOption.equals("C"));
+		} while (!playerOption.equals("X") && 
+				 !playerOption.equals("G") && 
+				 !playerOption.equals("I") && 
+				 !playerOption.equals("C"));
 
 		switch (playerOption) {
 			case "C": {
@@ -481,9 +485,8 @@ public class ConsoleGame {
 	/// @brief Function that controls the game flow while it has not finished for
 	/// two cpus
 	/// @pre ---
-	/// @post The game can only end. It cannot be stopped since the cpu can only do
-	/// new moves.
-	/// Finishes the game with the winning cpu.
+	/// @post The game can only end. It cannot be stopped since the cpu can only do new moves.
+	/// 	  Finishes the game with the winning cpu.
 	private static void twoCPUsGame() {
 		System.out.println("Computer 1 level");
 		int diffOne = cpuDifficulty();
@@ -520,6 +523,7 @@ public class ConsoleGame {
 			System.out.println("[SCAPE FOR NEXT TURN - G TO SAVE THE GAME - X TO CLOSE THE APP]");
 			// "Pause the program"
 			String in = readInputLine(false);
+
 			switch (in) {
 				case "X":
 					System.exit(1);
@@ -543,8 +547,8 @@ public class ConsoleGame {
 	/// @brief Controls a player turn
 	/// @brief ---
 	/// @post Executes a player movement. If the player chooses to exit or save
-	/// the game, it will be returned (X or G respectively). If there's a checkmate
-	/// returns E. Elsewise returns empty string
+	/// 	  the game, it will be returned (X or G respectively). If there's a checkmate
+	/// 	  returns E. Elsewise returns empty string
 	private static String playerTurn() {
 		String oValue = null;
 		String dValue = null;
@@ -637,12 +641,22 @@ public class ConsoleGame {
 								} else {
 									// Otherwise
 									_inactiveTurns = 0;
+									if (_controller.currentTurnColor() == PieceColor.White) {
+										_controller.setInactiveResetOnWhites(true);
+									} else {
+										_controller.setInactiveResetOnWhites(false);
+									}
 								}
 
 								if (actions != null) {
 									// Save turn
-									_controller.saveTurn(actions,
-											new Pair<String, String>(origin.toString(), destination.toString()));
+									_controller.saveTurn(
+										actions,
+										new Pair<String, String>(
+											origin.toString(),
+											destination.toString()
+										)
+									);
 
 									// Check promotion
 									if (actions.contains(MoveAction.Promote)) {
@@ -753,9 +767,8 @@ public class ConsoleGame {
 
 	/// @brief Controls a cpu turn
 	/// @pre @p cpu cannot be null
-	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction.
-	/// Otherwise
-	/// returns null.
+	/// @post Executes a cpu turn. If there is a checkmate, returns a MoveAction. Otherwise
+	/// 	  returns null.
 	private static MoveAction cpuTurn(Cpu cpu) {
 		if (cpu == null) {
 			throw new NullPointerException("CpuTurn given arguments cannot be null");
@@ -784,8 +797,11 @@ public class ConsoleGame {
 			// Handle promotion
 			if (result.contains(MoveAction.Promote)) {
 				_controller.promotePiece(cpuMove.second, _controller.mostValuableType());
-				_controller.savePromotionTurn(_controller.currentTurnColor(),
-						_controller.pieceAtCell(cpuMove.second).type(), _controller.mostValuableType());
+				_controller.savePromotionTurn(
+					_controller.currentTurnColor(),
+					_controller.pieceAtCell(cpuMove.second).type(),
+					_controller.mostValuableType()
+				);
 			}
 
 			if (checkResult.second.isEmpty()) {
@@ -793,6 +809,11 @@ public class ConsoleGame {
 				_inactiveTurns++;
 			} else {
 				_inactiveTurns = 0;
+				if (_controller.currentTurnColor() == PieceColor.White) {
+					_controller.setInactiveResetOnWhites(true);
+				} else {
+					_controller.setInactiveResetOnWhites(false);
+				}
 			}
 		}
 
@@ -815,11 +836,10 @@ public class ConsoleGame {
 
 	/// @brief Reads a chess position
 	/// @pre ---
-	/// @post Prints the text held in t and reads positions like CN in which C is a
-	/// char (column of the chess table) and N a number (row of the chess
-	/// table). While this positions is not valid it will keep asking for
-	/// positions. If the coordinate is valid returns the position and if it is
-	/// an X, returns a null position
+	/// @post Prints the text held in t and reads positions like CN in which C is a char (column 
+	///       of the chess table) and N a number (row of the chess table). While this positions is 
+	///       not valid it will keep asking for positions. If the coordinate is valid returns the 
+	///       position and if it is an X, returns a null position
 	private static String readMovement(String t, boolean originMove) {
 		String c = "abcdefghijklmnopqrstuvwxyz";
 		int rows = _controller.rows();
@@ -926,8 +946,11 @@ public class ConsoleGame {
 						System.out.println("Number not valid.");
 					} else {
 						// Save promotion turn
-						_controller.savePromotionTurn(_controller.currentTurnColor(),
-								_controller.pieceAtCell(piecePosition).type(), tempList.get(r - 1));
+						_controller.savePromotionTurn(
+							_controller.currentTurnColor(),
+							_controller.pieceAtCell(piecePosition).type(),
+							tempList.get(r - 1)
+						);
 						// Apply promotion
 						_controller.promotePiece(piecePosition, tempList.get(r - 1));
 
@@ -985,9 +1008,8 @@ public class ConsoleGame {
 
 	/// @brief To know if one of the limits has been reached
 	/// @pre ---
-	/// @post If a limit has been reached, saves an empty turn with that limit and
-	/// returns
-	/// 1 if check limit, 2 if inactivity and -1 if none
+	/// @post If a limit has been reached, saves an empty turn with that limit and returns
+	/// 	  1 if check limit, 2 if inactivity and -1 if none
 	private static int checkLimits() {
 		if (_controller.checkLimitReached(_whiteCheckTurns, _blackCheckTurns)) {
 			return 1;
@@ -1034,9 +1056,9 @@ public class ConsoleGame {
 	/// @brief Saves the game in a file
 	/// @pre ---
 	/// @post Saves the game in two JSON files, pulling away the configuration and
-	/// the game developement. Returns the fileName or null if there's an error
+	///		  the game developement. Returns the fileName or null if there's an error
 	private static String saveGame(String finalResult) {
-		/// Configuration
+		// Configuration
 		File configurationFile = new File(_controller.configurationFile());
 
 		if (configurationFile.exists()) {

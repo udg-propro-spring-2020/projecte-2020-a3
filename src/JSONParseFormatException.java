@@ -5,19 +5,19 @@
 public class JSONParseFormatException extends Exception {
     /// @brief Enum to define the exception type
     public static enum ExceptionType {
-        EMPTY_LIST,
-        KING_MISSING,
-        KING_REPEATED,
-        KING_VALUE,
-        ILLEGAL_NUMBER,
-        ILLEGAL_NAME,
-        ILLEGAL_MOVE,
-        ILLEGAL_MOVE_VALUE,
-        ILLEGAL_TYPE,
-        ILLEGAL_COLOR,
-        ILLEGAL_PROMOTION,
-        ILLEGAL_INITIAL_POSITION,
-        END_OF_GAME;
+        EMPTY_LIST,                     ///< Used when a list should not be empty
+        KING_MISSING,                   ///< Used when a king piece is missing
+        KING_REPEATED,                  ///< Used when there are multiple kings in the same team
+        KING_VALUE,                     ///< Used when the king does not have the max value or it is not correct
+        ILLEGAL_NUMBER,                 ///< Used when a number has an illegal format
+        ILLEGAL_NAME,                   ///< Used when a piece has an illegal piece type name
+        ILLEGAL_MOVE,                   ///< Used when a move is not correct
+        ILLEGAL_MOVE_PROPERTY,          ///< Used when a move property is not correct         
+        ILLEGAL_TYPE,                   ///< Used when a piece type does not exist or it is nor correct
+        ILLEGAL_COLOR,                  ///< Used when a piece has a color which is not a PieceColor
+        ILLEGAL_PROMOTION,              ///< Used when a promotion is not correct or not in the correct turn
+        ILLEGAL_INITIAL_POSITION,       ///< Used when pieces share the same initial position or when it is not valid
+        END_OF_GAME;                    ///< Used when the end of game it is no valid
 
         @Override
         public String toString() {
@@ -36,7 +36,7 @@ public class JSONParseFormatException extends Exception {
                     return "ERROR I2: Piece name not valid";
                 case ILLEGAL_MOVE:
                     return "ERROR I3: Movement not valid";
-                case ILLEGAL_MOVE_VALUE:
+                case ILLEGAL_MOVE_PROPERTY:
                     return "ERROR I4: Movement property not valid";
                 case ILLEGAL_TYPE:
                     return "ERROR I5: Piece type not valid";

@@ -218,6 +218,7 @@ public class FromJSONParserHelper {
         }
 
         // Skip ],
+        mainSc.nextLine();
         String finalResult = getString(mainSc.nextLine());
         if (finalResult.contains("GUANYEN") || finalResult.contains("TAULES")) {
             /// Game has ended
@@ -339,7 +340,7 @@ public class FromJSONParserHelper {
             } catch (NumberFormatException e) {
                 throw new JSONParseFormatException(
                     "Movement property is no valid or in incorrect format",
-                    JSONParseFormatException.ExceptionType.ILLEGAL_MOVE_VALUE
+                    JSONParseFormatException.ExceptionType.ILLEGAL_MOVE_PROPERTY
                 );
             }
 
@@ -689,7 +690,7 @@ public class FromJSONParserHelper {
     /// @brief Checks if both maps contain the same position
     /// @pre ---
     /// @post Returns true if a key (piece) of the @p ma is included in @p mb
-    /// @throws NullPointerException
+    /// @throws NullPointerException If null maps passed
     private static boolean hasRepeatedPosition(Map<Position, Piece> ma, Map<Position, Piece> mb)
             throws NullPointerException {
         if (ma == null || mb == null) {
