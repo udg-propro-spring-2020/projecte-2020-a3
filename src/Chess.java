@@ -87,7 +87,7 @@ public class Chess implements Cloneable {
         this.blackPiecesTurn = chess.blackPiecesTurn;
         this.pListWhite = new ArrayList<Pair<Position, Piece>>();
         this.pListBlack = new ArrayList<Pair<Position, Piece>>();
-        this.board = chess.board;
+        this.board = new Piece[rows()][cols()];
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
 
@@ -278,15 +278,19 @@ public class Chess implements Cloneable {
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
-            if(blackInitPos.get(i).second==null){
-                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = null;
+            if(blackInitPos.get(i).second==null)
                 board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = null;
-            }else{
-                pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+            else{
                 pListBlack.add(new Pair<Position,Piece>(new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col()), new Piece(blackInitPos.get(i).second)));
-
-                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
                 board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
+            }            
+        }
+        for (int i=0; i<whiteInitPos.size(); i++) {
+            if(whiteInitPos.get(i).second==null)
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = null;
+            else{
+                pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
             }            
         }
     }
@@ -474,7 +478,7 @@ public class Chess implements Cloneable {
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
-    private boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
+    public boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
         boolean checkmate = true;
         Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         int i = 0;
@@ -486,13 +490,13 @@ public class Chess implements Cloneable {
             int j = 0;
             while(j<pieceDestinies.size() && checkmate){
                 //System.out.println("La "+piece.type().ptName()+" vol realitzar el moviment a "+pieceDestinies.get(j).first.toString());
-                    Position destiny = pieceDestinies.get(j).first;
-                        applyMovement(origin, destiny, checkMovementResult.second, true);
-                        if(!isCheck(listDoingCheck)){
-                            checkmate = false;
-                            //System.out.println("Trobem escape "+piece.type().ptName()+" "+destiny.toString());
-                        }
-                        undoMovement();
+                Position destiny = pieceDestinies.get(j).first;
+                applyMovement(origin, destiny, checkMovementResult.second, true);
+                if(!isCheck(listDoingCheck)){
+                    checkmate = false;
+                    //System.out.println("Trobem escape "+piece.type().ptName()+" "+destiny.toString());
+                }
+                undoMovement();
                 j++;
             }
             i++;
@@ -837,16 +841,24 @@ public class Chess implements Cloneable {
             listCounterMove = pListWhite;
         }
         if(!calledByIsCheckmate){
-            if(canPromote(origin, destiny, false))
+            if(canPromote(origin, destiny, false)){
                 actions.add(MoveAction.Promote);
-            if(isCheck(listDoingMove)){
-                if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Checkmate);
-                else
-                    actions.add(MoveAction.Check);
-            }else{
-                if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Checkmate);
+            }else{            
+                if(isCheck(listDoingMove)){
+                    if(isCheckmate(listCounterMove, listDoingMove)){
+                        actions.add(MoveAction.Checkmate);
+                        //System.out.println("escacimat");
+                    }
+                    else{
+                        actions.add(MoveAction.Check);
+                        //System.out.println("escac");
+                    }
+                }else{
+                    if(isCheckmate(listCounterMove, listDoingMove)){
+                        actions.add(MoveAction.Drowned);
+                        //System.out.println("ofegat");
+                    }
+                }
             }
         }
         return actions;

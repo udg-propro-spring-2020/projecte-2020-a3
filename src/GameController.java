@@ -232,6 +232,35 @@ public class GameController {
         return result;
     }
 
+    /// @brief Returns the result of a promotion as a move action
+    /// @pre There has been a promotion
+    /// @post Checks in the chess if the promoted piece can check or checkmate the opponent
+    ///       and returns it. If none, returns null
+    public MoveAction promotionResults() {
+        List<Pair<Position, Piece>> attackers = new ArrayList<>();
+        List<Pair<Position, Piece>> defenders = new ArrayList<>();
+
+        if (_currTurnColor == PieceColor.White) {
+            attackers = _chess.pListWhite();
+            defenders = _chess.pListBlack();
+        } else {
+            attackers = _chess.pListBlack();
+            defenders = _chess.pListWhite();
+        }
+
+        if (_chess.isCheck(attackers)) {
+            if (_chess.isCheckmate(defenders, attackers)) {
+                return MoveAction.Checkmate;
+            } else {
+                return MoveAction.Check;
+            }
+        } else if (_chess.isCheckmate(defenders, attackers)) {
+            return MoveAction.Drowned;
+        }
+
+        return null;
+    }
+
     /// @brief Changes turn value
     /// @pre @p currTurnColor != null
     /// @post Changes currTurnValue to the oposite
@@ -314,6 +343,13 @@ public class GameController {
         return !(_turnNumber == 0);
     }
 
+    /// @brief Returns the undo count value
+    /// @pre ---
+    /// @post Returns the undo count value
+    public int undoCount() {
+        return _undoCount;
+    }
+
     /// @brief Undoes one movement
     /// @pre ---
     /// @post If possible, undoes one movement. It is only possible to undo
@@ -368,9 +404,11 @@ public class GameController {
 
             // Next turn
             _turnNumber++;
-            if (canRedo() && _turns.get(_turnNumber - 1).isEmptyTurn()) {
-                // Since will be an empty turn, we have to increase once more
-                _turnNumber++;
+            if (_turns.size() - _turnNumber > 0) {
+                if (canRedo() && _turns.get(_turnNumber).isEmptyTurn()) {
+                    // Since will be an empty turn, we have to increase once more
+                    _turnNumber++;
+                }
             }
             // Decrement the undone movements
             _undoCount--;
