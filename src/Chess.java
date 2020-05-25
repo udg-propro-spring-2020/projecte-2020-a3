@@ -278,15 +278,19 @@ public class Chess implements Cloneable {
      */
     private void createBoard(){
         for (int i=0; i<blackInitPos.size(); i++) {
-            if(blackInitPos.get(i).second==null){
-                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = null;
+            if(blackInitPos.get(i).second==null)
                 board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = null;
-            }else{
-                pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+            else{
                 pListBlack.add(new Pair<Position,Piece>(new Position (blackInitPos.get(i).first.row(),blackInitPos.get(i).first.col()), new Piece(blackInitPos.get(i).second)));
-
-                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
                 board[blackInitPos.get(i).first.row()][blackInitPos.get(i).first.col()] = new Piece(blackInitPos.get(i).second);
+            }            
+        }
+        for (int i=0; i<whiteInitPos.size(); i++) {
+            if(whiteInitPos.get(i).second==null)
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = null;
+            else{
+                pListWhite.add(new Pair<Position,Piece>(new Position (whiteInitPos.get(i).first.row(),whiteInitPos.get(i).first.col()), new Piece(whiteInitPos.get(i).second)));
+                board[whiteInitPos.get(i).first.row()][whiteInitPos.get(i).first.col()] = new Piece(whiteInitPos.get(i).second);
             }            
         }
     }
