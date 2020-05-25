@@ -1055,7 +1055,7 @@ public class UIChess extends Application {
         } catch (FileNotFoundException e) {
             displayErrorPopUp(
                 "FILE ERROR",
-                "An error ocurred when oppening the file. \nCheck it and try again."
+                e.getMessage() + "\nAn error ocurred when oppening the file. \nCheck it and try again."
             );
 
             System.exit(-1);
@@ -1240,7 +1240,7 @@ public class UIChess extends Application {
                 } catch (JSONParseFormatException e) {
                     displayErrorPopUp(
                         e.getType(),
-                        "The developement file contains an illegal format. \nCheck it and try again."
+                        e.getMessage() + "\nThe developement file contains an illegal format. \nCheck it and try again."
                     );
                     System.exit(-1);
                 }
@@ -1291,7 +1291,7 @@ public class UIChess extends Application {
                 } catch (JSONParseFormatException e) {
                     displayErrorPopUp(
                         e.getType(),
-                        "The developement file contains an illegal format. \nCheck it and try again."
+                        e.getMessage() + "\nThe developement file contains an illegal format. \nCheck it and try again."
                     );
                     System.exit(-1);
                 }
