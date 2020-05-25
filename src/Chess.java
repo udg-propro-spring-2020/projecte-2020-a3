@@ -474,7 +474,7 @@ public class Chess implements Cloneable {
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
-    private boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
+    public boolean isCheckmate(List<Pair<Position,Piece>> listEvadeCheckmate, List<Pair<Position,Piece>> listDoingCheck){
         boolean checkmate = true;
         Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         int i = 0;
