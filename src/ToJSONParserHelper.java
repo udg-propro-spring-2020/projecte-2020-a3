@@ -58,6 +58,9 @@ public class ToJSONParserHelper {
         }
 
         StringBuilder s = new StringBuilder();
+        System.out.println(configurationFile);
+        configurationFile = configurationFile.replace("\\", "/");
+        System.out.println(configurationFile);
 
         s.append(OBJ_START)
             .append(propertyToJSON("fitxerRegles", configurationFile, true, true, ONE_TAB))
@@ -284,7 +287,8 @@ public class ToJSONParserHelper {
             for (int i = 0; i < list.size() - 1; i++) {
                 Pair<Position, Piece> item = list.get(i);
                 if (item == null || item.first == null || item.second == null) {
-                    throw new NullPointerException("initPosListToJSON list contains a null value at " + i);
+                    // Continue
+                    continue;
                 }
 
                 s.append(identation + ONE_TAB)
@@ -297,19 +301,17 @@ public class ToJSONParserHelper {
             }
 
             Pair<Position, Piece> item = list.get(list.size() - 1);
-            if (item == null || item.first == null || item.second == null) {
-                throw new NullPointerException("initPosListToJSON list contains a null value at last item");
+            if (!(item == null || item.first == null || item.second == null)) {    
+                s.append(identation + ONE_TAB)
+                    .append(OBJ_START)
+                    .append(item.first.toJSON())
+                    .append(item.second.toJSON())
+                    .append(identation + ONE_TAB)
+                    .append(OBJ_END)
+                    .append(NEXT_LINE)
+                    .append(identation)
+                    .append(LIST_END);                
             }
-
-            s.append(identation + ONE_TAB)
-                .append(OBJ_START)
-                .append(item.first.toJSON())
-                .append(item.second.toJSON())
-                .append(identation + ONE_TAB)
-                .append(OBJ_END)
-                .append(NEXT_LINE)
-                .append(identation)
-                .append(LIST_END);                
         }
 
         if (lastItem) {
