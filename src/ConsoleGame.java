@@ -319,6 +319,7 @@ public class ConsoleGame {
 				System.out.print("The opponent asks for a draw, accept? [Y/N]: ");
 				String s = readInputLine(false);
 				if (s.toUpperCase().equals("Y")) {
+					System.out.println("Draw accepted");
 					_controller.saveEmptyTurn(
 						"TAULES ACCEPTADES", 
 						oppositeColor(_controller.currentTurnColor())
@@ -350,6 +351,7 @@ public class ConsoleGame {
 				playerOption = "S";
 			} else if (playerOption.equals("K")) {
 				skipToggle = true;
+				System.out.println("Draw due to drowned king");
 				_controller.saveEmptyTurn(
 					"TAULES PER REI OFEGAT",
 					_controller.currentTurnColor()
@@ -482,7 +484,7 @@ public class ConsoleGame {
 			}
 			case "K": {
 				// Draw
-				System.out.println("Tables due to drowned king");
+				System.out.println("Draw due to drowned king");
 				_controller.saveEmptyTurn(
 					"TAULES PER REI OFEGAT",
 					_controller.currentTurnColor()
@@ -564,6 +566,7 @@ public class ConsoleGame {
 			endOfGame(true, true);
 		} else {
 			if (result == MoveAction.Drowned) {
+				System.out.println("Draw due to drowned king");
 				_controller.saveEmptyTurn(
 					"TAULES PER REI OFEGAT",
 					_controller.currentTurnColor()
@@ -1071,7 +1074,6 @@ public class ConsoleGame {
 			System.out.println("Game finished");
 			res = "TAULES";
 		} else if (draw) {
-			System.out.println("Draw accepted");
 			System.out.println("Game finished");
 			res = "TAULES";
 		} else {
