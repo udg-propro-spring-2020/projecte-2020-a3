@@ -486,13 +486,13 @@ public class Chess implements Cloneable {
             int j = 0;
             while(j<pieceDestinies.size() && checkmate){
                 //System.out.println("La "+piece.type().ptName()+" vol realitzar el moviment a "+pieceDestinies.get(j).first.toString());
-                    Position destiny = pieceDestinies.get(j).first;
-                        applyMovement(origin, destiny, checkMovementResult.second, true);
-                        if(!isCheck(listDoingCheck)){
-                            checkmate = false;
-                            //System.out.println("Trobem escape "+piece.type().ptName()+" "+destiny.toString());
-                        }
-                        undoMovement();
+                Position destiny = pieceDestinies.get(j).first;
+                applyMovement(origin, destiny, checkMovementResult.second, true);
+                if(!isCheck(listDoingCheck)){
+                    checkmate = false;
+                    //System.out.println("Trobem escape "+piece.type().ptName()+" "+destiny.toString());
+                }
+                undoMovement();
                 j++;
             }
             i++;
