@@ -720,8 +720,10 @@ public class FromJSONParserHelper {
     /// @post Returns true if one of the strings in @p list does not exist as a piece name
     private static boolean illegalInitialPositions(List<String> list, Map<String, PieceType> map) {
         for (String s : list) {
-            if (illegalType(s, map)) {
-                return true;
+            if (!s.isEmpty()) {
+                if (illegalType(s, map)) {
+                    return true;
+                }
             }
         }
 
