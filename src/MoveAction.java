@@ -5,7 +5,7 @@
  * @brief The move make some special actions
  */
 public enum MoveAction { 
-    Incorrect, Correct, Check, Checkmate, Promote, Castling;
+    Incorrect, Correct, Check, Checkmate, Promote, Castling, Drowned;
 
     @Override
     public String toString() {
@@ -20,6 +20,8 @@ public enum MoveAction {
                 return new String("PROMOTION");
             case Castling:
                 return new String("CASTLING");
+            case Drowned:
+                return new String("REI OFEGAT");
             default:
                 return new String("INCORRECT");
         }
