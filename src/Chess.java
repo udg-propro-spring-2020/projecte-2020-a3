@@ -87,7 +87,7 @@ public class Chess implements Cloneable {
         this.blackPiecesTurn = chess.blackPiecesTurn;
         this.pListWhite = new ArrayList<Pair<Position, Piece>>();
         this.pListBlack = new ArrayList<Pair<Position, Piece>>();
-        this.board = chess.board;
+        this.board = new Piece[rows()][cols()];
         this.whiteInitPos = whiteInitPos;
         this.blackInitPos = blackInitPos;
 
