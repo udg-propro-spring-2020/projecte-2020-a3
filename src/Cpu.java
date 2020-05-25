@@ -145,17 +145,17 @@ public class Cpu{
                         result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
                         //if(profundity==0)System.out.println("result actual:"+result+" max actual:"+max+ "  profunity:"+profundity);
                         if(result>=max){
-                                if(result>biggestAnterior)biggestAnterior=result;
-                                max=result;
-                                if(profundity==0){
+                                if(profundity==0 && result > max){
                                     //System.out.println("nou valor");
                                     equealMovementsFirstLevel.clear();
                                     equealMovementsFirstLevel.add(new Pair<Position,Position>( (Position) piece.first.clone(),(Position) pieceMovement.first.clone()));
                                 }
-                        }
-                        else if(result==max && profundity == 0){
-                            //System.out.println("valor igual");
-                            equealMovementsFirstLevel.add(new Pair<Position,Position>((Position) piece.first.clone(),(Position) pieceMovement.first.clone()));
+                                else if(profundity == 0 && result==max){
+                                        //System.out.println("valor igual");
+                                        equealMovementsFirstLevel.add(new Pair<Position,Position>((Position) piece.first.clone(),(Position) pieceMovement.first.clone()));
+                                }
+                                if(result>biggestAnterior)biggestAnterior=result;
+                                max=result;
                         }
 
                         /*if(result>max){
