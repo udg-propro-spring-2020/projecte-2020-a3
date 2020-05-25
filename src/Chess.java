@@ -837,16 +837,18 @@ public class Chess implements Cloneable {
             listCounterMove = pListWhite;
         }
         if(!calledByIsCheckmate){
-            if(canPromote(origin, destiny, false))
+            if(canPromote(origin, destiny, false)){
                 actions.add(MoveAction.Promote);
-            if(isCheck(listDoingMove)){
-                if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Checkmate);
-                else
-                    actions.add(MoveAction.Check);
-            }else{
-                if(isCheckmate(listCounterMove, listDoingMove))
-                    actions.add(MoveAction.Checkmate);
+            }else{            
+                if(isCheck(listDoingMove)){
+                    if(isCheckmate(listCounterMove, listDoingMove))
+                        actions.add(MoveAction.Checkmate);
+                    else
+                        actions.add(MoveAction.Check);
+                }else{
+                    if(isCheckmate(listCounterMove, listDoingMove))
+                        actions.add(MoveAction.Checkmate);
+                }
             }
         }
         return actions;
