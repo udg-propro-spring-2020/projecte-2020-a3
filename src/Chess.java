@@ -841,13 +841,19 @@ public class Chess implements Cloneable {
                 actions.add(MoveAction.Promote);
             }else{            
                 if(isCheck(listDoingMove)){
-                    if(isCheckmate(listCounterMove, listDoingMove))
+                    if(isCheckmate(listCounterMove, listDoingMove)){
                         actions.add(MoveAction.Checkmate);
-                    else
+                        //System.out.println("escacimat");
+                    }
+                    else{
                         actions.add(MoveAction.Check);
+                        //System.out.println("escac");
+                    }
                 }else{
-                    if(isCheckmate(listCounterMove, listDoingMove))
-                        actions.add(MoveAction.Checkmate);
+                    if(isCheckmate(listCounterMove, listDoingMove)){
+                        actions.add(MoveAction.Drowned);
+                        //System.out.println("ofegat");
+                    }
                 }
             }
         }
