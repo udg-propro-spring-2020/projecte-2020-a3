@@ -314,6 +314,13 @@ public class GameController {
         return !(_turnNumber == 0);
     }
 
+    /// @brief Returns the undo count value
+    /// @pre ---
+    /// @post Returns the undo count value
+    public int undoCount() {
+        return _undoCount;
+    }
+
     /// @brief Undoes one movement
     /// @pre ---
     /// @post If possible, undoes one movement. It is only possible to undo

@@ -15,6 +15,7 @@ public class ConsoleGame {
 	/// IN-GAME CONTROL VARIABLES
 	private static GameController _controller = null; 		///< Referece to the game controller
 	private static int _inactiveTurns = 0; 					///< Current amount of inactive turns
+	private static int _oldInactiveTurns = 0;               ///< Amount to controll the inactive turns once redone/undone
 	private static int _whiteCheckTurns = 0; 				///< Current amount of consecutive checks of white
 	private static int _blackCheckTurns = 0; 				///< Current amount of consecutive checks of black
 
@@ -589,6 +590,14 @@ public class ConsoleGame {
 					} else {
 						System.out.println("Can't undo a movement!");
 					}
+
+					// Inactivity handling
+					if (_controller.undoCount() == 1 && _inactiveTurns > 0) {
+						_oldInactiveTurns = _inactiveTurns;
+					}
+					if (_inactiveTurns > 0) {
+						_inactiveTurns--;
+					}
 					break;
 				case "H":
 					showInstructions();
@@ -601,6 +610,10 @@ public class ConsoleGame {
 						System.out.println("Can't redo movement!");
 					}
 
+					// Inactivity handling
+					if (_oldInactiveTurns > _inactiveTurns) {
+						_inactiveTurns++;
+					}
 					break;
 				default: {
 					originMove = false;

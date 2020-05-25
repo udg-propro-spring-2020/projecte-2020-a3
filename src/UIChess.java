@@ -55,6 +55,7 @@ public class UIChess extends Application {
     private List<Pair<Integer, UIPiece>> _revivedPieces;            ///< Controls the revived pieces and the turn in which they were revived
     private boolean _blockPlayer = false;                           ///< To control when the player can move a piece
     private int _inactiveTurns = 0;                                 ///< Current amount of inactive turns
+    private int _oldInactiveTurns = 0;                              ///< Amount to controll the inactive turns once redone/undone
 	private static int _whiteCheckTurns = 0;						///< Current amount of consecutive checks of white
 	private static int _blackCheckTurns = 0;						///< Current amount of consecutive checks of black
 
@@ -108,6 +109,7 @@ public class UIChess extends Application {
         _choosenConfigFile = null;
         _choosenGameFile = null;
         _inactiveTurns = 0;
+        _oldInactiveTurns = 0;
         _whiteCheckTurns = 0;
         _blackCheckTurns = 0;
         _blockPlayer = false;
@@ -633,6 +635,14 @@ public class UIChess extends Application {
                     _blockPlayer = false;
                 }
             }
+
+            // Inactivity handling
+            if (_controller.undoCount() == 1 && _inactiveTurns > 0) {
+                _oldInactiveTurns = _inactiveTurns;
+            }
+            if (_inactiveTurns > 0) {
+                _inactiveTurns--;
+            }
         }
     }
 
@@ -737,6 +747,11 @@ public class UIChess extends Application {
                     // Player has to be unblocked
                     _blockPlayer = false;
                 }
+            }
+
+            // Inactivity handling
+            if (_oldInactiveTurns > _inactiveTurns) {
+                _inactiveTurns++;
             }
         }
     }
@@ -881,7 +896,7 @@ public class UIChess extends Application {
             savedGamePopUp(fileName);
             boolean res = buildConfirmationPopUp(
                 "CONTINUE PLAYING",
-                "Do you want tot continue playing?"
+                "Do you want to continue playing?"
             );
     
             if (!res) {
@@ -1641,7 +1656,6 @@ public class UIChess extends Application {
 	/// @post If a limit has been reached, saves an empty turn with that limit and returns 
 	///       1 if check limit, 2 if inactivity and -1 if none
 	private int checkLimits() {
-        System.out.println(_inactiveTurns);
 		if (_controller.checkLimitReached(_whiteCheckTurns, _blackCheckTurns)) {
 			// End of game
 			_controller.saveEmptyTurn("TAULES PER ESCAC CONTINU", _controller.currentTurnColor());
