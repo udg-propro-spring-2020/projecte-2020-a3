@@ -64,9 +64,15 @@ public class GameController {
 
         // Retrieve match information
         _chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
-        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(fileLocation, mapOfPieceTypes(),
-                false);
+        Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(
+            fileLocation,
+            mapOfPieceTypes(),
+            _chess.rows(),
+            _chess.cols(),
+            false
+        );
         List<Turn> loadedTurns = info.first;
+        
         // White color always start
         _currTurnColor = PieceColor.White;
 
@@ -156,7 +162,13 @@ public class GameController {
     /// @pre @p list != null
     /// @post Returns a Pair containing the information extracted from the location file
     public Pair<List<Turn>, PieceColor> readKnowledge(String location) throws FileNotFoundException, JSONParseFormatException {
-        return FromJSONParserHelper.matchInformation(location, mapOfPieceTypes(), true);
+        return FromJSONParserHelper.matchInformation(
+            location,
+            mapOfPieceTypes(),
+            _chess.rows(),
+            _chess.cols(),
+            true
+        );
     }
 
     /// @brief Returns a map of the piece types

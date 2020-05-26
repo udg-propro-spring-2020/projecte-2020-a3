@@ -172,7 +172,7 @@ public class FromJSONParserHelper {
         // Read initial white positions
         Map<Position, Piece> whiteTempMap = new HashMap<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            whiteTempMap = getInitialPositionMap(mainSc, typeMap, PieceColor.White);
+            whiteTempMap = getInitialPositionMap(mainSc, typeMap, chess.rows(), chess.cols(), PieceColor.White);
         } else {
             throw new JSONParseFormatException(
                 "White piece list cannot be empty",
@@ -185,7 +185,7 @@ public class FromJSONParserHelper {
 
         Map<Position, Piece> blackTempMap = new HashMap<>();
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            blackTempMap = getInitialPositionMap(mainSc, typeMap, PieceColor.Black);
+            blackTempMap = getInitialPositionMap(mainSc, typeMap, chess.rows(), chess.cols(), PieceColor.Black);
         } else {
             throw new JSONParseFormatException(
                 "Black piece list cannot be empty",
@@ -214,7 +214,7 @@ public class FromJSONParserHelper {
         mainSc.nextLine();
         // Turn list - if there's, skip it
         if (!getString(mainSc.nextLine()).equals("[]")) {
-            getTurnList(mainSc, mapFromTypes(chess.typeList()));
+            getTurnList(mainSc, mapFromTypes(chess.typeList()), chess.rows(), chess.cols());
         }
 
         // Skip ],
@@ -241,7 +241,7 @@ public class FromJSONParserHelper {
     ///       list of turns and the winning piece color. If @p forKnowledge is true,
     ///       returns the winning color. Otherwise, returns null.
     /// @throws JSONParseFormatException If the file contains an empty turn list
-    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, Map<String, PieceType> types, boolean forKnowledge)
+    public static Pair<List<Turn>, PieceColor> matchInformation(String fileLocation, Map<String, PieceType> types, int rows, int cols, boolean forKnowledge)
             throws FileNotFoundException, JSONParseFormatException {
         Scanner in = new Scanner(new File(fileLocation));
 
@@ -255,7 +255,7 @@ public class FromJSONParserHelper {
         List<Turn> turnList = new ArrayList<>();
 
         if (!getString(in.nextLine()).equals("[]")) {
-            turnList = getTurnList(in, types);
+            turnList = getTurnList(in, types, rows, cols);
 
             // Skip ],
             in.nextLine();
@@ -495,8 +495,9 @@ public class FromJSONParserHelper {
     /// @post Returns a list of paris like Pair<A, B> where A is the positions and B
     ///       the piece type.
     /// @throws JSONParseFormatException If there's a piece in the list that does
-    ///         not exist as a piece type or the list does not have a king
-    private static Map<Position, Piece> getInitialPositionMap(Scanner fr, Map<String, PieceType> pTypes, PieceColor color)
+    ///         not exist as a piece type or the list does not have a king. Also if there's a
+    ///         piece not in a valid position (out of range)
+    private static Map<Position, Piece> getInitialPositionMap(Scanner fr, Map<String, PieceType> pTypes, int rows, int cols, PieceColor color)
             throws JSONParseFormatException {
         // Skip {
         fr.nextLine();
@@ -514,6 +515,14 @@ public class FromJSONParserHelper {
             if (map.containsKey(pos)) {
                 throw new JSONParseFormatException(
                     "Two pieces have the same initial position",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_INITIAL_POSITION
+                );
+            }
+
+            // Check valid range
+            if (!positionInRange(pos, rows, cols)) {
+                throw new JSONParseFormatException(
+                    "There's a piece in an illegal position",
                     JSONParseFormatException.ExceptionType.ILLEGAL_INITIAL_POSITION
                 );
             }
@@ -566,7 +575,7 @@ public class FromJSONParserHelper {
     /// @post Returns the list of turns which can't be empty
     /// @throws JSONParseFormatException if there's a promotion turn which contains
     ///         an invalid piece type
-    private static List<Turn> getTurnList(Scanner fr, Map<String, PieceType> types) throws JSONParseFormatException {
+    private static List<Turn> getTurnList(Scanner fr, Map<String, PieceType> types, int rows, int cols) throws JSONParseFormatException {
         // Skip {
         fr.nextLine();
         List<Turn> turnList = new ArrayList<>();
@@ -579,8 +588,25 @@ public class FromJSONParserHelper {
             }
 
             PieceColor color = getString(s).equals("BLANQUES") ? PieceColor.White : PieceColor.Black;
+            
+            // Read and check origin position
             String origin = getString(fr.nextLine());
+            if (!positionInRange(new Position(origin), rows, cols)) {
+                throw new JSONParseFormatException(
+                    "A move origin is not valid",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_MOVE
+                );
+            }
+
+            // Read and check dest position
             String dest = getString(fr.nextLine());
+            if (!positionInRange(new Position(dest), rows, cols)) {
+                throw new JSONParseFormatException(
+                    "A move origin is not valid",
+                    JSONParseFormatException.ExceptionType.ILLEGAL_MOVE
+                );
+            }
+
 
             s = fr.nextLine();
             String result = getString(s);
@@ -686,6 +712,22 @@ public class FromJSONParserHelper {
         }
 
         return false;
+    }
+
+    /// @brief To know if the given position is in chess range
+    /// @pre @p rows && @p cols >= 4
+    /// @post Returns true if @p pos is in range
+    private static boolean positionInRange(Position pos, int rows, int cols) {
+        int x = pos.row();
+        int y = pos.col();
+
+        if (x < 0 || y < 0) {
+            return false;
+        } else if (x > rows || y > cols) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /// @brief Checks if both maps contain the same position
