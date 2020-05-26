@@ -1077,7 +1077,7 @@ public class UIChess extends Application {
         } catch (JSONParseFormatException e) {
             displayErrorPopUp(
                 e.getType(),
-                e.getMessage() + "\nThe configuration file contains an illegal format. \nCheck it and try again."
+                e.getMessage() + "\nA file contains an illegal format. \nCheck it and try again."
             );
 
             System.exit(-1);
@@ -1617,15 +1617,6 @@ public class UIChess extends Application {
         }
     }
 
-    /// @brief Returns the opposite color of @p color
-	/// @pre ---
-	/// @post Returns the opposite color of @p color
-	private static PieceColor oppositeColor(PieceColor color) {
-		return color == PieceColor.White 
-			? PieceColor.Black
-			: PieceColor.White;
-	}
-
     /// @brief Calculates the board y position of a given value
     /// @pre @p value >= 0
     /// @post Returns the equivalent position of a given y coordinate from the screen
@@ -1639,14 +1630,6 @@ public class UIChess extends Application {
     private boolean pieceInPosition(UIPiece piece, Position position) {
         return boardPosition(piece.oldX()) == position.col() &&
                 boardPosition(piece.oldY()) == position.row();
-    }
-
-    /// @brief Returns if a graphic cell is in a given position of the board
-    /// @pre @p cell && @p position != null
-    /// @post Returns true if a ImageTile is in the given position of the board
-    private boolean cellInPosition(ImageTile img, Position position) {
-        return boardPosition(img.getX()) == position.col() &&
-                boardPosition(img.getY()) == position.row();
     }
 
     /// @brief Returns a UIPiece that contains the piece given
