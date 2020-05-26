@@ -59,7 +59,8 @@ public class Knowledge{
                         if(!_knowledgeBlack.containsKey(chessCopy.chessStringView(winner))){
                             _knowledgeBlack.put(chessCopy.chessStringView(winner),actualTurn);
                         }
-                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,null,false);
+                        check= chessCopy.checkMovement(actualTurn.first,actualTurn.second);
+                        chessCopy.applyMovement(actualTurn.first,actualTurn.second,check.second,false);
                         if(itTurns.hasNext()){
                             actualTurn = itTurns.next().moveAsPair();
                             check= chessCopy.checkMovement(actualTurn.first,actualTurn.second);
