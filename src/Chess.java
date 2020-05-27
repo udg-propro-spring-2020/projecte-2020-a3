@@ -1045,10 +1045,10 @@ public class Chess implements Cloneable {
                     x++;
                 }
             }else{      
-                    if(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+currentMove.movY())){
-                        destiny = new Position(origin.row()+currentMove.movX(), origin.col()+currentMove.movY());
-                        keepSearching=moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);
-                    }
+                if(destinyInLimits(origin.row()+currentMove.movX(), origin.col()+currentMove.movY())){
+                    destiny = new Position(origin.row()+currentMove.movX(), origin.col()+currentMove.movY());
+                    keepSearching=moveDestiniesController(origin,destiny,currentMove,destiniesWithValues);
+                }
             }
         }
         return destiniesWithValues;
