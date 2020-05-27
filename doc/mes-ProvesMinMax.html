@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>provesMinMax (1).md.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p><strong>Proves nivell 3</strong><br>
+Si el nivell 3 funciona correctament podem estar segurs que amb nivells inferiors també ha de funcionar correctament.<br>
+Analitzarem multiples vegades els moviments escollits per la cpu amb nivell i mirarem si escull correctament. El fitxer carregat és <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/saved_games/comprovacionsEleccionsMinMax2.json">saved_games/comprovacionsEleccionsMinMax2.json</a>.<br>
+<img src="https://i.imgur.com/rACf2gf.png" alt=""><br>
+(nivell 1 -&gt; color blau)<br>
+(nivell 2 -&gt; color vermell)<br>
+(nivell 3 -&gt; color negre)<br>
+Elecció 1:<br>
+<img src="https://i.imgur.com/uBa3pYy.png" alt="enter image description here"><br>
+El cavall no el pot moure sino provocaria escac al rei i per tant les negres podrien fer cualsevol cosa menys moure el cavall i llavores al següent torn la fitxa blanca podria matar al cavall. El que no detecta es que el rei se’l menjaria tot seguit i la puntuacio seria nul·la, pero com que el nivell és 3, fins aqui arriba.<br>
+Altres eleccions:<br>
+<img src="https://i.imgur.com/FXMdfPc.png" alt="enter image description here"><img src="https://i.imgur.com/8MfIXEc.png" alt="enter image description here"><br>
+<img src="https://i.imgur.com/cFcwXLh.png" alt="enter image description here"><br>
+Si ens hi fixem son moviments que al següent torn mataran una peça si o si, algunes de més punts, pero al següent torn poden perdre una altre i la puntuació resultant seria 1.</p>
+<p>Un altre prova amb la partida guardada <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/saved_games/comprovacionsEleccionsMinMax3.json">saved_games/comprovacionsEleccionsMinMax2.json</a>. Aquí tenim la següent situació interessant en que s’ha vist envolicat el jugador blanc:<br>
+<img src="https://i.imgur.com/GCGAcAy.png" alt="enter image description here"><br>
+Les blanques detectan que tenen l’alfil amenaçat per tots costats i l’acabrien matant a no ser que fagi el moviment que ha escollit i fent-lo detecta inclús que a nivell 3 podria arribar a matar alguna peça depenent de la situació.<br>
+Tot seguit tiren les negres i escullen el següent moviment:<br>
+<img src="https://i.imgur.com/5xcGAYp.png" alt="enter image description here"><br>
+Aixó fa que cualsevol moviment possible de l’alfil acabi amb ell morint al final. Obviament algun moviment portaria la mort de les peçes blanques pero aixó a nivell 4 i no hi arribem. És a dir les negres han fet un bon moviment i ja després al següent torn analitzaran la situacio a escollir.</p>
+<p>No faig més proves ja que és molt dificil arribar a provar-ho més extens pero com a minim puc estar segur de que l’algorisme ha funcionat bé en totes aquestes ocasions.</p>
+</div>
+</body>
+
+</html>
