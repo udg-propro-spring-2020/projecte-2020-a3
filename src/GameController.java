@@ -792,7 +792,7 @@ public class GameController {
     /// @pre ---
     /// @post Returns the consecutive check limit value
     public int checkLimit() {
-        return _chess.chessLimits();
+        return _chess.checkLimits();
     }
 
     /// @brief Returns the most valuable PieceType after the king

@@ -40,7 +40,7 @@ public class ToJSONParserHelper {
             .append(propertyToJSON("nCols", chess.cols(), false, true, ONE_TAB))
             .append(objectListToJSON("peces", chess.typeList(), false, ONE_TAB))
             .append(primitiveListToJSON("posInicial", chess.initialPositions(), ONE_TAB, true, false))
-            .append(propertyToJSON("limitEscacsSeguits", chess.chessLimits(), false, true, ONE_TAB))
+            .append(propertyToJSON("limitEscacsSeguits", chess.checkLimits(), false, true, ONE_TAB))
             .append(propertyToJSON("limitTornsInaccio", chess.inactiveLimits(), false, true,ONE_TAB))
             .append(objectListToJSON("enrocs", chess.castlings(), true, ONE_TAB))
             .append(OBJ_END);
