@@ -1,0 +1,111 @@
+
++------------------ MENU -----------------+
+|                                         |
+|  Enter an option (num):                 |
+|    1. Normal game                       |
+|    2. Configured game                   |
+|    3. Saved game                        |
+|    0. Exit application                  |
+|                                         |
++-----------------------------------------+
+Option: Creating a normal game...
+
++-------------- PLAYER MODE --------------+
+|                                         |
+|         1. Player vs Player             |
+|         2. Player vs Computer           |
+|         3. Computer vs Computer         |
+|         0. Exit application             |
+|                                         |
++-----------------------------------------+
+Option: Player vs Computer
+Player color [W/B]: 
++------- CPU DIFFICULTY -------+
+|                              |
+|    1. Beginner               |
+|    2. Intermediate           |
+|    3. Advanced               |
+|    0. Exit                   |
+|                              |
++------------------------------+
+Option: Add knowledge to the CPU? [Y/N]: Enter a location each line [EXIT to finish]: 
+Location: Location: Location: x e2 e4
+x d1 h5
+x f1 c4
+x h5 f3
+x f3 f7
+x e2 e4
+x d1 h5
+x f1 c4
+x h5 f7
+Soc nivell:1 color:BLANQUES
+(cpu.java:47)Moviment escollit del coneixament: orig:e2 dest:e4
+Player turn
+   +---+---+---+---+---+---+---+---+
+ 1 | T | C | A | D | R | A | C | T | 
+   +---+---+---+---+---+---+---+---+
+ 2 | P | P | P | P |   | P | P | P | 
+   +---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 4 |   |   |   |   | P |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 5 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 6 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 7 | p | p | p | p | p | p | p | p | 
+   +---+---+---+---+---+---+---+---+
+ 8 | t | c | a | d | r | a | c | t | 
+   +---+---+---+---+---+---+---+---+
+     a   b   c   d   e   f   g   h   
+Origin coordinate (ex. a6)
+Option: Destination coordinate (ex. a6): 
+Option: (cpu.java:47)Moviment escollit del coneixament: orig:d1 dest:h5
+Player turn
+   +---+---+---+---+---+---+---+---+
+ 1 | T | C | A |   | R | A | C | T | 
+   +---+---+---+---+---+---+---+---+
+ 2 | P | P | P | P |   | P | P | P | 
+   +---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 4 |   |   |   |   | P |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 5 |   |   |   |   | p |   |   | D | 
+   +---+---+---+---+---+---+---+---+
+ 6 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 7 | p | p | p | p |   | p | p | p | 
+   +---+---+---+---+---+---+---+---+
+ 8 | t | c | a | d | r | a | c | t | 
+   +---+---+---+---+---+---+---+---+
+     a   b   c   d   e   f   g   h   
+Origin coordinate (ex. a6)
+Option: Destination coordinate (ex. a6): 
+Option: (cpu.java:47)Moviment escollit del coneixament: orig:f1 dest:c4
+Player turn
+   +---+---+---+---+---+---+---+---+
+ 1 | T | C | A |   | R |   | C | T | 
+   +---+---+---+---+---+---+---+---+
+ 2 | P | P | P | P |   | P | P | P | 
+   +---+---+---+---+---+---+---+---+
+ 3 |   |   |   |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 4 |   |   | A |   | P |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 5 |   |   |   |   | p |   |   | D | 
+   +---+---+---+---+---+---+---+---+
+ 6 |   |   | c |   |   |   |   |   | 
+   +---+---+---+---+---+---+---+---+
+ 7 | p | p | p | p |   | p | p | p | 
+   +---+---+---+---+---+---+---+---+
+ 8 | t |   | a | d | r | a | c | t | 
+   +---+---+---+---+---+---+---+---+
+     a   b   c   d   e   f   g   h   
+Origin coordinate (ex. a6)
+Option: Destination coordinate (ex. a6): 
+Option: (cpu.java:47)Moviment escollit del coneixament: orig:h5 dest:f7
+Winner: Whites
+Game finished
+Do you want to save the game? [Y/N]

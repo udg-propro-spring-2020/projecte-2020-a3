@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h2 id="chess">Chess</h2>
+<h3 id="validació-de-moviments">Validació de moviments</h3>
+<dl>
+<dt>Autor</dt>
+<dd>David Cáceres González</dd>
+</dl>
+<h4 id="descricpió">Descricpió</h4>
+<p>És indiscutible que una de les parts mes importants d’un joc o aplicació és el seu funcionament.<br>
+Una de les funcions que té la classe <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/Chess.java">Chess.java</a> és la d’evaluar, validar i aplicar un moviment entrat. Aquesta validació es fa a dos temps, a partir dels mètodes <code>checkMovemement</code> (el qual valida el moviment), seguit del mètode <code>applyMovement</code> (el qual aplica el moviment entrat i controla l’acció realitzada).<br>
+Aquestes validacions es duen a terme tenint en compte els moviments possibles del tipus de peça entrat, i, un cop aplicat, aquest retorna les conseqüències o causes (p.e. una promoció, un escac i mat, entre d’altres) provocades per l’execució d’aquest moviment.</p>
+<h4 id="demostració">Demostració</h4>
+<p>Per a comprovar el correcte funcionament dels mètodes abans citats i de tota la lògica que hi ha en el rere fons, aplicarem la següent seqüència de moviments, explicant quin hauria de ser el seu resultat esperat i comprovant-lo amb l’obtingut. A més, mostrarem dos taulers, un abans d’aplicar la seqüència i un després d’aplicar-la.</p>
+<h4 id="tauler-inicial">Tauler inicial</h4>
+<p><img src="https://i.imgur.com/g99RYdE.png" alt=""></p>
+<p>La seqüència de moviments és (parella de posicions <em>origen-destí</em>) i s’usa la configuració normal d’escacs. Podem trobar dos casos que es veuen reflectits als següents exemples:</p>
+<ol>
+<li>a2-a4
+<ul>
+<li>Esperat: S’a de realitzar el moviment ja que la peça de la posició a2 és un peça de tipus Peó i al ser moviment inicial pot avançar dues caselles.</li>
+<li>Obtingut: S’ha realitzat el moviment correctament al rebre  <code>MoveAction.Correcte</code> en la seva validació.</li>
+</ul>
+</li>
+<li>a8-a5
+<ul>
+<li>Esperat: No s’ha de realitzar el moviment ja que la peça de la posició a8 és una peça de tipus Torre i no pot dur a terme aquest moviment ja que en la configuració normal una torre no té permés saltar altres peçes.</li>
+<li>Obtingut: No s’ha mogut la peça per la raó explicada i el mètode ha retornat un <code>MoveAction.Incorrecte</code> ja que el moviment no és correcte.</li>
+</ul>
+</li>
+<li>b8-c6
+<ul>
+<li>Esperat: Al ser un moviment incorrecte, el mateix jugador escull el moviment indicat. S’ha de realitzar ja que ha escollit moure una peça de tipus Cavall i pot saltar-ne d’altres per arribar al seu destí.</li>
+<li>Obtingut: S’ha realitzat el moviment correctament al rebre  <code>MoveAction.Correcte</code> en la seva validació.</li>
+</ul>
+</li>
+</ol>
+<h4 id="tauler-final">Tauler final</h4>
+<p><img src="https://i.imgur.com/0DpoqxQ.png" alt=""></p>
+<h3 id="moviments-especials">Moviments especials</h3>
+<h4 id="descripció">Descripció</h4>
+<p>Definim moviment especial com a un moviment que provoca una acció diferent a un moviment normal (moure una peça o matar-ne una altre). Ens trobem amb varis moviments especials els quals son controlats amb l’ajuda de la classe <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/MoveAction.java">MoveAction.java</a>:</p>
+<ul>
+<li><em>Enroc</em>: Quan un moviment determina un enroc entre dues peces és tractat amb un retorn <code>MoveAction.Castling</code> en la validació.</li>
+<li><em>Promocio</em>: Quan un moviment determina una promoció és tractat amb un retorn <code>MoveAction.Promote</code> en la validació. Ocasiona una opció de canviar el tipus de la peça.</li>
+<li><em>Rei Ofegat</em>: Quan el rei no es pot moure a cap casella sense que l’enemic obtingui un  <em>Escac</em> és tractat amb un retorn <code>MoveAction.Drowned</code>.</li>
+<li><em>Escac</em>: Quan un moviment determina un escac és tractat amb un retorn <code>MoveAction.Check</code> en la validació. Es porta un control del nombre consecutiu d’aquesta acció per indicar un possible final de joc.</li>
+<li><em>Escac i mat</em>: Quan un moviment determina un escac i mat amb un retorn <code>MoveAction.Checkmate</code> en la validació. Aquest ocasiona que el joc s’aturi.</li>
+</ul>
+<h4 id="demostració-1">Demostració</h4>
+<p>Partirem del tauler inicial anterior.</p>
+<h5 id="enroc">Enroc</h5>
+<p>Per realitzar un enroc podem carregar el següent fitxer: <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/action_movements/enroc.json">enroc.json</a></p>
+<p>L’enroc amb el que treballem en l’exemple ens demana que les posicions que hi ha entre les dues peces fent el moviment siguin buides i que aquestes no s’hagin mogut. La validació es dona com a correcte i es realitza el moviment.</p>
+<p><img src="https://i.imgur.com/lhCPLFr.png" alt=""></p>
+<h5 id="promoció">Promoció</h5>
+<p>Per realitzar una promoció podem carregar el següent fitxer, on un peó promociona si avança de b7-b8: <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/action_movements/promocio.json">promocio.json</a></p>
+<p>En aquest cas fem que un dels peons arribi al extrem contrari. Es mostra un panell amb les peces en les que es pot promocionar.</p>
+<p><img src="https://i.imgur.com/pIAVxle.png" alt=""></p>
+<h5 id="rei-ofegat">Rei ofegat</h5>
+<p>Per realitzar un enroc podem carregar el següent fitxer i moure el peo blanc de g3-h4: <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/action_movements/ofegat.json">ofegat.json</a><br>
+Al realitzar aquest moviment el jugador amb les peces negres nomès podrà moure el rei, pero amb qualsevol moviment que vulgui fer quedarà exposat a escac enemic.</p>
+<p><img src="https://i.imgur.com/x2Pe1kk.png" alt=""></p>
+<h5 id="escac--escac-i-mat">Escac / escac i mat</h5>
+<p>Per realitzar un escac podem carregar el següent fitxer: <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/action_movements/escac.json">escac.json</a><br>
+Per realitzar un escac i mat podem carregar el següent fitxer i moure la dama blanca d1-h5: <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/action_movements/escacimat.json">escacimat.json</a></p>
+<p>El joc detecta escac ja que la dama amenaça al rei. En la validació de la jugada no es dona el resultat escac i mat si es cumpleiex alguna de les següents condicions:</p>
+<ul>
+<li>El rei es pot moure a una casella no amenaçada</li>
+<li>Una peça pot matar la peça enemiga que amenaça el rei</li>
+<li>Una peça pot bloquejar el camí de la peça enemiga que amenaça el rei</li>
+</ul>
+<p><img src="https://i.imgur.com/zURxnOp.png" alt=""></p>
+<p>Un cop hi ha un jugador en escac, aquest ha de aconseguir salvar al rei amb una de les opcions esmentades anteriorment. Si intenta realitzar un moviment que no compleix les condicions, serà rebutjat.</p>
+<h3 id="altres-configuracions">Altres configuracions</h3>
+<p>Es poden comprobar aspectes que no pertanyen als escacs tradicionals carregant el fitxer <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/src/data/modified_config.json">modified_config.json</a>, que otorga vulnerabilitat als peons i la capacitat de matar saltant a les dames, a mes de tenir canvis de peça al tauler.</p>
+</div>
+</body>
+
+</html>
