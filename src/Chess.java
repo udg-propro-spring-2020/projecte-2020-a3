@@ -16,7 +16,7 @@ import java.lang.NullPointerException;
 public class Chess implements Cloneable {
     private int rows; ///< Number of board's rows
     private int cols; ///< Number of board's columns
-    private int chessLimits; ///< Maximum number of conscutive checks
+    private int checkLimits; ///< Maximum number of conscutive checks
     private int inactiveLimits; ///< Maximum number of conscutive movements without killing a piece
     private List<PieceType> pList; ///< List that contains all pieces type
     private List<String> initPositions; ///< List that contains pieces initial positions
@@ -38,15 +38,15 @@ public class Chess implements Cloneable {
      * @param rows Board's row number
      * @param cols Board's column number
      * @param pList List of pieces
-     * @param chessLimits Number maximum of chess in a game
+     * @param checkLimits Number maximum of chess in a game
      * @param inactiveLimits Number maximum of inactive turns (without kill) in a game
      * @param initPositions Piece's initial default positions
      * @param castlings Special move
      */
-    Chess(int rows, int cols, List<PieceType> pList, List<String> initPositions, int chessLimits, int inactiveLimits, List<Castling> castlings) {
+    Chess(int rows, int cols, List<PieceType> pList, List<String> initPositions, int checkLimits, int inactiveLimits, List<Castling> castlings) {
         this.rows = rows;
         this.cols = cols;
-        this.chessLimits = chessLimits;
+        this.checkLimits = checkLimits;
         this.inactiveLimits = inactiveLimits;
         this.pList = pList;
         this.initPositions = initPositions;
@@ -75,7 +75,7 @@ public class Chess implements Cloneable {
         if(chess==null) throw new NullPointerException("Chess given argument cannot be null");
         this.rows = chess.rows;
         this.cols = chess.cols;
-        this.chessLimits = chess.chessLimits;
+        this.checkLimits = chess.checkLimits;
         this.inactiveLimits = chess.inactiveLimits;
         this.pList = chess.pList;
         this.initPositions = chess.initPositions;
@@ -99,7 +99,7 @@ public class Chess implements Cloneable {
      * @post Return a copy of a chess
      */
     Chess copy(Chess c){
-        Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
+        Chess ch = new Chess(c.rows,c.cols,c.checkLimits,
         c.inactiveLimits,c.pList,c.initPositions,c.castlings,
         c.whiteInitPos,c.blackInitPos,c.boardArray,c.currentTurn,
         c.whitePiecesTurn, c.blackPiecesTurn,c.pListWhite,
@@ -112,13 +112,13 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Chess has been copied
      */
-    Chess (int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
+    Chess (int rows, int cols, int checkLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
     List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, List<Piece[][]> boardArray,int currentTurn,
     List<List<Pair<Position, Piece>>> whitePiecesTurn, List<List<Pair<Position, Piece>>> blackPiecesTurn, List<Pair<Position, Piece>> pListWhite, 
     List<Pair<Position, Piece>> pListBlack, Piece[][] board){
         this.rows = rows;
         this.cols = cols;
-        this.chessLimits = chessLimits;
+        this.checkLimits = checkLimits;
         this.inactiveLimits = inactiveLimits;
         this.pList = pList;
         this.initPositions = initPositions;
@@ -1164,8 +1164,8 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return the limits of chess in a game
      */
-    public int chessLimits(){
-        return this.chessLimits;
+    public int checkLimits(){
+        return this.checkLimits;
     }
 
     /*
@@ -1292,7 +1292,7 @@ public class Chess implements Cloneable {
         StringBuilder s = new StringBuilder(); 
         s.append("Rows: " + rows + ",\n")
         .append("Columns: " + cols + ",\n")
-        .append("Check Limits: " + chessLimits + ",\n")
+        .append("Check Limits: " + checkLimits + ",\n")
         .append("Inactive Turns Limits: " + inactiveLimits + ",\n")
         .append("PIECES: \n");
         
