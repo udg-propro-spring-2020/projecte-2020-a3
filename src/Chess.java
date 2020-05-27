@@ -1,4 +1,4 @@
-/*
+/**
  * @author David Cáceres González
  */
 
@@ -14,40 +14,39 @@ import java.lang.NullPointerException;
  * @brief Class that controls the movements and pieces
  */
 public class Chess implements Cloneable {
-    private int rows;
-    private int cols;
-    private int chessLimits;
-    private int inactiveLimits;
-    private List<PieceType> pList;
-    private List<String> initPositions;
-    private List<Pair<Position, Piece>> whiteInitPos;
-    private List<Pair<Position, Piece>> blackInitPos;
-    private List<Castling> castlings;
-    private List<Turn> turnList;
-    private PieceColor nextTurnColor;
-    private Piece[][] board;
-    private List<Piece[][]> boardArray;
-    private int currentTurn;
-    private List<List<Pair<Position, Piece>>> whitePiecesTurn;
-    private List<List<Pair<Position, Piece>>> blackPiecesTurn;
-    private final static int unlimitadeMove = 50; //That variable means that piece can move any number of cells
-    private List<Pair<Position, Piece>> pListWhite;
-    private List<Pair<Position, Piece>> pListBlack;
+    private int rows; ///< Number of board's rows
+    private int cols; ///< Number of board's columns
+    private int checkLimits; ///< Maximum number of conscutive checks
+    private int inactiveLimits; ///< Maximum number of conscutive movements without killing a piece
+    private List<PieceType> pList; ///< List that contains all pieces type
+    private List<String> initPositions; ///< List that contains pieces initial positions
+    private List<Pair<Position, Piece>> whiteInitPos; ///< List that contains white pieces initial positions inside the board
+    private List<Pair<Position, Piece>> blackInitPos; ///< List that contains black pieces initial positions inside the board
+    private List<Castling> castlings; ///< List that contains possible castlings
+    private Piece[][] board; ///< Game board
+    private List<Piece[][]> boardArray; ///< List that contains game boards
+    private int currentTurn; ///< Control the turn number while doing undo and redo
+    private List<Pair<Position, Piece>> pListWhite; ///< List that contains white pieces positions on current turn
+    private List<Pair<Position, Piece>> pListBlack; ///< List that contains black pieces positions on current turn
+    private List<List<Pair<Position, Piece>>> whitePiecesTurn; ///< List that contains all list of white pieces positions on current turn
+    private List<List<Pair<Position, Piece>>> blackPiecesTurn; ///< List that contains all list of black pieces positions on current turn
+
+    private final static int unlimitadeMove = 50; //This variable means that the piece can move any number of cells
 
     /**
      * @brief Chess default constructor
      * @param rows Board's row number
      * @param cols Board's column number
      * @param pList List of pieces
-     * @param chessLimits Number maximum of chess in a game
+     * @param checkLimits Number maximum of chess in a game
      * @param inactiveLimits Number maximum of inactive turns (without kill) in a game
      * @param initPositions Piece's initial default positions
      * @param castlings Special move
      */
-    Chess(int rows, int cols, List<PieceType> pList, List<String> initPositions, int chessLimits, int inactiveLimits, List<Castling> castlings) {
+    Chess(int rows, int cols, List<PieceType> pList, List<String> initPositions, int checkLimits, int inactiveLimits, List<Castling> castlings) {
         this.rows = rows;
         this.cols = cols;
-        this.chessLimits = chessLimits;
+        this.checkLimits = checkLimits;
         this.inactiveLimits = inactiveLimits;
         this.pList = pList;
         this.initPositions = initPositions;
@@ -76,7 +75,7 @@ public class Chess implements Cloneable {
         if(chess==null) throw new NullPointerException("Chess given argument cannot be null");
         this.rows = chess.rows;
         this.cols = chess.cols;
-        this.chessLimits = chess.chessLimits;
+        this.checkLimits = chess.checkLimits;
         this.inactiveLimits = chess.inactiveLimits;
         this.pList = chess.pList;
         this.initPositions = chess.initPositions;
@@ -100,7 +99,7 @@ public class Chess implements Cloneable {
      * @post Return a copy of a chess
      */
     Chess copy(Chess c){
-        Chess ch = new Chess(c.rows,c.cols,c.chessLimits,
+        Chess ch = new Chess(c.rows,c.cols,c.checkLimits,
         c.inactiveLimits,c.pList,c.initPositions,c.castlings,
         c.whiteInitPos,c.blackInitPos,c.boardArray,c.currentTurn,
         c.whitePiecesTurn, c.blackPiecesTurn,c.pListWhite,
@@ -113,13 +112,13 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Chess has been copied
      */
-    Chess (int rows, int cols, int chessLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
+    Chess (int rows, int cols, int checkLimits, int inactiveLimits, List<PieceType> pList, List<String> initPositions, List<Castling> castlings,  
     List<Pair<Position, Piece>> whiteInitPos, List<Pair<Position, Piece>> blackInitPos, List<Piece[][]> boardArray,int currentTurn,
     List<List<Pair<Position, Piece>>> whitePiecesTurn, List<List<Pair<Position, Piece>>> blackPiecesTurn, List<Pair<Position, Piece>> pListWhite, 
     List<Pair<Position, Piece>> pListBlack, Piece[][] board){
         this.rows = rows;
         this.cols = cols;
-        this.chessLimits = chessLimits;
+        this.checkLimits = checkLimits;
         this.inactiveLimits = inactiveLimits;
         this.pList = pList;
         this.initPositions = initPositions;
@@ -215,7 +214,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Create an organized pieceType's list using the initial piece order
+     * @brief Create an organized pieceType's list using the initial piece's sort
      * @pre --
      * @post Return an organized pieceType's list
      */
@@ -244,7 +243,7 @@ public class Chess implements Cloneable {
     /*
      * @brief Fill the lists that contains the piece's current and initial position
      * @pre initPositions is not null
-     * @post The lists that control the piece's positions has been filled
+     * @post The lists that controls the piece's positions has been filled
      */
     private void createInitPos(){
         List<PieceType> listPieceType = new ArrayList<PieceType>();
@@ -272,7 +271,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Creates the board and alive pieces list
+     * @brief Creates the game's board and alive pieces list
      * @pre Piece's initial positions are not empty
      * @post Every piece is on her board's position and lists has been created
      */
@@ -308,7 +307,7 @@ public class Chess implements Cloneable {
             for(int i=origin.row(); i<destiny.row(); i++){
                 if(pieceAt(i,origin.col())!=null && pieceAt(i,origin.col())!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())) && !pieceAt(i,origin.col()).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,origin.col()));
                     }else
                         pieceOnTheWay = true;
@@ -318,7 +317,7 @@ public class Chess implements Cloneable {
             for(int i=origin.row(); i>destiny.row(); i--){ 
                 if(pieceAt(i,origin.col())!=null && pieceAt(i,origin.col())!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,origin.col())) && !pieceAt(i,origin.col()).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,origin.col()));
                     }else
                         pieceOnTheWay = true;
@@ -341,7 +340,7 @@ public class Chess implements Cloneable {
             for(int i=origin.col(); i<destiny.col(); i++){
                 if(pieceAt(origin.row(),i) != null && pieceAt(origin.row(),i)!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)) && !pieceAt(origin.row(),i).type().ptInvulnerable())
                             piecesToKill.add(new Position(origin.row(),i));
                     }else
                         pieceOnTheWay = true;
@@ -351,7 +350,7 @@ public class Chess implements Cloneable {
             for(int i=origin.col(); i>destiny.col(); i--){
                 if(pieceAt(origin.row(),i) != null && pieceAt(origin.row(),i)!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(origin.row(),i)) && !pieceAt(origin.row(),i).type().ptInvulnerable())
                             piecesToKill.add(new Position(origin.row(),i));
                     }else
                         pieceOnTheWay = true;
@@ -375,7 +374,7 @@ public class Chess implements Cloneable {
             for(int j=origin.col(); j<destiny.col(); j++){
                 if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)) && !pieceAt(i,j).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,j));
                     }else
                         pieceOnTheWay = true;
@@ -388,7 +387,7 @@ public class Chess implements Cloneable {
             for(int j=origin.col(); j>destiny.col(); j--){
                 if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)) && !pieceAt(i,j).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,j));
                     }else
                         pieceOnTheWay = true;
@@ -401,7 +400,7 @@ public class Chess implements Cloneable {
             for(int j=origin.col(); j<destiny.col(); j++){
                 if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)) && !pieceAt(i,j).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,j));
                     }else
                         pieceOnTheWay = true;
@@ -414,7 +413,7 @@ public class Chess implements Cloneable {
             for(int j=origin.col(); j>destiny.col(); j--){
                 if(pieceAt(i,j) != null && pieceAt(i,j)!=originPiece){ 
                     if(currentMovement.canJump()==2){
-                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)))
+                        if(diferentOwnerPiece(originPiece, pieceAt(i,j)) && !pieceAt(i,j).type().ptInvulnerable())
                             piecesToKill.add(new Position(i,j));
                     }else
                         pieceOnTheWay = true;
@@ -429,7 +428,7 @@ public class Chess implements Cloneable {
      * @brief Checks if a piece is in any of the central squares of the movement. If the origin piece
      * can kill while jumping, the positions containing pieces are added to a list. If the origin piece
      * cannot jump, the return gets true value.
-     * @pre A movement is going to be realised 
+     * @pre Positions and movement are not null
      * @post Return if there's any piece that the origin piece can't pass across and fill the list if necessary
      */
     private boolean checkPieceOnTheWay(Position origin, Position destiny, Movement currentMovement, List<Position> piecesToKill){
@@ -474,7 +473,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Check if the king can't escape from a check
+     * @brief Check if the king can escape from a check
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
      */
@@ -486,16 +485,12 @@ public class Chess implements Cloneable {
             Piece piece = listEvadeCheckmate.get(i).second;
             Position origin = listEvadeCheckmate.get(i).first;
             List<Pair<Position, Integer>> pieceDestinies = allPiecesDestiniesWithValues(origin);
-            //System.out.println("Comporvarem: "+pieceAt(origin.row(),origin.col()).type().ptName()+" -> "+origin.toString());
             int j = 0;
             while(j<pieceDestinies.size() && checkmate){
-                //System.out.println("La "+piece.type().ptName()+" vol realitzar el moviment a "+pieceDestinies.get(j).first.toString());
                 Position destiny = pieceDestinies.get(j).first;
                 applyMovement(origin, destiny, checkMovementResult.second, true);
-                if(!isCheck(listDoingCheck)){
+                if(!isCheck(listDoingCheck))
                     checkmate = false;
-                    //System.out.println("Trobem escape "+piece.type().ptName()+" "+destiny.toString());
-                }
                 undoMovement();
                 j++;
             }
@@ -505,9 +500,9 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Checks if the king is checked by any enemie piece
+     * @brief Checks if the king is in check by any enemie piece
      * @pre List is not empty
-     * @post Return if the king is checked
+     * @post Return if the king is in check
      */
     public boolean isCheck(List<Pair<Position,Piece>> listDoingMove){
         boolean checkKing = false;
@@ -659,7 +654,7 @@ public class Chess implements Cloneable {
 
     /*
      * @brief Check if a movement is a castling, looking all the castling properties. It works always sorting the pieces
-     * by his representation on his castling
+     * by his representation on its castling
      * @pre Origin position isn't null
      * @post Return true if the castling is possible
      */
@@ -668,7 +663,7 @@ public class Chess implements Cloneable {
         boolean correctCastling = false;
         boolean emptyDestinies = false;
         int i = 0;
-        int countMiddleCells = Math.abs(firstPiecePos.col()-secondPiecePos.col())-1;//-1 to avoid the origin col
+        int countMiddleCells = Math.abs(firstPiecePos.col()-secondPiecePos.col())-1; //-1 to avoid the origin col
         int middle = (countMiddleCells/2)+1;
         Piece firstPiece = pieceAt(firstPiecePos.row(), firstPiecePos.col());
         Piece secondPiece = pieceAt(secondPiecePos.row(), secondPiecePos.col());
@@ -680,7 +675,7 @@ public class Chess implements Cloneable {
                     Castling castling = castlings.get(i);
                     if((castling.aPiece().equals(firstPiece.type().ptName()) && castling.bPiece().equals(secondPiece.type().ptName())) || 
                         (castling.bPiece().equals(firstPiece.type().ptName()) && castling.aPiece().equals(secondPiece.type().ptName()))){
-                        if(castling.aPiece().equals(secondPiece.type().ptName())){ //Chosing the piece going to the middle cell
+                        if(castling.aPiece().equals(secondPiece.type().ptName())){ //Choosing the piece that goes to the middle cell
                             firstPieceCastling = secondPiecePos; 
                             secondPieceCastling = firstPiecePos;
                         }
@@ -767,7 +762,7 @@ public class Chess implements Cloneable {
     }
 
     /*
-     * @brief Creates a copy of the tunr, cloning the board and the piece's lists and save them into
+     * @brief Creates a copy of the turn, cloning the board and the piece's lists and save them into
      * one list
      * @pre Board and piece lists exist
      * @post The board and piece's list of the turn has been saved
@@ -841,23 +836,17 @@ public class Chess implements Cloneable {
             listCounterMove = pListWhite;
         }
         if(!calledByIsCheckmate){
-            if(canPromote(origin, destiny, false)){
+            if(canPromote(origin, destiny, false))
                 actions.add(MoveAction.Promote);
-            }else{            
+            else{            
                 if(isCheck(listDoingMove)){
-                    if(isCheckmate(listCounterMove, listDoingMove)){
+                    if(isCheckmate(listCounterMove, listDoingMove))
                         actions.add(MoveAction.Checkmate);
-                        //System.out.println("escacimat");
-                    }
-                    else{
+                    else
                         actions.add(MoveAction.Check);
-                        //System.out.println("escac");
-                    }
                 }else{
-                    if(isCheckmate(listCounterMove, listDoingMove)){
+                    if(isCheckmate(listCounterMove, listDoingMove))
                         actions.add(MoveAction.Drowned);
-                        //System.out.println("ofegat");
-                    }
                 }
             }
         }
@@ -911,7 +900,7 @@ public class Chess implements Cloneable {
         List<Pair<Position,Piece>> listToRemoveOn;
         boolean search=true;
         Piece originPiece = pieceAt(origin.row(),origin.col());
-        if(originPiece==null) System.out.println(showBoard());
+        
         if(originPiece.color() == PieceColor.White){
             listToChange = pListWhite;
             listToRemoveOn = pListBlack;
@@ -1173,8 +1162,8 @@ public class Chess implements Cloneable {
      * @pre --
      * @post Return the limits of chess in a game
      */
-    public int chessLimits(){
-        return this.chessLimits;
+    public int checkLimits(){
+        return this.checkLimits;
     }
 
     /*
@@ -1301,7 +1290,7 @@ public class Chess implements Cloneable {
         StringBuilder s = new StringBuilder(); 
         s.append("Rows: " + rows + ",\n")
         .append("Columns: " + cols + ",\n")
-        .append("Chess Limits: " + chessLimits + ",\n")
+        .append("Check Limits: " + checkLimits + ",\n")
         .append("Inactive Turns Limits: " + inactiveLimits + ",\n")
         .append("PIECES: \n");
         

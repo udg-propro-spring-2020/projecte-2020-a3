@@ -1,4 +1,4 @@
-/*
+/** 
  * @author David Caceres Gonzalez
  * @file MoveAction.java
  * @class MoveAction
