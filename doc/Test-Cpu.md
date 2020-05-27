@@ -54,7 +54,7 @@ Observem que com que primer mira la torra sempre farà el moviment de la linia n
 <p>Per demostrar que aixo és realment aleatori és tan simple com executar varis cops una partida on la cpu sigui la primera en tirar i veure que el primer moviment sempre és diferent que en l’execució anterior.<br>
 <img src="https://i.imgur.com/dlPeV6h.png" alt="Execució 1"><br>
 <img src="https://i.imgur.com/qXiXzSX.png" alt="Execució 2"></p>
-<p>He fet un parell més d’analizis documentats al següent html<a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/doc/mes-ProvesMinMax.html">doc/mes-ProvesMinMax.html</a></p>
+<p>He fet un parell més d’analizis documentats al següent html<a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/doc/mes-ProvesMinMax.md">doc/mes-ProvesMinMax.md</a></p>
 <p><strong>3. Cpu+Coneixament vs Cpu normal:</strong>*<br>
 Havia creat el següent powershell script <a href="https://github.com/udg-propro/projecte-2020-a3/blob/master/tests/testMinMaxWithKnowledge.PS1">tests/testMinMaxWithKnowledge.PS1</a> per provar CPU amb coneixement vs CPU sense o les dos amb coneixament. Llavores observar els cops que escolleixen moviments desde el coneixament, peró és dificil que ho fagin (menys al inici del joc) ja que hi ha moltes situacions possibles i tenir-les totes guardades és complicat. Havia guardat 10 partides guanyades per blanques i per negres executant partides cpu vs cpu peró es necesiten molts més fitxers de coneixament per poder observar eleccions del coneixament.</p>
 <p><em><strong>4. Més proves:</strong></em><br>
