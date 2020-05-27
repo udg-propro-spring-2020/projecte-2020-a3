@@ -52,25 +52,25 @@ public class Cpu{
     }
 
     /** @biref Returns the optimal movement to do.
-    @pre --
+    @pre    Cpu can do a movement
     @return Returns the optimal movement to do inside the decision tree with profundity @c _profunidty.
      */
     private Pair<Position,Position> minMax(){ 
         Pair<Position,Position> movement = new Pair<Position,Position>(null,null);
-        int punt =i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,_chess);
+        i_minMax(0,0,0,movement,Integer.MIN_VALUE,Integer.MAX_VALUE,_chess);
         return movement;
     }
 
     /** @brief Immersion function for minMaxAlgorsim
     @pre --
-    @return Returns the puntuation choosen for the @p playerType of the actual profundity.
+    @return Returns the puntuation choosen for the @p playerType of this @p profundity.
      */
     private int i_minMax(Integer score,int profundity,int playerType,Pair<Position,Position> movement,int biggestAnterior,int smallerAnterior,Chess tauler){
         if(profundity==_profundity)return score;
         else if(playerType==0){ //Turn of the cpu player (we will maximize score here)
             
             Integer max = Integer.MIN_VALUE;
-            List<Pair<Position,Position>> equealMovementsFirstLevel = new ArrayList<Pair<Position,Position>>();
+            List<Pair<Position,Position>> equealMovementsFirstLevel = new ArrayList<Pair<Position,Position>>();//list to save movements with same puntuation at profunity 1
             List<Pair<Position,Piece>> pieces,piecesContrincant;
             if(_color==PieceColor.White)pieces=tauler.pListWhite();
             else pieces=tauler.pListBlack();
@@ -85,19 +85,18 @@ public class Cpu{
 
                 while(itMoviments.hasNext() && follow){//for each movement
 
-                    Chess taulerCopia = (Chess)tauler.clone();//copy the actual chess because after applying this movememnt and al the minmax alogirthm we need the chess as now
+                    Chess taulerCopia = (Chess)tauler.clone();//We copy the chess and we will work with that copy for not affecting next movements
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result=pieceMovement.second + score;//add actul + score for actual movement into result
-                    Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chgit ess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
+                    Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chess class, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
                     List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);//we apply this movement with the returnend parameters on the checkMovement
                     
-                    if(_color==PieceColor.White)piecesContrincant=taulerCopia.pListBlack();
+                    if(_color==PieceColor.White)piecesContrincant=taulerCopia.pListBlack();//take contrincant pieces
                     else piecesContrincant=taulerCopia.pListWhite();
                     
-                    if(!taulerCopia.isCheck(piecesContrincant)){
-
+                    if(!taulerCopia.isCheck(piecesContrincant)){//we look if this movement will cause check if it does we omit it
                         actions.forEach((action)->{
-                            if(action==MoveAction.Promote){
+                            if(action==MoveAction.Promote){//if this movement cause a promotion we choose the biggest puntuation piece to promote
                                 List<PieceType> typePieces = taulerCopia.typeList();
                                 Iterator<PieceType> itTypePieces = typePieces.iterator();
                                 PieceType piecetype = itTypePieces.next();
@@ -128,14 +127,16 @@ public class Cpu{
                     }
                 }
             }
-            if(profundity==0){
+            if(profundity==0){/*At first level for CPU player we need to choose the movement if there's more than one with same puntuation we will choose one random. With that we cant be sure that cpu vs cpu
+            will not always choose same movements */
                 Random rand = new Random();
                 int n = rand.nextInt(equealMovementsFirstLevel.size());
                 Pair<Position,Position> choosed = equealMovementsFirstLevel.get(n);
                 movement.first = choosed.first;
                 movement.second = choosed.second;
             }
-            return max;
+            if(max==Integer.MIN_VALUE)return -100+score;//if the max == MIN_VALUE it means that all movements possibles of CPU puts himself in check(loose game) so we return a value of -100(king value) + preuvious score
+            else return max;//else we return the max value possible
         }
         else{ /*Here we will choose the lowest because we want to minamize our negative score
                 the socre here will be negative because the positive for the other player is negative for the cpu*/
@@ -148,26 +149,26 @@ public class Cpu{
             Boolean follow = true;
             Iterator<Pair<Position,Piece>> itPieces = pieces.iterator();
 
-            while(itPieces.hasNext() && follow){  //FOR EACH PIECE
+            while(itPieces.hasNext() && follow){//FOR EACH PIECE
 
                 Pair<Position,Piece> piece = itPieces.next();
                 List<Pair<Position,Integer>> destinyWithScores=tauler.allPiecesDestiniesWithValues(piece.first);
                 Iterator<Pair<Position,Integer>> itMoviments = destinyWithScores.iterator();
 
-                while(itMoviments.hasNext() && follow){ //FOR EACH MOVEMENT
+                while(itMoviments.hasNext() && follow){//FOR EACH MOVEMENT
 
-                    Chess taulerCopia = (Chess)tauler.clone();
+                    Chess taulerCopia = (Chess)tauler.clone();//We copy the chess and we will work with that copy for not affecting next movements
                     Pair<Position,Integer> pieceMovement = itMoviments.next();
                     Integer result= -pieceMovement.second + score;
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
                     
-                    if(_color==PieceColor.Black)piecesContrincant=taulerCopia.pListBlack();
+                    if(_color==PieceColor.Black)piecesContrincant=taulerCopia.pListBlack();//take contrincant pieces
                     else piecesContrincant=taulerCopia.pListWhite();
                     
-                    if(!taulerCopia.isCheck(piecesContrincant)){
+                    if(!taulerCopia.isCheck(piecesContrincant)){//we look if this movement will cause check if it does we omit it
                         actions.forEach((action)->{
-                            if(action==MoveAction.Promote){
+                            if(action==MoveAction.Promote){//if this movement cause a promotion we choose the biggest puntuation piece to promote
                                 List<PieceType> typePieces = taulerCopia.typeList();
                                 Iterator<PieceType> itTypePieces = typePieces.iterator();
                                 PieceType piecetype = itTypePieces.next();
@@ -178,9 +179,9 @@ public class Cpu{
                                 taulerCopia.promotePiece(pieceMovement.first,piecetype);               
                                 }
                         });
-                        result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
-                        if(result<=min){
-                            if(result<smallerAnterior)smallerAnterior=result;
+                        result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);//recrusive call
+                        if(result<=min){//if the result is less than the actual min we update it
+                            if(result<smallerAnterior)smallerAnterior=result;//if its smaller than the anteirorSmaller we also updatate this one
                             min=result;
                         }
                         /*If the new smallest is smaller than biggest on
@@ -192,8 +193,8 @@ public class Cpu{
                 }
                     
             }
-            if(min==Integer.MIN_VALUE)return -100+score;
-            else return min;
+            if(min==Integer.MAX_VALUE)return 100+score;//if contricant cant choose any movement then it means that all of his movements put himself into check so he cant do anythink (he loose)
+            else return min;//else we return the minimum value possible
         }
     }
 }
