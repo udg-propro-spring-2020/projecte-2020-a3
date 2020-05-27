@@ -3,12 +3,9 @@
  */
 
 import java.util.List;
-import java.util.Scanner;
-import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.lang.NullPointerException;
-
+@SuppressWarnings("unchecked")
 /* 
  * @class Chess
  * @brief Class that controls the movements and pieces
@@ -482,7 +479,6 @@ public class Chess implements Cloneable {
         Pair<List<MoveAction>,List<Position>> checkMovementResult = new Pair<>(new ArrayList<MoveAction>(),new ArrayList<Position>());
         int i = 0;
         while(i<listEvadeCheckmate.size() && checkmate){
-            Piece piece = listEvadeCheckmate.get(i).second;
             Position origin = listEvadeCheckmate.get(i).first;
             List<Pair<Position, Integer>> pieceDestinies = allPiecesDestiniesWithValues(origin);
             int j = 0;
@@ -969,7 +965,6 @@ public class Chess implements Cloneable {
 
         List<Pair<Position, Integer>> destiniesWithValues = new ArrayList<Pair<Position, Integer>>();
         Position destiny;
-        int value = 0;        
         Piece piece = pieceAt(origin.row(),origin.col());
         List<Movement> movesToRead = new ArrayList<Movement>(); 
         movesToRead=piece.pieceMovements();
@@ -1061,7 +1056,6 @@ public class Chess implements Cloneable {
     */
     public String chessStringView(PieceColor pieceColorValue){
         String s = "";
-        Piece[] p = new Piece[rows()*cols()];
         if(pieceColorValue==PieceColor.White){
             for(int i=0; i<rows(); i++){
                 for(int j=0; j<cols(); j++){
