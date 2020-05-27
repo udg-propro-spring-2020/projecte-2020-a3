@@ -19,6 +19,9 @@ public class Cpu{
     private int _profundity;        ///< Profunidty level for search the possibilities movements tree.
     private PieceColor _color;      ///< Color of the CPU player
     private double maxim=0;
+    private double minim=Double.MAX_VALUE;
+    private int total=0;
+    private double suma=0;
 
 
     /** @brief Default CPU constructor
@@ -69,7 +72,13 @@ public class Cpu{
         System.out.println("(cpu.java:63)Moviment escollit del minMax: orig:"+movement.first.toString() + " dest:" + movement.second.toString() +" puntuacio:"+punt);
         double seconds = (double)duration / 1_000_000_000.0;
         if(seconds>maxim)maxim=seconds;
+        if(seconds<minim)minim=seconds;
+        total++;
+        suma+=seconds;
         System.out.println("Maxim temps:"+maxim);
+        System.out.println("Minim temps:"+minim);
+        System.out.println("Mitjana temps:"+suma/total);
+        System.out.println("Total de moviments fets:"+total);
         return movement;
     }
 
@@ -107,27 +116,27 @@ public class Cpu{
                     //System.out.println(taulerCopia.showBoard());
                     //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     //System.out.println(taulerCopia.showBoard());
-                    //if(profundity==0)System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
+                    //if(profundity==0)
+                    //System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
                     /*if(pieceMovement.second>=100){
                         
                         System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
                         System.out.println(taulerCopia.showBoard());
                         System.out.println("PUNTUACIO JUGADA:"+pieceMovement.second);
                     }*/
-                    //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" max:"+max);
-                    //taulerCopia.pintarLlistes();
-                    //if(piece.first.toString().equals("b5") && pieceMovement.first.toString().equals("c7"))System.out.println(taulerCopia.showBoard());
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);//necessary for the chgit ess, it needs to know the pieces which will die and(list of positions), the list of moveAction is for Console/Visual game class 
                     
                     List<MoveAction> actions = taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);//we apply this movement with the returnend parameters on the checkMovement
+                    if(_color==PieceColor.White){
+                        piecesContrincant=tauler.pListBlack();
+                    }
+                    else {
+                        piecesContrincant=tauler.pListWhite();
+                    }
                     if(!taulerCopia.isCheck(piecesContrincant)){
                         //if(profundity==0)System.out.println("no és escac");
                         actions.forEach((action)->{
-                            
-                            //System.out.println("action "+action.toString());
-                            //System.out.println(taulerCopia.showBoard());
                             if(action==MoveAction.Promote){
-                                //System.out.println("hello");
                                 List<PieceType> typePieces = taulerCopia.typeList();
                                 Iterator<PieceType> itTypePieces = typePieces.iterator();
                                 PieceType piecetype = itTypePieces.next();
@@ -135,15 +144,11 @@ public class Cpu{
                                     PieceType nextPieceType = itTypePieces.next();
                                     if(nextPieceType.ptValue()>piecetype.ptValue())piecetype=nextPieceType;
                                 }
-                                //System.out.println("--------------------------aplicar promocionar");
-                                taulerCopia.promotePiece(pieceMovement.first,piecetype);
-                                //System.out.println(taulerCopia.showBoard());       
+                                taulerCopia.promotePiece(pieceMovement.first,piecetype);    
                             }
                         });
-                        //System.out.println("SOC cpu nivell:"+profundity+"max:"+max+"smallestAnterior:"+smallerAnterior+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
-                        //if(profundity==0)System.out.println("Max actual:"+max);
                         result = i_minMax(result,profundity+1,1,movement,biggestAnterior,smallerAnterior,taulerCopia); //recursive call minMax with playerType = 1 to make the optimal simulation for the other plyer 
-                        //if(profundity==0)System.out.println("result actual:"+result+" max actual:"+max+ "  profunity:"+profundity);
+                        //System.out.println("result actual:"+result+" max actual:"+max+ "  profunity:"+profundity);
                         if(result>=max){
                                 //if(profundity==0)System.out.println(result==Integer.MIN_VALUE);
                                 if(profundity==0 && result > max){
@@ -158,18 +163,6 @@ public class Cpu{
                                 if(result>biggestAnterior)biggestAnterior=result;
                                 max=result;
                         }
-
-                        /*if(result>max){
-                            if(profundity==0){
-                                //System.out.println("actualitzant el moviment score:"+result);
-                                //System.out.println("moviment anterior: o:"+movement.first+" d:"+movement.second);
-                                //System.out.println("nou moviment: o:"+piece.first+" d:"+pieceMovement.first);
-                                movement.first=piece.first;
-                                movement.second=pieceMovement.first;
-                            }
-                            biggestAnterior=result;
-                            max=result;
-                        }*/
                         /*If the new biggest is bigger than smallest on
                         the anterior node (because anterior will choose the samllest)
                         we dont have to continue inspecinting this branch so we cut it.
@@ -179,9 +172,7 @@ public class Cpu{
                     else {taulerCopia.undoMovement();}
                 }
             }
-            //System.out.println("CPU nivell:"+profundity+" score returnant:"+max);
             if(profundity==0){
-                //equealMovementsFirstLevel.forEach((action)->System.out.println("1 moviment possible Origen:"+action.first.toString()+" desti:"+action.second.toString()));
                 if(equealMovementsFirstLevel.isEmpty()){
                     itPieces = pieces.iterator();
                     while(itPieces.hasNext()){
@@ -202,18 +193,17 @@ public class Cpu{
                     movement.first = choosed.first;
                     movement.second = choosed.second;
                 }
-                //System.out.println("Total de moviments iguals:"+equealMovementsFirstLevel.size());
             }
             return max;
         }
         else{ /*Here we will choose the lowest because we want to minamize our negative score
                 the socre here will be negative because the positive for the other player is negative for the cpu*/
-            
+            //codi del contrincant
             Integer min = Integer.MAX_VALUE;
             List<Pair<Position,Piece>> pieces,piecesContrincant;
             if(_color==PieceColor.Black){
-                pieces=tauler.pListWhite();//take the cpu pieces
-                piecesContrincant=tauler.pListBlack();
+                pieces=tauler.pListWhite();//peçes del contrincant
+                piecesContrincant=tauler.pListBlack();//peçes del contricant del contricanmt (cpu)
             }
             else {
                 pieces=tauler.pListBlack();
@@ -231,22 +221,28 @@ public class Cpu{
                     //System.out.println("socre of thjis:"+pieceMovement.second+ " Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString());
                     Integer result= -pieceMovement.second + score;
                     //System.out.println(taulerCopia.showBoard());
-                    //if(profundity==0)System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
+                    //if(profundity==0)
+                    //System.out.println("SOC contrincant nivell:"+profundity+" trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                     /*if(pieceMovement.second>=100){
                         
                         System.out.println("crido jugador amb nivell:"+profundity+" moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score:"+result);
                         System.out.println(taulerCopia.showBoard());
                         System.out.println("PUNTUACIO JUGADA:"+pieceMovement.second);
                     }*/
-                    //System.out.println("BiggestAnteriror"+biggestAnterior+" smallerAnterior:"+smallerAnterior+" min:"+min);
-                    //taulerCopia.pintarLlistes();
                     Pair<List<MoveAction>,List<Position>> check= taulerCopia.checkMovement(piece.first,pieceMovement.first);
                     List<MoveAction> actions=taulerCopia.applyMovement(piece.first,pieceMovement.first,check.second,false);
+                    if(_color==PieceColor.Black){
+                        //pieces=tauler.pListWhite();//peçes del contrincant
+                        piecesContrincant=taulerCopia.pListBlack();//peçes del contricant del contricanmt (cpu)
+                    }
+                    else {
+                        //pieces=tauler.pListBlack();
+                        piecesContrincant=taulerCopia.pListWhite();
+                    }
+                    
                     if(!taulerCopia.isCheck(piecesContrincant)){
                         //if(profundity==0)System.out.println("no és escac");
                         actions.forEach((action)->{
-                            //System.out.println("action "+action.toString());
-                            //System.out.println(taulerCopia.showBoard());
                             if(action==MoveAction.Promote){
                                 //System.out.println("hello");
                                 List<PieceType> typePieces = taulerCopia.typeList();
@@ -256,13 +252,12 @@ public class Cpu{
                                     PieceType nextPieceType = itTypePieces.next();
                                     if(nextPieceType.ptValue()>piecetype.ptValue())piecetype=nextPieceType;
                                 }
-                                //System.out.println("--------------------------aplicar promocionar");
-                                taulerCopia.promotePiece(pieceMovement.first,piecetype);
-                                //System.out.println(taulerCopia.showBoard());                 
+                                taulerCopia.promotePiece(pieceMovement.first,piecetype);               
                                 }
                         });
                         //System.out.println("SOC el contrincant trio moviment Origen:"+piece.first.toString()+" desti:"+pieceMovement.first.toString()+" score actual: "+result);
                         result = i_minMax(result,profundity+1,0,movement,biggestAnterior,smallerAnterior,taulerCopia);
+                        //System.out.println("min:"+min+" score"+result);
                         if(result<=min){
                             if(result<smallerAnterior)smallerAnterior=result;
                             min=result;
@@ -273,11 +268,17 @@ public class Cpu{
                         */
                         if(biggestAnterior>smallerAnterior){/*System.out.println("tallo desde CONTRINCANT result:"+result+" nivell:"+profundity);*/follow=false;}
                     }
-                    else {taulerCopia.undoMovement();}
+                    else {
+                        //System.out.println(x);
+                        /* System.out.println(taulerCopia.showBoard());
+                        System.out.println("hi ha escac");*/
+                        taulerCopia.undoMovement();
+                        
+                    }
                 }
                     
             }
-            //System.out.println("CONTRINCANT nivell:"+profundity+" score returnant:"+min);
+            //System.out.println("escolleixo:"+min);
             if(min==Integer.MIN_VALUE)return -100+score;
             else return min;
         }
