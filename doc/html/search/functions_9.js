@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['i_5fminmax_575',['i_minMax',['../class_cpu.html#adcab11590d2f2e98e4c0096c8b03f949',1,'Cpu']]],
+  ['illegalinitialpositions_576',['illegalInitialPositions',['../class_from_j_s_o_n_parser_helper.html#ab148ed97cd23a85b38840969de68bb4f',1,'FromJSONParserHelper']]],
+  ['illegalmovement_577',['illegalMovement',['../class_from_j_s_o_n_parser_helper.html#a804b8307cd0ddd045d5b26b56e30c095',1,'FromJSONParserHelper']]],
+  ['illegaltype_578',['illegalType',['../class_from_j_s_o_n_parser_helper.html#aa8c2b2347673a93fbbe9acec49c53fdd',1,'FromJSONParserHelper']]],
+  ['inactivelimit_579',['inactiveLimit',['../class_game_controller.html#a1f258c7b527718a21a6505d94766463b',1,'GameController']]],
+  ['inactivelimitreached_580',['inactiveLimitReached',['../class_game_controller.html#a51a38fbce8928a4100f9ee1e3c10d0a0',1,'GameController']]],
+  ['inactivelimits_581',['inactiveLimits',['../class_chess.html#ae221d92be7f5996b4679ac7f8ddf4551',1,'Chess']]],
+  ['initialpositions_582',['initialPositions',['../class_chess.html#a122afbe89d4bed49f9e0a9e859607048',1,'Chess']]],
+  ['initiatedata_583',['initiateData',['../class_game_controller.html#a6e0cd7c26bd016cda71614a973982932',1,'GameController']]],
+  ['initiategame_584',['initiateGame',['../class_console_game.html#ac7a0082988a8224acd81af905318bd0f',1,'ConsoleGame']]],
+  ['initpiecetype_585',['initPieceType',['../class_chess.html#a18ef283eec059a8ee7a2dcdb36c8dcdc',1,'Chess']]],
+  ['initposlisttojson_586',['initPosListToJSON',['../class_to_j_s_o_n_parser_helper.html#a9208c14bba969ee10e53786dadf41b86',1,'ToJSONParserHelper']]],
+  ['initposmaptolist_587',['initPosMapToList',['../class_from_j_s_o_n_parser_helper.html#a227f03a82fa829eba88a450f61e83901',1,'FromJSONParserHelper']]],
+  ['iscastling_588',['isCastling',['../class_chess.html#a6689e5c600c59671c60a74a5ded09c86',1,'Chess']]],
+  ['iscastlingturn_589',['isCastlingTurn',['../class_turn.html#a848e9b3c9eb9465b592558bbb375eede',1,'Turn']]],
+  ['ischeck_590',['isCheck',['../class_chess.html#a0bdebf2167d23727dfe9d0cb12b2efd7',1,'Chess']]],
+  ['ischeckmate_591',['isCheckmate',['../class_chess.html#abbf129ce04d1b3c0bf6a4a079c1f4291',1,'Chess']]],
+  ['isemptyturn_592',['isEmptyTurn',['../class_turn.html#ac8d93431065b5d33516a95b1596c09bb',1,'Turn']]],
+  ['iskingtype_593',['isKingType',['../class_piece_type.html#abbe956060e97de2f705f7ea02d9f5198',1,'PieceType']]],
+  ['ispromotionturn_594',['isPromotionTurn',['../class_turn.html#ab8d352a41edcd4d74213200e60bf8b70',1,'Turn']]],
+  ['isturnofcpu_595',['isTurnOfCPU',['../class_u_i_chess.html#a6f1f346aa38ba222bfab2ad920fa907b',1,'UIChess']]]
+];
