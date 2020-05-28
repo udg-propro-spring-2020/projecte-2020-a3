@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.NullPointerException;
 @SuppressWarnings("unchecked")
-/* 
+/**
  * @class Chess
  * @brief Class that controls the movements and pieces
  */
@@ -90,7 +90,7 @@ public class Chess implements Cloneable {
         createBoard();
     }
 
-    /*
+    /** 
      * @brief Makes a copy of a chess
      * @pre Chess is not null
      * @post Return a copy of a chess
@@ -104,7 +104,7 @@ public class Chess implements Cloneable {
         return ch;
     }
 
-    /*
+    /**
      * @brief Constructor to make a copy of a chess, used when cloning
      * @pre --
      * @post Chess has been copied
@@ -131,7 +131,7 @@ public class Chess implements Cloneable {
         this.board = board;
     }
 
-    /*
+    /**
      * @brief Clone method
      * @pre --
      * @post Makes a chess clone
@@ -210,7 +210,7 @@ public class Chess implements Cloneable {
         return chess;
     }
 
-    /*
+    /**
      * @brief Create an organized pieceType's list using the initial piece's sort
      * @pre --
      * @post Return an organized pieceType's list
@@ -237,7 +237,7 @@ public class Chess implements Cloneable {
         return listPieceType;
     }
 
-    /*
+    /**
      * @brief Fill the lists that contains the piece's current and initial position
      * @pre initPositions is not null
      * @post The lists that controls the piece's positions has been filled
@@ -267,7 +267,7 @@ public class Chess implements Cloneable {
         }
     }
 
-    /*
+    /**
      * @brief Creates the game's board and alive pieces list
      * @pre Piece's initial positions are not empty
      * @post Every piece is on her board's position and lists has been created
@@ -291,7 +291,7 @@ public class Chess implements Cloneable {
         }
     }
 
-    /*
+    /**
      * @brief Check if the piece can make her vertical move looking the movement stats and 
      * the cells between the origin and destiny position. If the piece can kill while jumping, add
      * the killed pieces to a list.
@@ -324,7 +324,7 @@ public class Chess implements Cloneable {
         return pieceOnTheWay;
     }
     
-    /*
+    /**
      * @brief Check if the piece can make her horizontal move looking the movement stats and 
      * the cells between the origin and destiny position. If the piece can kill while jumping, add
      * the killed pieces to a list.
@@ -357,7 +357,7 @@ public class Chess implements Cloneable {
         return pieceOnTheWay;
     }
     
-    /*
+    /**
      * @brief Check if the piece can make her diagonal move looking the movement stats and 
      * the cells between the origin and destiny position. If the piece can kill while jumping, add
      * the killed pieces to a list.
@@ -421,7 +421,7 @@ public class Chess implements Cloneable {
         return pieceOnTheWay;
     }
 
-    /*
+    /**
      * @brief Checks if a piece is in any of the central squares of the movement. If the origin piece
      * can kill while jumping, the positions containing pieces are added to a list. If the origin piece
      * cannot jump, the return gets true value.
@@ -441,7 +441,7 @@ public class Chess implements Cloneable {
         return pieceOnTheWay;
     }
 
-    /*
+    /**
      * @brief Checks if the movement is in range looking the limits
      * @pre Parameters are not null
      * @post Return if the movement is in range
@@ -450,7 +450,7 @@ public class Chess implements Cloneable {
         return ((col >=0 && col < cols()) && (row >=0 && row < rows()));
     }
 
-    /*
+    /**
      * @brief Checks if a piece is on her last row so it can promote
      * @pre Piece is at her destiny position
      * @post Return if the piece can promote
@@ -469,7 +469,7 @@ public class Chess implements Cloneable {
         return promote;
     }
 
-    /*
+    /**
      * @brief Check if the king can escape from a check
      * @pre Lists are not empty
      * @post Return if the player can realize any move that makes him escape from a check
@@ -495,7 +495,7 @@ public class Chess implements Cloneable {
         return checkmate;
     }
 
-    /*
+    /**
      * @brief Checks if the king is in check by any enemie piece
      * @pre List is not empty
      * @post Return if the king is in check
@@ -523,7 +523,7 @@ public class Chess implements Cloneable {
         return checkKing;
     }
 
-    /*
+    /**
      * @brief Promote a piece
      * @pre Position is not null and pieceType exists
      * @post Piece has been promoted
@@ -533,7 +533,7 @@ public class Chess implements Cloneable {
         originalPiece.promoteType(promotionPieceType);
     }
 
-    /*
+    /**
      * @brief Current position of the king
      * @pre PieceColor exists
      * @post Return the king's position
@@ -555,7 +555,7 @@ public class Chess implements Cloneable {
         return position;
     }
 
-    /*
+    /**
      * @brief Apply a castling and check if it makes any special action. It also updates some pieces lists and makes
      * a copy from the current board and lists
      * @pre The movement is possible
@@ -582,7 +582,7 @@ public class Chess implements Cloneable {
         board[secondPieceOrigin.row()][secondPieceOrigin.col()] = null;
     }
 
-    /*
+    /**
      * @brief Save the destiny position of both castling pieces
      * @pre Positions and middle value are not null
      * @post Destiny positions has been saved
@@ -602,7 +602,7 @@ public class Chess implements Cloneable {
     }
 
 
-    /*
+    /**
      * @brief Checks if castling destinies are empty or if the second piece goes to the first piece position
      * and middle cell is empty
      * @pre Positions and middle value are not null
@@ -622,7 +622,7 @@ public class Chess implements Cloneable {
         return possibleDestinies;
     }
     
-    /*
+    /**
      * @brief Checks if cells between two pieces are all empty
      * @pre Positions are not null
      * @post Return if cells between two pieces are all empty
@@ -648,7 +648,7 @@ public class Chess implements Cloneable {
         return emptyCells;
     }
 
-    /*
+    /**
      * @brief Check if a movement is a castling, looking all the castling properties. It works always sorting the pieces
      * by his representation on its castling
      * @pre Origin position isn't null
@@ -693,7 +693,7 @@ public class Chess implements Cloneable {
         return correctCastling;
     }
 
-    /*
+    /**
      * @brief Checks if the movement is possible. It validates two possible movement type (castling or normal move). 
      * @pre Origin is not null 
      * @post Return if the moviment is possible to execute and a position's list that contains the pieces to kill if
@@ -757,7 +757,7 @@ public class Chess implements Cloneable {
     return checkResult;
     }
 
-    /*
+    /**
      * @brief Creates a copy of the turn, cloning the board and the piece's lists and save them into
      * one list
      * @pre Board and piece lists exist
@@ -789,7 +789,7 @@ public class Chess implements Cloneable {
         currentTurn++;
     }
 
-    /*
+    /**
      * @brief Apply a movement and check if it makes any special action like promote. It also updates some pieces lists and makes
      * a copy from the current board and lists
      * @pre The movement is possible
@@ -849,7 +849,7 @@ public class Chess implements Cloneable {
         return actions;
     }
 
-    /*
+    /**
      * @brief Recreates a chess by updating his piece's list and board
      * @pre currentTurn > 0
      * @post Chess has been updated
@@ -865,7 +865,7 @@ public class Chess implements Cloneable {
         this.pListBlack=blackPiecesTurn.get(currentTurn);
     }
 
-    /*
+    /**
      * @brief Change the board for the previous on the list of boards, saving the current board
      * @pre It's not the first turn
      * @post Board has been updated and a copy of current turn has been saved
@@ -876,7 +876,7 @@ public class Chess implements Cloneable {
         remakeBoard();
     }
 
-    /*
+    /**
      * @brief Change the board for the next on the list of boards
      * @pre undoMovement has been used before
      * @post Board has been updated
@@ -886,7 +886,7 @@ public class Chess implements Cloneable {
         remakeBoard();
     }
 
-    /*
+    /**
      * @brief Change the piece's position and remove a piece from the according list if necessary
      * @pre --
      * @post Lists of pieces has been updated
@@ -927,7 +927,7 @@ public class Chess implements Cloneable {
         }
     }
 
-    /*
+    /**
      * @brief Controll all the possible destinies in a piece movement and add it into a list if it's correct
      * @pre Destiny is inside the board limits
      * @post Return if the piece can continue checking destinies with the current movement. Correct destinies has been added to the list
@@ -955,7 +955,7 @@ public class Chess implements Cloneable {
         return keepSearching;
     }
     
-    /*
+    /**
      * @brief Checks all possible piece's movements and their values
      * @pre Origin is not null
      * @post Return all possible piece's destinies and its movement value
@@ -1049,7 +1049,7 @@ public class Chess implements Cloneable {
         return destiniesWithValues;
     }
 
-    /*
+    /**
      * @brief Create an string containing all chess pieces. The point of view depends on the piece color
      * @pre Board is created 
      * @post Return all possible piece's destinies and its kill value
@@ -1082,7 +1082,7 @@ public class Chess implements Cloneable {
         return s;
     }
     
-    /*
+    /**
      * @brief Checks if this chess is the same as another chess looking all his board cell and pieces
      * @pre Chess is not null 
      * @post Return if this chess is the same as another chess
@@ -1109,7 +1109,7 @@ public class Chess implements Cloneable {
         return same;
     }
 
-    /*
+    /**
      * @brief Returns the piece's color
      * @pre Position is not null
      * @post Return the piece's color
@@ -1118,7 +1118,7 @@ public class Chess implements Cloneable {
         return pieceAt(position.row(),position.col()).color();
     }
     
-    /*
+    /**
      * @brief Checks if the cell has any piece
      * @pre Position is not null
      * @post Return if the cell is empty
@@ -1126,7 +1126,7 @@ public class Chess implements Cloneable {
     public boolean emptyCell(Position position){
         return pieceAt(position.row(),position.col())==null;
     }
-    /*
+    /**
      * @brief Board's row number
      * @pre --
      * @post Return the board's row number
@@ -1135,7 +1135,7 @@ public class Chess implements Cloneable {
         return rows;
     }
 
-    /*
+    /**
      * @brief Board's column number
      * @pre --
      * @post Return the board's column number
@@ -1144,7 +1144,7 @@ public class Chess implements Cloneable {
         return cols;
     }
 
-    /*
+    /**
      * @brief Pieces initial positions
      * @pre --
      * @post Return the pieces initial positions
@@ -1153,7 +1153,7 @@ public class Chess implements Cloneable {
         return this.initPositions;
     }
 
-    /*
+    /**
      * @brief Number of chess limits
      * @pre --
      * @post Return the limits of chess in a game
@@ -1162,7 +1162,7 @@ public class Chess implements Cloneable {
         return this.checkLimits;
     }
 
-    /*
+    /**
      * @brief Type list
      * @pre --
      * @post Return the types of the pieces
@@ -1171,7 +1171,7 @@ public class Chess implements Cloneable {
         return this.pList;
     }
 
-    /*
+    /**
      * @brief Number of inactive turn limits
      * @pre --
      * @post Return the limits of turns without kill in a game
@@ -1180,7 +1180,7 @@ public class Chess implements Cloneable {
         return this.inactiveLimits;
     }
 
-    /*
+    /**
      * @brief Chess castlings
      * @pre --
      * @post Return the chess castlings
@@ -1190,7 +1190,7 @@ public class Chess implements Cloneable {
     }
 
 
-    /*
+    /**
      * @brief List of white pieces
      * @pre --
      * @post Return a list of white pieces
@@ -1200,7 +1200,7 @@ public class Chess implements Cloneable {
     }
 
 
-    /*
+    /**
      * @brief List of black pieces
      * @pre --
      * @post Return a list of black pieces
@@ -1209,7 +1209,7 @@ public class Chess implements Cloneable {
         return pListBlack;
     }
 
-    /*
+    /**
      * @brief List of initial white positions
      * @pre --
      * @post Return the initial list of white positions
@@ -1218,7 +1218,7 @@ public class Chess implements Cloneable {
         return whiteInitPos;
     }
 
-    /*
+    /**
      * @brief List of initial black positions
      * @pre --
      * @post Return the initial list of black positions
@@ -1227,7 +1227,7 @@ public class Chess implements Cloneable {
         return blackInitPos;
     }
 
-    /*
+    /**
      * @brief Checks if a piece is from a diferent player
      * @pre Pieces are not null
      * @post Return if a piece is from a diferent player
@@ -1236,7 +1236,7 @@ public class Chess implements Cloneable {
         return (!originPiece.color().equals(destinyPiece.color()));
     }
 
-    /*
+    /**
      * @brief Check if there is any piece at specified position
      * @pre x and y inside the chess limits and not nulls
      * @post Return the piece at the specified position or a null if it doesn't exist
@@ -1245,7 +1245,7 @@ public class Chess implements Cloneable {
         return board[x][y];
     }
 
-    /*
+    /**
      * @brief Show the board
      * @pre --
      * @post Show the board and every piece on her cell
