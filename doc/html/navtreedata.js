@@ -44,7 +44,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_castling_8java.html",
-"class_position.html#ac14757915743e11cada26347145bd057"
+"class_position.html#a9bf88c1fa8cfb3fa611f61627266f10b"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

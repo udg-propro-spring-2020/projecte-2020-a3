@@ -3,6 +3,9 @@ var files_dup =
     [ "Castling.java", "_castling_8java.html", [
       [ "Castling", "class_castling.html", "class_castling" ]
     ] ],
+    [ "Chess.java", "_chess_8java.html", [
+      [ "Chess", "class_chess.html", "class_chess" ]
+    ] ],
     [ "ChessGame.java", "_chess_game_8java.html", [
       [ "ChessGame", "class_chess_game.html", null ]
     ] ],

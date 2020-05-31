@@ -103,6 +103,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <li>_capture
 : <a class="el" href="class_movement.html#ad23d62d78c03526e957373f3ac189d0d">Movement</a>
 </li>
+<li>_castlingTurn
+: <a class="el" href="class_turn.html#a4a60552bb831e15141ab9e0a024d2338">Turn</a>
+</li>
 <li>_chess
 : <a class="el" href="class_cpu.html#ab379bcad68f6bc86b3dea105a1ff6a47">Cpu</a>
 , <a class="el" href="class_game_controller.html#aee4e9228be5944fb769d01bc900d1c12">GameController</a>
@@ -121,6 +124,7 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 </li>
 <li>_color
 : <a class="el" href="class_cpu.html#a70f862f0c30ae6de1a072f44d591d899">Cpu</a>
+, <a class="el" href="class_turn.html#a6c5c51e83e08a32b2d933726589b8c2f">Turn</a>
 </li>
 <li>_controller
 : <a class="el" href="class_console_game.html#aaf0cbc8aadd9eedcc6ec85eb56305881">ConsoleGame</a>
@@ -143,6 +147,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 </li>
 <li>_emptyMid
 : <a class="el" href="class_castling.html#a97ad71054527ebd37813f54780f18beb">Castling</a>
+</li>
+<li>_emptyTurn
+: <a class="el" href="class_turn.html#ad266efd69830a37f467c7fa480af5ed9">Turn</a>
 </li>
 <li>_fromSavedGame
 : <a class="el" href="class_game_controller.html#aad2f2d4e2a879fb98952f3d67c6143c3">GameController</a>
@@ -169,11 +176,20 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <li>_knowledge
 : <a class="el" href="class_cpu.html#ac36c8fecd1c567ca66083c4a4a5873d3">Cpu</a>
 </li>
+<li>_knowledgeBlack
+: <a class="el" href="class_knowledge.html#aed61078bb835332f8620adc771e208e5">Knowledge</a>
+</li>
 <li>_knowledgeFiles
 : <a class="el" href="class_u_i_chess.html#a493469304596cbd2c20ae76fd184b964">UIChess</a>
 </li>
+<li>_knowledgeWhite
+: <a class="el" href="class_knowledge.html#a1908eaea12b12bf83bec701eb5ff031b">Knowledge</a>
+</li>
 <li>_lastGameState
 : <a class="el" href="class_u_i_chess.html#ada72ac91021da065413d8e9ad8004a69">UIChess</a>
+</li>
+<li>_loadedGameDeaths
+: <a class="el" href="class_game_controller.html#a85e0e666cded67af89f50c6c8ce528b8">GameController</a>
 </li>
 <li>_mouseX
 : <a class="el" href="class_u_i_piece.html#a3ae390cc1945119462389680da3e567a">UIPiece</a>
@@ -181,8 +197,14 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <li>_mouseY
 : <a class="el" href="class_u_i_piece.html#a229cdf10982817b540f75b64aab423e4">UIPiece</a>
 </li>
+<li>_move
+: <a class="el" href="class_turn.html#aeb6ab1061cd0b58413494566ddf5dd66">Turn</a>
+</li>
 <li>_movements
 : <a class="el" href="class_piece_type.html#ae4719a113c0c7059288835ab5f534897">PieceType</a>
+</li>
+<li>_name
+: <a class="el" href="class_piece_type.html#a58188f5035075f474e1dec402690f355">PieceType</a>
 </li>
 <li>_oldInactiveTurns
 : <a class="el" href="class_console_game.html#acc6e80128188c7094d9c24b1021dcc2e">ConsoleGame</a>
@@ -205,6 +227,12 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 </li>
 <li>_promotable
 : <a class="el" href="class_piece_type.html#a3a3071f68ba542634d0b7c04ad0020ab">PieceType</a>
+</li>
+<li>_promotionTurn
+: <a class="el" href="class_turn.html#a021a7c126e4fd27847007dd7630bc95a">Turn</a>
+</li>
+<li>_result
+: <a class="el" href="class_turn.html#a47b423b40c750b95b18354ecc1f3740a">Turn</a>
 </li>
 <li>_revivedPieces
 : <a class="el" href="class_u_i_chess.html#afda4426b9a1a04cb8f5049954f4f6de7">UIChess</a>
@@ -266,6 +294,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 
 
 <h3><a id="index_b"></a>- b -</h3><ul>
+<li>Black
+: <a class="el" href="enum_piece_color.html#a73383bf23fe0e3ba9f62f04916026a18">PieceColor</a>
+</li>
 <li>blackInitPos
 : <a class="el" href="class_chess.html#a0a153baf83971f8008a2816fbed59c18">Chess</a>
 </li>
@@ -300,17 +331,29 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 
 
 <h3><a id="index_c"></a>- c -</h3><ul>
+<li>Castling
+: <a class="el" href="enum_move_action.html#a2f16344e9018ca43a8c7341f9cec00d5">MoveAction</a>
+</li>
 <li>castlings
 : <a class="el" href="class_chess.html#ae01ae334658656a60abbfb9e8d50d97e">Chess</a>
 </li>
+<li>Check
+: <a class="el" href="enum_move_action.html#a80711cfb6dfc783116051a995950acd9">MoveAction</a>
+</li>
 <li>checkLimits
 : <a class="el" href="class_chess.html#ad70be4ab57401e7cca90577f01ec5956">Chess</a>
+</li>
+<li>Checkmate
+: <a class="el" href="enum_move_action.html#a41997447debd6f0dcecb1df5c908f42d">MoveAction</a>
 </li>
 <li>color
 : <a class="el" href="class_piece.html#a866d5a378ea4b2891a50ca8602464a07">Piece</a>
 </li>
 <li>cols
 : <a class="el" href="class_chess.html#a2f7a02697b231410648f8f27e9ef00cb">Chess</a>
+</li>
+<li>Correct
+: <a class="el" href="enum_move_action.html#af1b0dcf0038ab00e14303c7965d01591">MoveAction</a>
 </li>
 <li>CSS_LOCATION
 : <a class="el" href="class_item_builder.html#ae970ad3204665c7f25631623d74a375c">ItemBuilder</a>
@@ -341,6 +384,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <li>direction
 : <a class="el" href="class_piece.html#ad34a66801d09ff93f903b9ff739a3927">Piece</a>
 </li>
+<li>Drowned
+: <a class="el" href="enum_move_action.html#ad87fac752a0c1302f848fb5366da5f1d">MoveAction</a>
+</li>
 </ul>
 
 
@@ -355,6 +401,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 
 
 <h3><a id="index_f"></a>- f -</h3><ul>
+<li>first
+: <a class="el" href="class_pair.html#a44dddeba46ea6a58f604bbf3139909f6">Pair&lt; S, T &gt;</a>
+</li>
 <li>FIVE_TABS
 : <a class="el" href="class_to_j_s_o_n_parser_helper.html#a4e32dc0efbbb878bb7b5930af032c32d">ToJSONParserHelper</a>
 </li>
@@ -365,6 +414,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 
 
 <h3><a id="index_i"></a>- i -</h3><ul>
+<li>id
+: <a class="el" href="class_piece.html#aa56f76de1c7350a5112ac8386ee2a04a">Piece</a>
+</li>
 <li>idGenerator
 : <a class="el" href="class_piece.html#a2dc5e3358a9e62c5879ed645ba6ff216">Piece</a>
 </li>
@@ -376,6 +428,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 </li>
 <li>inactiveLimits
 : <a class="el" href="class_chess.html#ac3505216d8578301edcbed4922ef8d35">Chess</a>
+</li>
+<li>Incorrect
+: <a class="el" href="enum_move_action.html#a3330b137bc6b276ff50c85748c09f683">MoveAction</a>
 </li>
 <li>initPositions
 : <a class="el" href="class_chess.html#a1b03596d77e22820f28a7bf4e165754f">Chess</a>
@@ -442,6 +497,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <li>pListWhite
 : <a class="el" href="class_chess.html#a2de0c3fc454485a951224023e8498cf2">Chess</a>
 </li>
+<li>Promote
+: <a class="el" href="enum_move_action.html#a6b4e906e308151bb61a860e964d467e5">MoveAction</a>
+</li>
 </ul>
 
 
@@ -462,6 +520,9 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 <h3><a id="index_s"></a>- s -</h3><ul>
 <li>SAVED_GAMES_LOCATION
 : <a class="el" href="class_game_controller.html#af5ef8df90473c0b7b2ada37ca9c6116e">GameController</a>
+</li>
+<li>second
+: <a class="el" href="class_pair.html#af776808694a04a3271b4b5ae36cd1962">Pair&lt; S, T &gt;</a>
 </li>
 <li>SELECTED_CSS
 : <a class="el" href="class_u_i_chess.html#ab0595abc30e83699bafa3a4493bd0143">UIChess</a>
@@ -501,13 +562,26 @@ $(document).ready(function(){initNavTree('functions_vars.html',''); initResizabl
 
 
 <h3><a id="index_u"></a>- u -</h3><ul>
+<li>unlimitadeMove
+: <a class="el" href="class_chess.html#a23fa0620c8d50f958bbd896ef39edac6">Chess</a>
+</li>
 <li>UNSELECTED_CSS
 : <a class="el" href="class_u_i_chess.html#aaab4b60863fc4b0dd6147c281b19b16d">UIChess</a>
 </li>
 </ul>
 
 
+<h3><a id="index_v"></a>- v -</h3><ul>
+<li>VALID_OPTIONS
+: <a class="el" href="class_console_game.html#a295e9a6934327c4d116ce99c9d528dcb">ConsoleGame</a>
+</li>
+</ul>
+
+
 <h3><a id="index_w"></a>- w -</h3><ul>
+<li>White
+: <a class="el" href="enum_piece_color.html#abf50505c9e1edc8ce4d16865862405d5">PieceColor</a>
+</li>
 <li>whiteInitPos
 : <a class="el" href="class_chess.html#afe9efbe22808ef4394bd20c1d284c995">Chess</a>
 </li>

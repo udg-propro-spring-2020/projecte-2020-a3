@@ -1,0 +1,25 @@
+var class_piece_type =
+[
+    [ "clone", "class_piece_type.html#a90b198cdd0f6d06cc9c5f8012ad9aa0c", null ],
+    [ "colorImageLocation", "class_piece_type.html#a1ea1035089019741e8bea4ddbd243278", null ],
+    [ "isKingType", "class_piece_type.html#abbe956060e97de2f705f7ea02d9f5198", null ],
+    [ "ptbImage", "class_piece_type.html#a2b3e5ba2fb2fc174fe85f7127e9d9568", null ],
+    [ "ptInitMovements", "class_piece_type.html#a4010215b2d15ea627b12087732c62819", null ],
+    [ "ptInvulnerable", "class_piece_type.html#ab4feb7de375e3c4fa3993c7034d1f3ed", null ],
+    [ "ptMovements", "class_piece_type.html#af0f62fd5900ff0ae8f89a9871918c51f", null ],
+    [ "ptName", "class_piece_type.html#a0bec91512b375d6db2d7cdaad0978336", null ],
+    [ "ptPromotable", "class_piece_type.html#aa7914ed724cbe1ec406dded8f29ed7b5", null ],
+    [ "ptSymbol", "class_piece_type.html#ad80bbe1e70a28a8be600b0901e4f5007", null ],
+    [ "ptValue", "class_piece_type.html#aa6562054ac7410adab116265a5a29943", null ],
+    [ "ptwImage", "class_piece_type.html#ad34b765c8dfea3308a73382248c22706", null ],
+    [ "toJSON", "class_piece_type.html#ae49b6a83f7e3055e612b4a768a6e64b4", null ],
+    [ "_bImage", "class_piece_type.html#add3d152f06efcae8d6cd51e002281e21", null ],
+    [ "_initialMovements", "class_piece_type.html#ad01886165b57212f37eaa855b9a84ad7", null ],
+    [ "_invulnerable", "class_piece_type.html#ae73b3d399c1cc9e9c6da15df72a8a0ee", null ],
+    [ "_movements", "class_piece_type.html#ae4719a113c0c7059288835ab5f534897", null ],
+    [ "_name", "class_piece_type.html#a58188f5035075f474e1dec402690f355", null ],
+    [ "_promotable", "class_piece_type.html#a3a3071f68ba542634d0b7c04ad0020ab", null ],
+    [ "_symbol", "class_piece_type.html#a1ebb3d6aa6ab9c1a51779d73d30ce35d", null ],
+    [ "_value", "class_piece_type.html#ab3fb2f30ebf5f99903e36c33c0a3c98e", null ],
+    [ "_wImage", "class_piece_type.html#a5cd6c75e539e85a0da8ecf7a8c72ad48", null ]
+];

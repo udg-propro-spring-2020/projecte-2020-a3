@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['whiteinitpos_815',['whiteInitPos',['../class_chess.html#afe9efbe22808ef4394bd20c1d284c995',1,'Chess']]],
-  ['whitepiecesturn_816',['whitePiecesTurn',['../class_chess.html#ad59e05fd9a3c7626cf4817f73d654f5e',1,'Chess']]]
+  ['valid_5foptions_867',['VALID_OPTIONS',['../class_console_game.html#a295e9a6934327c4d116ce99c9d528dcb',1,'ConsoleGame']]]
 ];
