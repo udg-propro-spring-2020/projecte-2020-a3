@@ -1,7 +1,9 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +54,8 @@ public class GameController {
     private void loadChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         initiateData();
         _defaultConfigFileName = fileLocation;
-        _chess = FromJSONParserHelper.buildChess(fileLocation);
+        InputStream in = getClass().getResourceAsStream(fileLocation);
+        _chess = FromJSONParserHelper.buildChess(in);
     }
 
     /// @brief Loads the game data from a saved game
@@ -60,10 +63,20 @@ public class GameController {
     /// @post Loads the game data from a saved game
     private void loadSavedGameToChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         // Save configuration file name
-        _defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(fileLocation);
+        InputStream savedGameStream = new FileInputStream(fileLocation);
+        _defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(savedGameStream);
+        if (_defaultConfigFileName.isEmpty()) {
+            throw new JSONParseFormatException(
+                "Configuration file cannot be empty",
+                JSONParseFormatException.ExceptionType.ILLEGAL_NAME
+            );
+        }
+        // Since we close it, we must re-open it
+        savedGameStream = new FileInputStream(fileLocation);
 
         // Retrieve match information
-        _chess = FromJSONParserHelper.buildSavedChessGame(fileLocation);
+        InputStream configStream = new FileInputStream(_defaultConfigFileName);
+        _chess = FromJSONParserHelper.buildSavedChessGame(savedGameStream, configStream);
         Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(
             fileLocation,
             mapOfPieceTypes(),

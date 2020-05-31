@@ -1,5 +1,6 @@
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -116,14 +117,13 @@ public class UIPiece extends StackPane {
         Image img = null;
 
         try {
-            img = new Image(
-                new FileInputStream(
-                    DEF_IMG_LOCATION + this._piece.type().colorImageLocation(
-                        this._piece.color()
-                    )
+            InputStream in = getClass().getResourceAsStream(
+                DEF_IMG_LOCATION + this._piece.type().colorImageLocation(
+                    this._piece.color()
                 )
             );
-        } catch (FileNotFoundException e) {
+            img = new Image(in);
+        } catch (Exception e) {
             throw new NullPointerException("Error on finding the image");
         }
 

@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +15,8 @@ public class FromJSONParserHelper {
     /// @brief Function that returns the name of the game configuration
     /// @pre ---
     /// @post Returns the name of the file containing the configuration
-    public static String getConfigurationFileName(String fileLocation) throws FileNotFoundException {
-        Scanner mainSc = new Scanner(new File(fileLocation));
+    public static String getConfigurationFileName(InputStream fileLocation) throws FileNotFoundException {
+        Scanner mainSc = new Scanner(fileLocation);
         // Skip first {
         mainSc.nextLine();
         // Get the file location
@@ -31,8 +32,8 @@ public class FromJSONParserHelper {
     /// @post Builds a chess with the given configuration file
     /// @throws JSONParseFormatException If some of the file content is not in the
     ///         correct format or there is an incoherence
-    public static Chess buildChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
-        Scanner in = new Scanner(new File(fileLocation));
+    public static Chess buildChess(InputStream fileLocation) throws FileNotFoundException, JSONParseFormatException {
+        Scanner in = new Scanner(fileLocation);
 
         // Skip first {
         in.nextLine();
@@ -40,12 +41,14 @@ public class FromJSONParserHelper {
         try {
             nRows = getInt(in.nextLine());
         } catch (NumberFormatException e) {
+            in.close();
             throw new JSONParseFormatException(
                 "The file contains a number of rows not valid",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
             );
         }
         if (nRows < 4 || nRows > 16) {
+            in.close();
             throw new JSONParseFormatException(
                 "The file contains a number of rows not valid",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
@@ -56,12 +59,14 @@ public class FromJSONParserHelper {
         try {
             nCols = getInt(in.nextLine());
         } catch (NumberFormatException e) {
+            in.close();
             throw new JSONParseFormatException(
                 "The file contains a number of columns not valid",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
             );
         }
         if (nCols < 4 || nCols > 16) {
+            in.close();
             throw new JSONParseFormatException(
                 "The file contains a number of columns not valid",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NUMBER
@@ -76,6 +81,7 @@ public class FromJSONParserHelper {
         if (!temp.equals("[]")) {
             typeList = getListPieceTypes(in);
         } else {
+            in.close();
             throw new JSONParseFormatException(
                 "Piece type list cannot be empty",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST
@@ -83,6 +89,7 @@ public class FromJSONParserHelper {
         }
         Map<String, PieceType> typeMap = mapFromTypes(typeList);
         if (!typeMap.containsKey("REI")) {
+            in.close();
             throw new JSONParseFormatException(
                 "Piece type list is lacking of a king type",
                 JSONParseFormatException.ExceptionType.KING_MISSING
@@ -105,6 +112,7 @@ public class FromJSONParserHelper {
 
         // Check if initial positions contain valid pieces
         if (illegalInitialPositions(initialPos, typeMap)) {
+            in.close();
             throw new JSONParseFormatException(
                 "Initial position list contains an invalid piece name",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NAME
@@ -113,6 +121,7 @@ public class FromJSONParserHelper {
 
         // Check if initial position list contains king. Must have a king
         if (!checkIfKingInInitPositions(initialPos)) {
+            in.close();
             throw new JSONParseFormatException(
                 "Initial positions list MUST contain a piece with the name of \"REI\"",
                 JSONParseFormatException.ExceptionType.KING_MISSING
@@ -149,21 +158,14 @@ public class FromJSONParserHelper {
     /// developement form the JSON file
     /// @throws JSONParseFormatException If some of the file content is not in the
     ///         correct format or if there is an incoherence
-    public static Chess buildSavedChessGame(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
-        Scanner mainSc = new Scanner(new File(fileLocation));
+    public static Chess buildSavedChessGame(InputStream savedGameFile, InputStream configFile) throws FileNotFoundException, JSONParseFormatException {
+        Scanner mainSc = new Scanner(savedGameFile);
         /// Skip first {
         mainSc.nextLine();
-        /// Get the file location
-        String configFileName = getString(mainSc.nextLine());
-        if (configFileName.isEmpty()) {
-            throw new JSONParseFormatException(
-                "Configuration file cannot be empty",
-                JSONParseFormatException.ExceptionType.ILLEGAL_NAME
-            );
-        }
+        mainSc.nextLine();        
 
         // LOADING CHESS CONFIGURATION FROM FILE
-        Chess chess = buildChess(configFileName);
+        Chess chess = buildChess(configFile);
 
         // INITIAL POSITIONS
         // Type map helper
@@ -174,6 +176,7 @@ public class FromJSONParserHelper {
         if (!getString(mainSc.nextLine()).equals("[]")) {
             whiteTempMap = getInitialPositionMap(mainSc, typeMap, chess.rows(), chess.cols(), PieceColor.White);
         } else {
+            mainSc.close();
             throw new JSONParseFormatException(
                 "White piece list cannot be empty",
                 JSONParseFormatException.ExceptionType.EMPTY_LIST

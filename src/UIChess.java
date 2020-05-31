@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -1114,17 +1115,11 @@ public class UIChess extends Application {
         Image blackTile = null;                 // Black tile image
 
         try {
-            whiteTile = new Image(
-                new FileInputStream(
-                    DEF_IMG_LOCATION + DEF_WHITE_TILE_LOCATION
-                )
-            );
-            blackTile = new Image(
-                new FileInputStream(
-                    DEF_IMG_LOCATION + DEF_BLACK_TILE_LOCATION
-                )
-            );
-        } catch (FileNotFoundException e) {
+            InputStream whiteImgStream = getClass().getResourceAsStream(DEF_IMG_LOCATION + DEF_WHITE_TILE_LOCATION);
+            whiteTile = new Image(whiteImgStream);
+            InputStream blackImgStream = getClass().getResourceAsStream(DEF_IMG_LOCATION + DEF_BLACK_TILE_LOCATION);
+            blackTile = new Image(blackImgStream);
+        } catch (Exception e) {
             displayErrorPopUp(
                 "FATAL ERROR",
                 "Could not find the board images."    

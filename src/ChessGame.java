@@ -5,7 +5,7 @@ import javafx.application.Application;
 /// @class ChessGame
 /// @brief Main class of the application
 /// @details Handles whereas the app will be displayed in a UI or in the console depending on the given arguments
-public abstract class ChessGame {
+public class ChessGame {
 	/// @brief Runs the application
 	/// @pre args is [-g] or [-c] 
 	/// @post Runs UI if -g or console if -c
