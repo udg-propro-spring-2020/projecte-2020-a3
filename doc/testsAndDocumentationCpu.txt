@@ -1,3 +1,0 @@
-1. Veig que promocionar no ho detecta com a una jugada bona, ja que tampoc ho tenim en compte.
-(donarli un punt?¿)
-2. Pitjor cas moltes fitxes i totes es poden moure.
