@@ -58,9 +58,7 @@ public class ToJSONParserHelper {
         }
 
         StringBuilder s = new StringBuilder();
-        System.out.println(configurationFile);
         configurationFile = configurationFile.replace("\\", "/");
-        System.out.println(configurationFile);
 
         s.append(OBJ_START)
             .append(propertyToJSON("fitxerRegles", configurationFile, true, true, ONE_TAB))

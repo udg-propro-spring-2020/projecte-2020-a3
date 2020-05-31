@@ -71,7 +71,7 @@ public class Castling implements JSON, Cloneable {
         try {
             cloned = (Castling) super.clone();
         } catch (CloneNotSupportedException c) {
-            System.out.println("Castling clone exception");
+            System.err.println("Castling clone exception");
         }
         
         return cloned;

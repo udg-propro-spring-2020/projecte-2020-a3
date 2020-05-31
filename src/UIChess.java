@@ -863,7 +863,7 @@ public class UIChess extends Application {
         );
 
         if (res) {
-            String fileName = _controller.saveGame("ESCAC I MAT", false);
+            String fileName = _controller.saveGame(_controller.currentTurnColor().toString() + " GUANYEN", false);
             savedGamePopUp(fileName);
         }
 

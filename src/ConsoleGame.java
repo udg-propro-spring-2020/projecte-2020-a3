@@ -301,7 +301,6 @@ public class ConsoleGame {
 		showInstructions();
 
 		do {
-			System.err.println(_controller.currentTurnColor());
 			if (_controller.currentTurnColor() == PieceColor.White) {
 				System.out.println(pOne + " turn - WHITES");
 			} else {
@@ -375,7 +374,6 @@ public class ConsoleGame {
 		switch (playerOption) {
 			case "G": {
 				// Save game
-				System.out.println(_controller.currentTurnColor());
 				String fileName = saveGame("PARTIDA AJORNADA");
 				if (fileName == null) {
 					System.out.println("Error on saving the game!");
@@ -893,7 +891,6 @@ public class ConsoleGame {
 		boolean stop = false;
 
 		do {
-			System.out.println(t);
 			s = readInputLine(true);
 
 			// Check if user wants to enter the origin coordinate again
