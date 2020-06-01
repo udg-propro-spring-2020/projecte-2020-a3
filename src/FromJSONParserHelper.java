@@ -308,9 +308,13 @@ public class FromJSONParserHelper {
         } else if (values.length == 2) {
             return values[1].trim();
         } else {
-            // This case is when there is a castling or a promotion
-
-            return values[1].trim() + ": " + values[2].trim();
+            if (values[2].endsWith(".json")) {
+                // This case returns a file
+                return values[1].trim() + ":" + values[2].trim();
+            } else {
+                // This case is when there is a castling or a promotion
+                return values[1].trim() + ": " + values[2].trim();
+            }
         }
     }
 

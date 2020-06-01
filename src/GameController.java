@@ -54,7 +54,12 @@ public class GameController {
     private void loadChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         initiateData();
         _defaultConfigFileName = fileLocation;
-        InputStream in = getClass().getResourceAsStream(fileLocation);
+        
+        InputStream in = GameController.class.getResourceAsStream(fileLocation);
+        if (in == null) {
+            in = new FileInputStream(fileLocation);
+        }
+
         _chess = FromJSONParserHelper.buildChess(in);
     }
 
@@ -63,20 +68,31 @@ public class GameController {
     /// @post Loads the game data from a saved game
     private void loadSavedGameToChess(String fileLocation) throws FileNotFoundException, JSONParseFormatException {
         // Save configuration file name
-        InputStream savedGameStream = new FileInputStream(fileLocation);
+        InputStream savedGameStream = GameController.class.getResourceAsStream(fileLocation);
+        if (savedGameStream == null) {
+            savedGameStream = new FileInputStream(fileLocation);
+        }
         _defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(savedGameStream);
+        System.out.println(_defaultConfigFileName);
         if (_defaultConfigFileName.isEmpty()) {
             throw new JSONParseFormatException(
                 "Configuration file cannot be empty",
                 JSONParseFormatException.ExceptionType.ILLEGAL_NAME
             );
         }
-        // Since we close it, we must re-open it
-        savedGameStream = new FileInputStream(fileLocation);
 
-        // Retrieve match information
-        InputStream configStream = new FileInputStream(_defaultConfigFileName);
+        // Since we close it, we must re-open it
+        savedGameStream = GameController.class.getResourceAsStream(fileLocation);
+        if (savedGameStream == null) {
+            savedGameStream = new FileInputStream(fileLocation);
+        }
+
+        InputStream configStream = GameController.class.getResourceAsStream(_defaultConfigFileName);
+        if (configStream == null) {
+            configStream = new FileInputStream(_defaultConfigFileName);
+        }
         _chess = FromJSONParserHelper.buildSavedChessGame(savedGameStream, configStream);
+        
         Pair<List<Turn>, PieceColor> info = FromJSONParserHelper.matchInformation(
             fileLocation,
             mapOfPieceTypes(),
