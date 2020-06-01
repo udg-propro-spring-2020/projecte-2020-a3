@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['waslastturncheck_729',['wasLastTurnCheck',['../class_game_controller.html#a339165ceb3fdcfb684c474bded3e76ab',1,'GameController']]],
-  ['whiteinitpos_730',['whiteInitPos',['../class_chess.html#a8b8ea5b07ee844bb65c0ccc0506f47b7',1,'Chess']]]
+  ['waslastturncheck_731',['wasLastTurnCheck',['../class_game_controller.html#a339165ceb3fdcfb684c474bded3e76ab',1,'GameController']]],
+  ['whiteinitpos_732',['whiteInitPos',['../class_chess.html#a8b8ea5b07ee844bb65c0ccc0506f47b7',1,'Chess']]]
 ];

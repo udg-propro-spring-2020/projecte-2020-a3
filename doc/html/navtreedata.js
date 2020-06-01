@@ -25,6 +25,9 @@
 var NAVTREE =
 [
   [ "Escacs", "index.html", [
+    [ ":<em>LifeDocuments_Estudis_UDG</em>-_GEINF_2n_ProjecteProgramacio_Projecte_projecte-2020-a3_src_README Projecte de Programació (GEINF - UdG)", "md__d.html", [
+      [ "Primavera 2020", "md__d.html#autotoc_md1", null ]
+    ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
