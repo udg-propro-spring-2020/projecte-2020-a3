@@ -249,9 +249,9 @@ public class Chess implements Cloneable {
         int colCounter=0;
         int blackRowCounter=rows()-1;
         int insertCounter=0;
-        while(whiteRowCounter<2){
+        while(insertCounter<listPieceType.size()){
             colCounter=0;
-            while(colCounter<cols()){
+            while(colCounter<cols() && insertCounter<listPieceType.size()){
                 if(listPieceType.get(insertCounter)==null){
                     whiteInitPos.add(new Pair<Position,Piece>(new Position (whiteRowCounter,colCounter),null));
                     blackInitPos.add(new Pair<Position,Piece>(new Position (blackRowCounter,colCounter),null));
