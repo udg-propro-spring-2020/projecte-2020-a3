@@ -40,7 +40,6 @@ public class Knowledge{
                 }
                 while(itTurns.hasNext()){
                     actualTurn = itTurns.next().moveAsPair();
-                    System.out.println("x "+actualTurn.first.toString()+" "+actualTurn.second.toString());
                     if(winner==PieceColor.White){
                         if(!_knowledgeWhite.containsKey(chessCopy.chessStringView(winner))){
                             _knowledgeWhite.put(chessCopy.chessStringView(winner),actualTurn);
