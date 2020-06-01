@@ -73,7 +73,6 @@ public class GameController {
             savedGameStream = new FileInputStream(fileLocation);
         }
         _defaultConfigFileName = FromJSONParserHelper.getConfigurationFileName(savedGameStream);
-        System.out.println(_defaultConfigFileName);
         if (_defaultConfigFileName.isEmpty()) {
             throw new JSONParseFormatException(
                 "Configuration file cannot be empty",
